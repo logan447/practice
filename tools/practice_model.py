@@ -37,18 +37,21 @@ from dataclasses import dataclass, fields
 # Edit freely; keep `key` stable for --mix ordering.
 # --------------------------------------------------------------------------
 ARCHETYPES = [
-    dict(key="A", name="Episodic, focused (~3 mo)",
-         sync=4.0, async_=2.0, travel=0.0, admin=1.0,
-         complexity=1.0, space_sessions=0),
-    dict(key="B", name="Stable longitudinal (1 yr)",
+    dict(key="P", name="Prevention & longitudinal guidance",
+         sync=3.5, async_=2.5, travel=0.0, admin=1.0,
+         complexity=0.9, space_sessions=1),
+    dict(key="S", name="Stable chronic (1-2 conditions)",
          sync=5.0, async_=4.0, travel=0.0, admin=1.5,
          complexity=1.0, space_sessions=1),
-    dict(key="C", name="Complex chronic + home visits (1 yr)",
-         sync=8.0, async_=6.0, travel=4.0, admin=2.0,
-         complexity=1.25, space_sessions=2),
-    dict(key="D", name="Intensive short-term (~4 mo)",
-         sync=8.0, async_=5.0, travel=0.0, admin=1.5,
-         complexity=1.15, space_sessions=1),
+    dict(key="M", name="Active metabolic/lifestyle work",
+         sync=8.0, async_=6.0, travel=0.0, admin=2.0,
+         complexity=1.1, space_sessions=1),
+    dict(key="C", name="Complex medical untangler (year 1)",
+         sync=10.0, async_=8.0, travel=3.0, admin=2.5,
+         complexity=1.3, space_sessions=2),
+    dict(key="U", name="Whole-life untangler (signature)",
+         sync=9.0, async_=7.0, travel=0.0, admin=2.5,
+         complexity=1.2, space_sessions=1),
 ]
 
 # Cost inputs. Default zero, reported as UNSET. Never guessed.
@@ -106,7 +109,7 @@ class Inputs:
     other_fixed: float = 0.0
 
     # --- Mix (counts per archetype, in ARCHETYPES order) ------------------
-    mix: str = "10,15,8,5"
+    mix: str = "12,20,10,6,8"   # the example mature practice (unit-econ §5)
 
     # --- Derived ----------------------------------------------------------
     @property

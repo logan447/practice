@@ -16,6 +16,12 @@ arrangement to what will genuinely help each person:
 > formally establish the relationship → provide care → track whether their
 > well-being improves.
 
+The person at the center is often overwhelmed — health tangled with stress,
+finances, work, relationships, and sleep — and the signature service is
+untangling it: listen carefully, understand the whole situation, prioritize,
+separate urgent from important, build a realistic plan, and work through it
+together, with the value of the care made visible against what it cost.
+
 Each patient relationship functions as a small, customized clinical contract
 — scoped, priced, tracked, periodically reassessed, renewed when
 appropriate. **Pricing is individualized within a defensible framework**

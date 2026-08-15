@@ -95,6 +95,14 @@ tailor the clinical and economic arrangement to each person:
 > conversations → understand the problem → agreed plan and price → formal
 > relationship → care → track whether well-being improves.
 
+**The signature patient** is the person who is scared, frustrated, or
+overwhelmed — health tangled with stress, finances, work, relationships,
+sleep, and behavior — and the signature service is untangling it: listen
+carefully, understand the whole situation, identify the highest-priority
+problems, separate urgent from important, create a realistic plan, work
+through it over time. The patient should feel that somebody competent and
+thoughtful finally looked at the whole picture and made it manageable.
+
 No universal visit cadence, no universal in-person requirement, no fixed
 virtual/in-person structure, no assumption that everyone needs a membership.
 Settings and engagement shapes are chosen per patient: telemedicine, home
@@ -124,10 +132,14 @@ compatibility. Decided jointly with counsel at the runway.
 
 One or two complimentary virtual conversations → records reviewed → needs
 clarified (medical, psychological, lifestyle, functional, practical) →
-honest assessment of what's achievable → written proposal (problems, goals,
-settings, expected frequency and duration, anticipated
+**priorities triaged: the highest-priority problems named, urgent separated
+from important** → honest assessment of what's achievable → written proposal
+(problems, goals, settings, expected frequency and duration, anticipated
 diagnostics/medications/monitoring, reassessment checkpoints, cost
-structure, tracked outcomes) → meeting of the minds → care begins.
+structure, tracked outcomes) → meeting of the minds → care begins. The
+proposal is where an overwhelming situation first becomes a manageable
+plan — it is itself the first act of care, and it should read as value
+delivered, not time billed.
 **Dual function:** the sales process *and* the capacity/burnout tool —
 time, complexity, and economics are estimated before commitment, so
 unsustainable relationships are identified before they exist (R-14).

@@ -77,6 +77,12 @@ not a membership product.*
   patient-facing definitions — emergency / urgent-local / message / can-wait
   — plus how availability appears in proposals and agreements; drafted so
   the Q-17 verification is a review, not a redesign
+- **The untangling evaluation** — the signature encounter: a designed
+  structure for hearing a whole overwhelming situation (medical,
+  psychological, lifestyle, functional, financial-stress, relational),
+  naming the highest-priority problems, separating urgent from important,
+  and producing one realistic plan. This is the clinical artifact the
+  signature patient (unit-econ archetype U) is paying for
 - Care building blocks: visit types and engagement shapes (short-term
   intensive, longitudinal, episodic, renewal-checkpoint) as composable
   elements the proposal draws from — protocols on cited guidelines

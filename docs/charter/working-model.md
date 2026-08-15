@@ -52,6 +52,25 @@ The workflow the entire infrastructure must enable:
 > formally establish the relationship → provide care → track whether their
 > well-being improves.
 
+**The person at the center** is often not someone with one neatly defined
+problem. They may be scared, frustrated, or overwhelmed — health concerns
+bleeding into stress, finances, work, relationships, sleep, and behavior all
+at once, and unable to make sense of what is happening. The practice exists
+to step into that complexity and help untangle it.
+
+**The core experience, every time:**
+
+> Listen carefully → understand the whole situation → identify the
+> highest-priority problems → separate what is urgent from what is
+> important → create a realistic plan → work through it together over time.
+
+The patient should feel that somebody competent and thoughtful has finally
+looked at the whole picture and helped make it manageable. The economics
+reinforce the care (D-002, D-023): the patient understands what is proposed,
+why it is worth doing, what it costs, and what should improve — the goal is
+not to charge for physician time but to make the value added understandable
+and visible.
+
 Guiding principle for every care decision: **use the setting, frequency, and
 duration of care that best serves the patient's health needs without creating
 unnecessary structure or overhead.**
@@ -112,6 +131,12 @@ work — cash-flow awareness, money conversations, spending psychology, whether
 financial instability interferes with health behaviors. **Not** investment
 advice or financial planning; beyond scope → referral to qualified financial
 professionals.
+
+**[D]** The signature clinical competency is the untangling evaluation: a
+structured way to take a person whose problems span domains, hear the whole
+situation, name the priority problems, separate urgent from important, and
+produce one realistic plan. This is a designed encounter (roadmap Track C),
+not an improvised one.
 
 **[O]** Remaining scope edges to define during preparation: psychiatric
 medication management threshold and referral criteria; procedural scope (which

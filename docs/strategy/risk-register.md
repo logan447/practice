@@ -213,7 +213,11 @@ practice is committed.
 requirement in EHR selection, not a nice-to-have. The proposal process
 (D-016) adds a second layer: each proposal carries an explicit time estimate,
 so actuals can be compared to estimates per patient — the practice learns to
-forecast intensity, not just observe it.
+forecast intensity, not just observe it. Sharpest where it matters most: the
+signature untangler archetype (U) is both the highest-value patient and the
+one whose hours are hardest to estimate up front — expect the widest
+estimate-vs-actual gaps there, and let the first few U relationships
+calibrate the archetype before it anchors the panel.
 
 ### R-09 · LOW · Later research ambitions meet earlier consent reality
 **Downgraded 2026-08-15 (D-023):** routine operations are documentation-first
