@@ -1,17 +1,45 @@
 # Unit Economics and Capacity
 
-The question this document answers: **can one physician deliver this care model
-to enough patients, at $5,000 each, to make a sustainable practice — and what
-determines the answer?**
+> **Reframe (2026-08-15, D-014/D-015/D-018).** This document was written when
+> the working model was a fixed $5,000 membership with a fixed cadence. Those
+> decisions are superseded: pricing is an open research question (X-09) and
+> arrangements are individualized per patient. The document's *structure*
+> survives — physician time is still the only real constraint, and the
+> capacity math below still governs — but read it with three corrections:
+>
+> 1. **$5,000 is now a scenario input, not a plan.** Every revenue figure
+>    below is one point in the X-09 comparison space, not a forecast.
+> 2. **The "per-patient hours" line is now an average over heterogeneous
+>    arrangements** — short-term intensive, episodic, longitudinal — rather
+>    than a uniform cadence. The proposal process (D-016) estimates it per
+>    patient up front, which is a capacity-management tool the old model
+>    lacked. Home-visit drive time (R-23) belongs in this line too.
+> 3. **The orientation flips from "maximize the panel" to "reach the
+>    target."** D-018 sets compensation at ~$130–175k with >$100k as a
+>    meaningful minimum. The governing question is no longer "how large can
+>    the panel be?" but **"what mixes of arrangements reach the target within
+>    the D-017 workload envelope?"** (Q-12). The tool now reports this
+>    directly (`TARGET INCOME CHECK`).
+>
+> **The headline finding of the reframe:** the income target is modest
+> relative to a solo physician's clinical capacity. Under the illustrative
+> scenario below (~$4,700 effective per patient per year, ~10.5 hr/patient),
+> roughly **30–45 patients cover $130–175k before costs** — under half the
+> ~103-patient capacity ceiling, leaving enormous slack for lower price
+> points, higher-intensity patients, reduced-fee arrangements, generous
+> vacation, or simply less work. This is what makes the flexibility of D-014
+> economically affordable and keeps X-09 genuinely open: the practice does
+> not *need* premium pricing to hit its goal. Verify against real costs as
+> quotes land.
+>
+> The cost side fills progressively during preparation (VA-historical
+> insurance quotes are acceptable labeled reference inputs); conversion and
+> true per-patient intensity cannot be measured until real operation.
 
-> **Preparation-frame note (D-011):** this document is fully portable — it
-> depends on the care model, not on location or launch date, which makes it
-> exactly the kind of work worth doing now. Two of its key unknowns have
-> different clocks: the cost lines can be filled progressively with indicative
-> quotes during preparation (dated, refreshed at the runway), while conversion
-> rate and true per-patient intensity cannot be measured until near launch —
-> Track F conversations can narrow them, but only the pilot cohort measures
-> them. Treat the model's outputs accordingly.
+The question this document originally answered: **can one physician deliver
+an intensive care model to enough patients, at a $5,000-class price, to make
+a sustainable practice — and what determines the answer?** The analysis is
+kept because its mechanics remain the project's capacity foundation.
 
 > **Read this first.** Every number below marked *illustrative* is a placeholder
 > chosen to demonstrate the structure of the model. None is a benchmark, a

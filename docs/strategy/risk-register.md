@@ -72,22 +72,29 @@ patients who travel or relocate out of state still need a written policy.
 **Mitigation:** market sizing in Track F uses the metro catchment, not the
 state. Draft the travel/relocation policy during preparation (Q-01 residual).
 
-### R-02 · HIGH · No coverage arrangement makes the access promise undeliverable
-A solo physician selling access cannot provide it 52 weeks a year. Vacation,
-illness, and emergencies are certainties. Patients paying $5,000 for access
-will judge the practice on the week you were unreachable, and concierge
-patients talk to each other.
-**Mitigation:** design the arrangement during preparation (X-06 meanwhile
-work); secure the named clinician early in the runway — it is among the
-longest-lead Era 2 items because it depends on local relationships. Gates
-launch, not preparation.
+### R-02 · HIGH · The no-coverage availability model may not withstand scrutiny
+**Reframed 2026-08-15 (D-017):** the practice now plans transparent
+availability expectations instead of a clinician coverage layer — including
+up to ~3 months/year away from regular scheduling with remote triage. Three
+distinct exposures: (1) malpractice carriers and standard-of-care/abandonment
+norms may expect more formal absence coverage than "transparent
+expectations" — unverified either way; (2) even willing patients may
+experience a badly-timed absence differently than they agreed to it in
+writing; (3) illness or emergency — unplanned absence — has no backstop at
+all in this model. **Mitigation:** Q-17 verification with Texas counsel and
+the carrier at runway, designed for now via the availability policy, triage
+taxonomy, and agreement language; availability priced into each proposal;
+X-06 reopens if verification fails. The unplanned-absence exposure deserves
+an explicit contingency note in the patient agreement regardless.
 
-### R-03 · HIGH · Ramp cash flow
-Revenue is linear in patients; fixed costs are not. The gap between launch and
-a viable panel is measured in years. This is the most likely way the practice
-fails, and it fails quietly — by forcing decisions (accepting poor-fit
-patients, over-enrolling, cutting the care model) that undermine the thing
-being built.
+### R-03 · MED · Ramp cash flow
+**Downgraded 2026-08-15 (D-018, D-014):** three things reduced this risk —
+the income target is modest relative to capacity, a slow ramp is explicitly
+accepted, and the no-permanent-office default keeps fixed costs near zero
+during exactly the years that matter. What remains: the ramp still fails
+quietly if it forces poor-fit patients or eroded proposals, and household
+economics still need the Q-03b floor/runway analysis to confirm the slow
+ramp is actually affordable.
 **Mitigation:** build the runway-analysis structure during preparation
 (Track A) and run it with the CPA at Era 2 (Q-03b). Keep fixed costs variable
 during ramp (favors sessional space over owned). Treat the required growth
@@ -95,12 +102,17 @@ rate as a hard planning input rather than a hope. One advantage of the
 preparation frame: arriving in Texas with prepared infrastructure and
 validated messaging shortens the costliest stretch of the ramp.
 
-### R-04 · HIGH · Membership fee scope is ambiguous or non-compliant
-What the $5,000 does and does not cover must be explicit, written, and
-consistent with the Medicare posture. Getting this wrong is simultaneously a
+### R-04 · HIGH · Economic arrangements are ambiguous or non-compliant
+**Broadened 2026-08-15:** what each patient's arrangement covers must be
+explicit, written, and consistent with whatever payer participation exists.
+The flexibility reframe *raises* this risk: individualized pricing,
+per-patient packages, and hybrid billing (insurance for some services,
+private charges for others) each interact with payer rules and fraud/abuse
+law in participation-dependent ways. Getting it wrong is simultaneously a
 patient-trust failure and a regulatory one.
-**Mitigation:** Q-02 and Q-05, both `NEEDS-COUNSEL`, before any pricing
-language is published.
+**Mitigation:** Q-15 research maps the questions; counsel answers them before
+any tailored-pricing language is published; the proposal template (Q-05)
+gets a counsel pass; X-09/X-04 are decided jointly.
 
 ### R-05 · MED · Own-occupation disability is unaddressed
 The practice *is* the physician. An injury or illness that ends clinical
@@ -111,48 +123,109 @@ under-planned.
 conversation. Membership agreement should address what happens to prepaid
 memberships if the physician cannot practice.
 
+## Flexibility-model risks — created by the 2026-08-15 reframe (D-014 – D-017)
+
+The individualized model removes the risks of a rigid product and introduces
+its own. Named here so the flexibility stays a choice, not a drift.
+
+### R-20 · MED-HIGH · Per-patient arrangements multiply administrative surface
+Every tailored proposal is a small contract: its own scope, cadence, pricing,
+and checkpoints — negotiated, documented, tracked, renewed, and (if payers
+are involved) billed correctly, by one person with no staff. Heterogeneity
+that is clinically wonderful can be operationally corrosive at even modest
+patient counts.
+**Mitigation:** tailoring from a *library*, not from scratch — a standard
+proposal template (Q-05) with bounded building blocks (settings, cadences,
+pricing structures) so arrangements are configurations, not inventions. The
+revisit trigger is logged (working model §10): if admin load exceeds what
+solo practice sustains, the response is standard defaults with tailoring at
+the edges. Watch this metric from the first few patients.
+
+### R-21 · MED · Individualized pricing reads as unfair — or is non-compliant
+Two exposures with one root. Patients compare notes; person-to-person price
+differences without a legible principle corrode the trust the practice runs
+on. And differential pricing, discounts, and hybrid private/payer billing
+have legal constraints that vary with participation status (Q-15) — not
+characterized here from memory, flagged for counsel.
+**Mitigation:** prices differ because *arrangements* differ — anchored to
+explainable inputs (time, complexity, services), not to the person. The
+principle gets written down before the first proposal. Q-15 → counsel before
+any tailored-pricing language is published.
+
+### R-22 · MED · Payer participation costs more than it returns
+Credentialing, coding, claims, denials, and documentation requirements are a
+known heavy burden on solo physicians, and you have not yet operated that
+workflow end-to-end. The risk runs both directions: participating and
+drowning in it, or writing it off unexamined and losing the patients it
+would have made affordable.
+**Mitigation:** exactly the D-015 posture — genuinely open, decided from
+evidence: Q-02 research plus deliberate inside-the-job learning during the
+preparation period, then X-04/X-09 decided jointly with counsel. Any
+participation is also testable per-service or per-payer rather than
+all-or-nothing, where rules permit.
+
+### R-23 · MED · Home-visit time economics quietly shrink capacity
+Drive time is real clinical capacity that produces no care. A home-visit
+default with scattered patients could consume hours per visit-day in the
+car; the same default with clustered patients is cheap. Safety and
+equipment logistics add secondary exposure.
+**Mitigation:** Q-16 design work; geographic clustering as an explicit
+scheduling principle; drive time modeled in the capacity tool and priced
+into proposals where appropriate; home visits per week bounded by what the
+income/workload envelope tolerates, not by demand.
+
 ## Design and scope
 
-### R-06 · MED · "Financial health" crosses into regulated advice
-Financial education, coordination with a patient's own advisors, and long-term
-care planning literacy sit comfortably in a medical practice. Specific
-financial advice does not — it is a regulated activity, and it also sits
-outside malpractice coverage.
-**Mitigation:** Q-11. Draw the line explicitly, in writing, before it appears
-in marketing copy. Marketing tends to make scope promises that clinical
-documents never intended.
+### R-06 · LOW-MED · "Financial health" crosses into regulated advice
+**Downgraded 2026-08-15:** the line is now drawn (D-024) — financial-stress-
+as-health-determinant work in scope; investment advice and financial planning
+out, with referral relationships beyond. Residual risk: patient-facing and
+marketing language drifting past the drawn line.
+**Mitigation:** hold all copy to the D-024 wording; counsel review pass on
+patient-facing language at runway.
 
-### R-07 · MED · The access promise is unbounded
-"High-touch," "substantially more frequent when appropriate," and similar
-phrasing is right as intent and unsellable as commitment. Unbounded language
-attracts the patients most likely to consume it without limit, and a promise
-that cannot survive a full panel becomes a broken promise precisely when the
-practice is most exposed.
-**Mitigation:** Q-07. Specific, bounded, honorable. Then instrument
-asynchronous time per patient and check the promise against reality quarterly.
+### R-07 · MED · Availability expectations drift beyond what was agreed
+**Reframed 2026-08-15:** D-017 bounds availability explicitly, which retires
+the original "unbounded promise" form of this risk. What remains: per-patient
+proposals that quietly promise more than the practice-wide policy; patients
+whose consumption exceeds what their proposal anticipated; and the
+accumulation of small exceptions into a de facto 24/7 expectation.
+**Mitigation:** the availability policy (Q-07) is a floor/ceiling every
+proposal references rather than renegotiates; renewal checkpoints (D-016)
+are where mismatches get corrected; async time per patient is instrumented
+(R-08) and checked against each proposal's assumption.
 
 ### R-08 · MED · Panel intensity is measured too late
 The asynchronous time figure that determines panel ceiling (see unit economics
 §3) is unknown, and by the time it is obvious, patients are enrolled and the
 practice is committed.
-**Mitigation:** measure from patient one. Make async-time reporting a
-requirement in EHR selection, not a nice-to-have.
+**Mitigation:** measure from patient one; make async-time reporting a
+requirement in EHR selection, not a nice-to-have. The proposal process
+(D-016) adds a second layer: each proposal carries an explicit time estimate,
+so actuals can be compared to estimates per patient — the practice learns to
+forecast intensity, not just observe it.
 
-### R-09 · MED · Outcome measurement drifts into human-subjects research
-D-009 contemplates publication. Quality improvement and generalizable-knowledge
-research are different regulatory categories with different oversight and
-consent obligations. The line is crossed by *intent to publish*, which the
-brief already states as a possibility.
-**Mitigation:** Q-10, before enrollment. If publication is a genuine goal, the
-consent and oversight architecture has to exist from patient one — the baseline
-cohort cannot be retrofitted.
+### R-09 · LOW · Later research ambitions meet earlier consent reality
+**Downgraded 2026-08-15 (D-023):** routine operations are documentation-first
+with no research burden — the original form of this risk is retired by
+decision. The residual: if publication or formal research later becomes a
+real goal, data collected under routine-care documentation may not be usable
+for it without the consent architecture that was deliberately not built. That
+is an accepted trade-off, now explicit rather than accidental.
+**Mitigation:** the trade-off is logged (D-023); the revisit trigger is named
+(working model §10); internal case summaries are written so that a future
+consent-based process could start cleanly, not so that old data can be
+retroactively repurposed.
 
-### R-10 · MED · Reduced-fee memberships applied inconsistently
-Case-by-case discretion on fees creates fairness problems within the panel and
-potential regulatory exposure depending on the Q-02 posture and who is
-receiving the reduction.
-**Mitigation:** written policy with objective criteria, applied uniformly,
-before the first reduced-fee membership is offered. `NEEDS-COUNSEL`.
+### R-10 · MED · Reduced-fee care applied inconsistently
+The mechanism is now deferred (X-10) but the risk shape is unchanged:
+case-by-case discretion on fee reduction creates fairness problems and
+potential regulatory exposure that depends on payer participation (Q-15).
+In the individualized model this risk partially merges with R-21 — the
+difference between a tailored price and an ad hoc discount must stay legible.
+**Mitigation:** written policy with objective criteria before the first
+reduced-fee arrangement is offered, designed with X-09/X-04, checked by
+counsel. `NEEDS-COUNSEL`.
 
 ## Operational
 
@@ -180,12 +253,17 @@ are both a credibility risk and a regulatory one.
 education. Nothing claimed about results until results exist.
 
 ### R-14 · MED · Physician burnout
-The practice has no redundancy, and the care model is deliberately demanding.
-Burnout in a solo concierge practice is not a personal setback — it is a
-business continuity event affecting every patient.
-**Mitigation:** treat physician sustainability as a tracked outcome measure
-(working model §9), not an afterthought. Panel ceiling should be set by what is
-sustainable indefinitely, not by what is survivable for a year.
+The practice has no redundancy. Burnout in a solo practice is not a personal
+setback — it is a business continuity event affecting every patient.
+**Mitigation (reframed 2026-08-15, D-016):** the primary protection is now
+*designing each relationship intentionally* — before taking someone on,
+understanding what they need, the time they will likely require, the expected
+interaction frequency, whether that care is realistically providable, and
+whether the economics are fair to both sides. Unsustainable relationships are
+declined or reshaped at the proposal stage, not endured afterward. Secondary
+protections: the D-017 availability bounds, the D-018 posture (income
+maximization is a non-goal), renewal checkpoints as pressure-release valves,
+and physician sustainability as a tracked measure.
 
 ### R-15 · LOW-MED · Patient record portability
 Patients leave. Records must go with them, and the practice must retain what it

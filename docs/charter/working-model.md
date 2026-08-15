@@ -4,19 +4,27 @@ The practice as currently conceived. This is a working model, not a
 specification — it is expected to change. Every element is tagged:
 
 - **[D]** Decided — treat as fixed until explicitly revisited
-- **[A]** Assumption — a working choice we are proceeding on, not yet tested
+- **[A]** Assumption / working lean — proceeding on it, not yet tested
 - **[O]** Open — genuinely undecided, blocking or shaping downstream work
 
-Last revised: 2026-08-15
+Last revised: 2026-08-15 — major revision: the practice is now conceived as
+**flexible, individualized, and relationship-based**, not as a fixed concierge
+membership product. Several earlier decisions were superseded; see the
+decision log (D-014 onward).
 
 ---
 
 ## 0. Project frame — read this first
 
-**[D]** **This is a preparation project, not an imminent launch.** (D-011)
+**[D]** **This is a preparation project, not an imminent launch** (D-011).
 The practice launches after relocation to Texas — Austin most likely, Houston
-or Dallas as alternatives (D-012) — once you are established there and the
-Texas medical and business infrastructure is in place.
+or Dallas alternatives (D-012). Likely launch horizon: **~12–24 months**
+(D-019). The current period is itself preparation: part-time primary care
+work building skills, confidence, and firsthand knowledge of what traditional
+systems do well and poorly.
+
+**[D]** Preparation budget: **$20,000 ceiling, not a target** (D-020).
+Grassroots and capital-efficient by default.
 
 The organizing question for everything in this repository:
 
@@ -24,145 +32,170 @@ The organizing question for everything in this repository:
 > arrival in Texas means local validation, regulatory implementation, final
 > system setup, and execution — not starting from zero?*
 
-Three consequences:
+Work is prioritized by durability, leverage on the launch runway, and
+tangibility. Decisions that should stay open are protected in
+`deferred-decisions.md`; perishable research carries its date and a
+`REFRESH-AT-RUNWAY` tag (R-16).
 
-1. **Urgency is redefined.** Nothing is launch-blocking today, because launch
-   is not today. Work is prioritized by durability (does it survive until
-   launch?), leverage (does it shorten or de-risk the runway?), and
-   tangibility (does it make the future practice concrete and the project
-   sustaining to work on?).
-2. **Some decisions are deliberately open.** City, launch date, vendors,
-   carriers, and the final Medicare election are deferred on purpose, each
-   with meanwhile-work and a decision trigger — see `deferred-decisions.md`.
-3. **Prepared ≠ current.** Regulatory research, vendor landscapes, and quotes
-   are dated snapshots that decay. Perishable artifacts are tagged and get a
-   refresh pass during the launch runway (risk R-16).
+## 1. North star
 
-**[O]** Rough launch horizon — even a range would calibrate pacing and how we
-handle perishable research (Q-13).
+**[D]** (D-014) We are not building a pre-designed healthcare product that
+patients are fitted into. We are building the infrastructure that lets one
+physician establish thoughtful, flexible, evidence-based physician–patient
+relationships and tailor the clinical and economic arrangement to what will
+genuinely help each person.
 
-## 1. Purpose
+The workflow the entire infrastructure must enable:
 
-Provide patients with enough physician time, attention, continuity, and
-evidence-based support to meaningfully improve their health and quality of life
-over time — creating real value rather than increasing healthcare utilization.
+> Meet someone → identify that I can help → schedule one or two structured
+> conversations → understand the problem → create an agreed plan and price →
+> formally establish the relationship → provide care → track whether their
+> well-being improves.
 
-**[D]** This purpose is the tiebreaker for every downstream decision. When a
-proposal is defensible on revenue, convenience, or novelty but not on this
-sentence, it loses.
+Guiding principle for every care decision: **use the setting, frequency, and
+duration of care that best serves the patient's health needs without creating
+unnecessary structure or overhead.**
+
+This purpose is the tiebreaker for every downstream decision.
 
 ## 2. Structure
 
 | Element | Status | Detail |
 | --- | --- | --- |
-| Solo physician | **[D]** | One clinician; the practice is the physician |
-| No staff initially | **[D]** | Revisit trigger: administrative load displaces clinical time (see §8) |
-| Intentionally small | **[D]** | Panel capped by care intensity, not revenue appetite |
-| Target panel size | **[O]** | Derived from capacity math, not chosen. See `docs/strategy/unit-economics.md` |
-| Launch state | **[D]** | Texas (D-012). City open: Austin lean, Houston/Dallas alternatives (X-01) |
-| Legal entity | **[O]** | `NEEDS-COUNSEL` — Texas entity law; research now, form during runway |
-| Licensure | **[O]** | Texas license status and acquisition timing (Q-01). Texas alone is the market; multi-state is not needed for viability |
-| Medicare posture | **[O]** | Research now, elect at runway with counsel (Q-02, X-04). `NEEDS-COUNSEL` |
+| Solo physician | **[D]** | D-001. The practice is the physician |
+| No staff initially | **[D]** | D-001. Revisit trigger: admin load displaces clinical time |
+| No clinician coverage layer | **[D]** | D-017. Transparent availability expectations instead; verify with counsel/carrier at runway (Q-17) |
+| Launch state: Texas | **[D]** | D-012. City open — Austin lean (X-01) |
+| Current licensure | **[D]** | Virginia. Texas licensure later, tied to settling (D-019) |
+| Compensation target | **[D]** | D-018. ~$130–175k long-term; >$100k meaningful minimum; slow ramp accepted; income maximization is a non-goal |
+| Legal entity | **[O]** | `NEEDS-COUNSEL` — Texas entity law; research now, form at runway |
 
 ## 3. Economic model
 
 | Element | Status | Detail |
 | --- | --- | --- |
-| $5,000 / year membership | **[D]** | Working price; revisit only against capacity math, not competitor pricing |
-| Monthly and quarterly payment options | **[D]** | Cash-flow accommodation for patients |
-| Limited reduced-fee memberships | **[D]** | Financial-need based; requires a written, consistently applied policy (`NEEDS-COUNSEL`) |
-| Reduced-fee share of panel | **[O]** | How many, at what discount, on what criteria |
-| What the fee does and does not buy | **[O]** | **Critical.** Boundary between membership services and separately billed/paid services. `NEEDS-COUNSEL` |
-| Insurance billing | **[O]** | Whether the practice bills any payer for anything |
-| Labs, imaging, medications, procedures | **[O]** | In-fee, at-cost pass-through, or patient's own coverage |
+| Pricing & packaging | **[O]** | D-015 / X-09. **Open research question.** Memberships, episodic, retainer, packages, insurance, hybrid, tailored proposals — compared against the D-015 criteria |
+| Payer participation | **[O]** | D-015 / X-04. Private pay, commercial, Medicare, Medicaid, hybrid — all genuinely open. `NEEDS-COUNSEL` before any election |
+| Per-patient tailored economics | **[A]** | The proposal (D-016) can carry patient-specific cost structures; compliance constraints on individualized pricing need research (Q-15) |
+| Billing/coding capability | **[O]** | Never personally operated end-to-end; research + practical learning during preparation (Q-02) |
+| Reduced-fee mechanism | **[O]** | Value affirmed, mechanism deferred (D-003 revised, X-10) |
+| Break-even & viability | **[O]** | Economics model reframed to target-income orientation; see `docs/strategy/unit-economics.md` |
 
 ## 4. Care delivery
 
+**[D]** (D-014) No rigid rules on visit frequency, in-person cadence,
+virtual-vs-in-person mix, engagement length, or whether every patient needs a
+membership. Each arrangement is set in the patient's proposal.
+
 | Element | Status | Detail |
 | --- | --- | --- |
-| Virtual-primary | **[D]** | Most longitudinal care delivered virtually |
-| Dedicated in-person care blocks | **[D]** | Physical exam, preventive procedures, and hands-on services clustered into defined periods |
-| Annual comprehensive in-person visit | **[D]** | Biennial permitted for highly stable patients |
-| Minimum quarterly physician contact | **[D]** | Floor, not target; substantially more when clinically appropriate |
-| In-person location model | **[O]** | Sessional lean; depends on city and procedural scope (X-05). Design requirements now, commit at runway |
-| After-hours access | **[O]** | Blocks launch, not preparation — design the promise now (Q-07), secure the coverage at runway |
-| Absence coverage | **[O]** | Blocks launch, not preparation — design the arrangement now, name the clinician at runway (X-06) |
-| Access promise wording | **[O]** | The membership's access commitment must be specific enough to honor and bounded enough to survive a full panel |
+| Default setting mix | **[A]** | **Telemedicine + home visits + rented clinical space when needed.** Comfortable driving to patients' homes when sensible; periodic rented exam room with clustered visits if patients are geographically concentrated |
+| Permanent office | **[D]** | Not unless future economics strongly justify it (D-014) |
+| Engagement shapes | **[A]** | Short-term intensive · extended · longitudinal · acute episodic · ongoing with periodic renewal checkpoints — chosen per patient |
+| Availability | **[D]** | D-017: business hours M–F; no routine evenings/weekends; up to ~3 months/year away from regular scheduling with periodic remote review and triage; routine matters ~24–72h |
+| Triage taxonomy | **[O]** | Written definitions of emergency / urgent-local / message-me / can-wait — patient-facing, drafted during preparation (Q-07) |
+| Home-visit operations | **[O]** | Logistics, safety, equipment, drive-time economics, malpractice implications (Q-16) |
 
 ## 5. Clinical scope
 
-**[D]** Broad-scope primary care combined with lifestyle medicine:
+**[D]** Broad-scope primary care combined with lifestyle medicine: prevention
+and screening, chronic disease management, acute primary care, medications,
+diagnostics, mental well-being, relationships and social health, financial
+health (bounded — below), healthy aging and long-term care planning.
 
-- Prevention and screening
-- Chronic disease management
-- Acute primary care
-- Medications
-- Diagnostics
-- Mental well-being
-- Relationships and social health
-- Financial health
-- Healthy aging and long-term care planning
+**[D]** (D-024) Financial health scope: financial-stress-as-health-determinant
+work — cash-flow awareness, money conversations, spending psychology, whether
+financial instability interferes with health behaviors. **Not** investment
+advice or financial planning; beyond scope → referral to qualified financial
+professionals.
 
-**[O]** Scope boundaries requiring definition before launch:
+**[O]** Remaining scope edges to define during preparation: psychiatric
+medication management threshold and referral criteria; procedural scope (which
+now also shapes the home-visit kit and rented-space requirements).
 
-- Which conditions and presentations are explicitly *out* of scope, and what
-  happens when a patient presents with one
-- Whether "financial health" means education and coordination with the
-  patient's own advisors, or something closer to advice — the latter is a
-  regulated activity and a real boundary, not a semantic one (see risk R-06)
-- Whether "mental well-being" includes ongoing psychiatric medication
-  management, and the referral threshold
-- Procedural scope during in-person blocks, which drives equipment, space,
-  and malpractice coverage
+## 6. The relationship: from meeting to care
 
-## 6. Enrollment path
+**[D]** (D-016) Every patient enters through the personalized proposal
+process:
 
-| Element | Status | Detail |
-| --- | --- | --- |
-| Complimentary two-part consultation | **[D]** | Two ~30-minute meetings, 7–30 days apart |
-| Purpose | **[D]** | Understand the person's situation, assess fit, answer questions, and give a preliminary view of what could be worked toward over 1/3/5 years |
-| Framing principle | **[D]** | Show what $5,000/year could specifically mean for *this person* — not a service menu |
-| Conversion rate | **[O]** | Unknown. Drives acquisition time cost materially (see unit economics) |
-| Fit criteria | **[O]** | What makes someone a poor fit, and how that's said kindly and clearly |
-| What the consultation is *not* | **[O]** | Boundary between a fit conversation and unpaid medical advice. `NEEDS-COUNSEL` |
+1. One or two complimentary virtual conversations — why are they seeking help
+2. Records obtained and reviewed
+3. Needs clarified: medical, psychological, lifestyle, functional, practical
+4. Honest determination of what can realistically be accomplished
+5. **Personalized proposal**: problems to manage, goals, settings, expected
+   frequency and duration, anticipated diagnostics/medications/monitoring,
+   reassessment checkpoints, cost structure, outcomes to track
+6. Meeting of the minds → formal relationship begins
 
-## 7. Technology posture
+**[D]** The proposal doubles as the capacity and burnout management tool: time,
+complexity, and economics are estimated *before* commitment, and a
+relationship that would be unsustainable is identified before it exists.
 
-**[D]** Integrate established, compliant systems wherever they already perform
-a function well. Build custom software only where no adequate option exists and
-the gap materially affects care.
+**[O]** Boundary between the complimentary conversations and unpaid medical
+advice; proposal-stage documentation and consent. `NEEDS-COUNSEL` at runway;
+draft during preparation.
 
-**[D]** Technology supports the care model; it is not the product.
+## 7. Outcomes and value
 
-**[O]** Every vendor requires a HIPAA Business Associate Agreement. The vendor
-list is a compliance surface, not just a cost line.
+**[D]** (D-023) Excellent longitudinal documentation in routine care — not
+research infrastructure, no IRB burden on early operations.
 
-**[O]** Where AI is used, the standard is: does it return physician attention to
-the patient, or does it insert itself between them?
+- Portal-visible trends where appropriate: weight, BP, A1c, glucose, lipids,
+  relevant labs, symptoms, functional measures, medication burden,
+  patient-reported well-being, visits, major interventions
+- Organizing concept: **value = health improvement relative to cost of care**
+  — what the patient spent, the time and care received, what improved
+- Managed cases → internal structured case summaries for learning
+- Research/publication may evolve later; the consent question is revisited
+  *then*, before any such use — never assumed retroactively
 
-## 8. Revisit triggers
+## 8. Technology
 
-Explicit conditions under which a **[D]** decision gets reopened. Naming these
-now prevents both premature churn and stubborn adherence.
+**[D]** (D-021, refining D-007) Established EHR as clinical system of record;
+lightweight custom website as public front door and onboarding layer, handing
+established patients into the EHR portal for clinical functions.
+
+Target minimal stack: website/hosting · one strong EHR (integrated
+telemedicine + portal) · malpractice insurer · labs · pharmacy/e-prescribing ·
+imaging relationships · payment/billing infrastructure only as needed.
+
+**[O]** EHR vendor — deep landscape research before recommendation (X-03):
+subscription cost *and* long-term friction, plus support for per-patient
+arrangements, flexible billing, portal outcome trends, and record
+portability (R-15).
+
+## 9. Acquisition
+
+**[D]** (D-022) Grassroots and relationship-driven first: word of mouth,
+personal relationships, community connections, physician and patient
+referrals, organic presence, educational content, local reputation. Paid
+advertising is a later experiment (X-08).
+
+**[D]** Pre-outcomes marketing speaks to process, philosophy, convenience,
+time and attention, evidence-based approach, and personalized planning —
+never to results that don't yet exist (R-13). As the practice accumulates
+cases and outcomes, it increasingly communicates its own evidence.
+
+## 10. Revisit triggers
 
 | Decision | Reopen when |
 | --- | --- |
-| No staff | Non-clinical work exceeds a defined share of working hours, or administrative load begins displacing patient contact |
-| $5,000 price | Capacity math shows the panel required for financial viability exceeds the panel size at which care quality degrades |
-| Solo | Coverage obligations cannot be met by external arrangement, or demand sustainably exceeds one physician's capacity |
-| Virtual-primary | Patient outcomes or satisfaction data show in-person frequency is the binding constraint on results |
-| Two-part free consultation | Acquisition time cost exceeds a defined share of clinical capacity at steady state |
+| No staff (D-001) | Non-clinical work displaces patient contact |
+| Solo, no coverage layer (D-017) | Counsel/carrier verification fails (Q-17), or absence model proves clinically unsafe or unsellable |
+| Flexible per-patient economics (D-014/D-015) | Administrative load of heterogeneous arrangements exceeds what solo practice sustains (R-20) — likely response is standard *defaults* with tailoring at the edges, not a return to one rigid product |
+| No permanent office (D-014) | Patient concentration and economics strongly justify one |
+| Grassroots-only acquisition (D-022) | Growth stalls below the income floor past the accepted slow-ramp window |
+| Documentation-first outcomes (D-023) | Publication or formal QI becomes a real goal → revisit consent architecture first |
 
-## 9. What success looks like
+## 11. What success looks like
 
-**[O]** — needs definition, and it should be defined before systems are chosen,
-because measurement design constrains EHR and tooling selection.
+**[D]** Directionally defined by D-018 and D-023:
 
-Candidate dimensions, to be narrowed and operationalized in `docs/clinical/`:
-
-- Patient-reported outcomes and quality of life
-- Clinical measures appropriate to each patient's goals
-- Continuity and access actually delivered vs. promised
-- Retention and referral behavior
-- Physician sustainability — hours, load, and whether the work remains
-  enjoyable to do
+- Patients whose measured well-being and clinical trends improve, visible to
+  them in their own portal
+- Compensation reaching ~$130–175k sustainably, on a workload that leaves the
+  practice enjoyable — reached slowly is fine
+- Relationships that both sides renew at checkpoints because they are
+  genuinely useful
+- A practice one person can run without burnout, protected by proposal-stage
+  capacity decisions rather than arbitrary limits

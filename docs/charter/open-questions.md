@@ -1,15 +1,11 @@
 # Open Questions
 
 Questions that need answers, organized by **when they need answering** under
-the preparation frame (D-011): now, during preparation, or at the launch
-runway. This is a different axis than "how much it gates launch" — nothing
-gates launch today, because launch is deliberately not today.
+the preparation frame (D-011). Question numbers are stable across revisions;
+resolved questions move to the bottom rather than disappearing.
 
-Question numbers are stable across revisions (risks and other docs reference
-them). Decisions we are deliberately *not* making live in
-`deferred-decisions.md` (X-numbers); the questions below are things we
-genuinely need to *learn or choose*, not things we are intentionally leaving
-open.
+Revised 2026-08-15 after the flexibility reframe (D-014 – D-024): Q-13, Q-03,
+Q-10, Q-11 resolved; Q-02 broadened; Q-14 – Q-17 added.
 
 **Owner key:** `YOU` — your decision or knowledge · `COUNSEL` — healthcare
 attorney · `CPA` — accountant · `BROKER` — insurance broker ·
@@ -17,110 +13,127 @@ attorney · `CPA` — accountant · `BROKER` — insurance broker ·
 
 ---
 
-## Answer now — these calibrate the whole preparation
+## The research core of the preparation — the questions the reframe created
 
-### Q-13 — What is the rough launch horizon? `YOU`
-Even a range ("probably 2–3 years out") changes how we work: how perishable
-research is handled, whether indicative insurance quotes are worth gathering
-yet, how the preparation budget is paced, and when the Texas license
-application (which has real lead time) should start. No pressure toward a
-date — X-02 keeps the actual launch date deliberately open. This is a
-planning horizon, not a commitment.
+### Q-14 — Which pricing/packaging architecture fits best? `RESEARCH` + `YOU`
+The X-09 comparison: memberships (annual/monthly), episodic private-pay,
+retainers, customized packages, insurance reimbursement, hybrids, and
+individually tailored proposals — each evaluated for ease of selling,
+administrative complexity, regulatory implications, revenue predictability,
+patient affordability, physician workload, flexibility preservation,
+value-based-care alignment, and solo compatibility. Evaluated against the
+D-018 lens: modest income target, slow ramp fine, easy to sell beats
+lucrative. Output: a structured comparison document with the regulatory
+unknowns flagged for counsel, not guessed.
 
-### Q-01 — What is your Texas licensure status and plan? `YOU` + `RESEARCH`
-Narrowed dramatically by D-012 from "what is the licensure footprint" to:
-- Do you currently hold a Texas medical license?
-- If not, when to apply — license acquisition has a long lead time and does
-  not require residency, so it can likely precede the move. `RESEARCH` can
-  assemble the current Texas Medical Board process and timeline as a dated
-  brief.
-- Residual policy question, answerable during preparation: what happens when
-  an enrolled patient travels out of state or relocates. Needs a written
-  policy before launch; it will come up in year one.
+### Q-02 — Payer participation: what does each path actually involve? `RESEARCH` + `YOU`
+Broadened from "Medicare posture" (X-04). What credentialing with commercial
+insurers, Medicare, and Medicaid practically requires of a solo physician;
+what participation obligates; what the billing/coding workflow costs in time
+and friction; what hybrid private/insurance models are permissible and how
+they are structured. Two channels: sourced research briefs (`RESEARCH`), and
+deliberate practical learning inside your current clinical job (`YOU`) —
+watching how billing actually works from the inside is preparation the
+project cannot buy. Final election: Era 2 with counsel, jointly with X-09.
 
-### Q-03 — What is the preparation budget? `YOU`
-Reframed from "financial floor and runway" into two questions with different
-clocks:
-- **Now:** what are you willing to spend annually on preparation — research,
-  counsel consultations, prototyping, early quotes, possibly early licensure?
-  This paces the whole project.
-- **At runway (Q-03b):** the original question — minimum income the practice
-  must produce, and months of shortfall you can absorb during ramp. `NEEDS-CPA`
-  closer to the move; the *structure* of that analysis can be built now so the
-  CPA conversation is short.
+### Q-15 — What constrains individualized and hybrid pricing? `RESEARCH` → `COUNSEL`
+D-014/D-016 contemplate patient-specific economic proposals; D-015
+contemplates billing some services while charging privately for others.
+Both raise real compliance questions — differential pricing, discounts, and
+private charges interact with payer rules and fraud/abuse law in ways that
+depend on participation status and that I will not characterize from memory.
+Research assembles the sourced map of what needs asking; counsel answers it.
+**This question gates publishing any tailored-pricing language.**
 
----
+### Q-16 — Home-visit operations and economics `YOU` + `RESEARCH`
+The default care mix includes home visits. Needs working through: drive-time
+economics (uncompensated windshield hours shrink capacity — now modelable in
+the tool), geographic clustering strategy, the home-visit kit (equipment by
+procedural scope), safety protocol, documentation workflow in the field, and
+malpractice implications (fold into the X-07 broker briefing).
 
-## Answer during preparation — design and research questions, portable to launch
-
-### Q-07 — What is the access promise, stated precisely? `YOU`
-Unchanged in content, moved up in order: it is pure design work, it gates the
-economics model's dominant unknown (async time, R-08), and it shapes the
-patient-experience materials. One of the highest-leverage things to draft
-early.
-
-### Q-09 — What outcomes will you measure, specifically? `YOU` + `RESEARCH`
-Unchanged: measures, cadence, collection method. Must precede systems
-requirements (X-03), which is why it sits in preparation rather than runway.
-
-### Q-10 — Quality improvement, or human-subjects research? `RESEARCH` + `COUNSEL`
-The research and architecture question is preparation work; the confirming
-counsel conversation is runway work. If publication is a genuine goal, the
-consent architecture must exist from patient one — designing it now costs
-little and protects the baseline cohort.
-
-### Q-11 — Where is the scope boundary on "financial health"? `YOU` + `COUNSEL`
-Unchanged: education and coordination vs. regulated financial advice. Draw the
-line before it appears in any patient-facing material — including the
-visualization-track website drafts, which is why it belongs in preparation.
-
-### Q-12 — What is the target panel size? `YOU`
-Derived from the capacity model as inputs firm up. The preparation-phase
-version: keep the model current as real quotes and design decisions land, and
-watch whether the panel range still supports the care model at $5,000.
-
-### Q-02 — Medicare posture: assemble the decision brief `RESEARCH`
-The *election* is deferred (X-04). The preparation work is a sourced,
-primary-source comparison of the available postures — what each permits
-regarding membership fees and Medicare-eligible patients — structured for the
-eventual counsel conversation, clearly dated for refresh. The demographic
-question inside it is yours: do you intend to serve Medicare-eligible
-patients? "Healthy aging and long-term care planning" in the scope suggests
-yes, which makes this brief worth doing well.
-
-### Q-05 — What exactly does the $5,000 buy? — draft now, finalize with counsel
-The boundary between membership services and separately billed or paid
-services. Drafting the intended scope is preparation work and feeds directly
-into the patient-experience materials; the compliance check against the
-Medicare election is runway work. `COUNSEL` at runway.
-
-### Q-04 / Q-06 / Q-08 — Space, coverage, insurance: design the requirements
-All three are deferred as *decisions* (X-05, X-06, X-07) but have real
-preparation work: requirements documents, trade-off analyses, the broker
-briefing package, the coverage-arrangement one-pager. The goal is that each
-runway conversation is short because the thinking already happened.
+### Q-17 — Does the no-coverage availability model hold up? `COUNSEL` + `BROKER`
+D-017 replaces a coverage clinician with transparent availability
+expectations, including up to ~3 months/year away from regular scheduling
+with remote triage. Verify at runway: malpractice carrier expectations,
+standard-of-care and abandonment norms for absences, and whether the patient
+agreement language makes the model defensible. Design now (availability
+policy, triage taxonomy, agreement language) so verification is a review,
+not a redesign. **If verification fails, X-06 reopens.**
 
 ---
 
-## Answer at the launch runway — needs Texas, counsel, or a real date
+## Design questions — answer during preparation
 
-Kept here so nothing is lost; none of these should generate work now beyond
-the meanwhile-items above.
+### Q-07 — Availability policy and triage taxonomy, written precisely `YOU` + me
+Formerly "the access promise." D-017 supplies the outline (business hours
+M–F, ~24–72h routine response, extended-absence model); what remains is
+drafting the patient-facing version: what constitutes an emergency, what
+needs urgent local evaluation, what to message about, what can wait — plus
+how availability is represented in proposals and priced into arrangements.
 
-- Q-02b — Medicare election `COUNSEL` (X-04)
-- Q-03b — Ramp runway and income floor `CPA`
-- Q-04b — Sign for space (X-05)
-- Q-06b — Name and contract the coverage clinician (X-06) — long lead; start
-  early in the runway
-- Q-08b — Bind malpractice and disability coverage `BROKER` (X-07)
-- Entity formation `COUNSEL` — Texas entity, against then-current law
-- Membership agreement, consent, telemedicine agreement, privacy policies
-  `COUNSEL` — drafts can exist earlier; execution versions are runway work
-- Reduced-fee policy finalization `COUNSEL` (R-10)
+### Q-09 — Operationalize outcome and value tracking `YOU` + `RESEARCH`
+D-023 names the trend set (weight, BP, A1c, glucose, lipids, labs, symptoms,
+function, medication burden, well-being, visits, interventions) and the value
+concept (improvement / cost). Remaining: instrument choices for the
+subjective measures, collection cadence, how "cost of care" and "physician
+time received" are captured per patient without administrative drag, the
+internal case-summary template, and what of this the EHR must support (feeds
+X-03 requirements).
+
+### Q-05 — What does each proposal include, structurally? `YOU` + me
+Formerly "what does the $5,000 buy." Now: the proposal template — the
+standard skeleton (D-016's nine elements) every tailored proposal fills in,
+including how costs are presented and where third-party costs (labs,
+imaging, medications) sit. Counsel reviews the template at runway alongside
+Q-15.
+
+### Q-12 — What patient load reaches the income target? `YOU` + me
+Reframed from "target panel size." Given D-018 (~$130–175k) and heterogeneous
+arrangements, the capacity model now answers: what mixes of
+patient-arrangement types reach the target within the D-017 workload
+envelope. Kept current as X-09 scenarios and real cost inputs land.
+
+### Q-01 (residual) — Texas licensure timing; multistate/travel policy `YOU` + `RESEARCH`
+Texas licensure starts when settling is decided — not immediately (D-019).
+Residual near-term items: whether maintaining the Virginia license alongside
+Texas has value (patients who relocate, telehealth back to VA); the written
+policy for enrolled patients who travel or move out of state.
+
+### Q-04 / Q-08 — Space requirements & broker briefing — design only
+Requirements documents for rentable clinical space (X-05) and the
+malpractice/disability briefing package (X-07, incorporating home visits and
+the D-017 availability model). Historical VA quotes from you become labeled
+reference inputs to the economics model.
 
 ---
 
-## Recently resolved
+## Runway questions — need Texas, counsel, or a real date
 
-- ~~Q-01 (original form) — What is the licensure footprint?~~ Resolved in
-  direction by D-012: Texas, single-state. Residual narrowed form above.
+- Q-02b / X-04 — payer participation election, with counsel, jointly with X-09
+- Q-15b — counsel pass on individualized/hybrid pricing and the proposal
+  template
+- Q-17b — availability model verification (counsel + carrier)
+- Q-03b — ramp income floor and runway `CPA` (structure built in Track A)
+- Entity formation `COUNSEL`
+- Agreements to execution versions: patient agreement (with availability and
+  triage language), telemedicine consent, privacy, proposal-stage consent,
+  reduced-fee policy (X-10) `COUNSEL`
+- X-03 EHR selection · X-05 space commitment · X-07 binding coverage
+
+---
+
+## Resolved
+
+- ~~Q-13 — launch horizon~~ → **~12–24 months** (D-019)
+- ~~Q-03 (preparation half) — prep budget~~ → **$20k ceiling** (D-020);
+  Q-03b (ramp floor/runway with CPA) remains for Era 2
+- ~~Q-10 — QI vs. human-subjects research~~ → documentation-first, no
+  research burden on routine operations; consent architecture revisited only
+  if publication becomes a real goal (D-023)
+- ~~Q-11 — financial-health scope~~ → stress-reduction scope, not financial
+  advice; referral network beyond (D-024)
+- ~~Q-06 — who covers absences~~ → no coverage clinician; transparent
+  availability model (D-017), pending Q-17 verification
+- ~~Q-01 (original) — licensure footprint~~ → Texas single-state at launch;
+  VA held now (D-012, D-019)

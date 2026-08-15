@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
-"""Capacity and economics model for a solo concierge primary care practice.
+"""Capacity and economics model for a solo, individualized primary care practice.
 
-The model answers one question: given how much time you have and how much time
-each patient consumes, how large can the panel be, and what is it worth?
+Given how much time you have and how much time each patient consumes: how
+large can the panel be, what is it worth, and — the governing question under
+D-018 — how many patients reach the income target within the workload
+envelope? Per-patient inputs are averages over heterogeneous arrangements
+(D-014); price is a scenario input while X-09 is open.
 
 Design principle: this tool never invents a number. Every cost input defaults
 to zero and is reported as UNSET until you supply a real figure. Time and
@@ -22,12 +25,17 @@ import argparse
 import sys
 from dataclasses import dataclass, field, fields
 
-# Inputs traceable to a decision in docs/charter/decision-log.md.
+# Provenance of key inputs, per docs/charter/decision-log.md.
+# 2026-08-15 reframe (D-014/D-015): pricing and cadence are no longer decided
+# — those inputs describe one SCENARIO archetype ("typical ongoing patient"),
+# not the practice. Arrangements are individualized per patient (D-016); the
+# per-patient time inputs are averages across heterogeneous arrangements.
 GROUNDED = {
-    "price": "D-002",
-    "routine_contacts": "D-005 (quarterly floor: 1 in-person + 3 virtual)",
-    "comprehensive_visit_hours": "D-006",
-    "prospect_hours": "D-008 (2 x 30 min + scheduling and notes)",
+    "price": "SCENARIO — pricing is open (X-09); D-002 superseded",
+    "routine_contacts": "SCENARIO archetype — no universal cadence (D-014)",
+    "comprehensive_visit_hours": "SCENARIO archetype — no universal in-person cadence (D-014)",
+    "prospect_hours": "D-016 (complimentary conversations + records review + proposal)",
+    "target_income_low/high": "D-018 (~$130k-$175k; >$100k meaningful minimum)",
 }
 
 # Cost inputs. Default zero, reported as UNSET. Never guessed.
@@ -64,10 +72,14 @@ class Inputs:
     attrition: float = 0.10       # ILLUSTRATIVE
 
     # --- Revenue ---------------------------------------------------------
-    price: float = 5000.0             # D-002
-    reduced_fee_share: float = 0.10   # D-003, share of panel — illustrative
+    price: float = 5000.0             # SCENARIO — pricing open (X-09)
+    reduced_fee_share: float = 0.10   # mechanism deferred (X-10) — illustrative
     reduced_fee_discount: float = 0.40  # illustrative
     processing_rate: float = 0.029      # illustrative; verify with processor
+
+    # --- Target income (D-018) -------------------------------------------
+    target_income_low: float = 130000.0
+    target_income_high: float = 175000.0
 
     # --- Costs (all UNSET by design) -------------------------------------
     malpractice: float = 0.0
@@ -200,6 +212,28 @@ def report_steady_state(i: Inputs) -> None:
             print(f"  Capacity used at break-even  {be / panel:>12.0%}")
     print()
 
+    print(rule("="))
+    print("TARGET INCOME CHECK (D-018: reach the target, don't maximize)")
+    print(rule("="))
+    costs_note = "" if i.fixed_costs > 0 else "   (+ break-even patients once costs are set)"
+    for label, target in (("floor  >$100k", 100000.0),
+                          (f"low    {money(i.target_income_low)}", i.target_income_low),
+                          (f"high   {money(i.target_income_high)}", i.target_income_high)):
+        needed_gross = target + i.fixed_costs
+        pts = needed_gross / i.effective_price if i.effective_price > 0 else float("inf")
+        hrs = pts * (i.hours_per_patient + i.acquisition_hours_per_patient)
+        share = pts / panel if panel > 0 else float("inf")
+        print(f"  {label:<22} {pts:>5,.0f} patients{costs_note}"
+              f"   ~{hrs:>5,.0f} hr/yr   {share:>4.0%} of capacity")
+    if i.fixed_costs <= 0:
+        print("  NOTE: fixed costs UNSET — patient counts above cover income only.")
+    print()
+    print("  At this scenario's price, the target sits well below the capacity")
+    print("  ceiling — slack available for lower prices, complex patients,")
+    print("  reduced-fee care, vacation, or less work. That slack is what makes")
+    print("  the individualized model (D-014) economically affordable.")
+    print()
+
 
 def report_sensitivity(i: Inputs) -> None:
     print(rule("="))
@@ -297,7 +331,7 @@ def report_illustrative(i: Inputs) -> None:
     print(rule("~"))
     print("PROVENANCE OF INPUTS")
     print(rule("~"))
-    print("  Grounded in a logged decision:")
+    print("  Key inputs and their status:")
     for key, source in GROUNDED.items():
         print(f"    {key:<28} {source}")
     print()
@@ -342,7 +376,10 @@ def build_parser() -> argparse.ArgumentParser:
     a.add_argument("--attrition", type=float, default=d.attrition)
 
     r = p.add_argument_group("revenue")
-    r.add_argument("--price", type=float, default=d.price)
+    r.add_argument("--price", type=float, default=d.price,
+                   help="SCENARIO input — pricing model is open (X-09)")
+    r.add_argument("--target-income-low", type=float, default=d.target_income_low)
+    r.add_argument("--target-income-high", type=float, default=d.target_income_high)
     r.add_argument("--reduced-fee-share", type=float, default=d.reduced_fee_share)
     r.add_argument("--reduced-fee-discount", type=float, default=d.reduced_fee_discount)
     r.add_argument("--processing-rate", type=float, default=d.processing_rate)

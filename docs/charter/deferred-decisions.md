@@ -9,20 +9,54 @@ stop the same "shouldn't we just decide this?" conversation from recurring.
 A deferred decision is not an ignored one. Every entry has active
 in-the-meantime work.
 
+Revised 2026-08-15: X-09 (pricing/packaging) and X-10 (reduced-fee mechanism)
+added; X-04 broadened to full payer strategy; X-06 superseded by D-017.
+
+---
+
+## X-09 — Pricing and packaging architecture
+
+**The largest open question in the project** (D-015; supersedes the former
+$5,000 membership decision D-002).
+
+**Candidates:** annual or monthly memberships · episodic private-pay ·
+retainer arrangements · customized care packages · insurance-based
+reimbursement · hybrid private-pay/insurance · individually tailored
+per-proposal pricing · combinations of these for different patient types.
+
+**Why deferred:** The right answer depends on payer participation (X-04),
+regulatory constraints not yet researched, what patients actually respond to,
+and administrative reality — none of which is known yet. Locking a model now
+would repeat the original $5,000 mistake at a different address.
+
+**Evaluation criteria** (from D-015): ease of selling · administrative
+complexity · regulatory implications · revenue predictability · patient
+affordability · physician workload · preservation of flexibility · alignment
+with value-based care · solo-practice compatibility.
+
+**Meanwhile:** This is now a primary Track A/E research workstream — a
+structured comparison of the candidate models against the criteria, with the
+regulatory questions (Q-15) flagged for counsel rather than guessed. The
+economics tool runs any candidate as a scenario. The D-018 context (modest
+income target, slow ramp accepted, ease-of-selling prioritized) is the lens.
+
+**Decide when:** After the comparison research, payer-strategy learning
+(Q-02), and ideally some Track F validation conversations — expected mid-to-
+late preparation, before patient-facing materials carry prices.
+
 ---
 
 ## X-01 — Which Texas city
 
 **Working lean:** Austin. Live alternatives: Houston, Dallas.
 
-**Why deferred:** Depends on where you actually settle — a life decision that
-the practice follows, not the reverse.
+**Why deferred:** Depends on where you actually settle — a life decision the
+practice follows, not the reverse.
 
-**Meanwhile:** All state-level work proceeds (Texas regulatory research,
-economics, clinical model, brand). City-dependent work — space, local
-partnerships, local marketing, coverage clinician — is designed as
-requirements and criteria, not commitments. Where market research is useful,
-do it for Austin first but keep the method reusable.
+**Meanwhile:** State-level work proceeds. City-dependent work — rentable
+clinical space options, home-visit geography, local referral relationships —
+is designed as requirements and criteria. Austin-first market research, method
+reusable.
 
 **Decide when:** The move destination is settled.
 
@@ -30,117 +64,159 @@ do it for Austin first but keep the method reusable.
 
 ## X-02 — Launch date
 
-**Why deferred:** Depends on the move, establishment in Texas, and the runway
-work. Setting a date now would be fiction, and fictional dates create exactly
-the pressure this project is designed to avoid.
+**Why deferred:** Horizon is now ~12–24 months (D-019), but a *date* still
+depends on the move, Texas licensure timing, and establishment. A fictional
+date creates exactly the pressure this project is designed to avoid.
 
-**Meanwhile:** Maintain the launch-runway checklist (roadmap, Era 2) with
-lead-time estimates, so that when a date becomes real, the path to it is
-already mapped. A rough horizon (Q-13), even a range, is still worth having —
-it calibrates how perishable research is handled.
+**Meanwhile:** Maintain the launch-runway checklist with lead-time estimates
+so that when a date becomes real, the path is already mapped.
 
-**Decide when:** Move date is known and Era 2 begins.
+**Decide when:** Move is settled and Era 2 begins.
 
 ---
 
 ## X-03 — EHR and platform vendor selection
 
-**Why deferred:** The vendor landscape will shift meaningfully before launch —
-products, pricing, and AI capabilities are all moving. A selection made now
-would be stale at launch, and subscriptions would burn money for years.
+**Why deferred:** The vendor landscape shifts meaningfully on a 12–24 month
+horizon, and subscriptions started early burn the D-020 budget for nothing.
 
-**Meanwhile:** This is the build-versus-buy track's core work: write the
-requirements document (driven by measurement design, Q-09, and workflow
-design), survey the current landscape as a *dated snapshot*, and run
-build/buy/integrate evaluations per capability. Requirements are durable;
-vendor conclusions are perishable and tagged for refresh.
+**Meanwhile:** The architecture is now decided (D-021: established EHR core +
+custom front-door website), which sharpens this from "what stack" to "which
+EHR." Deep landscape research is explicitly commissioned before any
+recommendation: subscription cost, long-term usage friction, integrated
+telemedicine and portal quality, e-prescribing, results handling, document
+intake, scheduling, per-patient billing flexibility (D-014/D-015), portal
+outcome trends (D-023), bulk export (R-15). Research is a dated snapshot,
+`REFRESH-AT-RUNWAY`.
 
-**Decide when:** Roughly 6 months before intended launch — early enough to
-implement and test, late enough to choose from the real market.
-
----
-
-## X-04 — Medicare posture (final election)
-
-**Why deferred:** The *decision* has legal effect and belongs close to launch,
-made with Texas counsel against then-current rules. Deciding now would be
-premature and unverifiable.
-
-**Meanwhile:** The *research* is portable and valuable now: a sourced
-comparison of the available postures, prepared as a brief for the eventual
-counsel conversation (Q-02). Clearly dated, refreshed at the runway.
-
-**Decide when:** Era 2, with engaged Texas healthcare counsel, before any
-pricing language is published or a Medicare-eligible patient is enrolled.
+**Decide when:** ~6 months before intended launch.
 
 ---
 
-## X-05 — In-person space arrangement
+## X-04 — Payer participation strategy
 
-**Why deferred:** Depends on city (X-01) and on the procedural scope decision.
-Space is also the fixed cost most worth keeping variable during ramp.
+**Broadened 2026-08-15** from "Medicare posture" to the full payer question
+(D-015): private pay, commercial insurance, Medicare, Medicaid, hybrid
+models, and billing some services while charging privately for others where
+legally permissible.
 
-**Meanwhile:** Design the requirements: what the comprehensive visit needs in
-room, equipment, and services; sessional-rental versus owned trade-off
-analysis; equipment list by procedural scope. The working lean is sessional or
-shared space for the early years.
+**Why deferred:** You are actively learning (through current part-time work)
+what credentialing and billing participation practically involve; the
+administrative burden for a solo practice is unknown; the legal boundaries of
+hybrid models need real research; and the final election has legal effect
+that belongs near launch with Texas counsel.
 
-**Decide when:** Era 2, after city and procedural scope are set.
+**Meanwhile:** Q-02 research program — sourced briefs on participation
+options and their obligations, the hybrid-billing boundary, and the
+credentialing process; plus deliberate practical learning: use the current
+clinical job to understand coding, billing workflows, and payer friction from
+the inside. All dated, `REFRESH-AT-RUNWAY`.
+
+**Decide when:** Era 2, with counsel, after the X-09 pricing research —
+these two decisions are made together.
 
 ---
 
-## X-06 — Coverage clinician (who covers your absences)
+## X-05 — Clinical space arrangement
 
-**Why deferred:** Requires a named, credentialed, Texas-licensed clinician who
-agrees — realistically found through local professional networks after the
-move. Cannot be secured meaningfully from a distance.
+**Why deferred:** Depends on city (X-01), patient geography, and procedural
+scope. Space is the fixed cost most worth avoiding entirely.
 
-**Meanwhile:** Design the arrangement so the eventual conversation is short: a
-requirements one-pager (records access, licensure, liability terms, patient
-communication, compensation structure) and the draft agreement skeleton for
-counsel. This was previously treated as launch-blocking urgency (Q-06); it is
-still launch-blocking, but it is a *runway* item with a designed-in-advance
-solution, not a now item.
+**Working default (D-014):** telemedicine + home visits + **rented clinical
+space when needed** — a periodic exam room with clustered in-person visits if
+patients are geographically concentrated. **No permanent brick-and-mortar
+office unless future economics strongly justify it.**
 
-**Decide when:** Era 2. This is one of the longest-lead runway items — start
-it early in the runway, not last.
+**Meanwhile:** Requirements for rentable space (what an exam/procedure
+session needs); the home-visit kit and operations design (Q-16); drive-time
+economics in the capacity model.
+
+**Decide when:** Era 2, per city and actual patient geography — and note this
+may never become a large decision at all if the default holds.
+
+---
+
+## X-06 — Coverage clinician
+
+**Status: SUPERSEDED** 2026-08-15 by D-017. The practice does not plan a
+clinician coverage layer; transparent availability expectations replace it.
+Retained here because one contingency keeps it alive: if counsel or the
+malpractice carrier verification (Q-17) finds that some absence-coverage
+arrangement is required, this entry reopens. Until then, no meanwhile-work.
 
 ---
 
 ## X-07 — Malpractice and disability carriers
 
 **Why deferred:** Policies are bound against an actual practice in an actual
-place. Quotes obtained years early are perishable.
+place; Texas-specific quotes belong near launch.
 
-**Meanwhile:** Indicative quotes are still worth gathering once the model is
-describable — they populate the cost side of the economics model with
-real-order-of-magnitude numbers (currently UNSET). Mark them as indicative and
-dated. The broker briefing document (practice description, telemedicine
-pattern, procedural scope) is durable prep.
+**Meanwhile:** Historical **Virginia quotes are available from you as
+reference points** — useful as order-of-magnitude inputs for the economics
+model, clearly labeled as VA-historical, not TX-predictive. The broker
+briefing document (practice description, telemedicine + home-visit + rented-
+space pattern, procedural scope, the D-017 availability model) is durable
+prep; the availability-model question (Q-17) goes to the carrier
+conversation.
 
 **Decide when:** Era 2, binding before the first patient.
 
 ---
 
-## X-08 — Paid acquisition channels and spend
+## X-08 — Paid acquisition
 
-**Why deferred:** Depends on city, launch timing, budget (Q-03), and what the
-validation track learns about messaging. Channel economics shift constantly.
+**Why deferred:** D-022 decides the *initial* strategy — grassroots and
+relationship-driven; paid advertising is a later experiment, contingent on
+what organic growth delivers against the (deliberately patient) D-018 ramp
+expectations.
 
-**Meanwhile:** Build the durable parts: positioning, messaging, the
-measurement design for acquisition cost and conversion, and the referral
-strategy framework. Organic and referral groundwork ages well; paid channel
-picks do not.
+**Meanwhile:** The durable groundwork: positioning, messaging, educational
+content, referral-relationship strategy, and measurement design for
+acquisition sources and conversion.
 
-**Decide when:** Era 2, after local validation.
+**Decide when:** Post-launch, only if grassroots growth undershoots the slow
+ramp the income floor can tolerate.
+
+---
+
+## X-10 — Reduced-fee / charity care mechanism
+
+**Why deferred:** The number of reduced-fee patients, sliding-scale formulas,
+charity percentages, and discount structures all depend on the final pricing
+model (X-09), payer participation (X-04 — discounting rules differ sharply
+with payer involvement, a Q-15 counsel item), demand, economics, and
+available time.
+
+**The affirmed value (D-003 revised):** the practice should have *some*
+sustainable mechanism for helping patients who cannot comfortably afford
+standard pricing.
+
+**Meanwhile:** Nothing to build. When X-09 candidates are compared, each
+carries a sketch of what its natural reduced-fee mechanism would be.
+
+**Decide when:** With X-09/X-04, checked by counsel.
 
 ---
 
 ## Explicitly NOT deferred
 
-For contrast, these remain working decisions (see decision log) and are the
-foundation prep work builds on: the $5,000 price point (D-002), the care model
-architecture (D-004, D-005, D-006), the two-part consultation (D-008),
-integrate-before-build (D-007), and measurement as first-class (D-009). They
-are revisable — the working model lists revisit triggers — but they are
-decided enough to design against.
+The decided spine that preparation work builds on (see decision log):
+
+- Solo, no staff, no coverage layer — with transparent availability
+  (D-001, D-017)
+- The north star: flexible, individualized, relationship-based care; no
+  pre-designed product (D-014)
+- The personalized proposal process as the path into the practice (D-016)
+- Compensation target ~$130–175k; slow ramp accepted; income maximization is
+  a non-goal (D-018)
+- Launch horizon ~12–24 months; Texas after settling; VA-licensed now (D-019)
+- $20k preparation budget ceiling; grassroots default (D-020)
+- Technology architecture: established EHR core + custom front door,
+  integrate-before-build (D-007, D-021)
+- Grassroots-first acquisition (D-022)
+- Documentation-first outcomes; value = improvement/cost; no research burden
+  on early operations (D-023)
+- Financial-health scope: stress reduction, not financial advice (D-024)
+
+All revisable — the working model lists revisit triggers — but decided enough
+to design against.

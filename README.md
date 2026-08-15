@@ -1,8 +1,24 @@
-# Concierge Primary Care Practice — Preparation Project
+# Solo Primary Care Practice — Preparation Project
 
 Working repository for the design, validation, and preparation of a solo,
-lifestyle-first concierge primary care practice — to be launched in Texas
-(Austin most likely) after relocation.
+lifestyle-first primary care practice built on **flexible, individualized,
+relationship-based care** — to be launched in Texas (Austin most likely)
+after relocation, on a ~12–24 month horizon.
+
+**The north star (D-014):** we are not building a pre-designed healthcare
+product that patients are fitted into. We are building the infrastructure
+that lets one physician establish thoughtful, flexible, evidence-based
+physician–patient relationships and tailor the clinical and economic
+arrangement to what will genuinely help each person:
+
+> Meet someone → identify that I can help → one or two structured
+> conversations → understand the problem → an agreed plan and price →
+> formally establish the relationship → provide care → track whether their
+> well-being improves.
+
+Pricing, packaging, and payer participation (private pay, commercial
+insurance, Medicare, Medicaid, hybrids) are deliberately **open research
+questions** (D-015), not assumptions.
 
 **This is a preparation project, not an imminent launch** (D-011). The
 organizing question for everything here:
@@ -61,15 +77,23 @@ of a project like this is confident-sounding fabrication.
 
 ## Current status
 
-**Era 1 — Preparation.** Six parallel tracks (economics, patient experience,
-clinical model, operating system, legal research, validation) advance
-independently — see `docs/strategy/roadmap.md`. The v1 capacity model is
-built. The near-term calibrating questions are the rough launch horizon
-(Q-13), Texas licensure status (Q-01), and the preparation budget (Q-03).
+**Era 1 — Preparation** (~12–24 months to launch; $20k budget ceiling,
+grassroots by default). Six parallel tracks — economics/pricing/payer
+strategy, patient experience, clinical model, operating system, legal
+research, validation — advance independently; see `docs/strategy/roadmap.md`.
+The current part-time clinical job is itself an instrumented part of the
+preparation (D-019).
 
-Decisions intentionally left open — city, launch date, vendors, carriers,
-Medicare election — are tracked with triggers in
-`docs/charter/deferred-decisions.md`.
+The capacity model is built and reframed to the income target: under the
+illustrative scenario, ~30–45 patients cover the $130–175k target before
+costs — well under half of one physician's capacity, which is the slack that
+makes the individualized model affordable.
+
+The intellectual center of the preparation is now the **pricing/packaging and
+payer-participation research** (X-09/X-04, questions Q-14/Q-02/Q-15).
+Decisions intentionally left open — pricing model, payer participation, city,
+launch date, vendors, carriers, reduced-fee mechanism — are tracked with
+triggers in `docs/charter/deferred-decisions.md`.
 
 ## Start here
 
