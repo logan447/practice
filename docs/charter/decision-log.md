@@ -170,7 +170,7 @@ selection, intake design, and consent language. Retrofitting measurement onto a
 running practice loses the baseline permanently.
 
 **Implications:** This decision must be operationalized *before* systems
-selection, not after. See roadmap Phase 2 → Phase 3 ordering, and risk R-09 on
+selection, not after. See the Track C → Track D ordering in the roadmap, and risk R-09 on
 the quality-improvement vs. human-subjects-research distinction.
 
 ---
@@ -185,3 +185,81 @@ in conversation history.
 
 **Rationale:** The project spans years and many work sessions. Anything not
 written down will be re-litigated or silently lost.
+
+---
+
+## D-011 — This is a preparation project, launching after relocation to Texas
+
+**Date:** 2026-08-15
+**Status:** Active — the organizing frame for the whole project
+
+The practice launches once you have moved to Texas, are established there, and
+the necessary Texas medical and business infrastructure is in place. Until
+then, this project's job is preparation: design, validate, build, and
+pre-position everything that can be done well from a distance, so that the
+remaining work at arrival is primarily local validation, regulatory
+implementation, final system setup, and execution.
+
+**Rationale:** Set directly by you. The goal is not to launch as quickly as
+possible; it is to use the time before the move intelligently.
+
+**Reversal cost:** Low — accelerating is always available.
+
+**Implications:**
+- Every piece of work is now evaluated by one test: *does it survive until
+  launch and make the launch runway shorter or safer?*
+- Urgency reorders. "Launch-blocking" items (coverage arrangements, entity
+  formation, binding insurance) stop being urgent; they become runway items
+  with known lead times. Design, modeling, and validation work moves forward.
+- Perishability becomes a first-class property: some prep work decays
+  (vendor landscapes, quotes, regulatory snapshots) and must be tagged for
+  refresh at the runway. See risk R-16.
+- The project must stay sustainable and motivating across a long horizon —
+  making the future practice increasingly tangible is a legitimate
+  prioritization criterion, not a vanity one. See risk R-19.
+
+---
+
+## D-012 — Texas is the launch state; the city is intentionally open
+
+**Date:** 2026-08-15
+**Status:** Active
+
+The practice launches in Texas. Austin is the most likely location, with
+Houston and Dallas as live alternatives. The city choice is deliberately
+deferred — see `deferred-decisions.md`.
+
+**Rationale:** Your relocation plan. A single large state materially
+simplifies what was previously the biggest open question (licensure
+footprint, Q-01): Texas alone is a large enough market that multi-state
+virtual practice is unnecessary for viability, and the in-person block
+geography collapses into "wherever in Texas we settle."
+
+**Reversal cost:** Moderate. Texas-specific regulatory research would need
+redoing for another state; the portable majority of the work (economics,
+clinical model, patient experience, systems requirements) would survive.
+
+**Implications:** Regulatory research anchors on Texas (medical board,
+telemedicine rules, entity law) plus federal (Medicare). Work that depends on
+the *city* — space, local partnerships, local marketing — stays open. Work
+that depends only on the *state* can proceed as research, clearly dated,
+with a refresh pass at the runway.
+
+---
+
+## D-013 — Two decision registers: made, and intentionally open
+
+**Date:** 2026-08-15
+**Status:** Active
+
+Decisions we make are logged here with reasoning. Decisions we are
+deliberately *not* making yet are logged in `deferred-decisions.md`, each with
+the reason deferral is correct, what we do in the meantime, and the trigger
+that will eventually force the decision.
+
+**Rationale:** Over a multi-year preparation, the failure modes are symmetric:
+decisions silently re-litigated because nobody wrote them down, and decisions
+silently hardened because a working assumption calcified. Two registers guard
+both flanks.
+
+**Reversal cost:** None — this is process.

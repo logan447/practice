@@ -11,6 +11,36 @@ Last revised: 2026-08-15
 
 ---
 
+## 0. Project frame — read this first
+
+**[D]** **This is a preparation project, not an imminent launch.** (D-011)
+The practice launches after relocation to Texas — Austin most likely, Houston
+or Dallas as alternatives (D-012) — once you are established there and the
+Texas medical and business infrastructure is in place.
+
+The organizing question for everything in this repository:
+
+> *What can we thoughtfully design, validate, build, and prepare now, so that
+> arrival in Texas means local validation, regulatory implementation, final
+> system setup, and execution — not starting from zero?*
+
+Three consequences:
+
+1. **Urgency is redefined.** Nothing is launch-blocking today, because launch
+   is not today. Work is prioritized by durability (does it survive until
+   launch?), leverage (does it shorten or de-risk the runway?), and
+   tangibility (does it make the future practice concrete and the project
+   sustaining to work on?).
+2. **Some decisions are deliberately open.** City, launch date, vendors,
+   carriers, and the final Medicare election are deferred on purpose, each
+   with meanwhile-work and a decision trigger — see `deferred-decisions.md`.
+3. **Prepared ≠ current.** Regulatory research, vendor landscapes, and quotes
+   are dated snapshots that decay. Perishable artifacts are tagged and get a
+   refresh pass during the launch runway (risk R-16).
+
+**[O]** Rough launch horizon — even a range would calibrate pacing and how we
+handle perishable research (Q-13).
+
 ## 1. Purpose
 
 Provide patients with enough physician time, attention, continuity, and
@@ -29,9 +59,10 @@ sentence, it loses.
 | No staff initially | **[D]** | Revisit trigger: administrative load displaces clinical time (see §8) |
 | Intentionally small | **[D]** | Panel capped by care intensity, not revenue appetite |
 | Target panel size | **[O]** | Derived from capacity math, not chosen. See `docs/strategy/unit-economics.md` |
-| Legal entity | **[O]** | `NEEDS-COUNSEL` — PC/PLLC vs. other; state-dependent |
-| Licensure footprint | **[O]** | **Gating.** Determines addressable market, telehealth reach, compliance load |
-| Medicare posture | **[O]** | **Gating.** Opt out / participate / non-enrolled. `NEEDS-COUNSEL` |
+| Launch state | **[D]** | Texas (D-012). City open: Austin lean, Houston/Dallas alternatives (X-01) |
+| Legal entity | **[O]** | `NEEDS-COUNSEL` — Texas entity law; research now, form during runway |
+| Licensure | **[O]** | Texas license status and acquisition timing (Q-01). Texas alone is the market; multi-state is not needed for viability |
+| Medicare posture | **[O]** | Research now, elect at runway with counsel (Q-02, X-04). `NEEDS-COUNSEL` |
 
 ## 3. Economic model
 
@@ -53,9 +84,9 @@ sentence, it loses.
 | Dedicated in-person care blocks | **[D]** | Physical exam, preventive procedures, and hands-on services clustered into defined periods |
 | Annual comprehensive in-person visit | **[D]** | Biennial permitted for highly stable patients |
 | Minimum quarterly physician contact | **[D]** | Floor, not target; substantially more when clinically appropriate |
-| In-person location model | **[O]** | Owned space / rented sessional space / itinerant across metros — each has distinct cost, licensure, and malpractice implications |
-| After-hours access | **[O]** | **Launch-blocking.** What is promised, and who covers it |
-| Absence coverage | **[O]** | **Launch-blocking.** Vacation, illness, disability |
+| In-person location model | **[O]** | Sessional lean; depends on city and procedural scope (X-05). Design requirements now, commit at runway |
+| After-hours access | **[O]** | Blocks launch, not preparation — design the promise now (Q-07), secure the coverage at runway |
+| Absence coverage | **[O]** | Blocks launch, not preparation — design the arrangement now, name the clinician at runway (X-06) |
 | Access promise wording | **[O]** | The membership's access commitment must be specific enough to honor and bounded enough to survive a full panel |
 
 ## 5. Clinical scope

@@ -1,7 +1,19 @@
-# Concierge Primary Care Practice — Design & Build
+# Concierge Primary Care Practice — Preparation Project
 
-Working repository for the design, launch, and growth of a solo, lifestyle-first
-concierge primary care practice.
+Working repository for the design, validation, and preparation of a solo,
+lifestyle-first concierge primary care practice — to be launched in Texas
+(Austin most likely) after relocation.
+
+**This is a preparation project, not an imminent launch** (D-011). The
+organizing question for everything here:
+
+> *What can we thoughtfully design, validate, build, and prepare now, so that
+> arrival in Texas means local validation, regulatory implementation, final
+> system setup, and execution — not starting from zero?*
+
+Work is prioritized by durability (survives until launch), leverage (shortens
+or de-risks the launch runway), and tangibility (makes the future practice
+concrete and the project sustaining to work on) — not by launch urgency.
 
 This repo is the durable memory of the project. Conversations are ephemeral;
 decisions, assumptions, models, and drafts live here.
@@ -49,16 +61,26 @@ of a project like this is confident-sounding fabrication.
 
 ## Current status
 
-Phase 0 — Constraints. Three inputs gate nearly all downstream work:
-licensure geography, Medicare posture, and the personal financial floor.
-See `docs/charter/open-questions.md`.
+**Era 1 — Preparation.** Six parallel tracks (economics, patient experience,
+clinical model, operating system, legal research, validation) advance
+independently — see `docs/strategy/roadmap.md`. The v1 capacity model is
+built. The near-term calibrating questions are the rough launch horizon
+(Q-13), Texas licensure status (Q-01), and the preparation budget (Q-03).
+
+Decisions intentionally left open — city, launch date, vendors, carriers,
+Medicare election — are tracked with triggers in
+`docs/charter/deferred-decisions.md`.
 
 ## Start here
 
-- `docs/charter/working-model.md` — the practice as currently conceived,
-  with every element tagged Decided / Assumption / Open
-- `docs/charter/open-questions.md` — what has to be answered, and by whom
-- `docs/strategy/unit-economics.md` — whether the model can work, and the
-  capacity math that constrains everything else
-- `docs/strategy/risk-register.md` — what could break it
-- `docs/strategy/roadmap.md` — the order to build in, and why
+- `docs/charter/working-model.md` — the project frame and the practice as
+  currently conceived, every element tagged Decided / Assumption / Open
+- `docs/charter/decision-log.md` — decisions made, with reasoning
+- `docs/charter/deferred-decisions.md` — decisions deliberately kept open
+- `docs/charter/open-questions.md` — what needs answering, and when
+- `docs/strategy/roadmap.md` — the two eras: preparation tracks, then the
+  launch runway
+- `docs/strategy/unit-economics.md` — the capacity math that constrains
+  everything else
+- `docs/strategy/risk-register.md` — live preparation risks and designed-for
+  launch risks

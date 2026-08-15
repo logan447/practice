@@ -4,6 +4,15 @@ The question this document answers: **can one physician deliver this care model
 to enough patients, at $5,000 each, to make a sustainable practice — and what
 determines the answer?**
 
+> **Preparation-frame note (D-011):** this document is fully portable — it
+> depends on the care model, not on location or launch date, which makes it
+> exactly the kind of work worth doing now. Two of its key unknowns have
+> different clocks: the cost lines can be filled progressively with indicative
+> quotes during preparation (dated, refreshed at the runway), while conversion
+> rate and true per-patient intensity cannot be measured until near launch —
+> Track F conversations can narrow them, but only the pilot cohort measures
+> them. Treat the model's outputs accordingly.
+
 > **Read this first.** Every number below marked *illustrative* is a placeholder
 > chosen to demonstrate the structure of the model. None is a benchmark, a
 > market figure, or a recommendation. I do not have credible data on concierge
@@ -72,8 +81,8 @@ number in the practice, and it is currently unmeasured and unbounded.
 
 **Recommendation:** instrument it from patient one. Track asynchronous time per
 patient per month from the first enrollment. It should be a required output of
-whatever system is selected in Phase 3, which is another reason measurement
-design (Q-09) has to precede systems selection.
+whatever system is eventually selected (X-03), which is another reason
+measurement design (Q-09) has to precede the systems requirements document.
 
 ## 4. Two findings worth acting on
 

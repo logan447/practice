@@ -10,28 +10,77 @@ become visible once real patients are enrolled.
 **Severity:** `HIGH` — can end or fundamentally reshape the practice ·
 `MED` — costly to absorb · `LOW` — manageable, but cheaper to handle early
 
+**Timing note (D-011 reframe):** the project is now explicitly a preparation
+project. The launch-window risks below (R-01 – R-05) remain real but are
+*runway* risks — their mitigations are designed during Era 1 and executed
+during Era 2. The active risks *today* are the preparation-phase risks
+(R-16 – R-19), which is a new section.
+
 ---
 
-## Launch-blocking
+## Preparation-phase — the risks that are live right now
 
-### R-01 · HIGH · Licensure geography constrains the virtual model
-A virtual-primary practice reaches only where you are licensed for the
-patient's location at the time of care. Compounding this: D-004's annual
-in-person visit means patients must also be within travel distance of wherever
-in-person blocks happen. The virtual model does *not* expand the market as much
-as it appears to, because the in-person requirement re-imposes geography.
-**Mitigation:** resolve Q-01 and Q-04 together, as one geography decision.
-Write the patient-travel and relocation policy before launch — it will come up
-in year one.
+### R-16 · HIGH · Prepared work decays before launch
+Regulatory research, vendor evaluations, quotes, and guideline-based protocols
+are snapshots of a moving world. Work done years before launch and trusted at
+launch as if current is worse than no work — it carries false confidence.
+**Mitigation:** every perishable artifact carries its date and a
+`REFRESH-AT-RUNWAY` tag; the runway (Era 2, step 4) includes a mandatory
+refresh pass; nothing from Era 1 research is asserted as current at launch
+without re-verification. Durable work (economics model, workflow designs,
+brand, education materials) is preferred when choosing what to build next.
+
+### R-17 · MED · Working assumptions harden into premature commitments
+Over a long preparation, "Austin, probably" becomes "Austin," a vendor scan
+becomes a vendor choice, and a draft price becomes a published one — without
+anyone deciding. Texas reality at launch (regulations, market, city, available
+technology) may then invalidate quietly-made commitments.
+**Mitigation:** the deferred-decisions register (`deferred-decisions.md`,
+D-013). Each intentionally-open decision has a named trigger; anything not in
+the decision log is not decided. Review the register when Era 2 begins.
+
+### R-18 · MED · Endless preparation
+A preparation project with no launch pressure can become a comfortable
+substitute for launching. The signature: ever-finer polishing of artifacts no
+runway item consumes.
+**Mitigation:** every Era 1 track has "done enough for launch" criteria; the
+Era 2 checklist defines launch-ready concretely; the standing test for new
+work (survives to launch / shortens the runway / builds tangibility) filters
+out decoration. The launch horizon (Q-13), once known, gives the preparation
+a shape without imposing a deadline.
+
+### R-19 · MED · Momentum and sustainability
+This project must stay exciting across years, worked in the gaps of a life
+that includes a major relocation. If it becomes overwhelming or joyless, it
+stalls — and a stalled preparation project delivers nothing.
+**Mitigation:** deliberate, not incidental: parallel tracks so there is always
+a workable thread with energy behind it; deliverables sized to a session; the
+tangibility track (B) treated as first-class work; the repo as memory (D-010)
+so no session depends on remembering the last one. Overwhelm is a signal to
+reduce active tracks, not to push harder.
+
+---
+
+## Launch-window — designed in Era 1, executed in Era 2
+
+### R-01 · MED · Geography still binds within Texas
+Largely resolved by D-012: Texas is a single large market and multi-state
+practice is unnecessary. What remains: patients must be within reasonable
+travel of wherever in-person blocks happen (D-004), so the practice's real
+catchment is the chosen metro plus its surroundings, not "Texas." And enrolled
+patients who travel or relocate out of state still need a written policy.
+**Mitigation:** market sizing in Track F uses the metro catchment, not the
+state. Draft the travel/relocation policy during preparation (Q-01 residual).
 
 ### R-02 · HIGH · No coverage arrangement makes the access promise undeliverable
 A solo physician selling access cannot provide it 52 weeks a year. Vacation,
 illness, and emergencies are certainties. Patients paying $5,000 for access
 will judge the practice on the week you were unreachable, and concierge
 patients talk to each other.
-**Mitigation:** Q-06. A named clinician, with records access, licensure,
-credentialing, and liability terms actually in place — not an intention.
-This gates launch, not growth.
+**Mitigation:** design the arrangement during preparation (X-06 meanwhile
+work); secure the named clinician early in the runway — it is among the
+longest-lead Era 2 items because it depends on local relationships. Gates
+launch, not preparation.
 
 ### R-03 · HIGH · Ramp cash flow
 Revenue is linear in patients; fixed costs are not. The gap between launch and
@@ -39,9 +88,12 @@ a viable panel is measured in years. This is the most likely way the practice
 fails, and it fails quietly — by forcing decisions (accepting poor-fit
 patients, over-enrolling, cutting the care model) that undermine the thing
 being built.
-**Mitigation:** Q-03 first. Keep fixed costs variable during ramp (favors
-sessional/itinerant in-person space over owned). Treat the required growth rate
-as a hard planning input rather than a hope.
+**Mitigation:** build the runway-analysis structure during preparation
+(Track A) and run it with the CPA at Era 2 (Q-03b). Keep fixed costs variable
+during ramp (favors sessional space over owned). Treat the required growth
+rate as a hard planning input rather than a hope. One advantage of the
+preparation frame: arriving in Texas with prepared infrastructure and
+validated messaging shortens the costliest stretch of the ramp.
 
 ### R-04 · HIGH · Membership fee scope is ambiguous or non-compliant
 What the $5,000 does and does not cover must be explicit, written, and
@@ -139,7 +191,8 @@ sustainable indefinitely, not by what is survivable for a year.
 Patients leave. Records must go with them, and the practice must retain what it
 is obligated to retain. Export capability is easy to verify during EHR
 selection and expensive to discover missing later.
-**Mitigation:** make bulk export a hard requirement in Phase 3 selection.
+**Mitigation:** make bulk export a hard requirement in the Track D
+requirements document, verified at vendor selection (X-03).
 
 ## Risks I expect to be missing
 
