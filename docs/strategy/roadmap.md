@@ -33,17 +33,20 @@ systems do well and poorly, and firsthand exposure to billing and coding
 
 *The reframe made this the intellectual center of the preparation.*
 
-- **X-09 pricing/packaging comparison** (Q-14): memberships, episodic,
-  retainer, packages, insurance, hybrid, tailored proposals — against the
-  D-015 criteria, under the D-018 lens (easy to sell > lucrative; slow ramp
-  fine; $130–175k target)
+- **Pricing framework calibration** (D-002, Q-14): complexity-multiplier
+  inputs and bounds, utilization assumptions, the archetype library, worked
+  examples proving similar patients price similarly
+- **Packaging comparison** (X-09): how the framework is presented —
+  membership / episodic / retainer / package skins — against the D-015
+  criteria, under the D-018 lens (easy to sell > lucrative; slow ramp fine;
+  $130–175k target)
 - **Q-02 payer participation research**: what credentialing and billing with
   commercial insurers / Medicare / Medicaid practically involve for a solo
   physician; hybrid-model boundaries mapped for counsel (Q-15) — paired with
   inside-the-job learning at your current position
-- Capacity model kept current: heterogeneous arrangement mixes, drive-time
-  economics (Q-16/R-23), target-income orientation (Q-12); VA-historical
-  insurance quotes as labeled reference inputs
+- Economics tool kept current: arrangement archetypes, required-rate
+  derivation, mix evaluation, drive-time economics (Q-16/R-23);
+  VA-historical insurance quotes as labeled reference inputs
 - Q-03b runway-analysis structure for the eventual CPA conversation
 - **Perishable:** payer rules, quotes. The model and comparison method are
   durable.
@@ -115,8 +118,11 @@ never asserted as current law at launch.*
   sourced, not guessed
 - Payer participation briefs (with Track A): what participation obligates;
   credentialing processes
-- Q-17 brief: absence/availability models for solo physicians — what
-  carriers and standard-of-care norms expect; feeds the D-017 verification
+- **Q-17 brief — the minimum-availability question**: what availability and
+  continuity structure is actually *required* (medical-legal, ethical,
+  insurance, operational) for safe longitudinal care without a 24/7
+  obligation — challenging convention with sources, then verified with
+  counsel and carrier at runway
 - Texas landscape: medical board licensure process and timeline (for when
   settling is decided — **not started now**, D-019), telemedicine rules,
   entity options

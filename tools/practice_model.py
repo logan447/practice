@@ -1,21 +1,26 @@
 #!/usr/bin/env python3
-"""Capacity and economics model for a solo, individualized primary care practice.
+"""Arrangement-based economics model for a solo, individualized primary care
+practice.
 
-Given how much time you have and how much time each patient consumes: how
-large can the panel be, what is it worth, and — the governing question under
-D-018 — how many patients reach the income target within the workload
-envelope? Per-patient inputs are averages over heterogeneous arrangements
-(D-014); price is a scenario input while X-09 is open.
+The model matches docs/strategy/unit-economics.md: each patient relationship
+is a small customized clinical contract, priced from a defensible framework —
 
-Design principle: this tool never invents a number. Every cost input defaults
-to zero and is reported as UNSET until you supply a real figure. Time and
-behavior inputs default to values drawn from the working model where a decision
-exists (quarterly contact, annual in-person visit, $5,000 price) and to clearly
-labeled illustrative placeholders where none does.
+    price = expected physician time x complexity-adjusted hourly rate
+            + direct resources, sanity-checked against value
+
+The tool answers, in order:
+  1. How many patient-attributable hours exist?           (capacity)
+  2. What must an hour earn to sustain the practice?      (required rate)
+  3. What does each arrangement archetype cost at a rate? (pricing framework)
+  4. Does a given mix of arrangements reach the target?   (mix evaluation)
+
+Design principle: the tool never invents a number. Cost inputs default to
+zero and are reported UNSET. Archetype hours are illustrative placeholders —
+edit ARCHETYPES below as proposal-stage estimates and measured actuals
+accumulate. Provenance of key inputs prints on every run.
 
     python3 tools/practice_model.py
-    python3 tools/practice_model.py --ramp
-    python3 tools/practice_model.py --async-hours 6.5 --conversion 0.18
+    python3 tools/practice_model.py --hourly-rate 200 --mix 10,15,8,5
     python3 tools/practice_model.py --help
 
 No dependencies. Python 3.8+.
@@ -23,115 +28,90 @@ No dependencies. Python 3.8+.
 
 import argparse
 import sys
-from dataclasses import dataclass, field, fields
+from dataclasses import dataclass, fields
 
-# Provenance of key inputs, per docs/charter/decision-log.md.
-# 2026-08-15 reframe (D-014/D-015): pricing and cadence are no longer decided
-# — those inputs describe one SCENARIO archetype ("typical ongoing patient"),
-# not the practice. Arrangements are individualized per patient (D-016); the
-# per-patient time inputs are averages across heterogeneous arrangements.
-GROUNDED = {
-    "price": "SCENARIO — pricing is open (X-09); D-002 superseded",
-    "routine_contacts": "SCENARIO archetype — no universal cadence (D-014)",
-    "comprehensive_visit_hours": "SCENARIO archetype — no universal in-person cadence (D-014)",
-    "prospect_hours": "D-016 (complimentary conversations + records review + proposal)",
-    "target_income_low/high": "D-018 (~$130k-$175k; >$100k meaningful minimum)",
-}
+# --------------------------------------------------------------------------
+# Arrangement archetypes — ILLUSTRATIVE. Hours per engagement over its
+# duration; complexity is a bounded multiplier applied to the rate (D-002:
+# defined inputs — disease complexity, scope, coordination, intensity).
+# Edit freely; keep `key` stable for --mix ordering.
+# --------------------------------------------------------------------------
+ARCHETYPES = [
+    dict(key="A", name="Episodic, focused (~3 mo)",
+         sync=4.0, async_=2.0, travel=0.0, admin=1.0,
+         complexity=1.0, space_sessions=0),
+    dict(key="B", name="Stable longitudinal (1 yr)",
+         sync=5.0, async_=4.0, travel=0.0, admin=1.5,
+         complexity=1.0, space_sessions=1),
+    dict(key="C", name="Complex chronic + home visits (1 yr)",
+         sync=8.0, async_=6.0, travel=4.0, admin=2.0,
+         complexity=1.25, space_sessions=2),
+    dict(key="D", name="Intensive short-term (~4 mo)",
+         sync=8.0, async_=5.0, travel=0.0, admin=1.5,
+         complexity=1.15, space_sessions=1),
+]
 
 # Cost inputs. Default zero, reported as UNSET. Never guessed.
 COST_FIELDS = [
-    ("malpractice", "Malpractice premium (Q-08, broker quote)"),
+    ("malpractice", "Malpractice premium (VA historicals as reference; TX at runway)"),
     ("disability_insurance", "Own-occupation disability premium (R-05)"),
     ("licensure", "Licensure, DEA, credentialing, CME"),
-    ("ehr_platforms", "EHR, portal, telehealth, subscriptions"),
-    ("space", "In-person space and equipment (Q-04)"),
+    ("ehr_platforms", "EHR, telemedicine, website, subscriptions (D-021 stack)"),
+    ("space_costs", "Rented clinical space, annual total (X-05)"),
     ("legal_accounting", "Legal and accounting"),
-    ("marketing", "Marketing and acquisition spend"),
+    ("marketing", "Marketing (grassroots default, D-022)"),
     ("physician_benefits", "Health insurance, retirement, payroll taxes"),
     ("other_fixed", "Other fixed costs"),
+]
+
+PROVENANCE = [
+    ("hourly_rate", "SCENARIO or derived — the defensible anchor (D-002); "
+                    "derived = (target_low + costs) / (available hrs x utilization)"),
+    ("target incomes", "D-018 (~$130k-$175k target; >$100k meaningful minimum)"),
+    ("archetype hours", "ILLUSTRATIVE — replace with proposal estimates, then actuals (R-08)"),
+    ("complexity multipliers", "ILLUSTRATIVE bounds — calibration is open work (Q-14)"),
+    ("capacity inputs", "ILLUSTRATIVE — includes D-017 availability model by construction"),
+    ("utilization", "ILLUSTRATIVE — how many available hours actually fill"),
 ]
 
 
 @dataclass
 class Inputs:
-    # --- Capacity -------------------------------------------------------
+    # --- Capacity (D-017 availability is inside these numbers) -----------
     weeks_worked: float = 46.0            # illustrative
     clinical_hours_per_week: float = 30.0  # illustrative
-    fixed_admin_hours: float = 250.0       # illustrative: business ops, CME, QI
+    fixed_admin_hours: float = 250.0       # illustrative: practice-level admin
 
-    # --- Time per patient per year --------------------------------------
-    comprehensive_visit_hours: float = 2.5   # D-006, contact + prep + doc
-    routine_contacts: float = 3.0            # D-005, beyond the in-person visit
-    hours_per_routine_contact: float = 1.0   # illustrative
-    async_hours: float = 4.0                 # ILLUSTRATIVE — dominant unknown
-    acute_hours: float = 1.0                 # illustrative
+    # --- Rate framework ---------------------------------------------------
+    hourly_rate: float = 0.0     # 0 => derive from target_low at `utilization`
+    utilization: float = 0.75    # illustrative share of available hours that fill
 
-    # --- Acquisition -----------------------------------------------------
-    conversion: float = 0.30      # ILLUSTRATIVE — no credible source
-    prospect_hours: float = 1.5   # D-008
-    attrition: float = 0.10       # ILLUSTRATIVE
-
-    # --- Revenue ---------------------------------------------------------
-    price: float = 5000.0             # SCENARIO — pricing open (X-09)
-    reduced_fee_share: float = 0.10   # mechanism deferred (X-10) — illustrative
-    reduced_fee_discount: float = 0.40  # illustrative
-    processing_rate: float = 0.029      # illustrative; verify with processor
-
-    # --- Target income (D-018) -------------------------------------------
+    # --- Targets (D-018) --------------------------------------------------
+    target_floor: float = 100000.0
     target_income_low: float = 130000.0
     target_income_high: float = 175000.0
 
-    # --- Costs (all UNSET by design) -------------------------------------
+    # --- Direct resources -------------------------------------------------
+    space_session_cost: float = 0.0   # UNSET — per rented session, pass-through
+
+    # --- Practice costs (all UNSET by design) -----------------------------
     malpractice: float = 0.0
     disability_insurance: float = 0.0
     licensure: float = 0.0
     ehr_platforms: float = 0.0
-    space: float = 0.0
+    space_costs: float = 0.0
     legal_accounting: float = 0.0
     marketing: float = 0.0
     physician_benefits: float = 0.0
     other_fixed: float = 0.0
 
-    # --- Ramp ------------------------------------------------------------
-    ramp_years: int = 5
-    ramp_adds: list = field(default_factory=lambda: [30, 30, 25, 20, 15])
+    # --- Mix (counts per archetype, in ARCHETYPES order) ------------------
+    mix: str = "10,15,8,5"
 
-    # --- Derived ---------------------------------------------------------
-    @property
-    def annual_capacity(self) -> float:
-        return self.weeks_worked * self.clinical_hours_per_week
-
+    # --- Derived ----------------------------------------------------------
     @property
     def available_hours(self) -> float:
-        return self.annual_capacity - self.fixed_admin_hours
-
-    @property
-    def hours_per_patient(self) -> float:
-        return (
-            self.comprehensive_visit_hours
-            + self.routine_contacts * self.hours_per_routine_contact
-            + self.async_hours
-            + self.acute_hours
-        )
-
-    @property
-    def acquisition_hours_per_patient(self) -> float:
-        """Steady-state acquisition time amortized per panel member per year.
-
-        Each year, attrition * panel patients must be replaced. Each
-        replacement costs (1 / conversion) consultations.
-        """
-        if self.conversion <= 0:
-            return float("inf")
-        return self.attrition * self.prospect_hours / self.conversion
-
-    @property
-    def effective_price(self) -> float:
-        """Price after reduced-fee memberships and payment processing."""
-        after_discount = self.price * (
-            1 - self.reduced_fee_share * self.reduced_fee_discount
-        )
-        return after_discount * (1 - self.processing_rate)
+        return self.weeks_worked * self.clinical_hours_per_week - self.fixed_admin_hours
 
     @property
     def fixed_costs(self) -> float:
@@ -141,215 +121,176 @@ class Inputs:
     def unset_costs(self):
         return [(n, d) for n, d in COST_FIELDS if getattr(self, n) == 0.0]
 
-    def panel_capacity(self) -> float:
-        """Largest panel one physician can serve at steady state.
+    def required_rate(self, target: float, utilization: float) -> float:
+        filled = self.available_hours * utilization
+        if filled <= 0:
+            return float("inf")
+        return (target + self.fixed_costs) / filled
 
-        Solved as a fixed point: acquisition load scales with panel size, so
-        panel appears on both sides. Rearranged to closed form.
-        """
-        denom = self.hours_per_patient + self.acquisition_hours_per_patient
-        if denom <= 0:
-            return 0.0
-        return max(0.0, self.available_hours / denom)
+    def effective_rate(self) -> float:
+        """The rate used for pricing: explicit, or derived from target_low."""
+        if self.hourly_rate > 0:
+            return self.hourly_rate
+        return self.required_rate(self.target_income_low, self.utilization)
 
-    def break_even_panel(self):
-        """Patients needed to cover fixed costs. None if no costs are set."""
-        if self.fixed_costs <= 0 or self.effective_price <= 0:
-            return None
-        return self.fixed_costs / self.effective_price
+    def rate_is_derived(self) -> bool:
+        return self.hourly_rate <= 0
+
+
+def arrangement_hours(a: dict) -> float:
+    return a["sync"] + a["async_"] + a["travel"] + a["admin"]
+
+
+def arrangement_price(a: dict, rate: float, space_session_cost: float) -> float:
+    time_component = arrangement_hours(a) * rate * a["complexity"]
+    resources = a["space_sessions"] * space_session_cost
+    return time_component + resources
 
 
 def money(x: float) -> str:
     return f"${x:,.0f}"
 
 
-def rule(char: str = "-", width: int = 74) -> str:
+def rule(char: str = "-", width: int = 76) -> str:
     return char * width
-
-
-def report_steady_state(i: Inputs) -> None:
-    panel = i.panel_capacity()
-    revenue = panel * i.effective_price
-
-    print(rule("="))
-    print("STEADY-STATE CAPACITY")
-    print(rule("="))
-    print(f"  Annual clinical capacity     {i.annual_capacity:>10,.0f} hr"
-          f"   ({i.weeks_worked:.0f} wk x {i.clinical_hours_per_week:.0f} hr)")
-    print(f"  Less fixed admin             {i.fixed_admin_hours:>10,.0f} hr")
-    print(f"  Available for patients       {i.available_hours:>10,.0f} hr")
-    print()
-    print("  Time per patient per year:")
-    print(f"    Comprehensive in-person    {i.comprehensive_visit_hours:>10.2f} hr   [D-006]")
-    print(f"    Routine contacts ({i.routine_contacts:.0f})        "
-          f"{i.routine_contacts * i.hours_per_routine_contact:>10.2f} hr   [D-005]")
-    print(f"    Asynchronous care          {i.async_hours:>10.2f} hr   <-- dominant unknown")
-    print(f"    Acute episodes             {i.acute_hours:>10.2f} hr")
-    print(f"    {'':<26} {'':>10}      {rule('-', 8)}")
-    print(f"    Subtotal                   {i.hours_per_patient:>10.2f} hr")
-    print(f"    Acquisition (amortized)    {i.acquisition_hours_per_patient:>10.2f} hr"
-          f"   [{i.attrition:.0%} attrition / {i.conversion:.0%} conversion]")
-    print(f"    TOTAL                      "
-          f"{i.hours_per_patient + i.acquisition_hours_per_patient:>10.2f} hr")
-    print()
-    print(f"  >> PANEL CEILING             {panel:>10,.0f} patients")
-    print()
-    print(f"  List price                   {money(i.price):>13}   [D-002]")
-    print(f"  Effective per patient        {money(i.effective_price):>13}"
-          f"   (after reduced-fee + processing)")
-    print(f"  >> GROSS REVENUE AT CEILING  {money(revenue):>13}")
-    print()
-
-    be = i.break_even_panel()
-    if be is None:
-        print(f"  Fixed costs                  {'UNSET':>13}")
-        print(f"  Break-even panel             {'not computable':>13}")
-    else:
-        print(f"  Fixed costs                  {money(i.fixed_costs):>13}")
-        print(f"  Break-even panel             {be:>10,.0f} patients")
-        print(f"  Margin at ceiling            {money(revenue - i.fixed_costs):>13}")
-        if panel > 0:
-            print(f"  Capacity used at break-even  {be / panel:>12.0%}")
-    print()
-
-    print(rule("="))
-    print("TARGET INCOME CHECK (D-018: reach the target, don't maximize)")
-    print(rule("="))
-    costs_note = "" if i.fixed_costs > 0 else "   (+ break-even patients once costs are set)"
-    for label, target in (("floor  >$100k", 100000.0),
-                          (f"low    {money(i.target_income_low)}", i.target_income_low),
-                          (f"high   {money(i.target_income_high)}", i.target_income_high)):
-        needed_gross = target + i.fixed_costs
-        pts = needed_gross / i.effective_price if i.effective_price > 0 else float("inf")
-        hrs = pts * (i.hours_per_patient + i.acquisition_hours_per_patient)
-        share = pts / panel if panel > 0 else float("inf")
-        print(f"  {label:<22} {pts:>5,.0f} patients{costs_note}"
-              f"   ~{hrs:>5,.0f} hr/yr   {share:>4.0%} of capacity")
-    if i.fixed_costs <= 0:
-        print("  NOTE: fixed costs UNSET — patient counts above cover income only.")
-    print()
-    print("  At this scenario's price, the target sits well below the capacity")
-    print("  ceiling — slack available for lower prices, complex patients,")
-    print("  reduced-fee care, vacation, or less work. That slack is what makes")
-    print("  the individualized model (D-014) economically affordable.")
-    print()
-
-
-def report_sensitivity(i: Inputs) -> None:
-    print(rule("="))
-    print("SENSITIVITY — asynchronous hours per patient per year")
-    print(rule("="))
-    print("The one input most likely to be wrong, and the one that moves the")
-    print("answer most. Currently unmeasured. Instrument it from patient one.")
-    print()
-    print(f"  {'async hr':>9}  {'total hr':>9}  {'panel':>7}  {'gross':>12}  {'margin':>12}")
-    print(f"  {rule('-', 9)}  {rule('-', 9)}  {rule('-', 7)}  {rule('-', 12)}  {rule('-', 12)}")
-
-    base = i.async_hours
-    for async_hr in (2.0, 4.0, 6.0, 8.0, 10.0):
-        i.async_hours = async_hr
-        panel = i.panel_capacity()
-        gross = panel * i.effective_price
-        margin = money(gross - i.fixed_costs) if i.fixed_costs > 0 else "n/a"
-        marker = "  <-- current" if abs(async_hr - base) < 1e-9 else ""
-        print(f"  {async_hr:>9.1f}  {i.hours_per_patient:>9.2f}  {panel:>7,.0f}  "
-              f"{money(gross):>12}  {margin:>12}{marker}")
-    i.async_hours = base
-    print()
-
-
-def report_ramp(i: Inputs) -> None:
-    print(rule("="))
-    print("RAMP")
-    print(rule("="))
-    print("Adds per year are YOUR input, not a forecast. The model checks")
-    print("whether each year fits inside capacity and what it earns.")
-    print()
-
-    adds = list(i.ramp_adds)[: i.ramp_years]
-    while len(adds) < i.ramp_years:
-        adds.append(0)
-
-    header = (f"  {'yr':>3}  {'start':>6}  {'add':>5}  {'lost':>5}  {'end':>6}  "
-              f"{'consults':>9}  {'hours':>7}  {'cap%':>5}  {'revenue':>11}")
-    print(header)
-    print("  " + rule("-", len(header) - 2))
-
-    panel = 0.0
-    ceiling = i.panel_capacity()
-    for year, add in enumerate(adds, start=1):
-        start = panel
-        lost = start * i.attrition
-        end = start - lost + add
-        avg = (start + end) / 2
-
-        # Consultations must cover both growth and attrition replacement.
-        gross_adds = add + lost
-        consults = gross_adds / i.conversion if i.conversion > 0 else float("inf")
-
-        care_hours = avg * i.hours_per_patient
-        acq_hours = consults * i.prospect_hours
-        total_hours = care_hours + acq_hours + i.fixed_admin_hours
-        cap_pct = total_hours / i.annual_capacity if i.annual_capacity else 0.0
-        revenue = avg * i.effective_price
-
-        flag = "  OVER CAPACITY" if cap_pct > 1.0 else ""
-        print(f"  {year:>3}  {start:>6,.0f}  {add:>5,.0f}  {lost:>5,.1f}  {end:>6,.0f}  "
-              f"{consults:>9,.0f}  {total_hours:>7,.0f}  {cap_pct:>4.0%}  "
-              f"{money(revenue):>11}{flag}")
-        panel = end
-
-    print()
-    print(f"  Panel ceiling for reference: {ceiling:,.0f} patients")
-    if i.fixed_costs > 0:
-        be = i.break_even_panel()
-        print(f"  Break-even panel:            {be:,.0f} patients")
-    else:
-        print("  Break-even:                  not computable (costs UNSET)")
-    print()
-    print("  Note: in early years the binding constraint is lead flow, not")
-    print("  physician time. At steady state it inverts. Plan them separately.")
-    print()
 
 
 def report_unset(i: Inputs) -> None:
     unset = i.unset_costs
-    if not unset:
+    if not unset and i.space_session_cost > 0:
         return
     print(rule("!"))
-    print("UNSET COST INPUTS — profitability below is NOT computable")
+    print("UNSET COST INPUTS — deliberately zero; no figure has been invented")
     print(rule("!"))
-    print("These are deliberately zero. No figure has been invented for them.")
-    print("Fill each from an actual quote; the model gets real as you do.")
-    print()
     for name, desc in unset:
         print(f"  [ ] --{name.replace('_', '-'):<22} {desc}")
+    if i.space_session_cost == 0.0:
+        print(f"  [ ] --space-session-cost     Per-session rented space pass-through")
+    print()
+    print("  Required rates below therefore cover INCOME ONLY. Real costs raise")
+    print("  them. Fill each from an actual quote; the chain recomputes.")
     print()
 
 
-def report_illustrative(i: Inputs) -> None:
-    print(rule("~"))
-    print("PROVENANCE OF INPUTS")
-    print(rule("~"))
-    print("  Key inputs and their status:")
-    for key, source in GROUNDED.items():
-        print(f"    {key:<28} {source}")
+def report_capacity(i: Inputs) -> None:
+    print(rule("="))
+    print("1 · CAPACITY — patient-attributable hours")
+    print(rule("="))
+    print(f"  {i.weeks_worked:.0f} wk x {i.clinical_hours_per_week:.0f} hr"
+          f"  −  {i.fixed_admin_hours:.0f} hr practice admin"
+          f"  =  {i.available_hours:,.0f} hr/yr available")
+    print(f"  Assumed utilization (share that fills): {i.utilization:.0%}"
+          f"  →  ~{i.available_hours * i.utilization:,.0f} hr of arrangements")
+    print("  The D-017 availability model (bounded hours, substantial time off)")
+    print("  is inside these inputs by construction.")
     print()
-    print("  Illustrative placeholders — replace with your own figures:")
-    for name in ("weeks_worked", "clinical_hours_per_week", "fixed_admin_hours",
-                 "hours_per_routine_contact", "async_hours", "acute_hours",
-                 "conversion", "attrition", "reduced_fee_share",
-                 "reduced_fee_discount", "processing_rate"):
-        print(f"    {name:<28} {getattr(i, name)}")
+
+
+def report_required_rate(i: Inputs) -> None:
+    print(rule("="))
+    print("2 · REQUIRED BLENDED RATE — what an hour must earn (the anchor)")
+    print(rule("="))
+    print("  rate = (target income + practice costs) / (available hrs x utilization)")
     print()
-    print("  None of the above is a market benchmark. They demonstrate the")
-    print("  structure of the model. Treat conclusions as conditional on them.")
+    targets = [("floor >$100k", i.target_floor),
+               (f"low   {money(i.target_income_low)}", i.target_income_low),
+               (f"high  {money(i.target_income_high)}", i.target_income_high)]
+    utils = [0.50, 0.75, 1.00]
+    header = "  " + f"{'target':<18}" + "".join(f"{f'{u:.0%} util':>14}" for u in utils)
+    print(header)
+    print("  " + rule("-", len(header) - 2))
+    for label, t in targets:
+        row = f"  {label:<18}"
+        for u in utils:
+            row += f"{'$' + format(i.required_rate(t, u), ',.0f') + '/hr':>14}"
+        print(row)
+    print()
+    rate = i.effective_rate()
+    src = (f"derived from low target at {i.utilization:.0%} utilization"
+           if i.rate_is_derived() else "set via --hourly-rate (scenario)")
+    print(f"  >> PRICING RATE USED BELOW: ${rate:,.0f}/hr  ({src})")
+    print()
+
+
+def report_archetypes(i: Inputs) -> None:
+    rate = i.effective_rate()
+    print(rule("="))
+    print("3 · ARRANGEMENT PRICING — the framework applied to the archetype library")
+    print(rule("="))
+    print("  price = hours x rate x complexity + direct resources   (then value-check)")
+    print()
+    header = (f"  {'':<3}{'archetype':<36}{'hours':>6}{'cmplx':>7}"
+              f"{'time comp':>11}{'resources':>11}{'price':>10}")
+    print(header)
+    print("  " + rule("-", len(header) - 2))
+    for a in ARCHETYPES:
+        hrs = arrangement_hours(a)
+        time_comp = hrs * rate * a["complexity"]
+        res = a["space_sessions"] * i.space_session_cost
+        price = time_comp + res
+        res_str = money(res) if res else ("UNSET" if a["space_sessions"] else "—")
+        print(f"  {a['key']:<3}{a['name']:<36}{hrs:>6.1f}{a['complexity']:>7.2f}"
+              f"{money(time_comp):>11}{res_str:>11}{money(price):>10}")
+    print()
+    print("  Archetype hours are ILLUSTRATIVE. The real library is built from")
+    print("  proposal-stage estimates and corrected by measured actuals (R-08).")
+    print()
+
+
+def report_mix(i: Inputs, counts) -> None:
+    rate = i.effective_rate()
+    print(rule("="))
+    print("4 · MIX EVALUATION — does this portfolio reach the target?")
+    print(rule("="))
+    total_hours = 0.0
+    total_income = 0.0
+    header = (f"  {'':<3}{'archetype':<36}{'count':>6}{'hours':>8}{'income':>11}")
+    print(header)
+    print("  " + rule("-", len(header) - 2))
+    for a, n in zip(ARCHETYPES, counts):
+        hrs = arrangement_hours(a) * n
+        inc = arrangement_price(a, rate, i.space_session_cost) * n
+        total_hours += hrs
+        total_income += inc
+        print(f"  {a['key']:<3}{a['name']:<36}{n:>6}{hrs:>8.0f}{money(inc):>11}")
+    print("  " + rule("-", len(header) - 2))
+    util = total_hours / i.available_hours if i.available_hours else float("inf")
+    print(f"  {'':<3}{'TOTAL':<36}{sum(counts):>6}{total_hours:>8.0f}"
+          f"{money(total_income):>11}")
+    print()
+    print(f"  Capacity used: {util:.0%} of {i.available_hours:,.0f} available hours")
+    net_note = "" if i.fixed_costs > 0 else "  (costs UNSET — gross ≈ income)"
+    net = total_income - i.fixed_costs
+    print(f"  Income after costs: {money(net)}{net_note}")
+    for label, t in (("floor >$100k", i.target_floor),
+                     ("target low", i.target_income_low),
+                     ("target high", i.target_income_high)):
+        mark = "reached" if net >= t else f"short by {money(t - net)}"
+        print(f"    vs {label:<14} {mark}")
+    if util > 1.0:
+        print("  !! MIX EXCEEDS CAPACITY — this portfolio cannot be delivered.")
+    print()
+    print("  Structural slack between the mix and 100% capacity is what funds")
+    print("  reduced-fee arrangements (D-003), estimate overruns, the slow ramp,")
+    print("  and time off. Slack is a feature, not waste.")
+    print()
+
+
+def report_provenance() -> None:
+    print(rule("~"))
+    print("PROVENANCE OF KEY INPUTS")
+    print(rule("~"))
+    for name, note in PROVENANCE:
+        print(f"  {name:<24} {note}")
+    print()
+    print("  Nothing above is a market benchmark. Treat all conclusions as")
+    print("  conditional on the labeled placeholders.")
     print()
 
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        description="Capacity and economics model for a solo concierge practice.",
+        description="Arrangement-based economics model for a solo practice.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     d = Inputs()
@@ -360,74 +301,62 @@ def build_parser() -> argparse.ArgumentParser:
                      default=d.clinical_hours_per_week)
     cap.add_argument("--fixed-admin-hours", type=float, default=d.fixed_admin_hours)
 
-    t = p.add_argument_group("time per patient per year")
-    t.add_argument("--comprehensive-visit-hours", type=float,
-                   default=d.comprehensive_visit_hours)
-    t.add_argument("--routine-contacts", type=float, default=d.routine_contacts)
-    t.add_argument("--hours-per-routine-contact", type=float,
-                   default=d.hours_per_routine_contact)
-    t.add_argument("--async-hours", type=float, default=d.async_hours,
-                   help="Messaging, results, refills, coordination. Dominant unknown.")
-    t.add_argument("--acute-hours", type=float, default=d.acute_hours)
+    r = p.add_argument_group("rate framework")
+    r.add_argument("--hourly-rate", type=float, default=d.hourly_rate,
+                   help="Blended $/hr for pricing; 0 derives it from the low "
+                        "target at --utilization")
+    r.add_argument("--utilization", type=float, default=d.utilization,
+                   help="Share of available hours assumed to fill (0-1)")
 
-    a = p.add_argument_group("acquisition")
-    a.add_argument("--conversion", type=float, default=d.conversion)
-    a.add_argument("--prospect-hours", type=float, default=d.prospect_hours)
-    a.add_argument("--attrition", type=float, default=d.attrition)
+    t = p.add_argument_group("targets (D-018)")
+    t.add_argument("--target-floor", type=float, default=d.target_floor)
+    t.add_argument("--target-income-low", type=float, default=d.target_income_low)
+    t.add_argument("--target-income-high", type=float, default=d.target_income_high)
 
-    r = p.add_argument_group("revenue")
-    r.add_argument("--price", type=float, default=d.price,
-                   help="SCENARIO input — pricing model is open (X-09)")
-    r.add_argument("--target-income-low", type=float, default=d.target_income_low)
-    r.add_argument("--target-income-high", type=float, default=d.target_income_high)
-    r.add_argument("--reduced-fee-share", type=float, default=d.reduced_fee_share)
-    r.add_argument("--reduced-fee-discount", type=float, default=d.reduced_fee_discount)
-    r.add_argument("--processing-rate", type=float, default=d.processing_rate)
+    res = p.add_argument_group("direct resources")
+    res.add_argument("--space-session-cost", type=float, default=0.0,
+                     help="Per-session rented space cost (UNSET by default)")
 
-    c = p.add_argument_group("costs (all default to UNSET)")
+    c = p.add_argument_group("practice costs (all default to UNSET)")
     for name, desc in COST_FIELDS:
-        c.add_argument(f"--{name.replace('_', '-')}", type=float, default=0.0, help=desc)
+        c.add_argument(f"--{name.replace('_', '-')}", type=float, default=0.0,
+                       help=desc)
 
-    m = p.add_argument_group("ramp")
-    m.add_argument("--ramp", action="store_true", help="Show year-by-year ramp")
-    m.add_argument("--ramp-years", type=int, default=d.ramp_years)
-    m.add_argument("--ramp-adds", type=str, default=",".join(str(x) for x in d.ramp_adds),
-                   help="Comma-separated new patients per year")
-
-    p.add_argument("--no-sensitivity", action="store_true")
+    m = p.add_argument_group("mix")
+    m.add_argument("--mix", type=str, default=d.mix,
+                   help="Comma-separated counts per archetype, in "
+                        + "/".join(a["key"] for a in ARCHETYPES) + " order")
     return p
 
 
 def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
-
     valid = {f.name for f in fields(Inputs)}
-    kwargs = {k: v for k, v in vars(args).items()
-              if k in valid and k != "ramp_adds"}
+    i = Inputs(**{k: v for k, v in vars(args).items() if k in valid})
+
+    if not (0 < i.utilization <= 1.0):
+        print("error: --utilization must be in (0, 1]", file=sys.stderr)
+        return 2
+    if i.available_hours <= 0:
+        print("error: fixed admin hours exceed clinical capacity", file=sys.stderr)
+        return 2
     try:
-        kwargs["ramp_adds"] = [int(x) for x in args.ramp_adds.split(",") if x.strip()]
+        counts = [int(x) for x in i.mix.split(",") if x.strip() != ""]
     except ValueError:
-        print("error: --ramp-adds must be comma-separated integers", file=sys.stderr)
+        print("error: --mix must be comma-separated integers", file=sys.stderr)
         return 2
-
-    i = Inputs(**kwargs)
-
-    if i.conversion <= 0:
-        print("error: --conversion must be greater than 0", file=sys.stderr)
-        return 2
-    if i.annual_capacity <= i.fixed_admin_hours:
-        print("error: fixed admin hours exceed annual clinical capacity",
-              file=sys.stderr)
+    if len(counts) != len(ARCHETYPES):
+        print(f"error: --mix needs {len(ARCHETYPES)} counts "
+              f"({'/'.join(a['key'] for a in ARCHETYPES)})", file=sys.stderr)
         return 2
 
     print()
     report_unset(i)
-    report_steady_state(i)
-    if not args.no_sensitivity:
-        report_sensitivity(i)
-    if args.ramp:
-        report_ramp(i)
-    report_illustrative(i)
+    report_capacity(i)
+    report_required_rate(i)
+    report_archetypes(i)
+    report_mix(i, counts)
+    report_provenance()
     return 0
 
 

@@ -14,35 +14,30 @@ added; X-04 broadened to full payer strategy; X-06 superseded by D-017.
 
 ---
 
-## X-09 — Pricing and packaging architecture
+## X-09 — Packaging: how the pricing framework is presented
 
-**The largest open question in the project** (D-015; supersedes the former
-$5,000 membership decision D-002).
+**Narrowed 2026-08-15:** the pricing *framework* is now decided (D-002 —
+individualized, derived-rate, defensible). What stays deferred is the
+**presentation layer**: whether arrangements reach patients as memberships
+(annual/monthly), episodic fees, retainers, customized packages,
+insurance-reimbursed services, hybrids, or plain per-proposal pricing —
+possibly different presentations for different patient types. These are
+skins over the same framework, not competing price schemes.
 
-**Candidates:** annual or monthly memberships · episodic private-pay ·
-retainer arrangements · customized care packages · insurance-based
-reimbursement · hybrid private-pay/insurance · individually tailored
-per-proposal pricing · combinations of these for different patient types.
+**Why deferred:** The right presentation depends on payer participation
+(X-04), Q-15 regulatory constraints, what Track F validation shows patients
+respond to, and administrative reality.
 
-**Why deferred:** The right answer depends on payer participation (X-04),
-regulatory constraints not yet researched, what patients actually respond to,
-and administrative reality — none of which is known yet. Locking a model now
-would repeat the original $5,000 mistake at a different address.
+**Evaluation criteria** (D-015): ease of selling · admin complexity ·
+regulatory implications · revenue predictability · affordability · workload
+· flexibility preservation · value-based alignment · solo compatibility —
+under the D-018 lens (easy to sell beats lucrative).
 
-**Evaluation criteria** (from D-015): ease of selling · administrative
-complexity · regulatory implications · revenue predictability · patient
-affordability · physician workload · preservation of flexibility · alignment
-with value-based care · solo-practice compatibility.
+**Meanwhile:** Q-14 calibration work; the packaging comparison as a Track A
+research deliverable; the economics tool prices any candidate as a scenario.
 
-**Meanwhile:** This is now a primary Track A/E research workstream — a
-structured comparison of the candidate models against the criteria, with the
-regulatory questions (Q-15) flagged for counsel rather than guessed. The
-economics tool runs any candidate as a scenario. The D-018 context (modest
-income target, slow ramp accepted, ease-of-selling prioritized) is the lens.
-
-**Decide when:** After the comparison research, payer-strategy learning
-(Q-02), and ideally some Track F validation conversations — expected mid-to-
-late preparation, before patient-facing materials carry prices.
+**Decide when:** After payer-strategy learning (Q-02) and validation
+conversations — before patient-facing materials carry prices.
 
 ---
 
@@ -202,10 +197,13 @@ carries a sketch of what its natural reduced-fee mechanism would be.
 
 The decided spine that preparation work builds on (see decision log):
 
-- Solo, no staff, no coverage layer — with transparent availability
+- Solo, no staff, no coverage layer — bounded, explicit availability
   (D-001, D-017)
 - The north star: flexible, individualized, relationship-based care; no
   pre-designed product (D-014)
+- The pricing *framework*: individualized, derived-rate, defensible —
+  time × complexity + resources, value-checked (D-002); only its
+  calibration (Q-14) and presentation (X-09) remain open
 - The personalized proposal process as the path into the practice (D-016)
 - Compensation target ~$130–175k; slow ramp accepted; income maximization is
   a non-goal (D-018)
@@ -214,8 +212,8 @@ The decided spine that preparation work builds on (see decision log):
 - Technology architecture: established EHR core + custom front door,
   integrate-before-build (D-007, D-021)
 - Grassroots-first acquisition (D-022)
-- Documentation-first outcomes; value = improvement/cost; no research burden
-  on early operations (D-023)
+- Visible value: Value = Quality ÷ Cost, tracked and shown to each patient;
+  publication is not a goal (D-023)
 - Financial-health scope: stress reduction, not financial advice (D-024)
 
 All revisable — the working model lists revisit triggers — but decided enough

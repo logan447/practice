@@ -4,8 +4,8 @@ Questions that need answers, organized by **when they need answering** under
 the preparation frame (D-011). Question numbers are stable across revisions;
 resolved questions move to the bottom rather than disappearing.
 
-Revised 2026-08-15 after the flexibility reframe (D-014 – D-024): Q-13, Q-03,
-Q-10, Q-11 resolved; Q-02 broadened; Q-14 – Q-17 added.
+Only genuinely unresolved questions appear above the fold; resolved ones
+compress to one line at the bottom (D-025).
 
 **Owner key:** `YOU` — your decision or knowledge · `COUNSEL` — healthcare
 attorney · `CPA` — accountant · `BROKER` — insurance broker ·
@@ -15,16 +15,19 @@ attorney · `CPA` — accountant · `BROKER` — insurance broker ·
 
 ## The research core of the preparation — the questions the reframe created
 
-### Q-14 — Which pricing/packaging architecture fits best? `RESEARCH` + `YOU`
-The X-09 comparison: memberships (annual/monthly), episodic private-pay,
-retainers, customized packages, insurance reimbursement, hybrids, and
-individually tailored proposals — each evaluated for ease of selling,
-administrative complexity, regulatory implications, revenue predictability,
-patient affordability, physician workload, flexibility preservation,
-value-based-care alignment, and solo compatibility. Evaluated against the
-D-018 lens: modest income target, slow ramp fine, easy to sell beats
-lucrative. Output: a structured comparison document with the regulatory
-unknowns flagged for counsel, not guessed.
+### Q-14 — Calibrate the pricing framework; choose the packaging presentation `RESEARCH` + `YOU`
+The framework itself is decided (D-002: time × complexity-adjusted derived
+rate + resources, value-checked). What remains:
+- **Calibration:** complexity-multiplier inputs and bounds; utilization
+  assumptions for ramp vs. steady state; the archetype library's hours;
+  worked examples proving two similar patients price similarly
+- **Packaging comparison (X-09):** whether arrangements are *presented* as
+  memberships, episodic fees, retainers, or packages — evaluated for ease of
+  selling, admin complexity, regulatory implications, revenue
+  predictability, affordability, workload, flexibility, value-based
+  alignment, and solo compatibility, under the D-018 lens (easy to sell
+  beats lucrative)
+- Regulatory unknowns flagged for counsel (Q-15), not guessed
 
 ### Q-02 — Payer participation: what does each path actually involve? `RESEARCH` + `YOU`
 Broadened from "Medicare posture" (X-04). What credentialing with commercial
@@ -52,14 +55,26 @@ the tool), geographic clustering strategy, the home-visit kit (equipment by
 procedural scope), safety protocol, documentation workflow in the field, and
 malpractice implications (fold into the X-07 broker briefing).
 
-### Q-17 — Does the no-coverage availability model hold up? `COUNSEL` + `BROKER`
-D-017 replaces a coverage clinician with transparent availability
-expectations, including up to ~3 months/year away from regular scheduling
-with remote triage. Verify at runway: malpractice carrier expectations,
-standard-of-care and abandonment norms for absences, and whether the patient
-agreement language makes the model defensible. Design now (availability
-policy, triage taxonomy, agreement language) so verification is a review,
-not a redesign. **If verification fails, X-06 reopens.**
+### Q-17 — What is the *minimum* availability and continuity structure required? `RESEARCH` → `COUNSEL` + `BROKER`
+Framed deliberately as a challenge to convention, not a compliance check on
+a fixed plan: **what is the minimum availability and continuity structure
+required to provide safe, ethical, legally compliant, and genuinely valuable
+longitudinal primary care — without an unnecessary 24/7 obligation or a
+default coverage clinician?** Push on all four fronts rather than assuming
+traditional coverage structures are required because they are conventional:
+- **Medical-legal:** abandonment and standard-of-care norms for planned
+  absences; what documentation and patient-agreement language does
+- **Ethical:** what continuity patients are genuinely owed once a
+  relationship exists, and what advance boundaries honestly discharge it
+- **Insurance:** what malpractice carriers actually require vs. what is
+  merely customary — ask, don't assume
+- **Operational:** what "aware, not absent" concretely means — what gets
+  monitored remotely, what triggers intervention, what the triage taxonomy
+  routes to ED / urgent care / wait
+Research brief during preparation; counsel + carrier verification at
+runway. The D-017 boundaries move to whatever floor the answer establishes
+— no further. **If a coverage arrangement proves genuinely required, X-06
+reopens.**
 
 ---
 

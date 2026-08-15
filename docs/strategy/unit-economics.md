@@ -1,218 +1,193 @@
-# Unit Economics and Capacity
+# Unit Economics
 
-> **Reframe (2026-08-15, D-014/D-015/D-018).** This document was written when
-> the working model was a fixed $5,000 membership with a fixed cadence. Those
-> decisions are superseded: pricing is an open research question (X-09) and
-> arrangements are individualized per patient. The document's *structure*
-> survives — physician time is still the only real constraint, and the
-> capacity math below still governs — but read it with three corrections:
->
-> 1. **$5,000 is now a scenario input, not a plan.** Every revenue figure
->    below is one point in the X-09 comparison space, not a forecast.
-> 2. **The "per-patient hours" line is now an average over heterogeneous
->    arrangements** — short-term intensive, episodic, longitudinal — rather
->    than a uniform cadence. The proposal process (D-016) estimates it per
->    patient up front, which is a capacity-management tool the old model
->    lacked. Home-visit drive time (R-23) belongs in this line too.
-> 3. **The orientation flips from "maximize the panel" to "reach the
->    target."** D-018 sets compensation at ~$130–175k with >$100k as a
->    meaningful minimum. The governing question is no longer "how large can
->    the panel be?" but **"what mixes of arrangements reach the target within
->    the D-017 workload envelope?"** (Q-12). The tool now reports this
->    directly (`TARGET INCOME CHECK`).
->
-> **The headline finding of the reframe:** the income target is modest
-> relative to a solo physician's clinical capacity. Under the illustrative
-> scenario below (~$4,700 effective per patient per year, ~10.5 hr/patient),
-> roughly **30–45 patients cover $130–175k before costs** — under half the
-> ~103-patient capacity ceiling, leaving enormous slack for lower price
-> points, higher-intensity patients, reduced-fee arrangements, generous
-> vacation, or simply less work. This is what makes the flexibility of D-014
-> economically affordable and keeps X-09 genuinely open: the practice does
-> not *need* premium pricing to hit its goal. Verify against real costs as
-> quotes land.
->
-> The cost side fills progressively during preparation (VA-historical
-> insurance quotes are acceptable labeled reference inputs); conversion and
-> true per-patient intensity cannot be measured until real operation.
+*Rewritten 2026-08-15 around the current model: each patient relationship is a
+small, customized clinical contract — scoped, priced, tracked, periodically
+reassessed, and renewed when appropriate — managed by one solo physician.
+The economics are built from the arrangement level up, not from a membership
+price down.*
 
-The question this document originally answered: **can one physician deliver
-an intensive care model to enough patients, at a $5,000-class price, to make
-a sustainable practice — and what determines the answer?** The analysis is
-kept because its mechanics remain the project's capacity foundation.
-
-> **Read this first.** Every number below marked *illustrative* is a placeholder
-> chosen to demonstrate the structure of the model. None is a benchmark, a
-> market figure, or a recommendation. I do not have credible data on concierge
-> panel sizes, conversion rates, or cost lines for your market, and I am not
-> going to invent it. The value here is the *shape* of the model and which
-> inputs actually matter. Replace the placeholders with your own figures using
-> `tools/practice_model.py`.
+> **Provenance discipline (unchanged):** numbers marked *illustrative*
+> demonstrate the structure of the model and are not benchmarks, market data,
+> or recommendations. Cost lines stay visibly UNSET until real quotes exist.
+> Run scenarios with `tools/practice_model.py`.
 
 ---
 
-## 1. The core insight
+## 1. The constraint is physician time; the goal is the target, not the maximum
 
-In a solo practice, **physician time is the only real constraint**. Revenue is
-panel size × price. Panel size is not a business choice — it is a division
-problem:
+Two fixed points anchor everything:
 
-```
-                    annual clinical capacity − fixed admin time
-  panel size  =  ─────────────────────────────────────────────────
-                 hours per patient per year  +  acquisition time per patient
-```
+- **Capacity** — one physician's deliverable hours:
+  `weeks worked × clinical hours/week − fixed admin`. Illustratively,
+  46 × 30 − 250 = **~1,130 hours/year** available for patient-attributable
+  work. (The D-017 availability model — substantial vacation, bounded hours —
+  is already inside these numbers; generosity to yourself is a model input,
+  not a leak.)
+- **The target (D-018)** — ~$130–175k, >$100k meaningful minimum, income
+  maximization a non-goal.
 
-Price does not appear. Price determines what a given panel is *worth*; it has
-no effect on how large the panel can be. So the two levers that matter are the
-numerator (how much time you have) and the first term of the denominator (how
-much time each patient consumes).
+The governing question: **what set of patient arrangements reaches the target
+within the workload envelope — and what must each arrangement be priced at
+for the whole to be fair and sustainable?**
 
-Everything else in this project — brand, systems, protocols, automation — earns
-its place by moving one of those two terms, or by improving care without
-worsening either.
+## 2. The pricing framework: individualized, not arbitrary
 
-## 2. Where the time goes
-
-Per patient, per year, built from the decisions already made:
-
-| Component | Driven by | Illustrative |
-| --- | --- | --- |
-| Annual comprehensive in-person visit (contact + prep + documentation) | D-006 | 2.5 hr |
-| Three additional routine contacts to meet the quarterly floor | D-005 | 3.0 hr |
-| Asynchronous care — messaging, results, refills, referrals, coordination | Q-07 access promise | **4.0 hr** |
-| Acute episodes | Patient mix | 1.0 hr |
-| **Total** | | **10.5 hr** |
-
-**The asynchronous line is the dominant uncertainty in this entire project.**
-It is the one number nobody can hand you, because it is set by two things you
-have not yet decided: how you word the access promise (Q-07), and who you
-enroll. It is also the line most likely to be underestimated, because it has no
-appointment attached to it and therefore never appears on a schedule.
-
-## 3. What that uncertainty is worth
-
-Holding everything else at the illustrative values — 46 working weeks, 30
-clinical hours/week, 250 hr/yr fixed admin, 10% attrition, 30% consultation
-conversion, 1.5 hr per prospect:
-
-| Hours per patient / yr | Panel size | Gross at $5,000 |
-| --- | --- | --- |
-| 8.0 | ~133 | ~$665,000 |
-| 10.5 | ~103 | ~$515,000 |
-| 13.0 | ~84 | ~$420,000 |
-| 16.0 | ~68 | ~$340,000 |
-
-A four-hour-per-patient swing in a category with no calendar entries moves
-gross revenue by roughly a factor of two. This is the single most important
-number in the practice, and it is currently unmeasured and unbounded.
-
-**Recommendation:** instrument it from patient one. Track asynchronous time per
-patient per month from the first enrollment. It should be a required output of
-whatever system is eventually selected (X-03), which is another reason
-measurement design (Q-09) has to precede the systems requirements document.
-
-## 4. Two findings worth acting on
-
-### Finding 1 — The model is internally coherent, which is not guaranteed
-
-A panel in the ~85–135 range at $5,000 produces a gross figure that can plausibly
-support a solo practice, *and* it is small enough that "at least quarterly
-contact, substantially more when appropriate" is actually deliverable. Many
-concierge models fail one of these two tests — they either need a panel too
-large to serve intensively, or they serve intensively at a panel too small to
-sustain. Yours passes both under the illustrative assumptions.
-
-That is a real result and it means the $5,000 price and the quarterly-contact
-promise are compatible rather than in tension. It does **not** yet mean the
-practice is profitable — that depends on cost lines I do not have (§6).
-
-### Finding 2 — The free two-part consultation is cheap at steady state and
-### expensive during ramp, but ramp is exactly when you have spare capacity
-
-At steady state, replacing 10% annual attrition at 30% conversion costs about
-**0.5 hours per patient per year** — under 5% of the per-patient time budget.
-D-008 is affordable and does not need defending on time grounds.
-
-During ramp the picture inverts. Adding 30 patients in year one at 30%
-conversion means about 100 consultations, roughly 150 hours of unpaid physician
-time. But year one also has only 30 patients to serve — about 315 hours against
-1,130 available. **Total year-one load is well under half of capacity.**
-
-The conclusion: in the ramp years the binding constraint is not your time, it
-is lead flow. At steady state it flips to time. These are opposite problems and
-they call for opposite responses, so the plan should not treat "growth" as one
-undifferentiated phase.
-
-Sensitivity worth noting: if conversion is 10% rather than 30%, the same 30
-patients require ~300 consultations and ~450 hours. Still fits inside year-one
-capacity, but it becomes the dominant activity of the year. **Conversion rate
-matters enormously during ramp and barely at all at steady state.** Measuring it
-early — even on a handful of prospects — is high-value.
-
-## 5. The ramp is the actual risk
-
-Revenue is roughly linear in patient count. Fixed costs are not. A practice that
-is comfortable at 103 patients may be a cash crisis at 25, and the path from 25
-to 103 is measured in years, not months.
-
-This is why Q-03 (financial floor and runway) is gating. Without those two
-numbers, any ramp plan is decoration. With them, the model produces a required
-growth rate, which in turn sets the marketing budget, the sequencing, and
-whether a small pilot cohort is a sensible first step or an unaffordable delay.
-
-## 6. Costs — deliberately unset
-
-Break-even is:
+(D-002, current form.) Every arrangement is priced from the same defensible
+structure:
 
 ```
-  break-even panel  =  annual fixed costs / effective revenue per patient
+price = (expected physician time × complexity-adjusted hourly rate)
+        + direct resources
+        …then sanity-checked against value
 ```
 
-Where effective revenue per patient is $5,000 reduced by the reduced-fee
-discount across the panel (D-003) and by payment processing.
+**Expected physician time** — estimated per patient at the proposal stage
+(D-016), summing *all* attributable time:
 
-**I have not populated the cost side.** Malpractice premium, licensure, EHR and
-platform subscriptions, in-person space, equipment, legal and accounting,
-insurance, marketing, and your own benefits are all real numbers with real
-ranges, and quoting figures I cannot source would make this document worse than
-useless — it would make a spreadsheet that looks authoritative and isn't.
+| Component | Notes |
+| --- | --- |
+| Synchronous visits | telemedicine, home, rented space |
+| Asynchronous work | messaging, results review, refills, coordination |
+| Home-visit travel | windshield time is real capacity (R-23) |
+| Administrative burden | per-arrangement admin is attributable time (R-20) |
 
-`tools/practice_model.py` runs with every cost line at zero and prints a
-prominent warning naming each unset line. Fill them from actual quotes as you
-gather them; the model will start producing real break-even and profitability
-numbers as it goes. Getting the malpractice quote (Q-08) and EHR pricing early
-turns this from a capacity model into a business model.
+**Complexity-adjusted hourly rate** — the anchor that makes every price
+explainable rather than arbitrary:
 
-## 7. What would change my analysis
+1. **The base rate is derived, not invented.** It is what one hour of
+   physician time must earn for the practice to sustainably exist:
 
-Stated plainly, so this can be checked rather than trusted:
+   ```
+   required blended rate = (target income + practice costs)
+                           ÷ (available hours × expected utilization)
+   ```
 
-- **If asynchronous care runs much higher than illustrated** — plausible if the
-  access promise is generous and the panel skews complex — the panel ceiling
-  drops toward 70, and $5,000 may not clear costs. The response is either a
-  higher price, a tighter access promise, or a more selective panel. Best
-  identified in the first 20 patients, not the first 80.
-- **If conversion is well below 30%**, ramp becomes consultation-dominated and
-  the marketing plan has to carry far more volume. This is measurable early and
-  cheaply.
-- **If in-person blocks require owned space**, fixed costs step up sharply and
-  break-even moves materially. Sessional or itinerant models keep costs
-  variable during exactly the years when that matters most (Q-04).
-- **If Medicare posture (Q-02) restricts who can enroll**, the addressable
-  market shrinks and the ramp lengthens — a market constraint, not a clinical
-  one, but it hits the same cash-flow line.
+   Utilization matters: not every available hour fills with patient work,
+   especially early. Illustratively, before costs (UNSET):
+
+   | Utilization | Hours filled | >$100k floor | $130k | $175k |
+   | --- | --- | --- | --- | --- |
+   | 100% | ~1,130 | ~$88/hr | ~$115/hr | ~$155/hr |
+   | 75% | ~850 | ~$118/hr | ~$153/hr | ~$207/hr |
+   | 50% | ~565 | ~$177/hr | ~$230/hr | ~$310/hr |
+
+   Real practice costs shift these upward once quoted. The honest
+   *illustrative* anchor zone is roughly **$150–250 per attributable hour**
+   at moderate utilization — a range, and a mechanism for replacing it with
+   your own number, not a recommendation.
+
+2. **Complexity is a bounded multiplier with defined inputs** — disease
+   complexity, clinical scope, coordination load, cognitive intensity —
+   applied to the rate (illustratively ~0.9× to ~1.4×), with the inputs
+   written down so two similar patients land in similar places. Calibration
+   of these parameters is open work (Q-14).
+
+**Direct resources** — passed through visibly, not buried in the rate:
+rented clinical space sessions, home-visit hard costs, supplies. (Labs,
+imaging, and medications sit outside the arrangement price per the proposal
+template — Q-05.)
+
+**The value check comes last and gates downward, not upward.** Before a
+proposal goes out: does this price make sense against what the patient
+actually gets — time received, problems addressed, outcomes targeted,
+realistic alternatives? If not, adjust the scope or decline the engagement;
+the check never silently inflates a price. This is the `value` term of
+*time + complexity + resources + value*: it disciplines the formula against
+the patient's reality.
+
+**Why this is enough:** you are not concerned with patients comparing prices;
+you care that every price is logical, fair, and defensible. This framework
+gives every number a derivation you can say out loud: *"my time must earn
+roughly $X/hour for the practice to exist; your situation needs about N hours
+of it this year; complexity and resources adjust it; here is what that buys
+you."*
+
+## 3. Arrangement archetypes — worked examples
+
+Illustrative archetypes showing the framework in motion. All hours invented
+for demonstration; the real library gets built from proposal-stage estimates
+and then corrected by measured actuals (R-08).
+
+| Archetype | Sync | Async | Travel | Admin | Total hr | Cmplx | @$150/hr | @$200/hr |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| A · Episodic, focused (~3 mo) | 4 | 2 | — | 1 | 7 | 1.0 | ~$1,050 | ~$1,400 |
+| B · Stable longitudinal (1 yr) | 5 | 4 | — | 1.5 | 10.5 | 1.0 | ~$1,575 | ~$2,100 |
+| C · Complex chronic + home visits (1 yr) | 8 | 6 | 4 | 2 | 20 | 1.25 | ~$3,750 | ~$5,000 |
+| D · Intensive short-term (~4 mo) | 8 | 5 | — | 1.5 | 14.5 | 1.15 | ~$2,500 | ~$3,335 |
+
+(Plus direct resource pass-throughs — space sessions, travel costs — where
+applicable.)
+
+Three things worth noticing:
+
+- **The old $5,000 membership reappears as one point in this space** —
+  roughly archetype C at the upper rate — rather than as the product. The
+  framework contains the concierge price without requiring it of anyone.
+- **Renewal checkpoints are where prices self-correct.** An arrangement
+  priced on a 10-hour estimate that actually consumes 18 gets re-scoped at
+  its checkpoint with data, not resentment — estimate vs. actual per patient
+  is the practice's core operational metric.
+- **Short engagements are economically legitimate here.** Episodic and
+  intensive arrangements earn their hours at the same rate as longitudinal
+  ones — the model does not need every patient to become a permanent member.
+
+## 4. Practice-level: mixes, not panels
+
+A practice is a portfolio of concurrent arrangements. Illustrative mix —
+10×A + 15×B + 8×C + 5×D — consumes ~460 attributable hours and grosses
+~$77k at the $150 rate. Scaling that mix toward ~850 filled hours (75%
+utilization) grosses **~$140k** — inside the target band before costs.
+
+The finding that survives from every prior version of this document, now
+rate-based: **the income target sits comfortably inside one physician's
+capacity.** At illustrative rates, the target is reached at 50–75%
+utilization, leaving structural slack for reduced-fee arrangements (D-003),
+estimate overruns, unfilled hours during the slow ramp, and the substantial
+time off the availability model promises. The individualized model is
+economically affordable *because* the target is modest.
+
+## 5. What actually determines success
+
+In priority order, the operational variables the model says to watch:
+
+1. **Estimate accuracy** — proposal-stage hours vs. actuals, per patient,
+   from patient one. The framework stands or falls here (R-08).
+2. **Utilization ramp** — how fast attributable hours fill. Grassroots
+   acquisition (D-022) makes this the binding constraint early; slow is
+   accepted (D-018), but it should be *measured* slow.
+3. **Async and admin creep** — the unscheduled categories that historically
+   sink the estimate. Per-arrangement admin is attributable time; if
+   heterogeneity makes admin grow superlinearly, that is the R-20 trigger.
+4. **Travel economics** — home-visit clustering keeps archetype-C
+   arrangements priceable; scattered geography quietly converts paid hours
+   into windshield time (R-23, Q-16).
+5. **Practice costs** — still UNSET. Every real quote (VA historicals as
+   labeled references, then TX quotes) moves the required rate; the tool
+   recomputes the whole chain when they land.
+
+## 6. Open calibration work (feeds Q-14)
+
+- Complexity multiplier: inputs, bounds, and worked examples
+- Utilization assumptions for ramp years vs. steady state
+- How payer participation (X-04) coexists with the framework — a
+  reimbursed service's effective rate is set by the payer; the comparison
+  of that rate against the derived required rate *is* the participation
+  decision in miniature
+- Reduced-fee mechanics (X-10) expressed inside the framework (a reduced
+  rate, not a different formula)
+- Q-15 compliance review before any tailored-pricing language is published
 
 ---
 
-## Using the model
+## Using the tool
 
 ```
-python3 tools/practice_model.py                 # steady-state + sensitivity
-python3 tools/practice_model.py --ramp          # year-by-year ramp
-python3 tools/practice_model.py --help          # all inputs
+python3 tools/practice_model.py              # capacity, required rate, archetypes, mix
+python3 tools/practice_model.py --hourly-rate 200 --mix 10,15,8,5
+python3 tools/practice_model.py --help       # all inputs
 ```
 
-All inputs are named flags. Change one thing at a time and watch what moves —
-the point of the tool is to show you which inputs deserve real research and
-which do not.
+The tool derives the required blended rate from the income target, prices
+the archetype library at any rate, and evaluates arrangement mixes against
+capacity and the target. All cost inputs default to UNSET and are named
+loudly; provenance of every key input prints on every run.

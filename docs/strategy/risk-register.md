@@ -65,27 +65,33 @@ reduce active tracks, not to push harder.
 
 ### R-01 · MED · Geography still binds within Texas
 Largely resolved by D-012: Texas is a single large market and multi-state
-practice is unnecessary. What remains: patients must be within reasonable
-travel of wherever in-person blocks happen (D-004), so the practice's real
-catchment is the chosen metro plus its surroundings, not "Texas." And enrolled
-patients who travel or relocate out of state still need a written policy.
+practice is unnecessary. What remains: home visits and rented-space sessions
+(D-014) keep the real catchment at the chosen metro plus driving range, not
+"Texas." And enrolled patients who travel or relocate out of state still need
+a written policy.
 **Mitigation:** market sizing in Track F uses the metro catchment, not the
 state. Draft the travel/relocation policy during preparation (Q-01 residual).
 
-### R-02 · HIGH · The no-coverage availability model may not withstand scrutiny
-**Reframed 2026-08-15 (D-017):** the practice now plans transparent
-availability expectations instead of a clinician coverage layer — including
-up to ~3 months/year away from regular scheduling with remote triage. Three
-distinct exposures: (1) malpractice carriers and standard-of-care/abandonment
-norms may expect more formal absence coverage than "transparent
-expectations" — unverified either way; (2) even willing patients may
+### R-02 · HIGH · The bounded-availability model's true floor is unknown
+D-017 deliberately challenges the convention that longitudinal care requires
+24/7 access or a coverage clinician. The risk is symmetric: the minimum safe
+structure (Q-17) could turn out *higher* than the model assumes — carriers,
+abandonment norms, or clinical reality demanding more than bounded
+availability plus remote awareness — or the model could be executed
+*sloppily* even where it is defensible: boundaries sold but not documented,
+"aware, not absent" undefined in practice, triage criteria never written.
+Three concrete exposures: (1) what carriers and standard-of-care norms
+actually require during planned absences — unverified either way, to be
+*asked*, not assumed in either direction; (2) even willing patients may
 experience a badly-timed absence differently than they agreed to it in
-writing; (3) illness or emergency — unplanned absence — has no backstop at
-all in this model. **Mitigation:** Q-17 verification with Texas counsel and
-the carrier at runway, designed for now via the availability policy, triage
-taxonomy, and agreement language; availability priced into each proposal;
-X-06 reopens if verification fails. The unplanned-absence exposure deserves
-an explicit contingency note in the patient agreement regardless.
+writing; (3) unplanned absence — your own illness or emergency — has no
+backstop and needs an explicit contingency in the patient agreement
+regardless of what Q-17 finds.
+**Mitigation:** the Q-17 research brief and runway verification; the
+availability policy, triage taxonomy, and agreement language drafted during
+preparation; the model moves to whatever floor the answer establishes — no
+further — and X-06 reopens only if a coverage arrangement proves genuinely
+required.
 
 ### R-03 · MED · Ramp cash flow
 **Downgraded 2026-08-15 (D-018, D-014):** three things reduced this risk —
@@ -141,16 +147,20 @@ revisit trigger is logged (working model §10): if admin load exceeds what
 solo practice sustains, the response is standard defaults with tailoring at
 the edges. Watch this metric from the first few patients.
 
-### R-21 · MED · Individualized pricing reads as unfair — or is non-compliant
-Two exposures with one root. Patients compare notes; person-to-person price
-differences without a legible principle corrode the trust the practice runs
-on. And differential pricing, discounts, and hybrid private/payer billing
-have legal constraints that vary with participation status (Q-15) — not
-characterized here from memory, flagged for counsel.
-**Mitigation:** prices differ because *arrangements* differ — anchored to
-explainable inputs (time, complexity, services), not to the person. The
-principle gets written down before the first proposal. Q-15 → counsel before
-any tailored-pricing language is published.
+### R-21 · MED · A tailored price can't be defended — or isn't compliant
+The standard is set (D-002): every price must be logical, fair, and
+defensible — derivable out loud from time, complexity, resources, and value.
+(Patients comparing prices is explicitly *not* the concern.) The risk is
+drift: prices assigned by feel instead of the framework, complexity
+multipliers stretched case-by-case, or the value check used to inflate
+rather than discipline. Separately, differential pricing, discounts, and
+hybrid private/payer billing carry legal constraints that vary with
+participation status (Q-15) — flagged for counsel, not characterized from
+memory.
+**Mitigation:** the framework's parameters are written (Q-14) before the
+first real proposal; each proposal shows its derivation; estimate-vs-actual
+tracking exposes systematic mispricing at renewal checkpoints. Q-15 →
+counsel before any tailored-pricing language is published.
 
 ### R-22 · MED · Payer participation costs more than it returns
 Credentialing, coding, claims, denials, and documentation requirements are a

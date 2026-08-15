@@ -16,9 +16,12 @@ arrangement to what will genuinely help each person:
 > formally establish the relationship → provide care → track whether their
 > well-being improves.
 
-Pricing, packaging, and payer participation (private pay, commercial
-insurance, Medicare, Medicaid, hybrids) are deliberately **open research
-questions** (D-015), not assumptions.
+Each patient relationship functions as a small, customized clinical contract
+— scoped, priced, tracked, periodically reassessed, renewed when
+appropriate. **Pricing is individualized within a defensible framework**
+(D-002: expected time × complexity-adjusted derived rate + resources,
+value-checked) — personalized without being random. Payer participation and
+packaging remain **open research questions** (D-015).
 
 **This is a preparation project, not an imminent launch** (D-011). The
 organizing question for everything here:
@@ -74,6 +77,12 @@ of a project like this is confident-sounding fabrication.
 6. **The care model is the product.** Technology, brand, and process exist to
    serve physician–patient time. Any proposal that adds surface area without
    defending its effect on care gets challenged.
+7. **Documents show the current model; history steps back** (D-025).
+   Headings reflect the current architecture. When a decision materially
+   changes, its title changes — superseded thinking compresses to a brief
+   history note or lives in git. Foundation docs are optimized for fast
+   conceptual scanning: what's decided, what's open, what changed, whether
+   we're converging.
 
 ## Current status
 
@@ -84,16 +93,18 @@ research, validation — advance independently; see `docs/strategy/roadmap.md`.
 The current part-time clinical job is itself an instrumented part of the
 preparation (D-019).
 
-The capacity model is built and reframed to the income target: under the
-illustrative scenario, ~30–45 patients cover the $130–175k target before
-costs — well under half of one physician's capacity, which is the slack that
-makes the individualized model affordable.
+The economics are arrangement-based: the tool derives the required blended
+hourly rate from the income target, prices arrangement archetypes, and
+evaluates mixes — illustratively, the $130–175k target is reached at 50–75%
+of one physician's capacity, and that structural slack is what makes the
+individualized model affordable.
 
-The intellectual center of the preparation is now the **pricing/packaging and
-payer-participation research** (X-09/X-04, questions Q-14/Q-02/Q-15).
-Decisions intentionally left open — pricing model, payer participation, city,
-launch date, vendors, carriers, reduced-fee mechanism — are tracked with
-triggers in `docs/charter/deferred-decisions.md`.
+The research core of the preparation: framework calibration and packaging
+(Q-14), payer participation (Q-02), pricing compliance (Q-15), and the
+minimum-availability question (Q-17). Decisions intentionally left open —
+packaging, payer participation, city, launch date, vendors, carriers,
+reduced-fee mechanism — are tracked with triggers in
+`docs/charter/deferred-decisions.md`.
 
 ## Start here
 

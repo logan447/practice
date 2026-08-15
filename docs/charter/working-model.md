@@ -7,10 +7,10 @@ specification — it is expected to change. Every element is tagged:
 - **[A]** Assumption / working lean — proceeding on it, not yet tested
 - **[O]** Open — genuinely undecided, blocking or shaping downstream work
 
-Last revised: 2026-08-15 — major revision: the practice is now conceived as
-**flexible, individualized, and relationship-based**, not as a fixed concierge
-membership product. Several earlier decisions were superseded; see the
-decision log (D-014 onward).
+Last revised: 2026-08-15. This document describes what we currently believe
+the practice is becoming (D-025) — the flexible, individualized,
+relationship-based model. History lives in git and in the decision log's
+history notes, not here.
 
 ---
 
@@ -74,12 +74,14 @@ This purpose is the tiebreaker for every downstream decision.
 
 | Element | Status | Detail |
 | --- | --- | --- |
-| Pricing & packaging | **[O]** | D-015 / X-09. **Open research question.** Memberships, episodic, retainer, packages, insurance, hybrid, tailored proposals — compared against the D-015 criteria |
+| Pricing framework | **[D]** | D-002: individualized within a defensible structure — **expected time × complexity-adjusted derived rate + direct resources, value-checked**. Logical, fair, defensible — not uniform, not random |
+| Framework calibration | **[O]** | Q-14: complexity inputs and bounds, utilization assumptions, worked pricing examples |
+| Packaging / presentation | **[O]** | X-09: whether arrangements are presented as memberships, episodic fees, retainers, or packages — presentations of the same framework, not competing schemes |
 | Payer participation | **[O]** | D-015 / X-04. Private pay, commercial, Medicare, Medicaid, hybrid — all genuinely open. `NEEDS-COUNSEL` before any election |
-| Per-patient tailored economics | **[A]** | The proposal (D-016) can carry patient-specific cost structures; compliance constraints on individualized pricing need research (Q-15) |
+| Individualized-pricing compliance | **[O]** | Q-15 — gates publishing any tailored-pricing language. `NEEDS-COUNSEL` |
 | Billing/coding capability | **[O]** | Never personally operated end-to-end; research + practical learning during preparation (Q-02) |
-| Reduced-fee mechanism | **[O]** | Value affirmed, mechanism deferred (D-003 revised, X-10) |
-| Break-even & viability | **[O]** | Economics model reframed to target-income orientation; see `docs/strategy/unit-economics.md` |
+| Reduced-fee mechanism | **[O]** | D-003: will exist; within the framework it is a reduced *rate*; structure deferred (X-10) |
+| Economics engine | **[D]** | Arrangement-based: each relationship is a small, scoped, priced, tracked, reassessed, renewable clinical contract — see `docs/strategy/unit-economics.md` |
 
 ## 4. Care delivery
 
@@ -92,7 +94,9 @@ membership. Each arrangement is set in the patient's proposal.
 | Default setting mix | **[A]** | **Telemedicine + home visits + rented clinical space when needed.** Comfortable driving to patients' homes when sensible; periodic rented exam room with clustered visits if patients are geographically concentrated |
 | Permanent office | **[D]** | Not unless future economics strongly justify it (D-014) |
 | Engagement shapes | **[A]** | Short-term intensive · extended · longitudinal · acute episodic · ongoing with periodic renewal checkpoints — chosen per patient |
-| Availability | **[D]** | D-017: business hours M–F; no routine evenings/weekends; up to ~3 months/year away from regular scheduling with periodic remote review and triage; routine matters ~24–72h |
+| Availability | **[D]** | D-017: bounded and explicit — business hours M–F; no routine evenings/weekends; up to ~3 months/year away from regular scheduling, *aware not absent* (periodic review of messages, workups, significant results; triage when truly necessary); routine ~24–72h. No 24/7 obligation, no default coverage clinician |
+| Patient expectations | **[D]** | Set in advance: emergencies → ED; urgent problems → urgent care / local evaluation; other physicians may be involved; another PCP may be kept where useful or required |
+| Minimum safe structure | **[O]** | Q-17 — the deliberately framed question: the *minimum* availability/continuity structure for safe, ethical, legally compliant, genuinely valuable care — challenged on medical-legal, ethical, insurance, and operational grounds, not defaulted to convention |
 | Triage taxonomy | **[O]** | Written definitions of emergency / urgent-local / message-me / can-wait — patient-facing, drafted during preparation (Q-07) |
 | Home-visit operations | **[O]** | Logistics, safety, equipment, drive-time economics, malpractice implications (Q-16) |
 
@@ -137,17 +141,21 @@ draft during preparation.
 
 ## 7. Outcomes and value
 
-**[D]** (D-023) Excellent longitudinal documentation in routine care — not
-research infrastructure, no IRB burden on early operations.
+**[D]** (D-023) The value of care is made visible to patient and physician:
+**Value = Quality ÷ Cost**. Purpose: clinical transparency, accountability,
+and proof of value — publication is not a goal.
 
-- Portal-visible trends where appropriate: weight, BP, A1c, glucose, lipids,
-  relevant labs, symptoms, functional measures, medication burden,
-  patient-reported well-being, visits, major interventions
-- Organizing concept: **value = health improvement relative to cost of care**
-  — what the patient spent, the time and care received, what improved
+- Easy tracking of: vitals, laboratory trends, symptoms, medication burden,
+  function, lifestyle measures, patient-reported well-being, clinical goals,
+  encounter counts and types, approximate cost of care over time
+- Each patient can see, as clearly as reasonably possible: what they spent,
+  what care they received, what changed, whether objective and subjective
+  health improved — e.g., BP/A1c/lipid/weight trends, medication changes,
+  visits, major interventions, total cost, and a concise
+  progress-and-remaining-goals summary
 - Managed cases → internal structured case summaries for learning
-- Research/publication may evolve later; the consent question is revisited
-  *then*, before any such use — never assumed retroactively
+- If the data later makes consent-based research, case series, or QI studies
+  worthwhile, that is pursued separately; it is not a launch requirement
 
 ## 8. Technology
 
