@@ -194,6 +194,16 @@ scheduling principle; drive time modeled in the capacity tool and priced
 into proposals where appropriate; home visits per week bounded by what the
 income/workload envelope tolerates, not by demand.
 
+### R-24 · LOW-MED · Prepaid fees are liabilities until earned
+D-027 guarantees pro-rata refunds of unearned fees, and engagements may be
+prepaid. Prepaid cash is deferred revenue: spending it as income makes the
+refund promise hollow exactly when a patient invokes it, and a growing
+panel compounds the exposure quietly.
+**Mitigation:** treat unearned balances as a tracked liability with a
+simple reserve; monthly billing as the default limits the float; refund
+terms drafted with counsel (DTPA), accounting structure with the CPA
+(Q-18).
+
 ## Design and scope
 
 ### R-06 · LOW-MED · "Financial health" crosses into regulated advice

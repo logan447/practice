@@ -23,6 +23,10 @@ availability, no 24/7 obligation · D-023 value made visible
 D-018 primary goal ~$100k take-home at ~30 hr/wk · D-015 payer participation
 and packaging open · D-003 affordability mechanism will exist
 
+**Agreements & economics mechanics:** D-026 one standard agreement + an
+individualized Scope & Fee Schedule · D-027 risk-sharing via periods and
+pro-rata refunds, no outcomes guarantee
+
 **Technology & growth:** D-007 integrate before build · D-021 established
 EHR core + custom front door · D-022 grassroots acquisition first
 
@@ -43,9 +47,14 @@ must earn for the practice to sustainably exist — not invented. Complexity
 is a bounded multiplier with written inputs. The value check gates prices
 downward, never silently upward. Personalized without being random: the
 standard is that every price is **logical, fair, and defensible**, not that
-prices are uniform. Mechanics in `docs/strategy/unit-economics.md`;
-parameter calibration is open work (Q-14); compliance review before
-publication (Q-15).
+prices are uniform.
+**Amended 2026-08-16:** an **uncertainty/capacity allowance** (bounded
+loading on estimated hours, calibrated from actuals) is part of the
+formula; and the patient-facing form is confirmed as a **fixed price for a
+defined period with the hours basis stated** — never hourly billing
+(rationale in unit economics §2). Mechanics in
+`docs/strategy/unit-economics.md`; calibration open (Q-14); compliance
+review before publication (Q-15).
 **History:** originally "annual $5,000 membership"; reopened to a fully
 open question later the same day; now resolved to this framework. $5,000
 survives only as one point in the framework's space.
@@ -143,6 +152,11 @@ delivered, not time billed.
 **Dual function:** the sales process *and* the capacity/burnout tool —
 time, complexity, and economics are estimated before commitment, so
 unsustainable relationships are identified before they exist (R-14).
+**Amended 2026-08-16:** the proposal's output is formalized as the **Scope
+& Fee Schedule** attached to the standard agreement (D-026), and every
+engagement has a **defined period and checkpoint(s)** — several weeks to a
+year, or ongoing-with-checkpoints — where progress, actual vs. estimated
+care, scope, price, and continuation are decided together.
 
 ## D-017 — Availability is bounded and explicit; no 24/7 obligation, no default coverage layer
 
@@ -183,10 +197,16 @@ DPC price point; U mid-concierge-band). The dominant economic risk at
 higher targets — rate acceptance — nearly disappears at this one. "Easy to
 sell" and "enough income" turn out to be the same choice.
 
-**Definitional flag:** "take-home" modeled as pre-personal-tax practice
-income; the after-tax reading needs ~$125–140k pre-tax (~$175–185/hr) —
-`NEEDS-CPA`.
-**History:** originally framed as a $130–175k target with >$100k floor.
+**Refined 2026-08-16: the goal is after-tax.** ~$100k personal take-home
+after taxes, ~30 hr/wk, ~39 working weeks, through whatever compensation
+structure is legally and tax-efficiently appropriate (W-2/S-corp/sole
+proprietor NOT assumed — Q-18, `NEEDS-CPA`). Worked backward (unit
+economics §6): needs ~$125–145k pre-tax profit → ~$152–184k revenue →
+~$207–250/hr on filled hours at 39 weeks — the demanding-but-achievable
+corner. Levers: 44 weeks (−15% on the rate), CPA optimization, fill
+discipline, lean overhead.
+**History:** originally a $130–175k pre-tax band; then $100k read as
+pre-tax (comfortable, ~$140–165/hr); now settled as after-tax.
 
 ## D-019 — Launch horizon ~12–24 months; Virginia license now, Texas after settling
 
@@ -246,6 +266,43 @@ conversations between partners, spending psychology, and whether financial
 instability interferes with medications, nutrition, sleep, or
 relationships. Out: investment advice, financial planning — referral
 relationships with qualified professionals instead.
+
+## D-026 — One standard agreement + one individualized Scope & Fee Schedule
+
+**Date:** 2026-08-16
+
+Four layers, no per-archetype templates (`docs/agreements/architecture.md`):
+**Standard Practice Agreement** (stable terms, counsel-drafted, signed
+once) → **Scope & Fee Schedule** (1–2 pages per patient per engagement
+period: problems, scope, duration, checkpoints, intensity, estimated
+hours, price, payment, insurance expectations, exclusions) → **EHR
+treatment plan** (evolving medicine, never gated by contract) → **internal
+economics model**. The Schedule binds scope and economics, never clinical
+method. Engagements are defined periods (weeks → year, or ongoing with
+checkpoints) with a standard checkpoint agenda; renewal re-issues the
+Schedule.
+**History:** replaces the six patient-facing archetype proposal documents
+(consolidated 2026-08-16 into the internal scenario library
+`docs/strategy/patient-archetypes.md` and one worked example; full text in
+git). Rationale: per-archetype templates were document debt *and* quietly
+recreated the pre-designed-product pattern D-014 rejects.
+
+## D-027 — Risk-sharing without an outcomes guarantee
+
+**Date:** 2026-08-16
+
+No outcomes- or "value received"-based money-back guarantee, in any form —
+pressure-tested and rejected on subjectivity, moral hazard, medical-legal,
+advertising-rule, inducement, and cash-flow grounds
+(`docs/agreements/risk-sharing.md`). The intended feeling — *"this doctor
+makes the economics fair if this doesn't work for me"* — is achieved
+structurally: free two-conversation consultation → engagement periods
+sized to uncertainty → **automatic pro-rata refund of unearned fees**
+("you never pay for care you haven't received" — objective trigger, no
+value dispute) → one narrow entry-point satisfaction provision ("if the
+start doesn't feel right, the start is on me"; bounded, `NEEDS-COUNSEL`).
+Prepayment: optional, never required; monthly card-on-file default;
+prepaid amounts treated as deferred revenue with a reserve (`NEEDS-CPA`).
 
 ## D-025 — Documents show the current model; history steps back
 

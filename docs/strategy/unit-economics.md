@@ -28,9 +28,23 @@ practice target pressure-tested.*
 ## 2. The pricing framework (D-002)
 
 ```
-price = expected physician time × complexity-adjusted hourly rate
+price = expected physician time × (1 + uncertainty allowance)
+        × complexity-adjusted hourly rate
         + direct resources        …then sanity-checked against value
 ```
+
+**Fixed price outside, time-based logic inside (D-002, confirmed against
+the hourly-billing alternative 2026-08-16):** the patient sees a fixed
+price for a defined period, with the estimated-hours basis stated so the
+derivation is visible. Patients are never billed by the hour. Why: hourly
+meters penalize exactly the behaviors the model depends on (messaging
+early, asking questions), recreate the unpredictable-bill experience the
+practice exists to end, and require timesheet-grade tracking and disputes.
+The fixed price transfers estimation risk to the physician — correctly,
+since the physician is the better estimator — and that risk is managed by
+the **uncertainty allowance** (a bounded loading on estimated hours,
+~10–15% illustratively, calibrated from estimate-vs-actual data, R-08)
+plus checkpoint re-scoping.
 
 - **Expected time** counts everything attributable: synchronous visits,
   asynchronous work (messaging, results, refills, coordination), home-visit
@@ -173,67 +187,63 @@ out loud; the roster is ~60 people you actually know; the practice fits
 inside 9-to-4 because the proposal stage keeps unsustainable relationships
 from ever starting.
 
-## 6. The lifestyle goal, worked backward
+## 6. The lifestyle goal, worked backward (after-tax)
 
-**The primary goal (D-018, clarified 2026-08-16): ~$100,000/year take-home
-at ~30 hours/week would be a major success.** Autonomy, flexibility,
-relationships, and time away rank above income maximization.
+**The primary goal (D-018, refined 2026-08-16): ~$100,000/year personal
+take-home *after taxes*, ~30 hr/wk, ~39 working weeks (~1,170 total
+hours/yr), evenings and weekends protected.**
 
-*Definitional flag (`NEEDS-CPA`):* "take-home" is modeled here as practice
-income after overhead, before personal taxes. If it means after-tax,
-roughly $125–140k pre-tax is needed (self-employment taxes; no Texas state
-income tax) — that reading is shown as its own row below.
+### The chain, with every assumption labeled
 
-**Verdict: comfortably achievable — and it buys something better than
-margin: prices that match what the market already charges.**
+```
+$100k after-tax  (Texas: no state income tax — established)
+  → pre-tax practice profit needed:      ~$125–145k   [VARIABLE — NEEDS-CPA]
+  → + overhead:                          +$20k lean / +$30k moderate  [UNSET lines]
+  → + payment friction (~3% processing,
+      ~2% cancellations/bad debt):       ÷ ~0.95
+  → required arrangement revenue:        ~$152–184k
+```
 
-At $100k + $20k illustrative overhead:
+The pre-tax band is driven by variables only a CPA conversation can fix:
+filing status; QBI deduction availability; **compensation structure —
+sole proprietor vs. S-corp salary+distribution vs. other (explicitly NOT
+assumed to be W-2; this is Q-18)**; self-employment tax mechanics;
+retirement strategy (and whether savings count inside or on top of the
+$100k — a definition to settle); health insurance (sits in overhead).
+Mechanically: SE tax ≈ 15.3% on most profit up to the SS wage base, half
+deductible; QBI can shelter ~20% of qualified income; an S-corp election
+can trim Medicare/SE tax at some payroll cost. These are mechanisms, not
+computed advice — the band is the honest resolution.
 
-| Schedule | Available hrs | Required rate @80% fill |
+### What an hour must earn
+
+| Denominator | Hours | Required revenue per hour |
 |---|---|---|
-| 44 wk (10 mo) × 30 hr | 1,070 | **~$140/hr** |
-| 39 wk (9 mo) × 30 hr | 920 | **~$163/hr** |
+| **Total working hours** (39 wk × 30) | 1,170 | **~$130–157** |
+| Patient-attributable available (− 250 admin) | 920 | — |
+| **Filled patient hours @ 80%** | 736 | **~$207–250** |
+| Filled @ 90% (excellent discipline) | 828 | ~$184–222 |
+| 44-week variant, filled @ 80% | 856 | ~$178–215 |
 
-**The market-anchor finding** (rates this low reprice every archetype into
-familiar territory — `payment-landscape.md` §3):
+### Verdict, honestly
 
-| Archetype | @$150/hr | Market comparator (researched) |
-|---|---|---|
-| P · Prevention | **~$945/yr ≈ $79/mo** | **Exactly the verified Texas DPC price point ($79–99/mo)** |
-| S · Stable chronic | ~$1,575/yr ≈ $131/mo | Premium DPC; **under the $150/mo HSA cap** (2026) |
-| M · Active metabolic | ~$2,640/yr ≈ $220/mo | Bottom of concierge band ($2,400–5,000) |
-| U · Whole-life untangler | ~$3,330/yr ≈ $278/mo | Mid concierge band; far below functional-medicine programs ($5–15k) |
-| C · Complex diagnostic | ~$4,580 yr-1 | Top of concierge band |
-| E · Defined episode | ~$1,125 | vs ~$400–600 for 3 cash visits — premium must sell the coordination |
+**The after-tax reading lands in the demanding-but-achievable corner** —
+roughly the territory of the earlier $150k-pre-tax pressure test, not the
+comfortable $140–165/hr of the pre-tax reading. At ~$210/hr the archetypes
+price at P ~$105/mo · S ~$185/mo · U ~$390/mo · C ~$6,400 — above the pure
+DPC anchors, inside the concierge/functional-medicine bands. Market-
+plausible, but rate acceptance returns as the top sensitivity.
 
-This is the ease-of-selling priority (D-015/D-018) made concrete: **at the
-$100k goal, the price list stops asking patients to accept unusual numbers.**
-The verified mix (tool: 44 wk, `--hourly-rate 150`): 62 relationships,
-~788 hours, 74% utilization → ~$130k gross → **~$110k after illustrative
-overhead. Goal met with slack** — at 39 weeks the same mix runs 86%
-utilization (tight but inside capacity).
+**The levers, in order of power:** (1) **weeks** — 44 instead of 39 cuts
+the required rate ~15% and partially restores market-anchor pricing;
+(2) **CPA optimization** (Q-18) — structure, QBI, deductions can move
+required profit by real money; (3) **fill discipline** — 90% vs 80% is
+worth ~$25/hr; (4) **overhead leanness** — every $10k adds ~$13/hr at 80%
+fill. And one framing lever: during the ramp, >$100k *pre-tax* remains a
+legitimate success milestone en route.
 
-**The frontier — income vs. freedom vs. pricing courage:**
-
-| Variant | Weeks | Hr/wk | ~Relationships | Required rate | Character |
-|---|---|---|---|---|---|
-| **Primary: $100k pre-tax** | 44 | 30 | ~55–62 | **~$140–150** | market-anchor prices; easiest to sell |
-| $100k pre-tax, 9 months | 39 | 30 | ~55–62 | ~$165 | modest premium over DPC/concierge anchors |
-| **$100k after-tax reading** | 44 | 30 | ~60 | ~$175–185 | prices drift above anchors; validation matters more |
-| $150k, 9 months (prior ideal) | 39 | 30 | ~56 | ~$205–230 | demanding: premium pricing must hold everywhere |
-| $175k | 44 | 30–33 | ~65–70 | ~$210–230 | maximum-ish; every assumption load-bearing |
-
-Rule of thumb: **~$25k of income ≈ 8–10 relationships ≈ ~$25–30/hr on the
-rate ≈ ~4 working weeks.** The $100k goal sits far from the frontier's
-demanding corner — which is what makes the slow ramp, reduced-fee care
-(D-003), estimate overruns, and pricing softness all absorbable.
-
-**What still carries even the comfortable version:** fill (~55–62
-relationships sustained via grassroots), estimate accuracy (R-08), and
-overhead staying lean — every $10k of overhead adds ~$12–14/hr to the
-required rate. Rate acceptance, the dominant risk at $150k+, becomes a
-minor one at $100k because the prices match what patients already see in
-the market.
+Rule of thumb unchanged: **~$25k of income ≈ 8–10 relationships ≈
+~$25–30/hr ≈ ~4 working weeks.**
 
 ## 7. Open calibration (feeds Q-14)
 

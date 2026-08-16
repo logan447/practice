@@ -92,6 +92,7 @@ class Inputs:
     # --- Rate framework ---------------------------------------------------
     hourly_rate: float = 0.0     # 0 => derive from target_low at `utilization`
     utilization: float = 0.75    # illustrative share of available hours that fill
+    uncertainty_allowance: float = 0.0  # loading on estimated hours (D-002); calibrate from actuals
 
     # --- Targets (D-018) --------------------------------------------------
     target_floor: float = 100000.0
@@ -149,8 +150,9 @@ def arrangement_hours(a: dict) -> float:
     return a["sync"] + a["async_"] + a["travel"] + a["admin"]
 
 
-def arrangement_price(a: dict, rate: float, space_session_cost: float) -> float:
-    time_component = arrangement_hours(a) * rate * a["complexity"]
+def arrangement_price(a: dict, rate: float, space_session_cost: float,
+                      allowance: float = 0.0) -> float:
+    time_component = arrangement_hours(a) * (1 + allowance) * rate * a["complexity"]
     resources = a["space_sessions"] * space_session_cost
     return time_component + resources
 
@@ -233,7 +235,7 @@ def report_archetypes(i: Inputs) -> None:
     print("  " + rule("-", len(header) - 2))
     for a in ARCHETYPES:
         hrs = arrangement_hours(a)
-        time_comp = hrs * rate * a["complexity"]
+        time_comp = hrs * (1 + i.uncertainty_allowance) * rate * a["complexity"]
         res = a["space_sessions"] * i.space_session_cost
         price = time_comp + res
         res_str = money(res) if res else ("UNSET" if a["space_sessions"] else "—")
@@ -257,7 +259,8 @@ def report_mix(i: Inputs, counts) -> None:
     print("  " + rule("-", len(header) - 2))
     for a, n in zip(ARCHETYPES, counts):
         hrs = arrangement_hours(a) * n
-        inc = arrangement_price(a, rate, i.space_session_cost) * n
+        inc = arrangement_price(a, rate, i.space_session_cost,
+                                i.uncertainty_allowance) * n
         total_hours += hrs
         total_income += inc
         print(f"  {a['key']:<3}{a['name']:<36}{n:>6}{hrs:>8.0f}{money(inc):>11}")
@@ -315,6 +318,9 @@ def build_parser() -> argparse.ArgumentParser:
                         "target at --utilization")
     r.add_argument("--utilization", type=float, default=d.utilization,
                    help="Share of available hours assumed to fill (0-1)")
+    r.add_argument("--uncertainty-allowance", type=float,
+                   default=d.uncertainty_allowance,
+                   help="Loading on estimated hours in pricing (e.g. 0.15)")
 
     t = p.add_argument_group("targets (D-018)")
     t.add_argument("--target-floor", type=float, default=d.target_floor)

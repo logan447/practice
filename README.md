@@ -55,7 +55,7 @@ decisions, assumptions, models, and drafts live here.
 | `docs/brand/` | Name, positioning, messaging, website, collateral |
 | `docs/growth/` | Acquisition, consultation funnel, referral, retention |
 | `docs/evidence/` | Patient-facing evidence explainers, outcome measures, QI/research |
-| `docs/archetypes/` | Patient archetypes, example care proposals, payment research |
+| `docs/agreements/` | Agreement architecture, Scope & Fee Schedule template, payment research |
 | `tools/` | Runnable models and utilities |
 
 Directories beyond `charter/` and `strategy/` are created as work begins in

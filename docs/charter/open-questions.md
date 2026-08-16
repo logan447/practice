@@ -104,12 +104,21 @@ time received" are captured per patient without administrative drag, the
 internal case-summary template, and what of this the EHR must support (feeds
 X-03 requirements).
 
-### Q-05 — What does each proposal include, structurally? `YOU` + me
-Formerly "what does the $5,000 buy." Now: the proposal template — the
-standard skeleton (D-016's nine elements) every tailored proposal fills in,
-including how costs are presented and where third-party costs (labs,
-imaging, medications) sit. Counsel reviews the template at runway alongside
-Q-15.
+### Q-05 — Agreement documents to counsel-ready state ✅ template drafted
+The Scope & Fee Schedule template exists
+(`docs/agreements/scope-fee-schedule.md`, with worked example) inside the
+D-026 architecture. **Remaining:** draft the Standard Practice Agreement
+skeleton (Track E), settle the entry-satisfaction-provision scope
+(risk-sharing.md §4), then counsel review of both at runway alongside Q-15.
+
+### Q-18 — Compensation and tax structure `CPA`
+The after-tax goal (D-018) spans a ~$20k pre-tax band depending on: filing
+status, QBI availability, sole-proprietor vs. S-corp (or other) structure,
+SE-tax mechanics, retirement strategy (inside or on top of the $100k —
+definition to settle), and health-insurance treatment. W-2 is explicitly
+not assumed. Also from D-027: deferred-revenue accounting and refund
+reserve sizing. Structure the questions during preparation; engage the CPA
+before launch-runway pricing is finalized.
 
 ### Q-12 — What patient load reaches the income target? `YOU` + me
 Reframed from "target panel size." Given D-018 (~$130–175k) and heterogeneous
