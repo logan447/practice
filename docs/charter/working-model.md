@@ -100,7 +100,8 @@ This purpose is the tiebreaker for every downstream decision.
 | Individualized-pricing compliance | **[O]** | Q-15 — gates publishing any tailored-pricing language. `NEEDS-COUNSEL` |
 | Billing/coding capability | **[O]** | Never personally operated end-to-end; research + practical learning during preparation (Q-02) |
 | Reduced-fee mechanism | **[O]** | D-003: will exist; within the framework it is a reduced *rate*; structure deferred (X-10) |
-| Economics engine | **[D]** | Arrangement-based: each relationship is a small, scoped, priced, tracked, reassessed, renewable clinical contract — see `docs/strategy/unit-economics.md` |
+| Economics engine | **[D]** | Arrangement-based: each relationship is a small, scoped, priced, tracked, reassessed, renewable clinical contract — see `docs/strategy/unit-economics.md` and worked examples in `docs/archetypes/` |
+| Payment mechanics | **[A]** | Working default (researched, familiar-to-patients): monthly card-on-file auto-pay with disclosed triggers; staged payments for front-loaded engagements; proposals built to satisfy the self-pay Good Faith Estimate duty (🟥); superbills on request; travel included in home-visit prices — `docs/archetypes/payment-landscape.md` §4 |
 
 ## 4. Care delivery
 

@@ -82,6 +82,7 @@ per year (or per engagement where noted); prices use an illustrative
 | **M** | Active metabolic/lifestyle work — medication changes, tight feedback loops | 8 | 6 | — | 2.0 | 16 | 1.1 | ~$3,700 |
 | **C** | Complex untangler, medical — needs real diagnostic work + frequent follow-up (first year; usually lightens after) | 10 | 8 | 3 | 2.5 | 23.5 | 1.3 | ~$6,400 |
 | **U** | **Whole-life untangler — the signature patient**: scared, frustrated, or overwhelmed; health affecting stress, finances, work, relationships, sleep, behavior at once | 9 | 7 | — | 2.5 | 18.5 | 1.2 | ~$4,700 |
+| **E** | Defined-problem episode — one problem solved in ~3 months; no indefinite relationship (per episode, not per year) | 4 | 2.5 | — | 1.0 | 7.5 | 1.0 | ~$1,600/episode |
 
 *\*plus direct resource pass-throughs where applicable; ranges in practice
 (±20–30%) as the framework flexes with the individual.*
@@ -117,12 +118,15 @@ and active-change patients, ballasted by stable relationships:
 | M · Metabolic/lifestyle | 10 | 160 | ~$37,000 |
 | C · Complex medical | 6 | 141 | ~$38,500 |
 | U · Whole-life untangler | 8 | 148 | ~$37,300 |
-| **Total** | **56** | **~743** | **~$172,700** |
+| E · Defined episodes (6/yr) | 6 | 45 | ~$9,500 |
+| **Total** | **62 relationships** | **~788** | **~$182,200** |
 
-Against ~$20k illustrative overhead (UNSET — placeholder): **~$153k
-physician income.** 56 concurrent relationships. Note C-archetype patients
-typically step down to S or M after their first year — the panel matures
-toward lighter average intensity, which is headroom.
+Against ~$20k illustrative overhead (UNSET — placeholder): **~$162k
+physician income** at the $210 scenario rate — or run the same mix at the
+$100k-goal rate (§6). C-archetype patients typically step down to S or M
+after their first year — the panel matures toward lighter average
+intensity, which is headroom. E episodes fill capacity between
+longitudinal arrangements and are a natural on-ramp.
 
 ### What a working week looks like (39-week year, ~30 hr, 9:00–4:00)
 
@@ -163,64 +167,73 @@ what should improve; your portal shows the trends and the spend; someone
 competent is holding the whole picture — and it renews only if it is
 working.
 
-**For the physician:** 12–14 real conversations a week instead of 25 visits
+**For the physician:** 12–15 real conversations a week instead of 25 visits
 a day; each relationship entered deliberately at a price that is defensible
-out loud; the roster is 56 people you actually know; the practice fits
+out loud; the roster is ~60 people you actually know; the practice fits
 inside 9-to-4 because the proposal stage keeps unsustainable relationships
 from ever starting.
 
-## 6. The ideal practice target, pressure-tested
+## 6. The lifestyle goal, worked backward
 
-Target: **~$150k income · ~30 hr/wk · ~9 working months (~39 wk) ·
-9:00–4:00 · evenings/weekends protected.**
+**The primary goal (D-018, clarified 2026-08-16): ~$100,000/year take-home
+at ~30 hours/week would be a major success.** Autonomy, flexibility,
+relationships, and time away rank above income maximization.
 
-**Verdict: achievable on paper, at the demanding end of the framework.**
-Not forced — derived:
+*Definitional flag (`NEEDS-CPA`):* "take-home" is modeled here as practice
+income after overhead, before personal taxes. If it means after-tax,
+roughly $125–140k pre-tax is needed (self-employment taxes; no Texas state
+income tax) — that reading is shown as its own row below.
 
-- 39 wk × 30 hr = 1,170 hr − 250 practice admin = **920 available hr**
-- Required blended rate at $150k + $20k illustrative overhead:
+**Verdict: comfortably achievable — and it buys something better than
+margin: prices that match what the market already charges.**
 
-| Utilization | Filled hrs | Required rate |
+At $100k + $20k illustrative overhead:
+
+| Schedule | Available hrs | Required rate @80% fill |
 |---|---|---|
-| 70% | ~645 | ~$265/hr |
-| **80%** | **~735** | **~$230/hr** |
-| 90% | ~830 | ~$205/hr |
+| 44 wk (10 mo) × 30 hr | 1,070 | **~$140/hr** |
+| 39 wk (9 mo) × 30 hr | 920 | **~$163/hr** |
 
-- The §5 mix delivers ~$210/hr blended at 81% utilization → ~$153k. So the
-  target needs **roughly the §5 practice**: ~55–60 concurrent arrangements
-  at archetype prices of ~$1.3k–$6.4k/yr, lean overhead, disciplined
-  estimates.
+**The market-anchor finding** (rates this low reprice every archetype into
+familiar territory — `payment-landscape.md` §3):
 
-**The five assumptions that carry it, most sensitive first:**
+| Archetype | @$150/hr | Market comparator (researched) |
+|---|---|---|
+| P · Prevention | **~$945/yr ≈ $79/mo** | **Exactly the verified Texas DPC price point ($79–99/mo)** |
+| S · Stable chronic | ~$1,575/yr ≈ $131/mo | Premium DPC; **under the $150/mo HSA cap** (2026) |
+| M · Active metabolic | ~$2,640/yr ≈ $220/mo | Bottom of concierge band ($2,400–5,000) |
+| U · Whole-life untangler | ~$3,330/yr ≈ $278/mo | Mid concierge band; far below functional-medicine programs ($5–15k) |
+| C · Complex diagnostic | ~$4,580 yr-1 | Top of concierge band |
+| E · Defined episode | ~$1,125 | vs ~$400–600 for 3 cash visits — premium must sell the coordination |
 
-1. **Rate acceptance** (~$200–230/hr realized) — entirely untested. The U
-   and C archetypes at ~$4.7k–$6.4k are the load-bearing prices; Track F
-   validation should probe exactly these.
-2. **Fill** — 55–60 arrangements sustained. At ~15% annual non-renewal,
-   grassroots must produce ~8–10 new relationships/year at maturity
-   (~25–30 first conversations). Feasible-looking; unproven.
-3. **Estimate accuracy** — a 20% systematic underestimate of hours turns
-   $210/hr into $175/hr silently. Renewal checkpoints are the correction.
-4. **Overhead ≤ ~$20–25k** — pure placeholder until quotes land. Every $10k
-   of overhead ≈ +$14/hr on the required rate at 80% utilization.
-5. **The 9-month structure holds** — clinically (Q-17), and commercially
-   (patients accept "aware, not absent" months at these prices).
+This is the ease-of-selling priority (D-015/D-018) made concrete: **at the
+$100k goal, the price list stops asking patients to accept unusual numbers.**
+The verified mix (tool: 44 wk, `--hourly-rate 150`): 62 relationships,
+~788 hours, 74% utilization → ~$130k gross → **~$110k after illustrative
+overhead. Goal met with slack** — at 39 weeks the same mix runs 86%
+utilization (tight but inside capacity).
 
-**If it doesn't all hold — the frontier, priced honestly:**
+**The frontier — income vs. freedom vs. pricing courage:**
 
-| Variant | Weeks | Hr/wk | ~Patients | Required rate | Trade |
+| Variant | Weeks | Hr/wk | ~Relationships | Required rate | Character |
 |---|---|---|---|---|---|
-| **Ideal: $150k** | 39 | 30 | ~56 | ~$205–230 | the demanding version |
-| $120k, same freedom | 39 | 30 | ~46–50 | ~$170–190 | ~$30k buys a much easier rate & fill |
-| $150k, +3–4 hr/wk | 39 | 33–34 | ~62 | ~$185–205 | one longer day, easier pricing |
-| $150k, 10 months | 44 | 30 | ~63 | ~$180–200 | one month of freedom funds the rate cushion |
-| $175k | 44 | 30–33 | ~65–70 | ~$210–230 | more panel *and* premium pricing — closest to a compromise-free max |
+| **Primary: $100k pre-tax** | 44 | 30 | ~55–62 | **~$140–150** | market-anchor prices; easiest to sell |
+| $100k pre-tax, 9 months | 39 | 30 | ~55–62 | ~$165 | modest premium over DPC/concierge anchors |
+| **$100k after-tax reading** | 44 | 30 | ~60 | ~$175–185 | prices drift above anchors; validation matters more |
+| $150k, 9 months (prior ideal) | 39 | 30 | ~56 | ~$205–230 | demanding: premium pricing must hold everywhere |
+| $175k | 44 | 30–33 | ~65–70 | ~$210–230 | maximum-ish; every assumption load-bearing |
 
-Rule of thumb from the model: **~$25k of income ≈ 8–10 patients ≈ ~$25–30/hr
-on the rate ≈ ~4 working weeks.** That's the exchange rate between money,
-panel size, pricing courage, and freedom. The frontier is gentle — nothing
-about the ideal target is structurally impossible; it is simply the corner
-where all five assumptions must hold at once.
+Rule of thumb: **~$25k of income ≈ 8–10 relationships ≈ ~$25–30/hr on the
+rate ≈ ~4 working weeks.** The $100k goal sits far from the frontier's
+demanding corner — which is what makes the slow ramp, reduced-fee care
+(D-003), estimate overruns, and pricing softness all absorbable.
+
+**What still carries even the comfortable version:** fill (~55–62
+relationships sustained via grassroots), estimate accuracy (R-08), and
+overhead staying lean — every $10k of overhead adds ~$12–14/hr to the
+required rate. Rate acceptance, the dominant risk at $150k+, becomes a
+minor one at $100k because the prices match what patients already see in
+the market.
 
 ## 7. Open calibration (feeds Q-14)
 

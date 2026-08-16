@@ -29,24 +29,32 @@ rate + resources, value-checked). What remains:
   beats lucrative)
 - Regulatory unknowns flagged for counsel (Q-15), not guessed
 
-### Q-02 — Payer participation: what does each path actually involve? `RESEARCH` + `YOU`
-Broadened from "Medicare posture" (X-04). What credentialing with commercial
-insurers, Medicare, and Medicaid practically requires of a solo physician;
-what participation obligates; what the billing/coding workflow costs in time
-and friction; what hybrid private/insurance models are permissible and how
-they are structured. Two channels: sourced research briefs (`RESEARCH`), and
-deliberate practical learning inside your current clinical job (`YOU`) —
-watching how billing actually works from the inside is preparation the
-project cannot buy. Final election: Era 2 with counsel, jointly with X-09.
+### Q-02 — Payer participation: what does each path actually involve? `RESEARCH` ✅ partial + `YOU`
+**Research half substantially done (2026-08-16)** — see
+`docs/archetypes/payment-landscape.md`: Medicare's three postures and the
+fee-inventory constraint (2004 OIG Alert + enforcement), mandatory claims
+submission, Medicaid's near-incompatibility with membership fees,
+commercial hold-harmless clauses, and the Texas DPC statute are mapped
+with sources, plus the 10-item counsel question list. **What remains:**
+(a) `YOU` — the practical-learning half inside the current clinical job:
+what billing/coding/prior-auth friction actually feels like at the desk;
+(b) validation of the admin-burden estimates; (c) Era 2 counsel review
+and the election itself, jointly with X-09. The research shifted the
+prior: the practice's value proposition (time, coordination, whole-picture
+planning) fits direct-pay/out-of-network paths far more naturally than
+in-network hybrids, and fits Medicare participation awkwardly in all
+forms — see payment-landscape §5.
 
-### Q-15 — What constrains individualized and hybrid pricing? `RESEARCH` → `COUNSEL`
-D-014/D-016 contemplate patient-specific economic proposals; D-015
-contemplates billing some services while charging privately for others.
-Both raise real compliance questions — differential pricing, discounts, and
-private charges interact with payer rules and fraud/abuse law in ways that
-depend on participation status and that I will not characterize from memory.
-Research assembles the sourced map of what needs asking; counsel answers it.
-**This question gates publishing any tailored-pricing language.**
+### Q-15 — What constrains individualized and hybrid pricing? `RESEARCH` ✅ + `COUNSEL`
+**Research map done (2026-08-16,** `payment-landscape.md`**):** the
+fee-inventory rule (fees may not cover payer-covered services — and OIG's
+danger list is nearly our product description), no unbundling of covered
+services, hold-harmless clauses, QMB/Medicaid absolute prohibitions, the
+GFE duty for self-pay patients, and the carve-out/ABN doctrines are all
+mapped with citations, alongside the questions only counsel can answer.
+**Remaining:** the counsel review itself (Era 2) — which still **gates
+publishing any tailored-pricing language** — plus GFE-compliant proposal
+mechanics and Texas DTPA/refund drafting.
 
 ### Q-16 — Home-visit operations and economics `YOU` + `RESEARCH`
 The default care mix includes home visits. Needs working through: drive-time

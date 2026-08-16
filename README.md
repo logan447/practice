@@ -55,6 +55,7 @@ decisions, assumptions, models, and drafts live here.
 | `docs/brand/` | Name, positioning, messaging, website, collateral |
 | `docs/growth/` | Acquisition, consultation funnel, referral, retention |
 | `docs/evidence/` | Patient-facing evidence explainers, outcome measures, QI/research |
+| `docs/archetypes/` | Patient archetypes, example care proposals, payment research |
 | `tools/` | Runnable models and utilities |
 
 Directories beyond `charter/` and `strategy/` are created as work begins in
@@ -100,10 +101,11 @@ The current part-time clinical job is itself an instrumented part of the
 preparation (D-019).
 
 The economics are arrangement-based: the tool derives the required blended
-hourly rate from the income target, prices arrangement archetypes, and
-evaluates mixes — illustratively, the $130–175k target is reached at 50–75%
-of one physician's capacity, and that structural slack is what makes the
-individualized model affordable.
+hourly rate from the income target, prices six patient archetypes, and
+evaluates mixes. The primary goal (D-018: ~$100k take-home at ~30 hr/wk)
+is reachable at a ~$140–165/hr blended rate — which prices the archetypes
+at what the market already charges (worked examples with patient-facing
+proposals in `docs/archetypes/`).
 
 The research core of the preparation: framework calibration and packaging
 (Q-14), payer participation (Q-02), pricing compliance (Q-15), and the

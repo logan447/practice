@@ -20,8 +20,8 @@ availability, no 24/7 obligation · D-023 value made visible
 (Quality ÷ Cost) · D-024 financial-health scope bounded
 
 **Economics:** D-002 individualized pricing within a defensible framework ·
-D-018 $130–175k target, slow ramp accepted · D-015 payer participation and
-packaging open · D-003 affordability mechanism will exist
+D-018 primary goal ~$100k take-home at ~30 hr/wk · D-015 payer participation
+and packaging open · D-003 affordability mechanism will exist
 
 **Technology & growth:** D-007 integrate before build · D-021 established
 EHR core + custom front door · D-022 grassroots acquisition first
@@ -167,13 +167,26 @@ operational grounds (Q-17), not defaulted to convention. If verification
 finds a floor higher than this model, the model moves to the floor (X-06
 reopens), not to 24/7.
 
-## D-018 — Compensation target ~$130–175k; slow ramp accepted; income maximization is a non-goal
+## D-018 — Primary goal: ~$100k take-home at ~30 hr/wk; more is optional, not the point
 
-More than $100k is a meaningful minimum. Ease of selling beats revenue per
-patient; significantly more income requiring substantially more work is not
-interesting. Quantitative consequence: the target sits well inside one
-physician's capacity, which is what makes D-014's flexibility and D-017's
-boundaries economically affordable.
+**Clarified 2026-08-16.** A mature practice producing **~$100,000/year
+take-home at ~30 hours/week** is a major success. Autonomy, flexibility,
+meaningful relationships, and time away rank above income maximization;
+if significantly higher income requires substantially more work, it is
+generally not interesting. The earlier $130–175k band survives as the
+stretch region of the frontier, not the goal.
+
+**Quantitative consequence** (unit economics §6): the $100k goal is
+reachable at a **~$140–165/hr** blended rate — which prices the archetypes
+at or near what the market already charges (P lands at the verified Texas
+DPC price point; U mid-concierge-band). The dominant economic risk at
+higher targets — rate acceptance — nearly disappears at this one. "Easy to
+sell" and "enough income" turn out to be the same choice.
+
+**Definitional flag:** "take-home" modeled as pre-personal-tax practice
+income; the after-tax reading needs ~$125–140k pre-tax (~$175–185/hr) —
+`NEEDS-CPA`.
+**History:** originally framed as a $130–175k target with >$100k floor.
 
 ## D-019 — Launch horizon ~12–24 months; Virginia license now, Texas after settling
 

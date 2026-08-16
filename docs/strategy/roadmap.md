@@ -40,10 +40,15 @@ systems do well and poorly, and firsthand exposure to billing and coding
   membership / episodic / retainer / package skins — against the D-015
   criteria, under the D-018 lens (easy to sell > lucrative; slow ramp fine;
   $130–175k target)
-- **Q-02 payer participation research**: what credentialing and billing with
-  commercial insurers / Medicare / Medicaid practically involve for a solo
-  physician; hybrid-model boundaries mapped for counsel (Q-15) — paired with
-  inside-the-job learning at your current position
+- ✅ **Q-02/Q-15 payer & payment research v1 done** (2026-08-16,
+  `docs/archetypes/payment-landscape.md`): Medicare fee-inventory rules,
+  Medicaid prohibitions, hold-harmless landscape, Texas DPC statute, GFE
+  duty, market price anchors — with the counsel question list. Remaining:
+  inside-the-job practical learning, Track F validation, Era 2 counsel
+  review. `REFRESH-AT-RUNWAY`
+- ✅ **Archetype library v1 built** (`docs/archetypes/`): six archetypes
+  with patient-facing example proposals, money flows, and physician-side
+  economics; lifestyle-goal backward analysis in unit economics §6
 - Economics tool kept current: arrangement archetypes, required-rate
   derivation, mix evaluation, drive-time economics (Q-16/R-23);
   VA-historical insurance quotes as labeled reference inputs

@@ -109,16 +109,21 @@ preparation frame: arriving in Texas with prepared infrastructure and
 validated messaging shortens the costliest stretch of the ramp.
 
 ### R-04 · HIGH · Economic arrangements are ambiguous or non-compliant
-**Broadened 2026-08-15:** what each patient's arrangement covers must be
-explicit, written, and consistent with whatever payer participation exists.
-The flexibility reframe *raises* this risk: individualized pricing,
-per-patient packages, and hybrid billing (insurance for some services,
-private charges for others) each interact with payer rules and fraud/abuse
-law in participation-dependent ways. Getting it wrong is simultaneously a
-patient-trust failure and a regulatory one.
-**Mitigation:** Q-15 research maps the questions; counsel answers them before
-any tailored-pricing language is published; the proposal template (Q-05)
-gets a counsel pass; X-09/X-04 are decided jointly.
+**Sharpened by research (2026-08-16,** `payment-landscape.md`**):** the
+central hazard now has a name — the **fee-inventory problem**. OIG's 2004
+Alert (with real enforcement) treats "extra time," "coordination of care,"
+and "comprehensive assessment and plan" as embedded in covered services —
+and that list is nearly this practice's product description. Consequences:
+any fee charged to a Medicare patient by a non-opted-out physician, and any
+fee charged to in-network members, must be built strictly from genuinely
+non-covered services; Medicaid membership fees are close to categorically
+prohibited; claims *must* be filed for Medicare patients' covered services
+absent full opt-out. Getting this wrong is simultaneously a patient-trust
+failure and a federal enforcement exposure.
+**Mitigation:** the researched counsel-question list (payment-landscape §6)
+goes to Texas counsel before any tailored-pricing language is published or
+any Medicare-eligible patient is offered an arrangement; X-09/X-04 decided
+jointly; intake screening so no QMB/Medicaid patient is ever offered a fee.
 
 ### R-05 · MED · Own-occupation disability is unaddressed
 The practice *is* the physician. An injury or illness that ends clinical
@@ -168,11 +173,16 @@ known heavy burden on solo physicians, and you have not yet operated that
 workflow end-to-end. The risk runs both directions: participating and
 drowning in it, or writing it off unexamined and losing the patients it
 would have made affordable.
-**Mitigation:** exactly the D-015 posture — genuinely open, decided from
-evidence: Q-02 research plus deliberate inside-the-job learning during the
-preparation period, then X-04/X-09 decided jointly with counsel. Any
-participation is also testable per-service or per-payer rather than
-all-or-nothing, where rules permit.
+**Research update (2026-08-16):** participation also carries False Claims
+Act exposure on E/M coding, audit apparatus, and — for any hybrid — the
+duty to keep chart-level segregation proving nothing billed to the fee
+overlaps what was billed to the payer. A hybrid practice needs *more*
+documentation discipline than a pure-FFS one. Commercial primary care
+reimburses ~110–130% of Medicare (99214 ≈ $136 national), which bounds
+what participation actually earns per visit.
+**Mitigation:** unchanged — D-015 posture, Q-02 inside-the-job learning,
+X-04/X-09 decided jointly with counsel; participation testable per-payer
+where rules permit.
 
 ### R-23 · MED · Home-visit time economics quietly shrink capacity
 Drive time is real clinical capacity that produces no care. A home-visit

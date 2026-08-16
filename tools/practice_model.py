@@ -52,6 +52,10 @@ ARCHETYPES = [
     dict(key="U", name="Whole-life untangler (signature)",
          sync=9.0, async_=7.0, travel=0.0, admin=2.5,
          complexity=1.2, space_sessions=1),
+    # E is per-EPISODE (~3 mo), not per-year; a slot can host ~3-4/yr.
+    dict(key="E", name="Defined-problem episode (~3 mo)",
+         sync=4.0, async_=2.5, travel=0.0, admin=1.0,
+         complexity=1.0, space_sessions=0),
 ]
 
 # Cost inputs. Default zero, reported as UNSET. Never guessed.
@@ -109,7 +113,8 @@ class Inputs:
     other_fixed: float = 0.0
 
     # --- Mix (counts per archetype, in ARCHETYPES order) ------------------
-    mix: str = "12,20,10,6,8"   # the example mature practice (unit-econ §5)
+    # E count = episodes per year, not concurrent patients.
+    mix: str = "12,20,10,6,8,6"   # the example mature practice (unit-econ §5)
 
     # --- Derived ----------------------------------------------------------
     @property
