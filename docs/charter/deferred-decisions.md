@@ -16,28 +16,13 @@ added; X-04 broadened to full payer strategy; X-06 superseded by D-017.
 
 ## X-09 — Packaging: how the pricing framework is presented
 
-**Narrowed 2026-08-15:** the pricing *framework* is now decided (D-002 —
-individualized, derived-rate, defensible). What stays deferred is the
-**presentation layer**: whether arrangements reach patients as memberships
-(annual/monthly), episodic fees, retainers, customized packages,
-insurance-reimbursed services, hybrids, or plain per-proposal pricing —
-possibly different presentations for different patient types. These are
-skins over the same framework, not competing price schemes.
-
-**Why deferred:** The right presentation depends on payer participation
-(X-04), Q-15 regulatory constraints, what Track F validation shows patients
-respond to, and administrative reality.
-
-**Evaluation criteria** (D-015): ease of selling · admin complexity ·
-regulatory implications · revenue predictability · affordability · workload
-· flexibility preservation · value-based alignment · solo compatibility —
-under the D-018 lens (easy to sell beats lucrative).
-
-**Meanwhile:** Q-14 calibration work; the packaging comparison as a Track A
-research deliverable; the economics tool prices any candidate as a scenario.
-
-**Decide when:** After payer-strategy learning (Q-02) and validation
-conversations — before patient-facing materials carry prices.
+**RESOLVED by D-028 (2026-08-16):** two published tiers (Foundation
+~$99–129/mo, Intensive ~2×, stepping down at checkpoints) + flat-price
+episodes + sliding-scale floor. Remaining openness is *calibration*, not
+architecture: exact price points validated in Track F before any
+patient-facing material carries them. Reopens only if validation shows
+Austin-band pricing doesn't sell to the intended patients. Full comparison:
+`docs/strategy/payment-architecture.md`.
 
 ---
 
@@ -95,20 +80,22 @@ outcome trends (D-023), bulk export (R-15). Research is a dated snapshot,
 models, and billing some services while charging privately for others where
 legally permissible.
 
-**Why deferred:** You are actively learning (through current part-time work)
-what credentialing and billing participation practically involve; the
-administrative burden for a solo practice is unknown; the legal boundaries of
-hybrid models need real research; and the final election has legal effect
-that belongs near launch with Texas counsel.
+**Sharpened by D-028 (2026-08-16):** launch is pure direct-pay; insurance
+participation is a *contingent later lane*, added only if real patients
+show price is the binding acquisition constraint — and then as a separate
+patient cohort (Epiphany template, entity separation, contract-by-contract
+counsel review). **Medicare:** opt-out is blocked while moonlighting
+(established), so during ramp Medicare-age patients wait or use a
+carefully-drafted non-covered-services arrangement (`NEEDS-COUNSEL`); the
+real opt-out decision unlocks when moonlighting ends. Decide the lane
+post-launch on evidence; decide Medicare opt-out when moonlighting ends;
+both with counsel.
 
-**Meanwhile:** Q-02 research program — sourced briefs on participation
-options and their obligations, the hybrid-billing boundary, and the
-credentialing process; plus deliberate practical learning: use the current
-clinical job to understand coding, billing workflows, and payer friction from
-the inside. All dated, `REFRESH-AT-RUNWAY`.
-
-**Decide when:** Era 2, with counsel, after the X-09 pricing research —
-these two decisions are made together.
+**Meanwhile:** inside-the-job billing/credentialing learning (Q-02);
+disclosure language for possible future participation in the standard
+agreement draft. Research base (all dated, `REFRESH-AT-RUNWAY`):
+`docs/agreements/payment-landscape.md` and
+`docs/strategy/payment-architecture.md`.
 
 ---
 

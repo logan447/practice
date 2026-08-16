@@ -245,6 +245,19 @@ legitimate success milestone en route.
 Rule of thumb unchanged: **~$25k of income ≈ 8–10 relationships ≈
 ~$25–30/hr ≈ ~4 working weeks.**
 
+### How the goal is met (D-028, 2026-08-16)
+
+The researched architecture comparison
+(`docs/strategy/payment-architecture.md`) settled the delivery mechanism:
+**two-tier membership** (Foundation ~$99–129/mo, Intensive ~2×) +
+episodes + sliding floor. Worked mix: 75 Foundation @ $115 avg + 20
+Intensive @ $250 + 8 episodes ≈ **$176k revenue on ~95 relationships at
+~80–85% fill** — inside the required band, with intensive work funded
+honestly. The alternatives fail the goal-plus-vision test: flat $50–75
+needs a 200–300 panel at treadmill intensity; insurance-based practice
+reaches the income only at volume style (~$150–165k at 40 visits/wk) and
+halves it at relationship style (~$55–85k).
+
 ## 7. Open calibration (feeds Q-14)
 
 Complexity inputs and bounds · archetype hours from proposal estimates →

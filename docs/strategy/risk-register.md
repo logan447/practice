@@ -93,14 +93,22 @@ preparation; the model moves to whatever floor the answer establishes — no
 further — and X-06 reopens only if a coverage arrangement proves genuinely
 required.
 
-### R-03 · MED · Ramp cash flow
-**Downgraded 2026-08-15 (D-018, D-014):** three things reduced this risk —
-the income target is modest relative to capacity, a slow ramp is explicitly
-accepted, and the no-permanent-office default keeps fixed costs near zero
-during exactly the years that matter. What remains: the ramp still fails
-quietly if it forces poor-fit patients or eroded proposals, and household
-economics still need the Q-03b floor/runway analysis to confirm the slow
-ramp is actually affordable.
+### R-03 · MED-HIGH · Ramp underperformance — now with real numbers
+**Re-weighted upward 2026-08-16** on researched DPC benchmarks: average
+time to fill a panel is **20–21 months**, a common planning rule is ~1,000
+patients acquired to keep 600 (~40% cumulative attrition), annual churn
+runs ~20% (30–40% for low-income individual members), and **only ~17% of
+DPC physicians ever reach their target panel**. The mitigating facts
+stand: the target panel is small (~95 relationships, not 600), fixed
+costs stay near zero, the slow ramp is accepted, and moonlighting income
+continues. But "slow ramp accepted" must not become "no acquisition
+discipline": at 20% churn a 95-relationship panel needs ~19
+replacements/year just to hold.
+**Mitigation:** employer-membership lane (lowest churn, fastest fill —
+two 30-member employers ≈ a third of the panel); measured monthly
+net-adds against an explicit ramp plan; Q-03b affordability floor;
+the 17% statistic treated as the base rate to beat, not an anomaly to
+ignore.
 **Mitigation:** build the runway-analysis structure during preparation
 (Track A) and run it with the CPA at Era 2 (Q-03b). Keep fixed costs variable
 during ramp (favors sessional space over owned). Treat the required growth

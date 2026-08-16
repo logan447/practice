@@ -93,10 +93,10 @@ This purpose is the tiebreaker for every downstream decision.
 
 | Element | Status | Detail |
 | --- | --- | --- |
-| Pricing framework | **[D]** | D-002: individualized within a defensible structure — **expected time × complexity-adjusted derived rate + direct resources, value-checked**. Logical, fair, defensible — not uniform, not random |
-| Framework calibration | **[O]** | Q-14: complexity inputs and bounds, utilization assumptions, worked pricing examples |
-| Packaging / presentation | **[O]** | X-09: whether arrangements are presented as memberships, episodic fees, retainers, or packages — presentations of the same framework, not competing schemes |
-| Payer participation | **[O]** | D-015 / X-04. Private pay, commercial, Medicare, Medicaid, hybrid — all genuinely open. `NEEDS-COUNSEL` before any election |
+| Patient-facing pricing | **[D]** | D-028: **two published tiers + episodes** — Foundation membership (~$99–129/mo), Intensive tier (~2×, steps down at checkpoints), flat-price episodes, sliding-scale floor. Calibrate exact numbers in validation (Track F) |
+| Internal pricing framework | **[D]** | D-002: time × complexity-adjusted derived rate + allowance — now the *internal* tool for tier boundaries, tier assignment, and panel management |
+| Payer participation | **[D]**/**[O]** | D-028: launch pure direct-pay (Texas DPC statute). Insurance = deferred evidence-based lane, separated by patient if ever added. Medicare: opt-out blocked while moonlighting — Medicare-age enrollment constrained during ramp (`NEEDS-COUNSEL`) |
+| Growth lanes | **[A]** | Grassroots (D-022) + employer-sponsored memberships (researched: 58% of DPC market, lowest churn) |
 | Individualized-pricing compliance | **[O]** | Q-15 — gates publishing any tailored-pricing language. `NEEDS-COUNSEL` |
 | Billing/coding capability | **[O]** | Never personally operated end-to-end; research + practical learning during preparation (Q-02) |
 | Reduced-fee mechanism | **[O]** | D-003: will exist; within the framework it is a reduced *rate*; structure deferred (X-10) |

@@ -46,9 +46,16 @@ systems do well and poorly, and firsthand exposure to billing and coding
   duty, market price anchors — with the counsel question list. Remaining:
   inside-the-job practical learning, Track F validation, Era 2 counsel
   review. `REFRESH-AT-RUNWAY`
-- ✅ **Archetype library v1 built** (`docs/archetypes/`): six archetypes
-  with patient-facing example proposals, money flows, and physician-side
-  economics; lifestyle-goal backward analysis in unit economics §6
+- ✅ **Archetype library v1 built** (now `docs/strategy/patient-archetypes.md`):
+  six archetypes with money flows and physician-side economics;
+  lifestyle-goal backward analysis in unit economics §6
+- ✅ **Payment architecture decided (D-028)** — researched comparison of
+  insurance-first / flat DPC / two-tier / hybrid / ramp architectures
+  (`docs/strategy/payment-architecture.md`): two-tier membership core +
+  episodes, direct-pay launch, insurance as deferred separable lane.
+  Remaining Track A work: tier-price calibration for Track F validation;
+  employer-lane design; Medicare non-covered-arrangement question to
+  counsel
 - Economics tool kept current: arrangement archetypes, required-rate
   derivation, mix evaluation, drive-time economics (Q-16/R-23);
   VA-historical insurance quotes as labeled reference inputs

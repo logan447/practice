@@ -25,7 +25,8 @@ and packaging open · D-003 affordability mechanism will exist
 
 **Agreements & economics mechanics:** D-026 one standard agreement + an
 individualized Scope & Fee Schedule · D-027 risk-sharing via periods and
-pro-rata refunds, no outcomes guarantee
+pro-rata refunds, no outcomes guarantee · D-028 two-tier membership core,
+direct-pay; insurance deferred as a separable lane
 
 **Technology & growth:** D-007 integrate before build · D-021 established
 EHR core + custom front door · D-022 grassroots acquisition first
@@ -303,6 +304,42 @@ value dispute) → one narrow entry-point satisfaction provision ("if the
 start doesn't feel right, the start is on me"; bounded, `NEEDS-COUNSEL`).
 Prepayment: optional, never required; monthly card-on-file default;
 prepaid amounts treated as deferred revenue with a reserve (`NEEDS-CPA`).
+
+## D-028 — Two-tier membership core; insurance as a deferred, separable lane
+
+**Date:** 2026-08-16 — working architecture from the researched comparison
+(`docs/strategy/payment-architecture.md`); revisit trigger: Track F
+validation of the price points.
+
+Patient-facing pricing simplifies to **two published tiers plus episodes**:
+Foundation membership (~$99–129/mo — the ongoing relationship) and an
+Intensive tier (~2×, for active untangling/metabolic/diagnostic phases,
+stepping down at checkpoints), plus flat-price defined-problem episodes
+and a sliding-scale floor (D-003) inside the tiers. Employer-sponsored
+memberships join grassroots acquisition as a growth lane (58% of the
+national DPC market; lowest churn).
+
+**Why:** the flat $50–75 model needs a 200–300 panel at 3–4 hr/patient
+(the treadmill, cash-financed); insurance-based practice permits the
+medicine but pays for encounters — it reaches the income goal only at
+volume style (research: ~$150–165k at 40 visits/wk vs ~$55–85k at
+relationship style). Two tiers keep flat-fee simplicity while funding
+the intensive archetypes a single price mathematically cannot.
+
+**Insurance posture:** launch pure direct-pay on the Texas DPC statute;
+insurance participation is an evidence-based later decision — if added,
+a separate lane, separated **by patient** (never membership + billing
+for the same covered services), Epiphany-template entity separation,
+counsel-reviewed. Disclosure of possible future participation goes in
+the standard agreement. **Medicare during ramp: moonlighting blocks
+opt-out** — Medicare-age patients wait or use a fragile
+non-covered-services arrangement (`NEEDS-COUNSEL`); the opt-out decision
+unlocks when moonlighting ends.
+
+**Effect on D-002/D-026:** the time×rate framework becomes the *internal*
+tool (tier boundaries, tier assignment, panel management); the Scope &
+Fee Schedule simplifies to tier + period + checkpoint. X-09 (packaging)
+is resolved by this decision, pending validation.
 
 ## D-025 — Documents show the current model; history steps back
 
