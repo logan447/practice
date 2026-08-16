@@ -5,6 +5,16 @@ practice websites) and reputable secondary analyses. `REFRESH-AT-RUNWAY` —
 every rule and price here must be re-verified before launch. Source URLs are
 preserved in the underlying research; key citations inline.
 
+> **Re-baseline note (D-029):** this research was conducted while pricing
+> was still open; it remains the active reference for rules and market
+> facts. Under the current model ($100/month flat, direct-pay, D-031),
+> the most operative sections are: §1.5 (Texas DPC statute), §1.6 (GFE
+> duty), §1.7 (HSA — note the $150/mo cap comfortably clears $100), §2
+> (payment familiarity), §3 (market prices — $100/mo is the researched
+> center), and the Medicare constraints in §1.1–1.2 (Q-21). Sections
+> discussing hybrid fee-engineering describe a path we researched and
+> did not take (D-031); they stay for the X-04 research track.
+
 **Classification key used throughout:**
 🟦 **COMMON** — what comparable practices do · 🟥 **REQUIRED** — actual
 legal/regulatory rule · 🟨 **PAYER-DEPENDENT** — turns on payer contracts or

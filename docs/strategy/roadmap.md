@@ -1,228 +1,128 @@
 # Roadmap
 
-Reframed 2026-08-15 under D-011 (preparation project) and revised the same
-day under D-014 – D-024 (flexible, individualized, relationship-based
-practice). Two eras:
+Revised 2026-08-16 for the D-029 re-baseline. Two eras: **Era 1 —
+Preparation** (now → move; ~12–24 mo horizon; $20k ceiling; paced by
+interest, no deadlines) and **Era 2 — Launch runway** (move → first
+patient). Tracks advance independently; dependencies are marked inside
+tracks. Standing test for any work: does it survive to launch, shorten
+the runway, or make the practice more tangible — and does it fit a
+$100/month practice (simplicity is now a design requirement, not a
+preference).
 
-- **Era 1 — Preparation** (now → move; horizon ~12–24 months, D-019):
-  parallel tracks, no deadlines, paced by interest and the $20k budget
-  ceiling (D-020). Success is measured by what survives to launch.
-- **Era 2 — Launch runway** (move decision → first patient): a sequenced
-  checklist with real lead times, most of it pre-designed during Era 1.
-
-**Why tracks, not phases.** Launch-sequenced phases create false urgency and
-bury the motivating work. Tracks advance independently; pick up whichever has
-energy behind it. Dependencies are marked *inside* tracks.
-
-**The standing test for any piece of work** (D-011): does it survive until
-launch, shorten or de-risk the runway, or make the future practice more
-tangible? Work that does none of the three waits. And under D-020: prefer
-free or cheap tools wherever genuinely adequate.
-
-**The current job is part of the plan.** Part-time primary care work during
-this period is deliberately instrumented preparation (D-019): clinical skills
-and confidence, observed workflows, common patient needs, what traditional
-systems do well and poorly, and firsthand exposure to billing and coding
-(Q-02). Several tracks below draw on it explicitly.
+**The current job is part of the plan** (D-019): clinical skills,
+workflow observation, billing exposure — and it blocks Medicare opt-out
+until it ends (Q-21).
 
 ---
 
 ## Era 1 — Preparation tracks
 
-### Track A — Economics, pricing, and payer strategy
-
-*The reframe made this the intellectual center of the preparation.*
-
-- **Pricing framework calibration** (D-002, Q-14): complexity-multiplier
-  inputs and bounds, utilization assumptions, the archetype library, worked
-  examples proving similar patients price similarly
-- **Packaging comparison** (X-09): how the framework is presented —
-  membership / episodic / retainer / package skins — against the D-015
-  criteria, under the D-018 lens (easy to sell > lucrative; slow ramp fine;
-  $130–175k target)
-- ✅ **Q-02/Q-15 payer & payment research v1 done** (2026-08-16,
-  `docs/archetypes/payment-landscape.md`): Medicare fee-inventory rules,
-  Medicaid prohibitions, hold-harmless landscape, Texas DPC statute, GFE
-  duty, market price anchors — with the counsel question list. Remaining:
-  inside-the-job practical learning, Track F validation, Era 2 counsel
-  review. `REFRESH-AT-RUNWAY`
-- ✅ **Archetype library v1 built** (now `docs/strategy/patient-archetypes.md`):
-  six archetypes with money flows and physician-side economics;
-  lifestyle-goal backward analysis in unit economics §6
-- ✅ **Payment architecture decided (D-028)** — researched comparison of
-  insurance-first / flat DPC / two-tier / hybrid / ramp architectures
-  (`docs/strategy/payment-architecture.md`): two-tier membership core +
-  episodes, direct-pay launch, insurance as deferred separable lane.
-  Remaining Track A work: tier-price calibration for Track F validation;
-  employer-lane design; Medicare non-covered-arrangement question to
-  counsel
-- Economics tool kept current: arrangement archetypes, required-rate
-  derivation, mix evaluation, drive-time economics (Q-16/R-23);
-  VA-historical insurance quotes as labeled reference inputs
-- Q-03b runway-analysis structure for the eventual CPA conversation
-- **Perishable:** payer rules, quotes. The model and comparison method are
-  durable.
+### Track A — Economics and panel model
+- ✅ Subscription model rebuilt (`tools/practice_model.py`, unit
+  economics): $100/mo × ~140 adults → goal met; break-even ~19;
+  mix-sustainability boundary quantified
+- Keep current as real quotes land (overhead lines UNSET); Q-03b
+  runway-analysis structure for the CPA; Q-18 question list
+- **Perishable:** market prices, benchmarks. The model is durable.
 
 ### Track B — Patient experience and brand
-
-*Make the future practice tangible — now organized around the relationship,
-not a membership product.*
-
-- **The proposal template** (Q-05) — the practice's central artifact: the
-  standard skeleton every personalized proposal fills in (problems, goals,
-  settings, cadence, duration, diagnostics, checkpoints, costs, tracked
-  outcomes), with a building-block library so tailoring is configuration,
-  not invention (R-20)
-- The complimentary-conversation experience (D-016): structure, materials,
-  records-request workflow, and the boundary with unpaid medical advice
-  (drafted; counsel pass at runway)
-- Practice name, positioning, messaging — now themed on relationship, time,
-  attention, evidence, and personalization (D-022's content rule: no outcome
-  claims before outcomes exist)
-- Website prototype: public front door + onboarding layer per D-021,
-  draft-marked where language depends on Q-15/X-09
-- **Perishable:** almost none — among the most durable work available.
+- Practice name, positioning, messaging — around $100/month, time,
+  attention, untangling, visible value (R-13 rules apply from draft one)
+- Website prototype: the published price, how it works, the Q-07 triage
+  taxonomy, honest FAQs (what's included / what's not — Q-19)
+- The onboarding conversation design (D-016): scripts, records request,
+  the capacity-check questions (Q-20), the "not me / not yet / let me
+  refer you well" language
+- Validation (with Track F): would the intended patients pay $100/month
+  for this? Do the boundaries read as fair?
+- **Perishable:** almost none.
 
 ### Track C — Clinical model and measurement
+- The untangling evaluation as a designed encounter
+- Care building blocks: visit types, engagement shapes, protocols on
+  cited guidelines; psychiatric-management threshold; procedural scope
+- **Q-19 boundary design** (with Track B): the carve-out list and its
+  patient-friendly language — the most load-bearing artifact after the
+  price
+- Q-07 availability policy + triage taxonomy at panel scale; Q-16
+  home-visit operations (kit, safety, clustering, indication criteria)
+- Q-09 value dashboard design (D-023) and Q-20 utilization measure —
+  both feed X-03 requirements
+- **Perishable:** guideline references need a currency check at runway.
 
-- **Availability policy and triage taxonomy** (Q-07, from D-017): the
-  patient-facing definitions — emergency / urgent-local / message / can-wait
-  — plus how availability appears in proposals and agreements; drafted so
-  the Q-17 verification is a review, not a redesign
-- **The untangling evaluation** — the signature encounter: a designed
-  structure for hearing a whole overwhelming situation (medical,
-  psychological, lifestyle, functional, financial-stress, relational),
-  naming the highest-priority problems, separating urgent from important,
-  and producing one realistic plan. This is the clinical artifact the
-  signature patient (unit-econ archetype U) is paying for
-- Care building blocks: visit types and engagement shapes (short-term
-  intensive, longitudinal, episodic, renewal-checkpoint) as composable
-  elements the proposal draws from — protocols on cited guidelines
-- **Outcome and value tracking design** (Q-09, D-023): trend set, instruments
-  for subjective measures, per-patient time/cost capture without admin drag,
-  the internal case-summary template, value = improvement/cost
-- Home-visit clinical operations (Q-16): kit by procedural scope, safety
-  protocol, field documentation
-- Financial-health module within D-024's drawn scope; referral-network
-  criteria for financial professionals
-- **Perishable:** guideline-referenced protocols need a currency check at
-  runway; structures are durable.
+### Track D — Operating system
+- Requirements doc (after Track C's Q-09/Q-20): EHR core + telemedicine +
+  portal trends + **subscription billing (card-on-file, dunning)** +
+  utilization tracking + bulk export
+- Dated landscape scan of the researched DPC stack (Hint, Atlas.md,
+  Elation, etc.); selection at ~6 months pre-launch (X-03)
+- Simple front-door website build (cheap stack, D-020)
+- **Perishable:** all vendor conclusions.
 
-### Track D — Operating system and build-versus-buy
+### Track E — Legal and regulatory preparation
+- **Practice Terms skeleton** (D-026): scope, responsibilities,
+  availability/triage, boundaries and carve-outs (Q-19), payment/
+  cancellation (D-027), records, termination — drafted for counsel
+- **Q-21 brief:** Medicare-age patients under a flat direct-pay
+  membership — the sharpest counsel question
+- Q-17 brief: minimum availability/continuity structure at panel scale
+- Q-15 package: DPC-statute fit, GFE mechanics, DTPA/refund terms,
+  discount criteria (X-10)
+- Broker briefing (X-07); TX licensure process brief (starts when
+  settling is decided)
+- **Perishable: all of it** — dated, `REFRESH-AT-RUNWAY`.
 
-- Architecture is decided (D-021): established EHR core + lightweight custom
-  front-door website. This track's job is the **EHR requirements document**
-  and then the **deep landscape research** explicitly commissioned before any
-  recommendation — subscription cost *and* long-term friction, integrated
-  telemedicine/portal, e-prescribing, results and document intake,
-  scheduling, per-patient billing flexibility (D-014/D-015), portal outcome
-  trends (D-023), bulk export (R-15), async-time capture (R-08)
-- Requirements wait on Track C's measurement design; landscape scan is a
-  dated snapshot, `REFRESH-AT-RUNWAY`; selection itself is X-03 (~6 months
-  pre-launch)
-- Front-door website: cheap, simple stack consistent with D-020; prototypes
-  built to learn
-- Vendor register kept deliberately small (D-021's minimal stack; R-12)
-- **Perishable:** all vendor conclusions. Requirements and workflows are
-  durable.
-
-### Track E — Legal and regulatory research
-
-*Portable research, prepared as dated briefs for eventual Texas counsel —
-never asserted as current law at launch.*
-
-- **Q-15 brief:** the compliance map for individualized pricing, discounts,
-  and hybrid private/payer billing — the questions counsel must answer,
-  sourced, not guessed
-- Payer participation briefs (with Track A): what participation obligates;
-  credentialing processes
-- **Q-17 brief — the minimum-availability question**: what availability and
-  continuity structure is actually *required* (medical-legal, ethical,
-  insurance, operational) for safe longitudinal care without a 24/7
-  obligation — challenging convention with sources, then verified with
-  counsel and carrier at runway
-- Texas landscape: medical board licensure process and timeline (for when
-  settling is decided — **not started now**, D-019), telemedicine rules,
-  entity options
-- Draft skeletons: patient agreement (availability + triage language),
-  telemedicine consent, privacy, proposal-stage consent, reduced-fee policy
-  shell (X-10), broker briefing (home visits + rented space + D-017 model)
-- **Perishable: all of it.** Date and `REFRESH-AT-RUNWAY` every document.
-
-### Track F — Validation and experiments
-
-- **The current job is the primary channel** (D-019): structured notes on
-  workflows, patient needs, billing friction, and what traditional systems
-  fail at — captured in the repo, not in memory
-- Conversations with solo/DPC/concierge physicians: what consumed their
-  time; how they handle absences (tests D-017); what they'd price
-  differently (tests X-09 candidates)
-- Message and positioning tests: does the personalized-proposal framing
-  land? Is it *easy to sell* (the D-015 top criterion)?
-- Austin-first market scan, method reusable for Houston/Dallas
-- **Honest limit:** conversion, true per-patient intensity, and
-  payer-participation burden can be narrowed but not measured before real
-  operation. Do not let anecdotes masquerade as data.
+### Track F — Validation and learning
+- The current job as instrumented preparation: workflows, patient needs,
+  billing friction — captured in the repo
+- Price/boundary validation conversations: $100/month framing, the
+  carve-out list, the availability model — on real people
+- Conversations with DPC physicians: churn reality, mix management,
+  what they'd bound differently; Austin-first market scan (method
+  reusable for Houston/Dallas)
+- Employer-lane exploration: what small Austin employers pay for DPC
+  memberships and what they expect
+- **Honest limit:** true utilization mix and churn are measurable only
+  in operation — validation narrows, patient one measures.
 
 ---
 
-## Era 2 — Launch runway
+## Era 2 — Launch runway (move decided → first patient)
 
-Triggered by a settled move. Sequenced; longest-lead first. Most items should
-arrive here pre-designed.
+1. Texas medical license (begins when settling is decided)
+2. Counsel engagement: entity; Practice Terms to execution; Q-21 Medicare
+   answer; Q-15 compliance pass; Q-17 verification (with carrier)
+3. Refresh pass on every perishable-tagged artifact
+4. Malpractice + disability binding (X-07)
+5. EHR + billing platform selection and setup (X-03); end-to-end
+   onboarding test (enroll → card → visit → portal trends)
+6. Care logistics: rented-space arrangement (X-05), lab relationships
+   (client-bill pricing), pharmacy/imaging, referral network
+7. Q-03b with the CPA (income floor, entity structure, Q-18)
+8. Grassroots + employer activation (D-022)
+9. First patients — the north-star workflow runs end to end
 
-1. **Texas medical license** — begins when settling is decided (D-019)
-2. **Counsel engagement** — entity; the Q-15 individualized/hybrid pricing
-   review; proposal template pass; X-04/X-09 payer + pricing decisions made
-   jointly; agreements to execution versions
-3. **Q-17 verification** — availability model with counsel and carrier;
-   X-06 reopens only if it fails
-4. **Refresh pass** — every perishable-tagged Era 1 artifact re-verified
-5. **Insurance binding** (X-07) — malpractice + own-occupation disability,
-   Texas quotes (VA historicals retired to reference)
-6. **EHR selection and setup** (X-03) — against Track D requirements, from
-   the then-current market; front-door website connected; end-to-end
-   onboarding test
-7. **Care logistics** — rented-space arrangement as needed (X-05), lab /
-   pharmacy / imaging relationships, referral network (including financial
-   professionals per D-024)
-8. **Q-03b with CPA** — income floor and runway, using the Track A structure
-9. **Grassroots activation** (D-022) — referral relationships, community
-   presence, educational content live
-10. **First proposals** — the north-star workflow runs end to end
-
-Exit criterion: someone you meet who needs help can be brought through
-conversations → proposal → agreement → care → tracked outcomes, legally,
-safely, and professionally.
+Exit criterion: someone you meet who needs help can hear "$100 a month,
+here's how it works," enroll in minutes, and receive excellent, bounded,
+individualized care — legally, safely, sustainably.
 
 ---
 
-## Era 3 — Operate and grow (sketch)
+## Era 3 — Operate (sketch)
 
-- **Early patients are the pilot.** No formal pilot cohort needed under the
-  relationship model — but the first ~10–20 relationships are explicitly
-  instrumented: actual vs. proposed time per patient (R-08), administrative
-  load per arrangement (R-20), what sold easily vs. hard (X-09 evidence),
-  drive-time reality (R-23)
-- Growth stays grassroots until evidence says otherwise (X-08); renewal
-  checkpoints double as the retention system
-- Case summaries accumulate into practice-generated evidence; marketing
-  graduates from process-based to outcome-based claims only as real outcomes
-  exist (R-13); research/publication only if the D-023 revisit trigger is
-  consciously pulled
+The first ~30–50 patients are the real test bench: measured utilization
+mix vs. the §3 boundary (R-26 dashboard), churn vs. the 20% assumption,
+net adds vs. the ramp plan, and the value dashboard proving D-023 to
+patients. Growth stays grassroots+employer until evidence says otherwise;
+insurance participation is revisited (X-04) only if price proves to be
+the binding acquisition constraint.
 
 ---
 
-## Pacing and sustainability
+## Pacing
 
-- **No dates in Era 1.** The 12–24 month horizon shapes perishability
-  handling, not deadlines.
-- **Budget-aware:** $20k ceiling (D-020); the scarcest purchased resource is
-  counsel hours — Era 1 briefs exist to make each one count.
-- **Small units.** Deliverables sized to a work session; the repo holds
-  state (D-010).
-- **Tangibility is a feature.** Track B is first-class work.
-- **The failure mode to watch** is still endless preparation (R-18) — but
-  the north-star workflow gives "launch-ready" a concrete meaning: the day
-  the whole chain from meeting someone to caring for them could actually
-  run.
+No dates in Era 1; the horizon calibrates perishability, not deadlines.
+Counsel hours are the scarcest purchased resource — briefs exist to make
+each one count. The failure mode to watch is still endless preparation
+(R-18) — but the model is now simple enough that "done designing" is
+visible.

@@ -1,129 +1,84 @@
-# Solo Primary Care Practice — Preparation Project
+# Solo Direct-Pay Practice — Preparation Project
 
-Working repository for the design, validation, and preparation of a solo,
-lifestyle-first primary care practice built on **flexible, individualized,
-relationship-based care** — to be launched in Texas (Austin most likely)
-after relocation, on a ~12–24 month horizon.
+Working repository for the design, validation, and preparation of:
 
-**The north star (D-014):** we are not building a pre-designed healthcare
-product that patients are fitted into. We are building the infrastructure
-that lets one physician establish thoughtful, flexible, evidence-based
-physician–patient relationships and tailor the clinical and economic
-arrangement to what will genuinely help each person:
+> **A solo, adult-focused, direct-pay medical practice charging one flat
+> rate of $100/month per patient** — designed around individualized care,
+> minimal overhead, physician autonomy, measurable patient value, and a
+> sustainable physician lifestyle.
 
-> Meet someone → identify that I can help → one or two structured
-> conversations → understand the problem → an agreed plan and price →
-> formally establish the relationship → provide care → track whether their
-> well-being improves.
-
-The person at the center is often overwhelmed — health tangled with stress,
-finances, work, relationships, and sleep — and the signature service is
-untangling it: listen carefully, understand the whole situation, prioritize,
-separate urgent from important, build a realistic plan, and work through it
-together, with the value of the care made visible against what it cost.
-
-Each patient relationship functions as a small, customized clinical contract
-— scoped, priced, tracked, periodically reassessed, renewed when
-appropriate. **Pricing is individualized within a defensible framework**
-(D-002: expected time × complexity-adjusted derived rate + resources,
-value-checked) — personalized without being random. Payer participation and
-packaging remain **open research questions** (D-015).
+Launch follows relocation to Texas (Austin most likely), on a ~12–24
+month horizon. **Standardized price; individualized medicine** (D-014):
+the price is the only uniform thing — settings (telemedicine, home
+visits, rented space), frequency, focus, and duration are tailored to
+each person. The signature skill is untangling: taking someone
+overwhelmed — health tangled with stress, money, work, relationships,
+sleep — and making it manageable, then showing the value
+(Value = Quality ÷ Cost) in their own portal.
 
 **This is a preparation project, not an imminent launch** (D-011). The
-organizing question for everything here:
+organizing question:
 
-> *What can we thoughtfully design, validate, build, and prepare now, so that
-> arrival in Texas means local validation, regulatory implementation, final
-> system setup, and execution — not starting from zero?*
+> *What can we design, validate, build, and prepare now, so that arrival
+> in Texas means local validation, final setup, and execution — not
+> starting from zero?*
 
-Work is prioritized by durability (survives until launch), leverage (shortens
-or de-risks the launch runway), and tangibility (makes the future practice
-concrete and the project sustaining to work on) — not by launch urgency.
+## The practice at a glance
 
-This repo is the durable memory of the project. Conversations are ephemeral;
-decisions, assumptions, models, and drafts live here.
+$100/month per adult (no tiers, no insurance required) · target ~140
+adults at maturity → ~$100k after-tax at 30 hr/wk × 39 weeks · ~5–6
+hours of physician attention per patient per year · break-even ~19
+patients · bounded availability (no 24/7 obligation, no coverage layer) ·
+telemedicine + home visits + rented space, no permanent office ·
+grassroots + employer-membership growth · $20k preparation ceiling.
+
+The flat rate's one hard discipline: **panel-mix management** — heavy-
+utilization patients are sustainable at ~1 in 8–10 of the panel, so
+onboarding doubles as the capacity gate and utilization is tracked from
+patient one (unit economics §3, risk R-26).
 
 ## How this repo is organized
 
 | Path | What lives here |
 | --- | --- |
-| `docs/charter/` | What we've decided, what we're assuming, what's still open |
-| `docs/strategy/` | Economics, risk, sequencing |
-| `docs/clinical/` | Care model spec, protocols, visit structures, measurement |
-| `docs/legal/` | Entity, licensure, insurance, agreements, policies |
-| `docs/systems/` | EHR, payments, portal, telehealth, automation |
-| `docs/brand/` | Name, positioning, messaging, website, collateral |
-| `docs/growth/` | Acquisition, consultation funnel, referral, retention |
-| `docs/evidence/` | Patient-facing evidence explainers, outcome measures, QI/research |
-| `docs/agreements/` | Agreement architecture, Scope & Fee Schedule template, payment research |
-| `tools/` | Runnable models and utilities |
-
-Directories beyond `charter/` and `strategy/` are created as work begins in
-them, so an empty directory never implies work that doesn't exist.
+| `docs/charter/` | Working model · decision log · open questions · deferred decisions |
+| `docs/strategy/` | Unit economics · risk register · roadmap |
+| `docs/agreements/` | Practice Terms design · payment-landscape research |
+| `docs/archive/` | Superseded concepts, preserved with an index — how we got here |
+| `tools/` | `practice_model.py` — the subscription economics model |
 
 ## Working agreements
 
-These are the rules this project runs on. They exist because the failure mode
-of a project like this is confident-sounding fabrication.
-
-1. **Label every claim.** Facts are sourced. Estimates are marked as estimates
-   with their derivation shown. Assumptions are marked as assumptions with an
-   owner and a plan to resolve them. Nothing regulatory, clinical, financial,
-   or market-related is asserted without a citation or an explicit "unverified."
-2. **No invented numbers.** Cost figures, conversion rates, market sizes, and
-   panel benchmarks are inputs *you* supply or sources we cite — never
-   placeholders quietly hardened into facts. Unset inputs stay visibly unset.
-3. **Counsel and licensed advisors own their domains.** This project drafts,
-   organizes, researches, and pressure-tests. It does not replace a healthcare
-   attorney, a CPA, a malpractice broker, or a compliance officer. Items
-   requiring them are tagged `NEEDS-COUNSEL`, `NEEDS-CPA`, `NEEDS-BROKER`.
-4. **Decisions get logged.** Anything that constrains later work goes in
-   `docs/charter/decision-log.md` with its date, rationale, and reversal cost.
-5. **Nothing is designed in isolation.** Every deliverable states what it
-   depends on and what depends on it.
-6. **The care model is the product.** Technology, brand, and process exist to
-   serve physician–patient time. Any proposal that adds surface area without
-   defending its effect on care gets challenged.
+1. **Label every claim.** Facts are sourced; estimates show derivations;
+   assumptions are marked with owners. Nothing regulatory, clinical,
+   financial, or market-related is asserted without a citation or an
+   explicit "unverified."
+2. **No invented numbers.** Unset inputs stay visibly UNSET.
+3. **Licensed advisors own their domains** — `NEEDS-COUNSEL`,
+   `NEEDS-CPA`, `NEEDS-BROKER` tags mark their questions.
+4. **Decisions get logged** with reasoning and revisit triggers;
+   deliberate deferrals live in their own register.
+5. **Nothing is designed in isolation.**
+6. **The care model is the product.** Technology and process serve
+   physician–patient time.
 7. **Documents show the current model; history steps back** (D-025).
-   Headings reflect the current architecture. When a decision materially
-   changes, its title changes — superseded thinking compresses to a brief
-   history note or lives in git. Foundation docs are optimized for fast
-   conceptual scanning: what's decided, what's open, what changed, whether
-   we're converging.
+   Scanning the decision log headings should give the current practice;
+   old thinking lives in `docs/archive/` and git.
 
 ## Current status
 
-**Era 1 — Preparation** (~12–24 months to launch; $20k budget ceiling,
-grassroots by default). Six parallel tracks — economics/pricing/payer
-strategy, patient experience, clinical model, operating system, legal
-research, validation — advance independently; see `docs/strategy/roadmap.md`.
-The current part-time clinical job is itself an instrumented part of the
-preparation (D-019).
-
-The economics are arrangement-based: the tool derives the required blended
-hourly rate from the income target, prices six patient archetypes, and
-evaluates mixes. The primary goal (D-018: ~$100k take-home at ~30 hr/wk)
-is reachable at a ~$140–165/hr blended rate — which prices the archetypes
-at what the market already charges (worked examples with patient-facing
-proposals in `docs/archetypes/`).
-
-The research core of the preparation: framework calibration and packaging
-(Q-14), payer participation (Q-02), pricing compliance (Q-15), and the
-minimum-availability question (Q-17). Decisions intentionally left open —
-packaging, payer participation, city, launch date, vendors, carriers,
-reduced-fee mechanism — are tracked with triggers in
-`docs/charter/deferred-decisions.md`.
+**Era 1 — Preparation.** Re-baselined 2026-08-16 around the $100/month
+model (D-029). The subscription economics are built and honest: the goal
+is met at ~140 adults with margin; the binding constraint is panel mix,
+not revenue. The near-term design work: the boundary/carve-out design
+(Q-19), panel-mix instrumentation (Q-20), the Practice Terms skeleton,
+and the Medicare-age question for counsel (Q-21). See
+`docs/strategy/roadmap.md`.
 
 ## Start here
 
-- `docs/charter/working-model.md` — the project frame and the practice as
-  currently conceived, every element tagged Decided / Assumption / Open
-- `docs/charter/decision-log.md` — decisions made, with reasoning
-- `docs/charter/deferred-decisions.md` — decisions deliberately kept open
-- `docs/charter/open-questions.md` — what needs answering, and when
-- `docs/strategy/roadmap.md` — the two eras: preparation tracks, then the
-  launch runway
-- `docs/strategy/unit-economics.md` — the capacity math that constrains
-  everything else
-- `docs/strategy/risk-register.md` — live preparation risks and designed-for
-  launch risks
+- `docs/charter/working-model.md` — the practice as currently conceived
+- `docs/charter/decision-log.md` — current decisions, scannable by heading
+- `docs/strategy/unit-economics.md` — what $100/month actually requires
+- `docs/strategy/roadmap.md` — preparation tracks and the launch runway
+- `docs/archive/README.md` — how the model evolved to this point

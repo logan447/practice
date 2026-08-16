@@ -1,235 +1,116 @@
 # Working Model
 
-The practice as currently conceived. This is a working model, not a
-specification — it is expected to change. Every element is tagged:
+What we currently believe the practice is becoming (D-025). Tags:
+**[D]** decided · **[A]** working assumption · **[O]** open.
 
-- **[D]** Decided — treat as fixed until explicitly revisited
-- **[A]** Assumption / working lean — proceeding on it, not yet tested
-- **[O]** Open — genuinely undecided, blocking or shaping downstream work
-
-Last revised: 2026-08-15. This document describes what we currently believe
-the practice is becoming (D-025) — the flexible, individualized,
-relationship-based model. History lives in git and in the decision log's
-history notes, not here.
+Last revised: 2026-08-16 — **re-baselined around D-029.**
 
 ---
 
-## 0. Project frame — read this first
+## 0. Project frame
 
-**[D]** **This is a preparation project, not an imminent launch** (D-011).
-The practice launches after relocation to Texas — Austin most likely, Houston
-or Dallas alternatives (D-012). Likely launch horizon: **~12–24 months**
-(D-019). The current period is itself preparation: part-time primary care
-work building skills, confidence, and firsthand knowledge of what traditional
-systems do well and poorly.
+**[D]** Preparation project (D-011): launch follows the move to Texas —
+Austin lean (D-012) — on a ~12–24 month horizon (D-019). Preparation
+budget: $20k ceiling (D-020). Currently Virginia-licensed, working
+part-time primary care as deliberate preparation. Work is judged by
+durability, leverage on the launch runway, and tangibility; perishable
+research is dated and `REFRESH-AT-RUNWAY`-tagged.
 
-**[D]** Preparation budget: **$20,000 ceiling, not a target** (D-020).
-Grassroots and capital-efficient by default.
+## 1. The practice in one paragraph
 
-The organizing question for everything in this repository:
-
-> *What can we thoughtfully design, validate, build, and prepare now, so that
-> arrival in Texas means local validation, regulatory implementation, final
-> system setup, and execution — not starting from zero?*
-
-Work is prioritized by durability, leverage on the launch runway, and
-tangibility. Decisions that should stay open are protected in
-`deferred-decisions.md`; perishable research carries its date and a
-`REFRESH-AT-RUNWAY` tag (R-16).
-
-## 1. North star
-
-**[D]** (D-014) We are not building a pre-designed healthcare product that
-patients are fitted into. We are building the infrastructure that lets one
-physician establish thoughtful, flexible, evidence-based physician–patient
-relationships and tailor the clinical and economic arrangement to what will
-genuinely help each person.
-
-The workflow the entire infrastructure must enable:
-
-> Meet someone → identify that I can help → schedule one or two structured
-> conversations → understand the problem → create an agreed plan and price →
-> formally establish the relationship → provide care → track whether their
-> well-being improves.
-
-**The person at the center** is often not someone with one neatly defined
-problem. They may be scared, frustrated, or overwhelmed — health concerns
-bleeding into stress, finances, work, relationships, sleep, and behavior all
-at once, and unable to make sense of what is happening. The practice exists
-to step into that complexity and help untangle it.
-
-**The core experience, every time:**
-
-> Listen carefully → understand the whole situation → identify the
-> highest-priority problems → separate what is urgent from what is
-> important → create a realistic plan → work through it together over time.
-
-The patient should feel that somebody competent and thoughtful has finally
-looked at the whole picture and helped make it manageable. The economics
-reinforce the care (D-002, D-023): the patient understands what is proposed,
-why it is worth doing, what it costs, and what should improve — the goal is
-not to charge for physician time but to make the value added understandable
-and visible.
-
-Guiding principle for every care decision: **use the setting, frequency, and
-duration of care that best serves the patient's health needs without creating
-unnecessary structure or overhead.**
-
-This purpose is the tiebreaker for every downstream decision.
+**[D]** A solo, adult-focused, direct-pay medical practice charging **one
+flat rate: $100/month per patient** (D-029/D-030). No insurance required —
+by the practice or of the patient's plans — for the core economics
+(D-031). Telemedicine-predominant, with home visits and rented clinical
+space used selectively. **Standardized price; individualized medicine**
+(D-014): the person at the center is often overwhelmed — health tangled
+with stress, money, work, relationships, sleep — and the signature skill
+is untangling it: listen carefully, understand the whole situation, name
+the priority problems, separate urgent from important, work one realistic
+plan over time, and show whether well-being actually improved
+(D-023: Value = Quality ÷ Cost, visible in the patient's own portal).
 
 ## 2. Structure
 
 | Element | Status | Detail |
-| --- | --- | --- |
-| Solo physician | **[D]** | D-001. The practice is the physician |
-| No staff initially | **[D]** | D-001. Revisit trigger: admin load displaces clinical time |
-| No clinician coverage layer | **[D]** | D-017. Transparent availability expectations instead; verify with counsel/carrier at runway (Q-17) |
-| Launch state: Texas | **[D]** | D-012. City open — Austin lean (X-01) |
-| Current licensure | **[D]** | Virginia. Texas licensure later, tied to settling (D-019) |
-| Compensation target | **[D]** | D-018. ~$130–175k long-term; >$100k meaningful minimum; slow ramp accepted; income maximization is a non-goal |
-| Legal entity | **[O]** | `NEEDS-COUNSEL` — Texas entity law; research now, form at runway |
+|---|---|---|
+| Solo, no staff | **[D]** | D-001; systems operable by one person |
+| Adults only | **[D]** | D-030; no pediatrics; each adult their own relationship |
+| Availability | **[D]** | D-017: business hours M–F; ~24–72h routine response; up to ~3 mo/yr away, aware-not-absent; written triage taxonomy; no coverage clinician (Q-17 verification at runway) |
+| Legal entity | **[O]** | Texas entity at runway, `NEEDS-COUNSEL` |
+| Launch state | **[D]** | Texas; city open (X-01) |
 
-## 3. Economic model
+## 3. Economics
 
 | Element | Status | Detail |
-| --- | --- | --- |
-| Patient-facing pricing | **[D]** | D-028: **two published tiers + episodes** — Foundation membership (~$99–129/mo), Intensive tier (~2×, steps down at checkpoints), flat-price episodes, sliding-scale floor. Calibrate exact numbers in validation (Track F) |
-| Internal pricing framework | **[D]** | D-002: time × complexity-adjusted derived rate + allowance — now the *internal* tool for tier boundaries, tier assignment, and panel management |
-| Payer participation | **[D]**/**[O]** | D-028: launch pure direct-pay (Texas DPC statute). Insurance = deferred evidence-based lane, separated by patient if ever added. Medicare: opt-out blocked while moonlighting — Medicare-age enrollment constrained during ramp (`NEEDS-COUNSEL`) |
-| Growth lanes | **[A]** | Grassroots (D-022) + employer-sponsored memberships (researched: 58% of DPC market, lowest churn) |
-| Individualized-pricing compliance | **[O]** | Q-15 — gates publishing any tailored-pricing language. `NEEDS-COUNSEL` |
-| Billing/coding capability | **[O]** | Never personally operated end-to-end; research + practical learning during preparation (Q-02) |
-| Reduced-fee mechanism | **[O]** | D-003: will exist; within the framework it is a reduced *rate*; structure deferred (X-10) |
-| Economics engine | **[D]** | Arrangement-based: each relationship is a small, scoped, priced, tracked, reassessed, renewable clinical contract — see `docs/strategy/unit-economics.md` and worked examples in `docs/archetypes/` |
-| Payment mechanics | **[A]** | Working default (researched, familiar-to-patients): monthly card-on-file auto-pay with disclosed triggers; staged payments for front-loaded engagements; proposals built to satisfy the self-pay Good Faith Estimate duty (🟥); superbills on request; travel included in home-visit prices — `docs/archetypes/payment-landscape.md` §4 |
+|---|---|---|
+| Price | **[D]** | **$100/month per adult, flat, published** (D-029). No tiers, surcharges, or individualized contracts |
+| Goal | **[D]** | ~$100k after-tax at 30 hr/wk × 39 wk (D-018) → **~140 adults, ~5–6 hr/patient/yr** (unit economics) |
+| Payer posture | **[D]** | Direct-pay on the Texas DPC statute; insurance never required (D-031); research track only (X-04) |
+| Panel-mix management | **[D]** | The load-bearing discipline of flat pricing: heavy-utilization patients ≈ 1 in 8–10 of panel; enrollment gate + utilization tracking + renewal re-scoping + Q-19 carve-outs |
+| Payment mechanics | **[A]** | Monthly card-on-file auto-pay (researched norm), cancel anytime (D-027); self-pay GFE duty satisfied by the published price + Terms |
+| Affordability mechanism | **[O]** | A few discounted/free memberships, criteria-based (D-003, X-10) |
+| Break-even / ramp | **[D]** | Break-even ~19 adults; target panel ~month 14–18 at researched add rates; ~28 replacements/yr at 20% churn |
 
 ## 4. Care delivery
 
-**[D]** (D-014) No rigid rules on visit frequency, in-person cadence,
-virtual-vs-in-person mix, engagement length, or whether every patient needs a
-membership. Each arrangement is set in the patient's proposal.
+**[D]** Individualized per patient, within the flat rate: telemedicine
+and secure messaging as the backbone; medication management; acute
+primary care; chronic disease management; prevention and lifestyle
+medicine; labs/imaging/diagnostics ordered and interpreted; specialist
+coordination; whole-person work (psychological, social, occupational,
+relationship, financial-stress dimensions within D-024 scope); **home
+visits when clinically appropriate** (~2–2.5 hr each including travel —
+clustered, physician-judgment, not an on-demand amenity); occasional
+rented-space visits for examinations and procedures.
 
-| Element | Status | Detail |
-| --- | --- | --- |
-| Default setting mix | **[A]** | **Telemedicine + home visits + rented clinical space when needed.** Comfortable driving to patients' homes when sensible; periodic rented exam room with clustered visits if patients are geographically concentrated |
-| Permanent office | **[D]** | Not unless future economics strongly justify it (D-014) |
-| Engagement shapes | **[A]** | Short-term intensive · extended · longitudinal · acute episodic · ongoing with periodic renewal checkpoints — chosen per patient |
-| Availability | **[D]** | D-017: bounded and explicit — business hours M–F; no routine evenings/weekends; up to ~3 months/year away from regular scheduling, *aware not absent* (periodic review of messages, workups, significant results; triage when truly necessary); routine ~24–72h. No 24/7 obligation, no default coverage clinician |
-| Patient expectations | **[D]** | Set in advance: emergencies → ED; urgent problems → urgent care / local evaluation; other physicians may be involved; another PCP may be kept where useful or required |
-| Minimum safe structure | **[O]** | Q-17 — the deliberately framed question: the *minimum* availability/continuity structure for safe, ethical, legally compliant, genuinely valuable care — challenged on medical-legal, ethical, insurance, and operational grounds, not defaulted to convention |
-| Triage taxonomy | **[O]** | Written definitions of emergency / urgent-local / message-me / can-wait — patient-facing, drafted during preparation (Q-07) |
-| Home-visit operations | **[O]** | Logistics, safety, equipment, drive-time economics, malpractice implications (Q-16) |
+**[D]** No universal visit cadence or in-person requirement — care
+intensity follows need, inside the panel-mix discipline above.
+
+**[O]** Boundaries to design (Q-19): the short, patient-friendly list of
+what sits outside the subscription (extensive medico-legal paperwork,
+convenience home visits, sustained near-daily-contact phases, etc.), and
+whether any carry separate published charges.
 
 ## 5. Clinical scope
 
-**[D]** Broad-scope primary care combined with lifestyle medicine: prevention
-and screening, chronic disease management, acute primary care, medications,
-diagnostics, mental well-being, relationships and social health, financial
-health (bounded — below), healthy aging and long-term care planning.
+**[D]** Broad-scope adult primary care + lifestyle medicine; the
+untangling evaluation as the signature designed encounter; financial
+health bounded to stress-reduction scope (D-024).
+**[O]** Psychiatric medication management threshold; procedural scope
+(shapes the home-visit kit and rented-space needs).
 
-**[D]** (D-024) Financial health scope: financial-stress-as-health-determinant
-work — cash-flow awareness, money conversations, spending psychology, whether
-financial instability interferes with health behaviors. **Not** investment
-advice or financial planning; beyond scope → referral to qualified financial
-professionals.
+## 6. The relationship
 
-**[D]** The signature clinical competency is the untangling evaluation: a
-structured way to take a person whose problems span domains, hear the whole
-situation, name the priority problems, separate urgent from important, and
-produce one realistic plan. This is a designed encounter (roadmap Track C),
-not an improvised one.
+**[D]** (D-016) One or two complimentary conversations → records reviewed
+→ whole situation understood → priorities triaged → honest mutual
+decision → enrollment at the published price → care → visible trends →
+stay because it's worth it (cancel anytime, D-027). Onboarding doubles as
+the **capacity and mix gate** — "not yet," "not me," and "let me refer
+you well" are legitimate outcomes.
 
-**[O]** Remaining scope edges to define during preparation: psychiatric
-medication management threshold and referral criteria; procedural scope (which
-now also shapes the home-visit kit and rented-space requirements).
+## 7. Technology
 
-## 6. The relationship: from meeting to care
+**[D]** (D-021) Established EHR as clinical system of record (records,
+messaging, e-prescribing, telemedicine, results, scheduling, portal
+trends); membership billing platform with card-on-file; simple front-door
+website. Minimal vendor count (R-12); selection deferred to ~6 months
+pre-launch (X-03) against requirements that now include subscription
+billing and per-patient utilization tracking.
 
-**[D]** (D-016) Every patient enters through the personalized proposal
-process:
+## 8. Growth
 
-1. One or two complimentary virtual conversations — why are they seeking help
-2. Records obtained and reviewed
-3. Needs clarified: medical, psychological, lifestyle, functional, practical
-4. Honest determination of what can realistically be accomplished
-5. **Personalized proposal**: problems to manage, goals, settings, expected
-   frequency and duration, anticipated diagnostics/medications/monitoring,
-   reassessment checkpoints, cost structure, outcomes to track
-6. Meeting of the minds → formal relationship begins
+**[D]** (D-022) Grassroots + employer memberships. Pre-outcomes marketing
+speaks to time, attention, process, and personalization — never results
+that don't exist yet (R-13).
 
-**[D]** The proposal doubles as the capacity and burnout management tool: time,
-complexity, and economics are estimated *before* commitment, and a
-relationship that would be unsustainable is identified before it exists.
-
-**[O]** Boundary between the complimentary conversations and unpaid medical
-advice; proposal-stage documentation and consent. `NEEDS-COUNSEL` at runway;
-draft during preparation.
-
-## 7. Outcomes and value
-
-**[D]** (D-023) The value of care is made visible to patient and physician:
-**Value = Quality ÷ Cost**. Purpose: clinical transparency, accountability,
-and proof of value — publication is not a goal.
-
-- Easy tracking of: vitals, laboratory trends, symptoms, medication burden,
-  function, lifestyle measures, patient-reported well-being, clinical goals,
-  encounter counts and types, approximate cost of care over time
-- Each patient can see, as clearly as reasonably possible: what they spent,
-  what care they received, what changed, whether objective and subjective
-  health improved — e.g., BP/A1c/lipid/weight trends, medication changes,
-  visits, major interventions, total cost, and a concise
-  progress-and-remaining-goals summary
-- Managed cases → internal structured case summaries for learning
-- If the data later makes consent-based research, case series, or QI studies
-  worthwhile, that is pursued separately; it is not a launch requirement
-
-## 8. Technology
-
-**[D]** (D-021, refining D-007) Established EHR as clinical system of record;
-lightweight custom website as public front door and onboarding layer, handing
-established patients into the EHR portal for clinical functions.
-
-Target minimal stack: website/hosting · one strong EHR (integrated
-telemedicine + portal) · malpractice insurer · labs · pharmacy/e-prescribing ·
-imaging relationships · payment/billing infrastructure only as needed.
-
-**[O]** EHR vendor — deep landscape research before recommendation (X-03):
-subscription cost *and* long-term friction, plus support for per-patient
-arrangements, flexible billing, portal outcome trends, and record
-portability (R-15).
-
-## 9. Acquisition
-
-**[D]** (D-022) Grassroots and relationship-driven first: word of mouth,
-personal relationships, community connections, physician and patient
-referrals, organic presence, educational content, local reputation. Paid
-advertising is a later experiment (X-08).
-
-**[D]** Pre-outcomes marketing speaks to process, philosophy, convenience,
-time and attention, evidence-based approach, and personalized planning —
-never to results that don't yet exist (R-13). As the practice accumulates
-cases and outcomes, it increasingly communicates its own evidence.
-
-## 10. Revisit triggers
+## 9. Revisit triggers
 
 | Decision | Reopen when |
-| --- | --- |
+|---|---|
+| $100/month flat (D-029) | Strong real-world evidence: validation failure, ramp far below plan, or utilization data showing the rate can't carry the panel |
+| Adults only / no family pricing (D-030) | Real demand pattern makes couple/family workflows worth building |
 | No staff (D-001) | Non-clinical work displaces patient contact |
-| Solo, no coverage layer (D-017) | Counsel/carrier verification fails (Q-17), or absence model proves clinically unsafe or unsellable |
-| Flexible per-patient economics (D-014/D-015) | Administrative load of heterogeneous arrangements exceeds what solo practice sustains (R-20) — likely response is standard *defaults* with tailoring at the edges, not a return to one rigid product |
-| No permanent office (D-014) | Patient concentration and economics strongly justify one |
-| Grassroots-only acquisition (D-022) | Growth stalls below the income floor past the accepted slow-ramp window |
-| Documentation-first outcomes (D-023) | Publication or formal QI becomes a real goal → revisit consent architecture first |
-
-## 11. What success looks like
-
-**[D]** Directionally defined by D-018 and D-023:
-
-- Patients whose measured well-being and clinical trends improve, visible to
-  them in their own portal
-- Compensation reaching ~$130–175k sustainably, on a workload that leaves the
-  practice enjoyable — reached slowly is fine
-- Relationships that both sides renew at checkpoints because they are
-  genuinely useful
-- A practice one person can run without burnout, protected by proposal-stage
-  capacity decisions rather than arbitrary limits
+| No coverage layer (D-017) | Q-17 verification finds a higher floor |
+| Direct-pay only (D-031) | Evidence that price is the binding acquisition constraint → insurance lane per researched template |
+| Panel-mix discipline | Heavy-share persistently >~15% despite gating → revisit boundaries, then (only then) pricing |
