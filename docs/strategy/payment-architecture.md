@@ -51,15 +51,68 @@ apparatus, FCA exposure on E/M levels, hold-harmless limits on extra
 fees, mandatory claims for Medicare patients, and commercial primary care
 reimbursement around 110–130% of Medicare (99214 ≈ $136 national).
 
-## 3. The two-lane and ramp questions
+## 3. The DPC evidence base (researched 2026-08-16, sourced)
 
-*(Research findings inserted below — see §3a.)*
+**Panels and capacity.** DPC Alliance survey (n=465, published 2026): full
+panels cluster at **400–700 per full-time physician**; part-time physicians
+report full panels under 200–300. At your 0.55–0.6 FTE: **~275–360 patient
+ceiling** at standard-DPC service intensity (~2–2.5 hr/patient/yr) — which
+is the volume-lite version of care, not the archetype vision (5–8+ hr).
+National average fee **$98/mo**; Austin average ~$106 with a proven
+premium tier ($250–350/mo boutique practices operating today); Houston avg
+~$112 across concierge+DPC.
 
-Structural answers from prior research: a practice may run direct-pay
-members alongside insurance-billed patients, but in-network contracts may
-constrain offering memberships to members of plans the practice
-participates in — contract-by-contract review (`NEEDS-COUNSEL`). Medicare
-lane is governed by mandatory-claims/opt-out rules regardless of design.
+**Ramp reality (the sobering numbers).** Average time to fill a panel:
+**20–21 months**; a common rule of thumb is ~1,000 patients acquired to
+keep 600 (~40% cumulative attrition); only **~17% of DPC physicians ever
+reach their target panel**; annual churn ~**20%** (10–15% for
+employer-sponsored members, 30–40% for low-income individual members).
+Documented failure causes: underpricing (sub-$75/mo flagged repeatedly),
+target population unable to afford fees, cash-flow mismanagement, weak
+acquisition. Full-time DPC family physicians who succeed average ~$289k
+(AAFP 2024) — the model can pay; the ramp is where it fails.
+
+**The employer channel is now the market's engine:** 58% of all DPC
+memberships nationally are employer-sponsored ($50–125 per employee per
+month, typically $70–90, lowest churn). Two 30–40-member employer
+contracts ≈ half the base-case panel. This belongs in the growth strategy
+(D-022 amended by evidence: grassroots *plus* small-employer outreach).
+
+**Texas specifics.** The DPC statute (Occ. Code ch. 162 subch. F) stands;
+note its conjunctive definition (acute + chronic + preventive + continuity).
+**Texas prohibits physician dispensing** (ban upheld, TX Supreme Court
+declined review 2023) — no in-office medication margin; wholesale-lab
+pass-through at negotiated rates is routine and permitted with disclosure.
+
+**Two lanes are workable — separated by patient, never by service.** The
+documented template (Epiphany Health/Gross): a **separate entity** holds
+DPC memberships; the provider entity bills insurance; a given patient is
+in exactly one lane, because in-network contracts oblige billing the plan
+for covered services to its members and bar collecting beyond cost-share.
+DPC Frontier recommends the pure model to minimize FCA/Stark exposure;
+hybrid is a recognized, heavier-compliance option. Only **3.9%** of DPC
+physicians run a Medicare hybrid; **80.7% opt out**.
+
+**Transitions.** Insurance→membership (leaving a network): established
+pattern — 90-day contract notice, patients told they may stay via DPC.
+Membership→insurance (you join their plan's network): **no published
+guidance found** — mechanically it is "DPC agreement ends (standard
+30-day/renewal terms), then bill the plan," because you must not keep a
+membership covering covered services once in-network. Needs health-law
+review before doing it; disclose the possibility at enrollment.
+
+**The ramp trap specific to you:** a physician who **moonlights cannot
+opt out of Medicare** — and you are working part-time clinical jobs
+through the preparation period. During ramp, Medicare-age patients must
+be excluded, or handled only via the fragile non-covered-fee structure.
+This materially shapes X-04 timing: full Medicare opt-out becomes
+available only when moonlighting ends.
+
+**Sliding scale:** minority practice in DPC (age-tiering is the norm,
+76%); legally simple in a pure cash practice (documented criteria,
+consistent application); becomes a compliance question the day an
+insurance lane is added. Supports D-003 as a floor tier (e.g., $50 as
+sliding-scale floor inside a ~$100 average), not as the headline price.
 
 ## 4. Comparison against the ten criteria
 
