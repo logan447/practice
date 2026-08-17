@@ -45,6 +45,7 @@ patient one (unit economics §3, risk R-26).
 | `docs/strategy/` | Unit economics · risk register · roadmap |
 | `docs/agreements/` | Patient Agreement draft · program eligibility brief · payment research |
 | `docs/website/` | Website information architecture, patient journey, and (soon) the site itself |
+| `docs/systems/` | Technology strategy: the experience-layer exploration, EHR interop criteria |
 | `docs/archive/` | Superseded concepts, preserved with an index — how we got here |
 | `tools/` | `practice_model.py` — the subscription economics model |
 

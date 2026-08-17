@@ -56,9 +56,19 @@ until it ends (Q-21).
 - **Perishable:** guideline references need a currency check at runway.
 
 ### Track D — Operating system
+- ✅ **Experience-layer exploration done** (2026-08-17,
+  `docs/systems/experience-layer.md`): capability inventory (living care
+  plan, longitudinal + whole-person dashboards, value dashboard, panel
+  dashboard as the differentiators), EHR-as-system-of-record
+  architecture pressure-tested with the one-home-per-datum rule,
+  5-stage progression with gates, HIPAA conceptual map. **Two effects:**
+  interoperability (FHIR/API/export/certification) is now a Tier-1 X-03
+  criterion, and any PHI-bearing custom code is gated behind a dedicated
+  HIPAA architecture review (Stage-2 gate)
 - Requirements doc (after Track C's Q-09/Q-20): EHR core + telemedicine +
   portal trends + **subscription billing (card-on-file, dunning)** +
-  utilization tracking + bulk export
+  utilization tracking + bulk export + **the §3 interop screening
+  criteria from the experience-layer doc**
 - Dated landscape scan of the researched DPC stack (Hint, Atlas.md,
   Elation, etc.); selection at ~6 months pre-launch (X-03)
 - Simple front-door website build (cheap stack, D-020)
