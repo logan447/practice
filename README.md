@@ -43,7 +43,8 @@ patient one (unit economics §3, risk R-26).
 | --- | --- |
 | `docs/charter/` | Working model · decision log · open questions · deferred decisions |
 | `docs/strategy/` | Unit economics · risk register · roadmap |
-| `docs/agreements/` | Practice Terms design · payment-landscape research |
+| `docs/agreements/` | Patient Agreement draft · program eligibility brief · payment research |
+| `docs/website/` | Website information architecture, patient journey, and (soon) the site itself |
 | `docs/archive/` | Superseded concepts, preserved with an index — how we got here |
 | `tools/` | `practice_model.py` — the subscription economics model |
 

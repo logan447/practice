@@ -25,11 +25,16 @@ until it ends (Q-21).
   runway-analysis structure for the CPA; Q-18 question list
 - **Perishable:** market prices, benchmarks. The model is durable.
 
-### Track B — Patient experience and brand
-- Practice name, positioning, messaging — around $100/month, time,
-  attention, untangling, visible value (R-13 rules apply from draft one)
-- Website prototype: the published price, how it works, the Q-07 triage
-  taxonomy, honest FAQs (what's included / what's not — Q-19)
+### Track B — Patient experience and brand — **the active phase**
+- ✅ **Website IA & patient journey designed** (2026-08-17,
+  `docs/website/design.md`): six-page MVP site map, homepage structure,
+  messaging pillars, journey (discover→learn→meet→decide→begin),
+  minimal-funnel posture, FAQ architecture, no-PHI scheduling
+  architecture, Astro/Tailwind/Cloudflare stack (~$0–25/mo)
+- Next in phase: name candidates (Q-22) → full site copy → build the
+  prototype → use it in Track F validation conversations
+- Practice positioning and messaging live in the design doc's pillars
+  (R-13 rules apply from draft one)
 - The onboarding conversation design (D-016): scripts, records request,
   the capacity-check questions (Q-20), the "not me / not yet / let me
   refer you well" language
