@@ -1,9 +1,11 @@
-# Patient Agreement — Working Draft v1
+# Patient Agreement — Working Draft v2
 
-*Drafted 2026-08-16 from the approved operating model (unit economics §1;
-D-029/D-030/D-031, D-014, D-016, D-017, D-026, D-027). **Working
-operational draft — not finalized legal language.** Bracketed tags mark
-what needs resolution:*
+*Drafted 2026-08-16 from the approved operating model; **v2 (2026-08-17):
+the ten exposed operational decisions were approved as recommended
+(D-032)** and are now policy in this draft. The Eligibility provision
+(§1.4) is under active revision pending the Medicare/Medicaid research —
+see the eligibility note in §1.4. **Working operational draft — not
+finalized legal language.** Bracketed tags mark what needs resolution:*
 
 - `[COUNSEL]` — Texas healthcare attorney review required
 - `[CARRIER]` — malpractice carrier confirmation required
@@ -107,11 +109,10 @@ belongs in §5's pathways.
   service genuinely requires being with you and a home visit is
   practical. Home visits are scheduled (typically clustered by
   geography) and are included in your membership within my service area
-  of **[radius/area — LATER, set with the launch city]**.
-  *[`DECISION` — recommendation: no separately-charged "convenience"
-  home-visit tier at launch; home visits are a clinical tool at my
-  judgment, not an on-demand amenity. Revisit only if demand data says
-  otherwise.]*
+  of **[radius/area — LATER, set with the launch city]**. There is no
+  separately-charged "convenience" home-visit tier; home visits are a
+  clinical tool at my judgment, not an on-demand amenity. *(D-032;
+  revisit only if demand data says otherwise.)*
 - **Clinic visits** at rented clinical space, for examinations and
   procedures better done in an equipped room — included in your
   membership.
@@ -200,23 +201,22 @@ sentence ships]`
 ### 7. The short list of things outside the membership
 
 I will always tell you before anything generates a charge. Outside the
-monthly fee: `[DECISION — this section is the Q-19 carve-out list;
-recommendations below, none yet policy]`
+monthly fee *(the Q-19 carve-out list — approved as policy, D-032)*:
 
 - **Extensive third-party paperwork:** disability/FMLA/insurance forms
   beyond simple ones, letters for legal matters, deposition or record
-  review for litigation — *recommended: published flat or hourly fee*
-- **Travel outside the service area** for home visits — *recommended:
-  simply outside scope rather than surcharged; telemedicine or clinic
-  instead*
-- **Procedure-specific supplies** with real cost — *recommended: at-cost
-  pass-through, stated before the procedure*
+  review for litigation — billed at a published fee, quoted before
+  starting
+- **Travel outside the service area** for home visits — outside scope
+  rather than surcharged; telemedicine or a clinic visit instead
+- **Procedure-specific supplies** with real cost — at-cost pass-through,
+  stated before the procedure
 - **Care episodes requiring near-daily physician contact for an extended
-  period** — *recommended: not a fee trigger; instead an honest
-  conversation about whether this practice is still the right level of
-  care (§8) — money is the wrong lever for intensity*
-- No-show/late-cancellation fees: *recommended: none — visits are not
-  billed, and chronic no-shows are a fit conversation, not a fee*
+  period** — never a fee trigger; instead an honest conversation about
+  whether this practice is still the right level of care (§8) — money is
+  the wrong lever for intensity
+- **No no-show or late-cancellation fees** — visits are not billed, and
+  chronic no-shows are a fit conversation, not a fee
 
 ### 8. Scope and its edges
 
@@ -245,23 +245,17 @@ If you travel or move, tell me — short trips are usually manageable
 
 - **$100 per month, per adult**, charged in advance on your monthly
   enrollment anniversary to your card or bank account on file. A current
-  payment method on file is part of membership; you'll see every charge
-  in the portal. *[`DECISION` — recommendation: card-on-file required as
-  a condition of this membership form (standard in DPC); annual prepay
-  optional with no discount, to keep one price one price.]*
-- **No enrollment fee** at launch. *[`DECISION` — DPC norm is $50–200;
-  recommendation: $0 for the founding cohort, revisit later]*
+  payment method on file is a condition of membership (D-032); annual
+  prepay is available at the same price. You'll see every charge in the
+  portal.
+- **No enrollment fee** (D-032 — founding-cohort policy; revisit later).
 - **No minimum commitment.** Month to month from day one.
 - Failed payments: portal notice + [X] days to update before membership
-  pauses. `[DECISION — mechanics with billing platform choice, X-03]`
-- If you re-enroll after cancelling, re-enrollment is subject to panel
-  capacity. *[`DECISION` — recommendation: no re-enrollment fee, but
-  re-enrollment goes through the normal enrollment conversation; this
-  plus capacity limits is enough protection against join-when-sick
-  cycling without punishing honest returns]*
-- Fee changes: never mid-membership surprise; [60–90] days' written
-  notice, effective at your next monthly renewal. `[DECISION — notice
-  period]`
+  pauses. `[mechanics finalized with billing platform choice, X-03]`
+- Re-enrollment after cancelling: welcome, no fee, through the normal
+  enrollment conversation, subject to panel capacity (D-032).
+- Fee changes: never a mid-membership surprise; **60 days'** written
+  notice, effective at a future monthly renewal (D-032).
 - This document plus the published price serves as your Good Faith
   Estimate as a self-pay patient under federal law. `[COUNSEL — GFE
   mechanics, 45 CFR 149.610]`
@@ -277,10 +271,10 @@ If you travel or move, tell me — short trips are usually manageable
   and never mid-crisis.
 - **Either way, the ending is medically safe:** active workups completed
   or responsibly handed off with a written summary; prescriptions
-  bridged (up to [90] days where clinically safe) while you establish
-  new care; your complete records available to you and your next
-  physician promptly `[COUNSEL — records fees/timing under Texas rules;
-  recommendation: free electronic copy, always]`.
+  bridged up to **90 days** where clinically safe (D-032) while you
+  establish new care; your complete records available to you and your
+  next physician promptly, electronic copy always free (D-032)
+  `[COUNSEL — records fees/timing under Texas rules]`.
 - If membership ends for any reason, charges stop with the membership;
   there is nothing to refund because months are paid as they're used.
   *(Annual-prepay patients: unused full months refunded pro-rata.)*

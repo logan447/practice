@@ -86,6 +86,31 @@ incompatible with membership fees.
 **History:** distilled from the researched architecture comparison
 (archive: `payment-architecture.md`) and payment-landscape findings.
 
+## D-032 — Agreement operational terms (the ten drafting decisions), approved
+
+**Date:** 2026-08-17 — approving the recommendations exposed by the
+Patient Agreement draft:
+
+1. Q-19 carve-outs as drafted: published fee for extensive third-party
+   paperwork; out-of-area travel is out of scope (not surcharged);
+   procedure supplies at disclosed cost; **high-intensity episodes are a
+   fit conversation, never a fee**; **no no-show fees**
+2. No separately-charged convenience home-visit tier
+3. Card-on-file required as a condition of membership; annual prepay at
+   the same price
+4. No enrollment fee (founding-cohort policy)
+5. Re-enrollment: no fee; normal enrollment conversation + capacity
+6. Fee changes: 60 days' written notice, effective at a future renewal
+7. Prescription bridge at termination: up to 90 days where clinically
+   safe; electronic records copy always free
+8. Home-visit service area: set with the launch city (placeholder stands)
+9. Sudden-incapacity contingency: to be designed (runway + carrier item)
+10. Controlled-substances telemedicine policy: to be drafted with
+    research + counsel before launch
+
+**Eligibility (§1.4) is deliberately NOT settled here** — under revision
+per the Medicare/Medicaid research (Q-21).
+
 ## D-001 — Solo physician practice, without staff
 
 One physician, no employed staff at launch. Systems must be operable by
