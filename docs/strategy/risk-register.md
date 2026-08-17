@@ -71,13 +71,23 @@ chosen metro + driving range; telemedicine-only patients can be
 state-wide. Travel/relocation policy for enrolled patients still needed.
 
 ### R-04 · MED · Payment/compliance failures in a simple model
-Smaller than in prior architectures but not zero: the Texas DPC statute's
-conjunctive definition must fit the Terms; GFE duty applies to self-pay
-patients; discounts must follow written criteria (R-10 merged here);
-**Medicare-age enrollment is the sharpest edge** (Q-21) — mandatory
-claims, fee-inventory limits, opt-out blocked while moonlighting.
-**Mitigation:** Q-15/Q-21 counsel package; intake screening so no
-QMB/Medicaid patient is ever charged a fee.
+**Updated 2026-08-17 (D-033):** the Medicare-age edge is now a designed
+architecture rather than an exclusion — which moves the risk from "can't
+serve them" to "must execute correctly." The failure modes: an invalid or
+lapsed opt-out affidavit (voids every private contract for the period,
+45-day cure); a private contract signed late, missing §405.415 elements,
+or not refreshed at the 2-year cycle; a member turning 65 without a
+contract; a QMB/dual slipping through intake screening (charging them is
+sanctionable under both programs); a Medicaid member enrolled without the
+signed pre-service acknowledgment (forfeits the right to collect at
+all); an FFS-Medicaid member surprised by denied downstream orders; an
+MA-HMO member's plan blocking coverage of ordered care. Plus the
+standing items: DPC-statute fit, GFE duty, discount criteria.
+**Mitigation:** the Q-21 brief's counsel list; intake coverage screening
+with periodic re-verification and QMB detection; the age-65 calendar;
+form templates (private contract, private-pay acknowledgment,
+FFS-downstream notice) drafted with counsel before any such member
+enrolls; opt-out affidavit renewal tracking.
 
 ### R-05 · MED · Own-occupation disability unaddressed
 The practice is the physician; 140 patients depend on one person.

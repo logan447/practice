@@ -97,17 +97,121 @@ pending counsel) is the compatible posture.
 
 ---
 
-## Part B — Medicare
+## Part B — Medicare (researched; primary sources verified)
 
-*(Research in progress — this section completes when the Medicare agent
-reports. The central questions: whether opt-out + private contracts
-permits the $100/month membership; whether an opted-out physician's
-orders/referrals/prescriptions preserve the beneficiary's Part B/D
-coverage; the moonlighting conflict; Medicare Advantage; and the
-non-opted-out alternatives.)*
+### The headline: YES — opt-out + private contracts achieves the goal almost exactly
+
+A physician who **formally opts out** of Medicare (42 CFR 405 Subpart D;
+SSA §1802(b)) and signs a compliant **private contract** with each
+Medicare-beneficiary member may charge the same $100/month membership —
+no rule regulates the fee's amount or form (`ESTABLISHED` by absence of
+restriction; the standard structure among opted-out DPC practices).
+
+**The critical downstream question — all three verified `ESTABLISHED`:**
+
+1. **Part B pays for what he orders/refers.** Benefit Policy Manual Ch.
+   15 §40.5 and 42 CFR §§405.425, 424.507: Medicare pays for covered,
+   medically necessary services *ordered or certified* by an opted-out
+   physician who keeps an NPI and a **valid opt-out affidavit on file**.
+   Labs, imaging, DME, home health, and specialist referrals remain
+   covered; specialists bill under their own enrollment.
+2. **Part D covers his prescriptions.** Since 2019 the prescriber test
+   is the *preclusion list*, not enrollment (42 CFR §423.120(c)(6));
+   opting out does not preclude.
+3. **Hospital and emergency care unaffected.** Opt-out is personal to
+   the physician; CMS's own example: Medicare reimburses the hospital
+   when an opted-out physician admits.
+
+**So the member's experience is exactly the design principle:** they pay
+$100/month for this physician; their ordinary Medicare keeps financing
+everything else in their healthcare life.
+
+### The preconditions (all `ESTABLISHED`)
+
+1. **End any arrangement where Medicare or an MA plan is billed for his
+   professional services first.** Opt-out is all-or-nothing under the
+   NPI (Ch. 15 §§40.5, 40.9, 40.23): current moonlighting where the
+   employer bills Medicare must end (or be restructured to cash-only/
+   emergency-only/administrative roles) before the affidavit.
+   **Opt-out is therefore a launch-runway act, timed with the end of
+   moonlighting.**
+2. **Timing mechanics:** never-enrolled or non-par physicians may opt
+   out *any time* (sign first private contract, file affidavit with the
+   MAC within 10 days); participating physicians only at calendar
+   quarters with ≥30 days' notice. Two-year terms, auto-renewing;
+   early exit only within 90 days of a *first* opt-out.
+3. **A §405.415-compliant private contract with every Medicare-eligible
+   member, signed before any services**, never during an emergency:
+   required elements are enumerated (charge limits don't apply, no
+   claims will be filed, Medicare won't pay, right to see other
+   physicians, current opt-out period dates, Medigap won't pay, etc.).
+   Prevailing practice: a **separate short contract alongside the
+   membership agreement**, re-executed each 2-year cycle. Members who
+   *turn 65* during membership need one at that point — calendar it.
+4. **Violation cost is severe:** failure to maintain opt-out voids all
+   private contracts for the remainder of the period (45-day cure).
+
+### The two carve-outs
+
+- **QMB / full dual eligibles: do not enroll** (mirrors Part A). SSA
+  §1848(g)(3) mandates assignment for services to Medicaid-eligible
+  beneficiaries; KFF states private contracts with duals/QMBs are
+  prohibited; CMS materials are silent on the opt-out+QMB combination
+  specifically (`COULD-NOT-VERIFY` an explicit rule either way) — the
+  conservative, widely-advised position is exclusion pending a written
+  counsel opinion.
+- **Medicare Advantage members: caution, especially HMO.** Private
+  contracting applies to MA members (`DIRECTIONAL` — no text prohibits
+  it), and the plan pays the physician nothing; but *no rule guarantees
+  MA coverage of an opted-out physician's orders* the way §424.507 does
+  for original Medicare — HMO referral rules may block downstream
+  coverage plan-by-plan. Original-Medicare and MA-PPO members are
+  cleaner; MA-HMO prospects get an explicit conversation first.
+
+### The alternatives, for completeness
+
+- **Never-enrolled "no man's land":** not viable — SSA §1848(g)(4)
+  mandatory claims submission has no enrollment predicate; the uniform
+  health-law reading is that enrolled or opted-out are the only lawful
+  postures for serving beneficiaries.
+- **Enrolled + membership fee:** only for genuinely non-covered
+  services (2004 OIG Alert) — not the flat $100 for physician services.
 
 ---
 
-## Part C — Synthesis and agreement language
+## Part C — Synthesis: the eligibility architecture
 
-*(Completes with Part B.)*
+**The finding: "Medicare/Medicaid patients cannot join" was a premature
+design-around.** The philosophy survives nearly intact — with two real
+exceptions and one timing dependency:
+
+| Coverage | Can they join at $100/mo? | Extra paperwork | Their coverage elsewhere |
+|---|---|---|---|
+| Commercial / uninsured | **Yes** | none | unchanged |
+| **Original Medicare** | **Yes — once opt-out is effective** (launch-runway act, after moonlighting ends) | one §405.415 private contract, renewed each 2-yr cycle | **fully preserved** — Part B pays for ordered labs/imaging/specialists, Part D fills prescriptions, hospitals unaffected |
+| Medicare Advantage PPO | Yes, with disclosure | private contract | largely preserved; plan pays physician nothing |
+| Medicare Advantage HMO | Case-by-case conversation | private contract | downstream coverage of his orders may be blocked by plan referral rules — verify per plan |
+| **Texas Medicaid (MCO)** | **Yes** | signed private-pay acknowledgment (F00072-style, per term) | preserved; state ORP edit doesn't apply to out-of-network orderers, MCO-level rules to verify |
+| Texas Medicaid (FFS) | Yes, with the downstream warning | acknowledgment + written downstream-gap notice | **his orders/prescriptions denied** unless ORP-only enrollment resolves it (counsel question) |
+| **QMB / dual eligible** | **No — excluded pending counsel** | — | protected categories; private-pay and private contracts barred |
+
+**Patient-facing principle achieved:** any adult can join for $100/month
+regardless of insurance — with one screened exception (dual/QMB), one
+plan-type conversation (MA-HMO), and at most one extra signature. The
+complexity lives in intake screening and two standard forms, not in the
+patient experience.
+
+**Counsel-confirmation list (consolidated):**
+1. QMB/dual private-contract and private-pay prohibitions — written
+   opinion (both programs point the same way; verify).
+2. Whether ORP-only Medicaid enrollment imports payment-in-full duties
+   (the pivotal Medicaid question).
+3. Membership agreement vs. separate §405.415 contract mechanics and
+   renewal-cycle re-execution.
+4. Restructuring/ending Medicare-billed moonlighting before the
+   affidavit; opt-out filing mechanics with the Texas MAC.
+5. MA-plan-specific treatment of an opted-out physician's orders.
+6. Periodic-fee form acceptability under the Texas private-pay
+   framework; refund treatment for retroactive Medicaid eligibility.
+7. Marketing to Medicaid enrollees (inducement/steering) — no Texas
+   authority found.

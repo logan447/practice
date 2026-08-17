@@ -59,13 +59,20 @@ standard-of-care/abandonment norms, and TMB expectations — for a
 during preparation; verify with Texas counsel + carrier at runway; X-06
 reopens only if a higher floor is found.
 
-### Q-21 — Medicare-age patients under a flat direct-pay membership `COUNSEL`
-The healthy-aging mission meets the researched constraints: mandatory
-claims for covered services, no opt-out while moonlighting, membership
-fees restricted to genuinely non-covered services for enrolled
-beneficiaries. What, exactly, can be offered to a 68-year-old at launch —
-and is it worth offering before opt-out is possible? Top of the counsel
-agenda.
+### Q-21 — Medicare/Medicaid members ✅ researched; counsel confirmation remains
+**Substantially answered 2026-08-17**
+(`docs/agreements/medicare-medicaid-membership.md`): Medicare
+beneficiaries join via opt-out + private contracts with downstream
+benefits verified intact; Texas Medicaid adults join via signed
+private-pay acknowledgment; dual/QMB excluded. **Remaining for counsel
+(the brief's Part C list):** dual/QMB written opinion; whether ORP-only
+Medicaid enrollment imports payment-in-full duties (pivotal); §405.415
+contract form and renewal mechanics; restructuring moonlighting before
+the opt-out affidavit; MA-plan-specific order coverage; periodic-fee
+form under the Texas private-pay framework; Medicaid marketing/
+inducement. **Operational additions:** intake coverage screening
+(including QMB detection), age-65 calendar for private contracts,
+FFS-Medicaid downstream warning form.
 
 ### Q-15 — Compliance pass on the simple model `COUNSEL`
 Much smaller than before: the Practice Terms against the Texas DPC

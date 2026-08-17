@@ -29,19 +29,20 @@ tracking, portal trend display (D-023), bulk export (R-15) — then a dated
 landscape scan. The researched DPC stack (Hint, Atlas.md, Elation+Hint,
 etc.) is the starting field. **Decide when:** ~6 months pre-launch.
 
-## X-04 — Insurance participation (research track only)
+## X-04 — Insurance billing participation (research track only)
 
-**Reframed by D-031:** never required for core economics. Stays deferred
-as a possible *complement* — could reduce patient out-of-pocket costs or
-support specific services. Researched constraints stand: separate lane
-by patient if ever added (Epiphany template, entity separation,
-contract review); **Medicare opt-out blocked while moonlighting**;
-Medicaid effectively incompatible with membership fees; Medicare-age
-enrollment during ramp needs the fragile non-covered-services structure
-or waiting (`NEEDS-COUNSEL` — top of the counsel agenda given the
-healthy-aging mission). **Meanwhile:** inside-the-job billing learning
-(Q-02); disclosure language in the Practice Terms. **Decide when:**
-post-launch, on evidence; Medicare opt-out when moonlighting ends.
+**Narrowed by D-033 (2026-08-17):** the *Medicare posture* is no longer
+deferred — **formal opt-out at the launch runway** (after Medicare-billed
+moonlighting ends) is the decided architecture, enabling Medicare
+beneficiaries to join via private contracts with their downstream
+benefits intact. What stays deferred here is only **billing
+participation** — whether the practice ever bills commercial insurers as
+a separate lane (Epiphany template, entity separation, contract review)
+to reduce patient out-of-pocket costs. Note the new interaction: opt-out
+forecloses ever billing Medicare during each 2-year term — acceptable
+under D-031, worth stating. **Meanwhile:** inside-the-job billing
+learning (Q-02). **Decide when:** post-launch, on evidence that price is
+the binding acquisition constraint.
 
 ## X-05 — Clinical space arrangement
 

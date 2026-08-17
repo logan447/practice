@@ -10,11 +10,13 @@ Last revised: 2026-08-16 — **project re-baselined around D-029.**
 ## The architecture at a glance
 
 **The practice:** D-029 **$100/month per patient, flat, direct-pay** ·
-D-030 adults only, one price, no tiers · D-014 standardized price,
+D-030 adults only, one price, no tiers · D-033 insurance status is not
+an eligibility bar (Medicare via opt-out; Medicaid via private-pay
+acknowledgment; only dual/QMB excluded) · D-014 standardized price,
 individualized medicine · D-001 solo, no staff · D-017 bounded
 availability, no 24/7 obligation · D-016 structured onboarding as the
 enrollment and capacity gate · D-023 value made visible · D-024
-financial-health scope bounded
+financial-health scope bounded · D-032 the ten agreement terms
 
 **Business:** D-018 goal ~$100k after-tax at 30 hr/wk × 39 wk — met at
 ~140 adults · D-031 insurance never required for core economics · D-022
@@ -73,18 +75,22 @@ reason.
 
 ## D-031 — Insurance is never required for the core economics
 
-**Date:** 2026-08-16
+**Date:** 2026-08-16 · updated 2026-08-17 by D-033
 
 The practice launches and can operate indefinitely as pure direct-pay on
 the Texas DPC statute (Occ. Code ch. 162 subch. F). Insurance
-participation (commercial, Medicare, Medicaid, hybrid) remains a research
-track (X-04) that may later *complement* the model — never a launch
-dependency. Researched constraints stand: any future lane is separated by
-patient (never membership + billing for the same covered services);
-Medicare opt-out stays blocked while moonlighting; Medicaid is effectively
-incompatible with membership fees.
+participation as a *billing* matter remains a research track (X-04) —
+never a launch dependency. **Patients' own coverage, however, is
+embraced, not excluded** (D-033): members keep and use Medicare,
+Medicaid, or commercial insurance for everything outside the membership,
+and the practice's opt-out/private-pay architecture is designed to keep
+their downstream benefits working for the care it orders.
 **History:** distilled from the researched architecture comparison
-(archive: `payment-architecture.md`) and payment-landscape findings.
+(archive: `payment-architecture.md`); the earlier note that "Medicaid is
+effectively incompatible with membership fees" was refined by the Q-21
+research — incompatibility applies to *enrolled providers* and
+*dual/QMB patients*, not to voluntary private-pay with a non-enrolled
+physician.
 
 ## D-032 — Agreement operational terms (the ten drafting decisions), approved
 
@@ -110,6 +116,43 @@ Patient Agreement draft:
 
 **Eligibility (§1.4) is deliberately NOT settled here** — under revision
 per the Medicare/Medicaid research (Q-21).
+
+## D-033 — Insurance status is not an eligibility bar; Medicare via opt-out at launch
+
+**Date:** 2026-08-17 — replaces the blanket Medicare/Medicaid exclusion,
+which the Q-21 research showed was a premature design-around
+(`docs/agreements/medicare-medicaid-membership.md`).
+
+**The principle, now verified as achievable:** insurance is a financing
+mechanism for healthcare elsewhere in the patient's life; it does not
+determine whether the relationship can exist. Any adult joins at
+$100/month; program rules are handled underneath with at most one extra
+signature:
+
+- **Original Medicare: joinable via formal opt-out + §405.415 private
+  contracts.** Verified: the member's Medicare stays fully intact for
+  everything else — Part B pays for what the opted-out physician orders
+  and refers (valid affidavit + NPI on file), Part D fills his
+  prescriptions, hospital coverage unchanged. **Opt-out is a
+  launch-runway act, timed with ending Medicare-billed moonlighting**
+  (all-or-nothing under the NPI; never-enrolled physicians can opt out
+  any time).
+- **Medicare Advantage:** joinable under private contract; **HMO members
+  get a plan-specific conversation first** (no rule guarantees MA
+  coverage of an opted-out physician's orders).
+- **Texas Medicaid: joinable** as voluntary private-pay with a signed
+  pre-service acknowledgment (F00072-style, per membership term).
+  FFS-Medicaid members get a written downstream warning (orders/
+  prescriptions denied unless ORP-only enrollment resolves it — pivotal
+  counsel question); MCO members are exempt from the state ORP edit.
+- **The one exclusion that survives: QMB/dual-eligible patients** —
+  private-pay and private contracts are barred/high-risk; excluded
+  pending a written counsel opinion.
+
+Intake screens coverage status and re-checks periodically. Counsel
+confirmation list in the brief, Part C.
+**History:** the agreement's v1 provision excluded all Medicare/Medicaid
+enrollees; researched and replaced 2026-08-17.
 
 ## D-001 — Solo physician practice, without staff
 

@@ -36,6 +36,7 @@ plan over time, and show whether well-being actually improved
 |---|---|---|
 | Solo, no staff | **[D]** | D-001; systems operable by one person |
 | Adults only | **[D]** | D-030; no pediatrics; each adult their own relationship |
+| Eligibility | **[D]** | D-033: insurance status is not a bar — Medicare via opt-out + private contract (launch-runway act, after moonlighting ends), Medicaid via private-pay acknowledgment, MA-HMO case-by-case; **only dual/QMB excluded** pending counsel |
 | Availability | **[D]** | D-017: business hours M–F; ~24–72h routine response; up to ~3 mo/yr away, aware-not-absent; written triage taxonomy; no coverage clinician (Q-17 verification at runway) |
 | Legal entity | **[O]** | Texas entity at runway, `NEEDS-COUNSEL` |
 | Launch state | **[D]** | Texas; city open (X-01) |
@@ -46,7 +47,7 @@ plan over time, and show whether well-being actually improved
 |---|---|---|
 | Price | **[D]** | **$100/month per adult, flat, published** (D-029). No tiers, surcharges, or individualized contracts |
 | Goal | **[D]** | ~$100k after-tax at 30 hr/wk × 39 wk (D-018) → **~140 adults, ~5–6 hr/patient/yr** (unit economics) |
-| Payer posture | **[D]** | Direct-pay on the Texas DPC statute; insurance never required (D-031); research track only (X-04) |
+| Payer posture | **[D]** | Direct-pay on the Texas DPC statute; insurance never required for the economics (D-031) — but members' own coverage is embraced: the opt-out/private-pay architecture keeps their benefits paying for ordered/referred care (D-033) |
 | Panel-mix management | **[D]** | The load-bearing discipline of flat pricing: heavy-utilization patients ≈ 1 in 8–10 of panel; enrollment gate + utilization tracking + renewal re-scoping + Q-19 carve-outs |
 | Payment mechanics | **[A]** | Monthly card-on-file auto-pay (researched norm), cancel anytime (D-027); self-pay GFE duty satisfied by the published price + Terms |
 | Affordability mechanism | **[O]** | A few discounted/free memberships, criteria-based (D-003, X-10) |

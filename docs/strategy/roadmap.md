@@ -70,8 +70,12 @@ until it ends (Q-21).
   conversation
 - **Controlled-substances telemedicine policy** — research + counsel
   before launch (rules in flux; draft §8)
-- **Q-21 brief:** Medicare-age patients under a flat direct-pay
-  membership — the sharpest counsel question
+- ✅ **Q-21 brief done** (2026-08-17,
+  `docs/agreements/medicare-medicaid-membership.md`): Medicare via
+  opt-out + private contracts (downstream benefits verified intact);
+  Medicaid via private-pay acknowledgment; dual/QMB excluded. Remaining:
+  the Part C counsel-confirmation list; form templates (private
+  contract, F00072-style acknowledgment, FFS downstream notice)
 - Q-17 brief: minimum availability/continuity structure at panel scale
 - Q-15 package: DPC-statute fit, GFE mechanics, DTPA/refund terms,
   discount criteria (X-10)
@@ -97,8 +101,13 @@ until it ends (Q-21).
 ## Era 2 — Launch runway (move decided → first patient)
 
 1. Texas medical license (begins when settling is decided)
-2. Counsel engagement: entity; Practice Terms to execution; Q-21 Medicare
-   answer; Q-15 compliance pass; Q-17 verification (with carrier)
+2. Counsel engagement: entity; Practice Terms to execution; Q-21
+   confirmations + program form templates; Q-15 compliance pass; Q-17
+   verification (with carrier)
+2a. **Medicare opt-out sequence:** end/restructure Medicare-billed
+   moonlighting → sign first private contract → file affidavit with the
+   MAC within 10 days (never-enrolled path; quarterly timing only if
+   participating) → affidavit-renewal tracking begins
 3. Refresh pass on every perishable-tagged artifact
 4. Malpractice + disability binding (X-07)
 5. EHR + billing platform selection and setup (X-03); end-to-end

@@ -73,12 +73,46 @@ this agreement (§6). *[Statutory notice wording per Tex. Occ. Code
 care physician, at any time. If you do, I'll coordinate with them when
 you want me to.
 
-1.4. **Eligibility screening.** I currently cannot enroll patients who
-are enrolled in Medicare or Medicaid; enrollment includes confirming your
-coverage status. *[This is the current posture pending counsel on Q-21 —
-Medicare rules restrict what fees may be charged to enrolled
-beneficiaries. Revisit language once counsel resolves what can be
-offered. `COUNSEL` — top priority]*
+1.4. **Your insurance never decides whether we can work together.** Any
+adult may join. Because government programs have special rules about
+private payment, enrollment involves one extra step for some coverage
+types — the price and the care are identical for everyone:
+
+- **Private/commercial insurance, or no insurance:** sign this
+  agreement — that's it.
+- **Medicare:** you can join. Because I have formally opted out of
+  Medicare for my own services, federal rules require us to sign one
+  additional short document — a Medicare private contract — before your
+  first visit. **Your Medicare stays fully intact for everything else:**
+  Medicare continues to pay for the labs, imaging, and specialist care I
+  order or refer you to, Part D continues to cover the prescriptions I
+  write, and your hospital coverage is unchanged. The only thing
+  Medicare will not pay for is my own services — that is what your
+  $100/month covers. *(If you turn 65 while a member, we'll sign the
+  contract then.)* `[COUNSEL — §405.415 contract form; this section is
+  written for the intended launch posture (opt-out effective at launch,
+  after current employment arrangements end); see the Q-21 brief]`
+- **Medicare Advantage:** you can join under the same private contract.
+  If your plan is an **HMO**, let's talk before you enroll — some HMO
+  referral rules can complicate your plan's coverage of tests and
+  specialists I order, and I want you to know exactly how that would
+  work with your plan first. `[COUNSEL/LATER — plan-by-plan]`
+- **Texas Medicaid:** you can join. State rules require you to sign a
+  short private-pay acknowledgment before we start (confirming that I
+  will not bill Medicaid or your Medicaid plan, and that you are
+  choosing to pay privately). Your Medicaid continues to work for
+  everything outside our relationship. If your Medicaid is traditional
+  (fee-for-service rather than a health plan), we will also talk first
+  about how your Medicaid covers tests and prescriptions I order.
+  `[COUNSEL — F00072-style form; ORP-enrollment question; see brief]`
+- **The one exception:** federal rules prohibit private payment
+  arrangements with patients in certain combined Medicare + Medicaid
+  programs (QMB and similar dual coverage). If that applies to you, I
+  am not permitted to enroll you — and I will help you find good care.
+  `[COUNSEL — written opinion on dual/QMB exclusion]`
+
+Enrollment includes confirming your coverage status, and I'll re-check
+periodically because these programs change month to month.
 
 ### 2. What your membership includes
 
@@ -191,10 +225,13 @@ typically through your insurance:
 - urgent care, ER, hospital, and ambulance services
 - medical equipment and supplies you take home
 
-**Your insurance still matters.** Keeping coverage protects you for
-everything above. Note for high-deductible/HSA plans: recent federal law
-may allow HSA funds to pay direct primary care fees like this one —
-confirm with your tax advisor before doing so. `[TAX/COUNSEL — verify the
+**Your insurance still matters — including Medicare and Medicaid.**
+Keeping coverage protects you for everything above; my job includes
+ordering and referring in ways your coverage recognizes, so your benefits
+keep working for the care I arrange (§1.4 explains the program-specific
+details). Note for high-deductible/HSA plans: recent federal law may
+allow HSA funds to pay direct primary care fees like this one — confirm
+with your tax advisor before doing so. `[TAX/COUNSEL — verify the
 practice's arrangement qualifies under the post-2025 rules before this
 sentence ships]`
 
