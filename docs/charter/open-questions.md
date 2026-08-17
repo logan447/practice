@@ -11,16 +11,15 @@ D-029 re-baseline.
 ## Design questions the re-baseline created (answer during preparation)
 
 ### Q-19 — The boundary design: what sits outside $100/month? `YOU` + me
-The flat rate's patient-friendly guardrails, designed once and stated up
-front in the Practice Terms: the carve-out list (e.g., extensive
-medico-legal paperwork and forms, convenience home visits beyond clinical
-indication, sustained near-daily-contact phases, travel beyond a radius),
-whether any carry separate published charges (a 🟩 design choice for cash
-patients per the payment research), and the language that keeps
-boundaries from ever arriving as surprises. **This is now the most
-important patient-facing design artifact after the price itself** —
-it is what protects both the panel math (unit economics §3) and the
-promise of simplicity.
+**Draft v1 exists** — Patient Agreement draft §7
+(`docs/agreements/patient-agreement-draft.md`) proposes the concrete
+carve-out list with a recommendation per item: paperwork fees (yes,
+published), out-of-area travel (out of scope, not surcharged), procedure
+supplies (at-cost pass-through), high-intensity episodes (a fit
+conversation, never a fee), no-show fees (none). **Needs your yes/no per
+item.** This remains the most important patient-facing design artifact
+after the price itself — it protects both the panel math (unit economics
+§3) and the promise of simplicity.
 
 ### Q-20 — Panel-mix instrumentation `YOU` + me
 The flat rate stands or falls on mix (heavy users ≈ 1 in 8–10). Needs: a

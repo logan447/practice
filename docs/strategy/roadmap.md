@@ -60,9 +60,16 @@ until it ends (Q-21).
 - **Perishable:** all vendor conclusions.
 
 ### Track E — Legal and regulatory preparation
-- **Practice Terms skeleton** (D-026): scope, responsibilities,
-  availability/triage, boundaries and carve-outs (Q-19), payment/
-  cancellation (D-027), records, termination — drafted for counsel
+- ✅ **Patient Agreement working draft v1**
+  (`docs/agreements/patient-agreement-draft.md`, 2026-08-16): the full
+  patient-facing agreement with counsel/carrier/decision flags inline,
+  the Q-19 carve-out list v1, and the 10 exposed decisions. Next: your
+  per-item decisions, then counsel review at runway
+- New from drafting: **sudden-incapacity contingency design** (draft
+  §5.5) — who notifies patients, how records flow; runway item + carrier
+  conversation
+- **Controlled-substances telemedicine policy** — research + counsel
+  before launch (rules in flux; draft §8)
 - **Q-21 brief:** Medicare-age patients under a flat direct-pay
   membership — the sharpest counsel question
 - Q-17 brief: minimum availability/continuity structure at panel scale
