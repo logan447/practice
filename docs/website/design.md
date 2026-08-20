@@ -226,3 +226,13 @@ public language · the plain-words version of every boundary · what the
 free conversation promises · what the physician is willing to say about
 himself. Each of these is a working-model test disguised as copywriting
 — exactly the gap-exposure this phase is for.
+
+## Standing design rules (added 2026-08-17, user-directed)
+
+1. **No emojis, ever, anywhere on the site.** Icons are drawn line-icons
+   or plain typographic marks — never emoji characters. (Applies
+   retroactively: the approved Page 3 sketch's emoji icon placeholders
+   become drawn icons at build time.)
+2. **Every piece of site copy passes this filter before it ships:**
+   *write with clarity, thoughtfulness, directness, conciseness,
+   maturity, and professionalism while maintaining simplicity.*
