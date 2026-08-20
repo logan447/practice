@@ -78,8 +78,14 @@ whether any carry separate published charges.
 **[D]** Broad-scope adult primary care + lifestyle medicine; the
 untangling evaluation as the signature designed encounter; financial
 health bounded to stress-reduction scope (D-024).
-**[O]** Psychiatric medication management threshold; procedural scope
-(shapes the home-visit kit and rented-space needs).
+**[D]** Full scope confirmed (2026-08-17): includes depression/anxiety
+medication management, adult ADHD, weight management including modern
+weight-loss medications, and insomnia — ordinary primary care within
+clinical judgment. Consequences: the controlled-substances telemedicine
+policy is launch-critical, and these demand magnets make the panel-mix
+gate (D-016/R-26) the filter the website deliberately isn't.
+**[O]** Procedural scope (shapes the home-visit kit and rented-space
+needs).
 
 ## 6. The relationship
 
