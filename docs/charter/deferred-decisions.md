@@ -71,11 +71,17 @@ growth undershoots the ramp the income floor tolerates.
 
 ## X-10 — Discounted / free membership slots
 
-**Reframed by D-029:** sliding-scale architecture is retired; what
-remains of D-003 is likely a small number of criteria-based discounted or
-free memberships. **Why deferred:** depends on real panel economics and
-mix headroom. **Meanwhile:** nothing to build. **Decide when:** panel is
-real; criteria written before the first exception is granted (R-10).
+**Direction decided 2026-08-17 (pricing-page approval, Option B):** a
+**limited access rate** — a bounded number of reduced-rate memberships
+(~$50-60 range) for people for whom $100 genuinely prevents care, granted
+through the enrollment conversation against short written criteria; no
+published scale, no means-testing apparatus. Publicly acknowledged on
+the pricing page. Economics: ~15% of panel at $50 costs ~5% of revenue
+(~+9 patients or ~-$5k). **Still open:** exact rate, slot count, and the
+written criteria — drafted before launch, before the first exception
+(R-10/R-04); Medicaid members are natural candidates. Sliding-scale
+published bands considered and declined (self-attestation drift or
+verification burden; dilutes one-price clarity).
 
 ---
 

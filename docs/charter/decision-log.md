@@ -97,10 +97,16 @@ physician.
 **Date:** 2026-08-17 — approving the recommendations exposed by the
 Patient Agreement draft:
 
-1. Q-19 carve-outs as drafted: published fee for extensive third-party
-   paperwork; out-of-area travel is out of scope (not surcharged);
-   procedure supplies at disclosed cost; **high-intensity episodes are a
-   fit conversation, never a fee**; **no no-show fees**
+1. Q-19 carve-outs as drafted — **amended 2026-08-17: paperwork
+   (disability/FMLA/insurance forms, letters, prior authorizations,
+   medicolegal documentation) is INCLUDED and advertised as a service,
+   not a fee**. Remaining outside the fee: out-of-area travel (out of
+   scope, not surcharged) and procedure supplies at disclosed cost.
+   Unchanged: **high-intensity episodes are a fit conversation, never a
+   fee**; **no no-show fees**. Watch-item: formal litigation support
+   (depositions, expert-witness record review) is hours-heavy — tracked
+   under utilization (Q-20/R-26) rather than fee-gated, revisit only on
+   evidence
 2. No separately-charged convenience home-visit tier
 3. Card-on-file required as a condition of membership; annual prepay at
    the same price

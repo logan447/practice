@@ -154,7 +154,14 @@ belongs in §5's pathways.
 2.5. **An annual (or otherwise agreed) whole-picture review** — an
 unhurried look at everything: trends, medications, screening, goals.
 
-2.6. **Your health, visible.** Your portal shows your trends — the
+2.6. **Paperwork, handled.** Disability, FMLA, and insurance forms,
+letters, prior authorizations, and medicolegal documentation your
+situation requires — included, done carefully, without a separate bill.
+*(Amended 2026-08-17: previously a published-fee carve-out; now an
+advertised included service per user decision. Utilization watch-item:
+see D-032 amendment note.)*
+
+2.7. **Your health, visible.** Your portal shows your trends — the
 measures we agree matter for you (blood pressure, labs, weight, symptoms,
 function, well-being) — so both of us can see whether care is working.
 
@@ -240,10 +247,6 @@ sentence ships]`
 I will always tell you before anything generates a charge. Outside the
 monthly fee *(the Q-19 carve-out list — approved as policy, D-032)*:
 
-- **Extensive third-party paperwork:** disability/FMLA/insurance forms
-  beyond simple ones, letters for legal matters, deposition or record
-  review for litigation — billed at a published fee, quoted before
-  starting
 - **Travel outside the service area** for home visits — outside scope
   rather than surcharged; telemedicine or a clinic visit instead
 - **Procedure-specific supplies** with real cost — at-cost pass-through,
