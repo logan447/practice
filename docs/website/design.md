@@ -236,3 +236,13 @@ himself. Each of these is a working-model test disguised as copywriting
 2. **Every piece of site copy passes this filter before it ships:**
    *write with clarity, thoughtfulness, directness, conciseness,
    maturity, and professionalism while maintaining simplicity.*
+3. **Credential accuracy guardrails (2026-08-17, from CV review):** the
+   physician completed an internal medicine INTERNSHIP at George
+   Washington University — never state or imply completed residency or
+   board certification in internal/family medicine. Lifestyle medicine
+   certification (IBLM) is IN PROGRESS — always "pursuing," never
+   "board-certified," until earned. Preferred self-description:
+   "physician" / "primary care physician," not "internist." Homepage
+   Section 7 blurb corrected accordingly (was "board-certified" — now
+   removed). All credential language gets a TMB-advertising counsel pass
+   before publishing.
