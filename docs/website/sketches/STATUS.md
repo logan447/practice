@@ -1,0 +1,1 @@
+Homepage sketch approved in conversation 2026-08-17 (aligned direction). Full sketch preserved in session transcript; will be transcribed into this folder with the complete approved set at walkthrough end. Inventory: 8 surfaces - header/footer/mobile-nav, homepage, what-i-can-help-with, how-it-works, pricing-insurance, about, questions, book (+ states).
