@@ -121,7 +121,7 @@ p+p{{margin-top:7pt}}
 P1_COVER = f"""
 <section class="panel wide cover">
   <div class="wordmark">DuBose, M.D.<small>Direct primary care</small></div>
-  <h1>A doctor with time to actually figure it out with you.</h1>
+  <h1>Unhurried primary care from a doctor who knows you.</h1>
   <div class="pricing">
     <b>Adult primary care &middot; $100 a month &middot; Cancel anytime</b>
     <span>Works alongside your insurance.</span>
