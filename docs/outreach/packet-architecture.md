@@ -7,13 +7,14 @@ publishing gates clear (name/entity/licensure, and the TMB
 advertising/counsel pass, `NEEDS-COUNSEL`, per R-13 and the website
 standing rules). Drafting now is preparation, like the website.*
 
-Anchors: D-022 (grassroots + employer growth) · D-029/D-030 ($100/month,
-adults only) · D-031/D-033 (insurance never required; members keep their
-coverage and clinicians) · D-016 (onboarding as capacity gate; "let me
-refer you well") · D-017 (bounded availability) · R-13 (no claims that
-outrun evidence) · `docs/website/design.md` rule 3 (credential accuracy)
-· website sketches standing rules (copy filter, canonical phrases, one
-CTA).
+Anchors: **`docs/style/README.md` (House Style — binds all copy in this
+packet, §5 physician-respect especially)** · D-022 (grassroots +
+employer growth) · D-029/D-030 ($100/month, adults only) · D-031/D-033
+(insurance never required; members keep their coverage and clinicians) ·
+D-016 (onboarding as capacity gate; "let me refer you well") · D-017
+(bounded availability) · R-13 (no claims that outrun evidence) ·
+`docs/website/design.md` rule 3 (credential accuracy) · website sketches
+standing rules (copy filter, canonical phrases, one CTA).
 
 ---
 
@@ -127,18 +128,30 @@ answer; otherwise it maps to an existing insert.
 
 - **Distinct question answered:** *does this compete with or complicate
   my care of the patient?*
-- Content: who to consider referring (adults who lack a primary-care
-  home, need more time than a visit allows, or need longitudinal
-  coordination) · **complement, not competition** — patients keep their
-  specialists, their physicians, and their insurance (D-033); the
-  membership covers only this physician's work · how coordination and
-  records-sharing work · how a patient starts (books the free
-  conversation; or clinician introduction with the patient's
-  permission) · the exact credential paragraph + `/cv` link · direct
-  contact line.
-- **Guardrail:** this is the most credential-sensitive audience.
-  The insert states training plainly per design.md rule 3 — never
+- **Posture (House Style §5):** the whole insert carries one message —
+  *"You handle what you do well. I can help with the ongoing
+  primary-care work around it."* Complementary, never comparative. It
+  never implies other physicians lack time, and never uses system
+  constraints or appointment lengths as contrast. It describes what
+  this practice adds, not what anyone else's care lacks.
+- Content: what I can help with around their care — ongoing primary
+  care, home visits, lifestyle changes, follow-up between specialist
+  visits, medication management, prevention, chronic disease
+  management, helping patients carry out the treatment plan they
+  prescribed, coordination across clinicians, and primary-care needs
+  outside their scope · who to consider referring (adults without a
+  primary-care home, or who need longitudinal support between
+  specialist visits) · patients keep their specialists, their
+  physicians, and their insurance (D-033); the membership covers only
+  this physician's work · how coordination and records-sharing work ·
+  how a patient starts (books the free conversation; or clinician
+  introduction with the patient's permission) · the exact credential
+  paragraph + `/cv` link · direct contact line.
+- **Guardrails:** this is the most credential-sensitive audience.
+  The insert states training plainly per design.md rule 3, with no
   implied residency or board certification. Counsel pass mandatory.
+  Every draft gets an explicit House Style §5 respect read before
+  review.
 - Format: 1 sheet, single-sided. 1 copy per packet.
 - Duplication: none — this content deliberately does not exist on the
   patient-facing website. The insert is its only home (until/unless a
@@ -258,6 +271,13 @@ Any figure that appears in print gets `REFRESH-AT-RUNWAY`.
 
 ## 7. Standing guardrails (bind every piece)
 
+0. House Style (`docs/style/README.md`) governs all copy, and its §5
+   binds hardest here: never disparage other physicians, traditional
+   primary care, health systems, or appointment lengths to make this
+   practice look better. Say what I do; never what others fail to do.
+   Clinician-facing pieces are complementary by design: "You handle
+   what you do well. I can help with the ongoing primary-care work
+   around it."
 1. R-13: process, time, attention, personalization — never outcomes,
    savings, productivity, or testimonials that don't exist yet.
 2. Credential accuracy (design.md rule 3) on every piece that mentions

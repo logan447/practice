@@ -192,6 +192,18 @@ makes it) · access-rate offer kept, in the website's exact posture.
 2. Panel 2's added closing line ("That is what this practice is for.")
    — new copy, needs approval since it may migrate back to the site.
 
+3. **House Style review (added 2026-08-21, after this draft):**
+   `docs/style/README.md` now governs all copy. Because panels 2–5
+   condense approved site copy, they inherit the site's style debts,
+   which House Style §8 queues for one owner-approved pass rather than
+   piecemeal edits: em dashes throughout; reading level vs. the
+   5th-grade target; and the §5 physician-respect review of the
+   time-contrast lines (panel 2: "no one is looking at the whole of
+   it, with you" and "nobody has time to think it through with you").
+   Decide the site copy first; the brochure follows it verbatim.
+   This brochure travels inside clinician packets, so the §5 read
+   matters here even though the piece is patient-voiced.
+
 *(Checked, not open: "1–2 business days, usually faster" matches all
 three site surfaces that state it — pricing, how-it-works, emergency
 strip. D-017's "~24–72h" is the internal charter envelope, not patient
