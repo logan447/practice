@@ -147,6 +147,16 @@ number is a dark pattern.*
 
 ---
 
+## Preview build
+
+`print/brochure/build.py` renders this copy at true scale (pipeline
+steps 2–3): flat outside/inside faces with fold guides, the closed
+cover, the first-open view, and `brochure-proof.pdf` (two exact
+11 × 8.5 in pages for the print-at-home proof). Outputs land in
+`print/brochure/out/` (gitignored; regenerate with
+`python3 print/brochure/build.py`). Type and color reuse the website's
+tokens (Source Serif 4 / Source Sans 3, ivory/ink/juniper).
+
 ## Production notes
 
 - Uncoated stock matching the letterhead/folder system; brochure is
