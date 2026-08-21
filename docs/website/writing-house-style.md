@@ -32,6 +32,18 @@ reader should think "I understand exactly what this doctor does," not
     The physician speaks as "I"; the practice does not speak as "we"
     except for physician-and-patient together ("we work on it").
 
+## Referral safety (binding)
+
+Materials may be handed to a patient by their own physician. Nothing
+may state or imply that a patient's current doctors lack time,
+don't listen, or provide inadequate care. Describe what this practice
+does; never contrast it with anyone else's care. Banned patterns:
+"a doctor with time" as an implied comparison, "nobody has time,"
+"results nobody explained," "not just refilled," "more than 15
+minutes," "no one holding the whole picture." The practice is an
+added layer of support, complementary to a patient's existing
+clinicians.
+
 ## Claims discipline (binding)
 
 - No outcome promises. Describe goals and process; "we work on them
