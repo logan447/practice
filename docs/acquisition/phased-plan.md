@@ -16,6 +16,13 @@ practice will ever have.
 
 ## Phase 0 — Era 1, pre-move (now): build the assets
 
+> **Expanded 2026-08-21:** Phase 0 is now a full campaign of its own —
+> **`pre-launch.md`** carries the 6–12-month pre-launch plan (the
+> legal-boundary ladder, founding-list design, per-channel pre-launch
+> map, launch-position targets, and the T-12 → T+90 backward timeline).
+> It supersedes this section's detail; the summary below stands as the
+> compact view.
+
 **Goal:** arrive in Texas with a warm list, a cornerstone content
 library, finished outreach artifacts, and a working measurement habit —
 so launch is an *activation*, not a construction project.
@@ -44,7 +51,7 @@ so launch is an *activation*, not a construction project.
 8. **Site additions fed to Track B:** home-visits page,
    panel-status page (initially "opening [season] — join the list").
 9. **Compliance groundwork:** Q-23 counsel list assembled
-   (`compliance.md` §8) so launch-adjacent counsel hours are efficient.
+   (`compliance.md` §9) so launch-adjacent counsel hours are efficient.
 
 **Weekly rhythm (target ~2–4 h/wk inside Track B/F time):**
 

@@ -111,11 +111,24 @@ until it ends (Q-21).
   measurement system (prospect ledger + channel scorecard + CAC
   guardrails), phased plan (pre-launch → 10 → 25 → 50 → mature), and
   the marketing-compliance map (feeds Q-15/Q-23)
+- ✅ **Pre-launch campaign designed** (2026-08-21,
+  `docs/acquisition/pre-launch.md`): the 6–12-month plan — legal
+  activity ladder (marketing a future practice vs. practicing
+  medicine), founding-list design (separate from the letter),
+  per-channel pre-launch map, derived launch targets (day-90 panel at
+  break-even+), T-12 → T+90 timeline. **Two pulled-forward
+  dependencies:** the TX license application (3–5.5 mo realistic —
+  submit by ~T-6; gates founding conversations) and the
+  TMB-advertising/counsel pass (needed to publish the site at ~T-9,
+  not at runway)
 - **Era-1 execution (the compounding assets):** domain purchase; the
-  letter (founding interest list) live and monthly; the 12-essay
-  cornerstone library at ~1–2/month; referral packet + shareable
-  explainer finished; the community talk deck; the ledger opened; the
-  directory copy pack — see `docs/acquisition/phased-plan.md` Phase 0
+  letter (and the separate Austin founding list) live and monthly; the
+  12-essay cornerstone library at ~1–2/month; referral packet +
+  shareable explainer finished; the community talk deck; the ledger
+  opened (with pre-launch relationship stages); the directory copy
+  pack; the remote outreach campaign (~2 introductions/wk, Austin DPC
+  physicians first) and 2–3 Austin trips — see
+  `docs/acquisition/pre-launch.md` §7.3 for the stage-by-stage rhythm
 - Channel mix is panel-mix management: scorecard carries an
   early-utilization flag per channel (R-26 coupling)
 - **Perishable:** market/platform specifics tagged in the docs;

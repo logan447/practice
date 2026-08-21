@@ -61,7 +61,7 @@ deliberate future decision, not a marketing drift.
     also a brand decision).
   - Ordinary truthful advertising to the public is fine; ch. 102
     targets *remunerated steering*, not marketing. `NEEDS-COUNSEL`
-    confirmation of that reading plus its edges (see Q-23 list, §8).
+    confirmation of that reading plus its edges (see Q-23 list, §9).
 - **Federal AKS/CMP inducement rules** attach where federal-program
   business exists — and D-033 means Medicare-opt-out and
   Medicaid-acknowledgment members are on the panel, with downstream
@@ -166,7 +166,36 @@ appears on the pricing page, the agreement (already), the packet, and
 any ad where the price is the message. Exact required wording, if any:
 part of the Q-15 compliance pass (`NEEDS-COUNSEL`).
 
-## 8. Q-23 — the counsel list this workstream generates
+## 8. Pre-launch boundaries (added 2026-08-21 with `pre-launch.md`)
+
+The pre-launch campaign markets a *future* practice while the physician
+is Virginia-licensed and Texas licensure is pending. The full activity
+ladder lives in `pre-launch.md` §2; the compliance spine:
+
+- **Status honesty everywhere:** every surface carries the status line
+  ("opening in Austin, [season] — not yet accepting patients"); no
+  present-tense operating language, no bookable care, no "Austin
+  physician" phrasing before licensure. A T-0 sweep flips every
+  artifact at once (they're all in the ad archive, §1).
+- **The practice-of-medicine line:** education, model explanations, and
+  contact collection are open; *individualized* health discussion with
+  Texans is not — the redirect script is the guardrail, and no health
+  information is collected or recorded pre-launch (founding-list form
+  design, `pre-launch.md` §4.3).
+- **No money pre-launch:** no deposits, reservation fees, or paid
+  waitlist — avoids prepaid-care/DTPA/insurance-adjacent exposure and
+  matches the brand.
+- **Founding conversations** (individual fit/intro talks in the final
+  weeks) begin only with the Texas license in hand and stay
+  non-clinical: model, price, boundaries, mutual fit — no advice, no
+  records, no charge. `NEEDS-COUNSEL` confirmation below.
+- **Which advertising rules govern pre-licensure marketing** (TMB
+  reach before TX licensure; Virginia board's reach over a VA
+  licensee's out-of-state future-practice marketing): treat TMB ch.
+  164 as binding voluntarily now (§1 archive discipline already does),
+  and get the counsel read below.
+
+## 9. Q-23 — the counsel list this workstream generates
 
 Assembled here so runway counsel hours are efficient (feeds
 `docs/charter/open-questions.md` Q-23; overlaps Q-15's marketing-claims
@@ -190,3 +219,15 @@ pass):
    standard talk deck + ad text (one pass, all artifacts).
 8. Newsletter/CAN-SPAM posture sanity check + the patient-list
    separation rule.
+9. **Pre-launch representation package** (with §8): the status-line
+   wording; which board's advertising rules govern marketing a future
+   Texas practice before TX licensure; any constraint on announcing
+   "license pending."
+10. **Founding-conversation boundary:** confirm that pre-opening
+    fit/model conversations (no advice, no records, no charge, no
+    health detail) do not constitute practicing medicine in Texas or
+    create a physician-patient relationship; blessing of the redirect
+    script.
+11. **Founding-list mechanics:** confirm the no-payment/no-guarantee
+    waitlist design and the optional Medicare-status question raise no
+    solicitation or inducement issues.

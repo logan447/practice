@@ -99,6 +99,7 @@ Patient (retain/refer).**
 | `channels.md` | The channel map: master table of every meaningful channel with stage, intent, cost, physician time, time-to-result, scalability, and launch priority; full 13-attribute profiles for the priority channels; the referral-packet spec |
 | `measurement.md` | The instrumentation: the prospect ledger, stage definitions, the monthly channel scorecard, per-channel economics (cash + physician-time CAC vs. patient value), decision rules |
 | `phased-plan.md` | Pre-launch → first 10 → 25 → 50 → mature system, with the concrete weekly rhythm at each phase |
+| `pre-launch.md` | The 6–12-month pre-launch campaign: the legal-boundary ladder (what's allowed before Texas licensure), founding-list/waitlist design, per-channel pre-launch map, launch-position targets, and the T-12 → T+90 backward timeline |
 | `compliance.md` | Healthcare-marketing constraints: TMB advertising, testimonials/reviews, Texas all-payer anti-kickback, HIPAA in marketing, platform rules — with `NEEDS-COUNSEL` flags (feeds Q-15/Q-23) |
 
 ## 4. Channel mix as panel-mix management (the R-26 coupling)
