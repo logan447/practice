@@ -337,3 +337,23 @@ right, it's on me") remains an option to decide with the Terms —
 `NEEDS-COUNSEL`.
 **History:** the pro-rata engagement-refund architecture collapsed into
 monthly billing's inherent fairness.
+
+## D-035 — Website and collateral baseline locked (2026-08-21)
+
+The website (site/) and the print outreach collateral are the approved
+baseline. No further discretionary redesign or copy changes; future
+changes come from actual use, patient feedback, analytics, or launch
+needs. Two source-of-truth documents are binding on all patient-facing
+and outreach materials, web and print:
+`docs/website/design-house-style.md` and
+`docs/website/writing-house-style.md`. The writing standard includes
+the referral-safety rule: nothing may imply a patient's current
+doctors lack time, don't listen, or provide inadequate care. The
+approved hero line is "Unhurried primary care from a doctor who knows
+you." Mobile sticky CTA behavior: appears after the hero or page title
+scrolls away, persists, hides when the closing CTA band or footer is
+in view (supersedes the after-the-price trigger; the price now
+appears in the hero, so the seen-the-number principle still holds).
+**Revisit triggers:** launch-city facts landing ([City], service
+area, licensure), counsel/TMB review outcomes, scheduler and portal
+vendor selection, first real conversion data.

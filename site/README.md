@@ -1,5 +1,13 @@
 # DuBose, M.D. — website prototype
 
+**BASELINE LOCKED (D-035, 2026-08-21).** This is the approved version.
+No discretionary redesign or copy changes; future changes come from
+actual use, feedback, analytics, or launch needs. Before touching any
+copy or layout, read `../docs/website/writing-house-style.md` and
+`../docs/website/design-house-style.md` — they are binding and encode
+everything this baseline learned. Mobile sticky CTA: appears after the
+hero/page title scrolls away, hides at the closing band and footer.
+
 Static Astro site built from the approved design spec
 (`../docs/website/sketches/`) in the approved visual language
 (`../docs/website/visual-language.md`).

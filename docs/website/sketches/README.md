@@ -1,5 +1,11 @@
 # Website Design Specification — Approved Sketches
 
+> **Status (2026-08-21): superseded.** These sketches were the build
+> spec for the first prototype. The live site diverged through many
+> approved iterations and is now the locked baseline (D-035); consult
+> `../design-house-style.md` and `../writing-house-style.md` plus the
+> live pages, not these files. Kept as the design-history record.
+
 *Walkthrough completed and approved 2026-08-17/18, page by page, in
 conversation. These files are the faithful transcription — the formal
 design spec for visual design and the Astro build. Copy here is

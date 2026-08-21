@@ -24,7 +24,7 @@ const nav = [
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="robots" content="noindex, nofollow" />
     <title>{title}</title>
     <meta name="description" content={description} />
@@ -120,12 +120,17 @@ const nav = [
     {bookbar && (
       <script is:inline>
         (function () {
-          var t = document.getElementById('bookbar-after');
           var b = document.querySelector('.bookbar');
-          if (!t || !b) return;
-          addEventListener('scroll', function () {
-            b.classList.toggle('show', t.getBoundingClientRect().bottom < 0);
-          }, { passive: true });
+          var top = document.querySelector('.hero') || document.querySelector('.page-title');
+          var end = document.querySelector('.cta-band') || document.querySelector('.site-footer');
+          if (!b || !top) return;
+          function update() {
+            var past = top.getBoundingClientRect().bottom < 0;
+            var nearEnd = end && end.getBoundingClientRect().top < window.innerHeight;
+            b.classList.toggle('show', past && !nearEnd);
+          }
+          addEventListener('scroll', update, { passive: true });
+          update();
         })();
       </script>
     )}

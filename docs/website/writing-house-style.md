@@ -2,8 +2,10 @@
 
 *Source of truth for how the practice writes, distilled from the
 approved copy iterations (2026-08). Companion to
-`design-house-style.md`. Applies to the website, patient materials,
-outreach, and future articles.*
+`design-house-style.md`. Binding on ALL patient-facing material: the
+website, print collateral, outreach packets, articles, newsletter, and
+future materials. Read this before drafting; it exists so we never
+repeat the correction cycle that produced it.*
 
 ## The standard
 
@@ -31,6 +33,12 @@ reader should think "I understand exactly what this doctor does," not
 10. Second person for the patient, first person for the physician.
     The physician speaks as "I"; the practice does not speak as "we"
     except for physician-and-patient together ("we work on it").
+11. No AI-sounding language: no "delve," "journey," "seamless,"
+    "holistic" as filler, no triads for rhythm, no "it's not X, it's
+    Y" constructions, no rhetorical questions as transitions.
+12. The load-bearing test: every word, sentence, and block must do
+    work a reader needs. If removing it loses nothing, remove it.
+    Expect a strong first draft to lose a third of its words.
 
 ## Referral safety (binding)
 

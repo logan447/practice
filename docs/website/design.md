@@ -1,5 +1,11 @@
 # Website — Information Architecture & Patient Journey
 
+> **Status (2026-08-21): superseded as a build spec.** The live site
+> (`site/`, baseline locked per D-035) and the two house-style
+> documents (`design-house-style.md`, `writing-house-style.md`) are
+> the current source of truth. This file remains the record of the
+> original IA and journey design.
+
 *Designed 2026-08-17 from the current model (D-029/D-030/D-033, D-014,
 D-016, D-017, D-022, the Patient Agreement v2). Phase deliverable: a
 **prototype for visualization and Track F validation** — publishing waits

@@ -1,8 +1,10 @@
 # Design House Style — DuBose, M.D.
 
 *Source of truth for how the site looks and lays out. Documents the
-system as implemented in `site/src/styles/global.css` as of 2026-08-21.
-Companion to `writing-house-style.md`. When adding pages or materials,
+system as implemented in `site/src/styles/global.css` as of 2026-08-21
+(the locked baseline, D-035). Companion to `writing-house-style.md`.
+Binding on web AND print collateral: the brochure and one-pager follow
+the same tokens, type, and principles. When adding pages or materials,
 match these values; do not invent new ones.*
 
 ## Grid
@@ -109,6 +111,21 @@ content. All pairings meet WCAG AA.
 - **Emergency strip:** three bordered rows, color-coded left edges
   (emergency / urgent / routine). Identical wherever it appears.
 
+## Mobile
+
+Mobile is designed, not compressed. The drawer nav keeps a compact
+Book button always visible in the header. Grids stack in documented
+order; the hero stacks headline, photo, intro, CTA, price strip.
+Safety content (the emergency strip) never reflows into multiple
+columns. **Sticky mobile CTA:** on long prospect pages (home, help,
+how-it-works, pricing) a full-width "Book a free conversation" bar
+appears at the bottom of the screen once the hero or page title
+scrolls out of view, persists while scrolling, and hides when the
+closing CTA band or footer enters the viewport, so it never stacks on
+another CTA or covers the footer. It respects iOS safe areas
+(`env(safe-area-inset-bottom)`, `viewport-fit=cover`). Reading and
+conversion pages (About, Questions, Book, Agreement) have no bar.
+
 ## Accessibility
 
 - Focus: 2px accent outline, 2px offset, always visible;
@@ -135,3 +152,12 @@ content. All pairings meet WCAG AA.
 9. Keep interfaces simple; one primary CTA, quiet secondaries.
 10. Generous but disciplined spacing; the whitespace is the message.
 11. Remove anything not doing useful work.
+12. Trust documents are part of the journey: the membership agreement
+    is a quiet secondary action beside every price and booking moment
+    and in the footer, never buried and never competing with Book.
+13. Prospective and established patients get visibly different doors:
+    Book a free conversation (primary, green) vs. Patient login
+    (quiet text link). Never mix them.
+14. Interior pages open identically: title + optional one-line lede,
+    left-aligned on the nav grid, same vertical position. Exceptions
+    are deliberate: home hero, About photo, booking, login.

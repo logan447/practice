@@ -9,6 +9,12 @@ jobs assigned to every channel — not a list of marketing ideas.*
 Demand is earned channel by channel, relationship by relationship, and
 measured from the first prospect.
 
+**Binding standards:** every asset this workstream produces (web,
+print, email, scripts) follows `docs/website/writing-house-style.md`
+and `docs/website/design-house-style.md`, including the referral-safety
+rule: never position the practice by criticizing other clinicians'
+time or care.
+
 ---
 
 ## 1. What this workstream must produce

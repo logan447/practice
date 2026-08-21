@@ -492,7 +492,8 @@ p{max-width:var(--measure)}
 .bookbar{display:none}
 @media (max-width:720px){
   .bookbar{display:block;position:fixed;left:0;right:0;bottom:0;z-index:60;
-    background:var(--paper);border-top:1px solid var(--hair);padding:10px 16px;
+    background:var(--paper);border-top:1px solid var(--hair);
+    padding:10px 16px calc(10px + env(safe-area-inset-bottom));
     transform:translateY(110%);transition:transform .25s ease}
   .bookbar.show{transform:none}
   .bookbar .btn{display:block;text-align:center}
