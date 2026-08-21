@@ -31,8 +31,14 @@ until it ends (Q-21).
   messaging pillars, journey (discover→learn→meet→decide→begin),
   minimal-funnel posture, FAQ architecture, no-PHI scheduling
   architecture, Astro/Tailwind/Cloudflare stack (~$0–25/mo)
-- Next in phase: name candidates (Q-22) → full site copy → build the
-  prototype → use it in Track F validation conversations
+- ✅ **Full prospect-facing experience designed and approved**
+  (2026-08-17/18): all eight surfaces sketched with realistic copy,
+  walked through page by page, and approved with amendments — the
+  formal design spec lives in `docs/website/sketches/` (index README
+  carries the standing rules and amendment log)
+- Next in phase: name candidates (Q-22) → visual design language →
+  build the Astro prototype from the spec → Track F validation
+  conversations
 - Practice positioning and messaging live in the design doc's pillars
   (R-13 rules apply from draft one)
 - The onboarding conversation design (D-016): scripts, records request,
