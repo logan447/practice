@@ -1,7 +1,16 @@
-# Outreach Packet — Architecture (Proposal)
+# Outreach Packet — Architecture
 
-*Track B artifact. Status: **proposal for review** — no copy is drafted
-until this architecture is approved. Distribution is an Era-2
+*Track B artifact. Status: **revised 2026-08-21 (owner): one standard
+packet.** The audience-specific inserts (§4) and cover-letter variants
+are **deferred**, not deleted: for now there is one packet the owner
+can hand to any audience, including physicians, so every piece must
+pass the House Style §5 respect read. The standard packet is: signed
+cover letter · one-pager · brochures ×6 · cards ×4 · plain folder. The
+one-pager absorbs the insert's job (the organization note and the
+respectful clinician note live on its back). Revisit the inserts if
+real audiences prove to need more than the one-pager answers. Current
+piece copy lives in `pieces/`; the sections below otherwise keep the
+approved architecture.* Distribution is an Era-2
 (launch-runway) act: nothing here is printed or handed out until the
 publishing gates clear (name/entity/licensure, and the TMB
 advertising/counsel pass, `NEEDS-COUNSEL`, per R-13 and the website
@@ -111,7 +120,10 @@ source of truth:
 One additional sheet chosen by where the packet is going — §4. Never
 more than one insert per packet.
 
-## 4. Audience-specific inserts
+## 4. Audience-specific inserts — DEFERRED (2026-08-21)
+
+*Kept as design record for when audience-specific depth is warranted.
+Not part of the standard packet.*
 
 Four inserts cover every listed audience. Rule: an audience earns its
 own insert only when it has a **distinct question** the core can't

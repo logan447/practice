@@ -1,220 +1,166 @@
-# Patient Brochure — Draft Copy
+# Patient Brochure — Copy, v2
 
-*Piece 1 of the outreach packet (architecture §3.3). Status: **draft for
-review.** Patient-voiced, first person, per the website register. Copy
-here condenses approved website copy — where a sentence exists on the
-site, the brochure reuses it verbatim or trims it, never rewrites it
-(duplication rule §6). All standing rules bind: no emojis, copy filter,
-credential accuracy, one CTA, canonical phrases verbatim, R-13. Print
-only after the TMB advertising/counsel pass (`NEEDS-COUNSEL`) and the
-publishing gates.*
+*Piece 1 of the standard outreach packet. Status: **v2 draft for
+review** (owner feedback 2026-08-21). This version is written to House
+Style from scratch: no em dashes, short sentences, ~5th-grade level, no
+comparisons with other clinicians. Two visuals replace paragraphs. The
+physician's credentials now appear on the back panel.*
 
-**Job:** the only packet piece designed to leave the building. It is
-handed to a person at the moment someone says "you should talk to this
-doctor." Within one unhurried read: what this is, whether it might be
-for them, what it costs, that it works with their insurance, and the
-safe next step. It routes to the site and the free conversation; it
-answers nothing in depth.
+**Owner decisions recorded (2026-08-21):**
 
-## Format and fold
+1. The cover headline "A doctor with time to actually figure it out
+   with you." is **removed**. It implies other doctors lack time.
+   Nothing in the packet may compare this practice to anyone's care.
+2. The brochure is **no longer verbatim website copy**. v1 condensed
+   the approved site; the owner directed a strict House Style rewrite,
+   which the site has not yet had. The site keeps its approved copy
+   until its own House Style pass (style §8). When that pass runs,
+   align the two again. Until then this file is the brochure's source
+   of record.
+3. One standard brochure for every audience. A physician's office must
+   be able to hand it to a patient without explanation or discomfort.
 
-Letter sheet, tri-fold (roll fold), six panels. Reading order below is
-the designed sequence: cover → first-open panel → three-panel inside
-spread, left to right → back cover.
+**Job:** handed to a person by someone who trusts the practice enough
+to pass it on. A quick scan answers: what this is, who it may help,
+what I provide, how care is delivered, that it is ongoing care, the
+price, who I am, how to learn more, how to book. Details live on the
+website.
 
-| Position | Panel |
-|---|---|
-| Front cover | 1 — The promise and the price |
-| First seen on opening | 2 — Recognition |
-| Inside spread, left | 3 — Medicine, given room to work |
-| Inside spread, middle | 4 — Care that fits you |
-| Inside spread, right | 5 — The price, plainly |
-| Back cover | 6 — Start with a conversation |
+## Format
+
+Letter sheet, tri-fold (roll fold). Reading order: cover → flap →
+inside spread → back. Build: `print/brochure/build.py`.
 
 ---
 
 ## Panel 1 · Front cover
 
 > **DuBose, M.D.**
-> direct primary care
+> DIRECT PRIMARY CARE
 >
-> # A doctor with time to actually figure it out with you.
+> # Ongoing primary care for adults.
 >
-> Adult primary care · **$100 a month** · Cancel anytime
+> **$100 a month · Cancel anytime**
 > Works alongside your insurance.
 
-*Type-led cover; at most one warm candid photo of Dr. DuBose (listening,
-seated — never white-coat-with-crossed-arms), or no photo. The price is
-on the cover for the same reason it is in the homepage hero: hiding the
-number is a dark pattern.*
+*Portrait photo, lower half. Type-led, left-aligned.*
 
-## Panel 2 · Recognition
+## Panel 2 · Flap (seen on opening)
 
-> ## If your health has started to feel like too much
+> ## What this is
 >
-> Maybe it's several things at once — blood pressure creeping up, sleep
-> that never feels like rest, results nobody fully explained,
-> medications you're not sure you still need. Maybe you've seen good
-> specialists, and each one checked their part — but no one is looking
-> at the whole of it, with you.
+> A small medical practice with one doctor. Members pay one flat
+> monthly price. I provide their ongoing primary care and stay with
+> them over time.
 >
-> Or maybe nothing is wrong yet. You'd just like a doctor who knows you
-> before something is.
+> ## Who it may help
 >
-> The problem usually isn't a lack of healthcare. It's that nobody has
-> time to think it through with you.
->
-> **That is what this practice is for.**
+> - Adults who need a primary care doctor
+> - Adults managing ongoing health conditions
+> - Adults who want to prevent future problems
+> - Adults who want care that fits their schedule
 
 ## Panel 3 · Inside left
 
-> ## Medicine, given room to work
+> ## What I provide
 >
-> My job is to listen carefully, understand your whole situation —
-> medical, and the life around it — figure out what's urgent, what
-> matters most, and what can wait, and then work the plan with you over
-> time.
+> - Visits as long as they need to be
+> - Direct messaging with me
+> - Results reviewed and explained
+> - Prescriptions and refills
+> - Preventive care and checkups
+> - Care for ongoing conditions
+> - Referrals and coordination
 >
-> **Included, with no per-visit charges:**
-> - Visits as your care needs them, as long as they need to be
-> - Direct messaging with me between visits
-> - Every result reviewed and explained
-> - Prescriptions managed; refills handled without games
-> - Referrals and coordination across your other doctors
-> - Forms and paperwork handled
-> - An unhurried annual review of everything
->
-> This isn't alternative medicine or a wellness program. It's
-> evidence-based primary care with enough time to work.
+> This is ongoing care from one doctor, not one-time advice. There are
+> no per-visit charges.
 
 ## Panel 4 · Inside middle
 
-> ## Care that fits you
+> ## How care works
 >
-> Most care happens by video and secure messaging, at the speed of your
-> life. When an exam truly needs it, I come to you at home; when clinic
-> space is better, we use space I keep for exactly that. There is no
-> required visit schedule — care follows what your health actually
-> needs.
+> *[Visual 1 — three line icons in a row]*
+> **Video visits · Home visits · In-person visits**
 >
-> Between visits, message me: I answer within 1–2 business days,
-> usually faster. I keep business hours, and I take real time away each
-> year — always with a clear plan for how your care works while I'm
-> gone. Away means slower — never unaware.
+> Most care is by video. I see people at home or in a clinic when an
+> exam is needed.
+>
+> *[Visual 2 — four-step path]*
+> **1 Understand your health → 2 Make a plan → 3 Work on it together →
+> 4 Track progress**
+>
+> I answer messages within 1 to 2 business days.
 
 ## Panel 5 · Inside right
 
-> ## The price, plainly
+> ## The price
 >
-> **$100 a month, per adult.** Flat and published. No enrollment fee,
-> no contract — cancel anytime.
+> **$100 a month**
+> per adult · no contract · cancel anytime
 >
-> **What it doesn't cover:** labs, imaging, medications, specialists,
-> urgent care, ER, and hospital care. Your insurance keeps paying for
-> those exactly as it does today — the membership works alongside
-> insurance, not instead of it. On Medicare or Medicaid? You can still
-> join; one extra form handles it.
+> | Included | Not included |
+> |---|---|
+> | All care from me, with no per-visit charges | Labs and imaging · medicines · care from other doctors · hospital care |
 >
-> **What's the catch?** I keep business hours and am not an emergency
-> service. I take real time away each year. And when my panel is full,
-> it is full. That is the whole catch.
+> Your insurance keeps paying for those, as it does today. People with
+> Medicare or Medicaid can join. One extra form is needed.
 >
-> If $100 a month would genuinely prevent care, say so when we talk. I
-> keep a limited number of reduced-rate memberships — no application,
-> just a conversation.
+> ## Plain limits
+>
+> - I keep business hours. This is not an emergency service.
+> - I take real time away each year and plan ahead for it.
+> - I care for adults only.
+> - When my panel is full, it is full.
+>
+> If the price would keep you from care, tell me. I hold a small
+> number of reduced-rate memberships.
 
 ## Panel 6 · Back cover
 
-> ## Start with a conversation. That's all.
+> ## About Dr. DuBose
 >
-> Thirty minutes, by video, free. Tell me what's going on; I'll tell
-> you honestly whether I can help — and if I'm not the right fit, I'll
+> | | |
+> |---|---|
+> | M.D. | Texas A&M College of Medicine |
+> | Internship | Internal medicine, George Washington University |
+> | Research | NIH-funded work on aging and caregiving |
+> | In progress | Lifestyle medicine certification |
+> | Full CV | [site]/cv |
+>
+> ## Start with a free conversation
+>
+> Thirty minutes by video, at no cost. Tell me what is going on. I
+> will say honestly whether I can help. If I'm not the right fit, I'll
 > say so and point you toward someone good.
 >
-> `[QR]` **Book a free conversation** — [site]/book
-> `[QR]` Everything else, answered — [site]
+> `[QR]` **Book:** [site]/book
+> Learn more: [site]
 >
 > **DuBose, M.D.** · [City], Texas
 > [phone] · [email]
-> I care for adults only.
->
+
+*Bottom strip:*
+
 > If this is an emergency, call 911 or go to the nearest ER.
-
-*Small print, bottom edge:*
-
 > This practice is a direct primary care medical service agreement
-> under Texas law; it is not health insurance.
+> under Texas law. It is not health insurance.
 
 ---
 
-## Preview build
+## House Style check (§9)
 
-`print/brochure/build.py` renders this copy at true scale (pipeline
-steps 2–3): flat outside/inside faces with fold guides, the closed
-cover, the first-open view, and `brochure-proof.pdf` (two exact
-11 × 8.5 in pages for the print-at-home proof). Outputs land in
-`print/brochure/out/` (gitignored; regenerate with
-`python3 print/brochure/build.py`). Type and color reuse the website's
-tokens (Source Serif 4 / Source Sans 3, ivory/ink/juniper).
+No em dashes anywhere. No comparisons with other clinicians or the
+system. No slogans. Headings state facts. Sentence enumerations
+minimized; lists are vertical. One QR destination pair, back cover
+only. Credentials match the About table; lifestyle medicine marked in
+progress. Canonical phrases used: "when my panel is full, it is full"
+and the fit phrase (both dash-free). Adults-only stated once (limits).
+Price on the cover and in the price panel; the panel adds terms, so it
+is not a repeat.
 
-## Production notes
+## Open items
 
-- Uncoated stock matching the letterhead/folder system; brochure is
-  part of the stationery register, not a glossy piece.
-- Panel 5 is deliberately the densest (the money panel earns it);
-  the designer may tighten leading there, never cut the catch.
-- QR codes: exactly two, back cover only, human-readable URLs beside
-  them (packet-wide rule, architecture §5).
-- Photo: one candid maximum, or type-only. No stock imagery ever.
-- Placeholders until runway: [City], [site], [phone], [email].
-- No market figures anywhere in this piece — by design, nothing here is
-  `REFRESH-AT-RUNWAY`; the brochure only ages if the model changes.
-- Icons, if the designer wants them on panels 3–4: drawn line-icons or
-  plain typographic marks only.
-
-## Copy provenance (duplication audit)
-
-| Panel | Source |
-|---|---|
-| 1 | Homepage hero, condensed; price-in-hero decision carried over |
-| 2 | Homepage §2 verbatim, last line new (print needs a landing) |
-| 3 | Homepage §3 + pricing §2 included-list, trimmed |
-| 4 | Homepage §4 card 3 + How-it-works availability; canonical "away means slower — never unaware" |
-| 5 | Pricing §2/§4/§5/§7 + access rate §3, radically condensed; canonical "when my panel is full, it is full" · "that is the whole catch" |
-| 6 | Homepage §9 + global footer; canonical fit-phrase + emergency short form + DPC-not-insurance line |
-
-Nothing in this brochure exists only here: every claim has a deeper
-home on the site, which is where both QR codes lead.
-
-## Decisions of record
-
-Price on the cover, not inside · recognition before explanation
-(homepage order preserved) · the catch lives on the money panel · the
-Medicare/Medicaid answer is two sentences, details routed to the
-pricing page · adults-only stated twice (panel 5 "per adult," back
-cover plainly) · one CTA, appearing twice (cover implies it, back cover
-makes it) · access-rate offer kept, in the website's exact posture.
-
-## Open items for review
-
-1. Cover photo: candid, or type-only? (One-pager will carry the
-   portrait either way.)
-2. Panel 2's added closing line ("That is what this practice is for.")
-   — new copy, needs approval since it may migrate back to the site.
-
-3. **House Style review (added 2026-08-21, after this draft):**
-   `docs/style/README.md` now governs all copy. Because panels 2–5
-   condense approved site copy, they inherit the site's style debts,
-   which House Style §8 queues for one owner-approved pass rather than
-   piecemeal edits: em dashes throughout; reading level vs. the
-   5th-grade target; and the §5 physician-respect review of the
-   time-contrast lines (panel 2: "no one is looking at the whole of
-   it, with you" and "nobody has time to think it through with you").
-   Decide the site copy first; the brochure follows it verbatim.
-   This brochure travels inside clinician packets, so the §5 read
-   matters here even though the piece is patient-voiced.
-
-*(Checked, not open: "1–2 business days, usually faster" matches all
-three site surfaces that state it — pricing, how-it-works, emergency
-strip. D-017's "~24–72h" is the internal charter envelope, not patient
-copy.)*
+1. Cover portrait: keep, or type-only cover.
+2. v1's recognition panel ("If your health has started to feel like
+   too much") is gone. Its job is done by "Who it may help" in fewer
+   words. Confirm the owner agrees with the cut.

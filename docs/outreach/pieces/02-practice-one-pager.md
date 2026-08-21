@@ -1,123 +1,105 @@
-# Practice One-Pager — Draft Copy
+# Practice One-Pager — Copy, v2
 
-*Piece 2 of the outreach packet (architecture §3.2). Status: **draft for
-review.** Audience: the professional or gatekeeper who receives the
-packet, not the patient. First person, House Style throughout (drafted
-after the standard, so no inherited debts: no em dashes, short
-sentences, ~5th-grade register with a professional reader in mind).
-Bio facts match the approved About page and credentials table exactly.
-Print only after the counsel pass and publishing gates.*
+*Piece 2 of the standard outreach packet. Status: **v2 draft for
+review** (aligned with the 2026-08-21 owner feedback and the brochure
+rewrite). Audience: the professional or gatekeeper who receives the
+packet. In the standard packet this sheet also carries the material
+formerly planned as audience inserts: the respectful note to clinicians
+and the organization note. Printed on demand, duplex, 32 lb laser
+paper. Build: `print/onepager/build.py`.*
 
-**Job:** the 60-second understanding, and the piece that stays on file
-after the brochures are handed out. The reader should be able to judge
-"is this useful to the people I serve" without visiting the website.
-
-## Format
-
-One letter sheet, duplex. Printed on demand (32 lb laser paper).
-Front: the practice. Back: the doctor, how to start, contact.
-Five labeled blocks per side, built for scanning.
+**Job:** the practice on one sheet. Kept on file after the brochures
+are handed out. The reader judges in one minute whether this is useful
+to the people they serve.
 
 ---
 
 ## Front
 
-### Header
-
 > **DuBose, M.D.**
 > DIRECT PRIMARY CARE · [City], Texas
-
-### Title block
-
+>
 > # The practice at a glance
 >
-> I run a small primary care practice for adults. Members pay one flat
-> price: $100 a month. It covers all of my work as their doctor. I keep
-> the practice small so every visit has enough time.
+> I run a small primary care practice for adults. Members pay $100 a
+> month. That covers all of my work as their doctor. I keep the
+> practice small so visits have enough time.
 
-### Block 1 · Who this may help
-
-> - Adults who do not have a primary care doctor
-> - Adults managing ongoing conditions, like blood pressure, diabetes,
->   anxiety, weight, or sleep
-> - Adults with several health concerns at once who want one doctor
->   holding the whole picture
-> - Adults who want to prevent problems, not just treat them
-
-### Block 2 · What membership includes
-
-> All of this is covered by the monthly price, with no per-visit
-> charges:
+> ## Who it may help
 >
-> - Visits as often as care needs them, as long as they need to be
-> - Direct messaging with me, answered within 1 to 2 business days
-> - Every result reviewed and explained
-> - Prescriptions managed and refills handled
+> - Adults who need a primary care doctor
+> - Adults managing ongoing health conditions
+> - Adults who want to prevent future problems
+> - Adults who need steady support between specialist visits
+
+> ## What membership includes
+>
+> - Visits as long as they need to be
+> - Direct messaging, answered within 1 to 2 business days
+> - Results reviewed and explained
+> - Prescriptions and refills
+> - Preventive care and care for ongoing conditions
 > - Referrals and coordination with other doctors
-> - Forms and paperwork handled
-> - A full, unhurried review every year
 
-### Block 3 · How care happens
-
+> ## How care happens
+>
 > Most visits are by video. I make home visits when an exam calls for
-> it. I use rented clinic space when that is better. There is no set
-> visit schedule. Care follows what each person needs.
+> it. I use clinic space when that is better. There is no set
+> schedule. Care follows need.
 
-### Block 4 · Price and insurance
-
+> ## Price and insurance
+>
 > $100 a month per adult. No sign-up fee. No contract. Cancel anytime.
 >
-> Members keep their insurance and their other doctors. Insurance keeps
-> paying for labs, imaging, medications, specialists, and hospital
-> care, as it does today. People on Medicare or Medicaid can join. One
-> extra form handles it. The membership is not insurance.
+> Members keep their insurance and their other doctors. Insurance
+> keeps paying for labs, medicines, and hospital care as it does
+> today. People on Medicare or Medicaid can join. One extra form is
+> needed. The membership is not insurance.
 
-### Block 5 · The limits, stated plainly
-
-> I keep business hours. I am not an emergency service. I take real
-> time away each year, with a clear plan for care while I am gone. I
-> care for adults only. And when my panel is full, it is full.
-
----
+> ## The limits, stated plainly
+>
+> I keep business hours. This is not an emergency service. I take real
+> time away each year and plan ahead for it. I care for adults only.
+> When my panel is full, it is full.
 
 ## Back
 
-### Block 1 · About the doctor *(portrait right, photo-frame style)*
-
-> # Logan DuBose, M.D.
+> # Logan DuBose, M.D. *(portrait right)*
 >
-> I earned my medical degree at the Texas A&M College of Medicine and
-> completed an internal medicine internship at George Washington
-> University. For years I have practiced primary care part-time while
-> leading NIH-funded research on aging, caregiving, and access to
-> care. I am completing certification in lifestyle medicine. I built
-> this practice to do medicine the way it works best: one doctor, a
-> small panel, and enough time.
+> I have practiced primary care part-time for years while leading
+> research on aging and caregiving. I built this practice to give
+> patients one doctor with enough time.
 >
-> My full CV, licensure, and research background: **[site]/cv**
+> | | |
+> |---|---|
+> | M.D. | Texas A&M College of Medicine |
+> | Internship | Internal medicine, George Washington University |
+> | Research | NIH-funded work on aging and caregiving |
+> | In progress | Lifestyle medicine certification |
+> | Full CV | [site]/cv |
 
-### Block 2 · How someone starts
-
+> ## How someone starts
+>
 > The first step is a free conversation. Thirty minutes, by video. No
-> cost and no obligation. We talk through what is going on, and I say
-> honestly whether I can help. If I'm not the right fit, I'll say so
-> and point you toward someone good.
+> cost and no obligation. If I'm not the right fit, I'll say so and
+> point you toward someone good.
 
-### Block 3 · For your organization
-
-> You are welcome to share the enclosed brochures with anyone who may
-> benefit. If they run out, one message to me and I will bring more. I
-> am also glad to answer questions about whether this fits the people
-> you serve.
-
-### Block 4 · Contact
-
-> `[QR]` **Book a free conversation** — [site]/book
-> `[QR]` The full details — [site]
+> ## For your organization
 >
+> You are welcome to hand the enclosed brochures to anyone who may
+> benefit. If they run out, send me a note and I will bring more.
+>
+> Patients keep their other doctors and their insurance. I work
+> alongside the care they already have.
+
+> ## Contact
+>
+> `[QR]` **Book a free conversation**
+> [site]/book
+> Learn more: [site]
 > [phone] · [email]
 
-### Small print, bottom edge
+*Small print, bottom edge:*
 
 > This practice is a direct primary care medical service agreement
 > under Texas law. It is not health insurance.
@@ -126,28 +108,14 @@ Five labeled blocks per side, built for scanning.
 
 ## House Style check (§9)
 
-Read aloud: explains, does not sell · no em dashes (canonical phrases
-used here contain none) · claims are all model facts (D-029, D-030,
-D-017, D-033); no outcomes claims · credential lines match the About
-credentials table exactly; no residency or board-certification
-implication; lifestyle medicine marked in progress · limits stated
-(block 5) · price visible in the first paragraph · one CTA · respect
-check: describes what I do, nothing about what others fail to do.
+No em dashes. No comparisons. Short sentences throughout. "For your
+organization" carries the physician-respect posture: what I add, never
+what anyone lacks. Credentials exact; lifestyle medicine in progress.
+One CTA. The QR appears once, on the back.
 
-## Duplication audit
+## Open items
 
-Front condenses the homepage and pricing card in gatekeeper register;
-back condenses About §1/§4 and the booking page. Every claim has a
-deeper home on the site. The credentials sentence is the only place
-the packet core states training; inserts A and B restate it for
-clinician audiences per the architecture.
-
-## Open items for review
-
-1. Back-side portrait: reuse the site photo (`dr-dubose.jpg`) for
-   consistency, or a different candid?
-2. "For your organization" block doubles as the refill mechanism also
-   promised in the cover letter. Keep in both places, or letter only?
-   (Default: both. The one-pager survives; the letter may not.)
-3. Licensure is deliberately not stated on the front. It appears via
-   the CV link and at [City]/licensure gate time. Confirm.
+1. Front is denser than the brochure by design (a professional
+   reader). Confirm the density reads as organized, not crowded, in
+   the PDF.
+2. Portrait on the back: same photo as the brochure cover, or none.
