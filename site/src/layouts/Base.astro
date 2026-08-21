@@ -34,7 +34,7 @@ const nav = [
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
-    <div class="draftbar">PROTOTYPE — NOT FOR PUBLIC USE — PENDING LEGAL AND ADVERTISING REVIEW</div>
+    <div class="draftbar">PROTOTYPE · NOT FOR PUBLIC USE · PENDING LEGAL AND ADVERTISING REVIEW</div>
 
     <header class="site-header">
       <div class="container">
@@ -44,6 +44,7 @@ const nav = [
             {nav.map((n) => (
               <a href={n.href} class={active === n.key ? 'active' : ''}>{n.label}</a>
             ))}
+            <a class="login-link" href="/login">Patient login</a>
             <a class="btn btn-nav" href="/book">Book a free conversation</a>
           </nav>
           <div class="nav-toggle">
@@ -59,6 +60,7 @@ const nav = [
           <a href="/about" class={active === 'about' ? 'active' : ''}>About Dr. DuBose</a>
           <a href="/questions" class={active === 'questions' ? 'active' : ''}>Questions</a>
           <a class="btn" href="/book">Book a free conversation</a>
+          <a href="/login" style="font-weight:400;color:var(--soft);font-size:16px">Patient login</a>
           <p class="em-line">If this is an emergency, call 911 or go to the nearest ER.</p>
         </nav>
       </div>
@@ -86,12 +88,13 @@ const nav = [
             <a href="/about">About Dr. DuBose</a>
             <a href="/questions">Questions</a>
             <a href="/book">Book a free conversation</a>
+            <a href="/login">Patient login</a>
           </nav>
           <div>
             <h5>The fine print</h5>
             <p>If this is an emergency, call 911 or go to the nearest ER.</p>
             <p style="margin-top:10px">
-              <a href="/agreement">Read the full membership agreement</a> —
+              <a href="/agreement">Read the full membership agreement</a>:
               the complete terms, published before you ever talk to me.
             </p>
             <p style="margin-top:10px">

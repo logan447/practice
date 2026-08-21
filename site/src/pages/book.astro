@@ -21,7 +21,7 @@ while (days.length < 5) {
 }
 const slots = ['9:00 am', '9:40 am', '10:20 am', '11:00 am', '1:00 pm', '1:40 pm', '2:20 pm', '3:00 pm'];
 ---
-<Base title="Book a free conversation — DuBose, M.D.">
+<Base title="Book a free conversation · DuBose, M.D.">
 
   <section class="section" style="padding-block:clamp(48px,7vw,80px)">
     <div class="container">
@@ -32,27 +32,26 @@ const slots = ['9:00 am', '9:40 am', '10:20 am', '11:00 am', '1:00 pm', '1:40 pm
         <div class="prose">
           <h3>What to expect</h3>
           <p style="margin-top:12px">
-            Thirty minutes, by video. You tell me what&rsquo;s going on — or
-            just that you&rsquo;re curious. I&rsquo;ll ask some questions,
-            answer yours, and tell you honestly whether I can help.
+            Thirty minutes, by video. You tell me what&rsquo;s going on.
+            I&rsquo;ll ask some questions, answer yours, and tell you
+            honestly if I can help.
           </p>
-          <p style="margin-top:16px">A few things you should know going in:</p>
+          <p style="margin-top:16px">A few things to know going in:</p>
           <ul class="book-list">
             <li>It&rsquo;s free, with no obligation to join.</li>
-            <li>If I&rsquo;m not the right fit, I&rsquo;ll say so and point
-            you toward someone good.</li>
-            <li>No preparation needed. Don&rsquo;t gather records or rehearse
-            anything — just come as you are.</li>
-            <li>This conversation is not medical care, and nothing about it
-            commits you (or me) to anything.</li>
+            <li>If I&rsquo;m not the right fit, I&rsquo;ll say so and
+            point you toward someone good.</li>
+            <li>No preparation needed. Come as you are.</li>
+            <li>This conversation is not medical care, and it commits you
+            to nothing.</li>
           </ul>
           <div class="note-em" style="margin-top:32px">
-            <span class="tag">Before you book — the one thing that never changes</span>
+            <span class="tag">Before you book</span>
             <p>
-              If you are having an emergency — chest pain, stroke signs,
-              severe trouble breathing, thoughts of self-harm — call 911 or
-              go to the nearest ER now. This page cannot help you today; the
-              emergency room can.
+              If you are having an emergency, like chest pain, stroke
+              signs, severe trouble breathing, or thoughts of self-harm,
+              call 911 or go to the nearest ER now. This page cannot help
+              you today. The emergency room can.
             </p>
           </div>
         </div>
@@ -87,7 +86,7 @@ const slots = ['9:00 am', '9:40 am', '10:20 am', '11:00 am', '1:00 pm', '1:40 pm
               <div class="fields">
                 <input type="text" id="f-name" placeholder="Name" aria-label="Name" autocomplete="name" />
                 <input type="email" id="f-email" placeholder="Email" aria-label="Email" autocomplete="email" />
-                <input type="tel" id="f-phone" placeholder="Phone — only used for this conversation" aria-label="Phone" autocomplete="tel" />
+                <input type="tel" id="f-phone" placeholder="Phone (only used for this conversation)" aria-label="Phone" autocomplete="tel" />
                 <select id="f-ref" aria-label="How did you hear about me?">
                   <option value="">How did you hear about me? (optional)</option>
                   <option>A friend or family member</option>
@@ -101,7 +100,7 @@ const slots = ['9:00 am', '9:40 am', '10:20 am', '11:00 am', '1:00 pm', '1:40 pm
             <button class="btn" type="button" id="confirm">Confirm booking</button>
             <p class="err" id="err">Please pick a time and add your name and email.</p>
             <p class="fine">
-              No medical details are needed to book — save those for our
+              No medical details are needed to book. Save those for our
               conversation.
             </p>
           </div>
@@ -113,7 +112,7 @@ const slots = ['9:00 am', '9:40 am', '10:20 am', '11:00 am', '1:00 pm', '1:40 pm
               A confirmation with your video link is on its way to
               <span id="c-email"></span>. A reminder will come the day
               before. If the time stops working, use the link in either
-              email to change it — no explanation needed.
+              email to change it. No explanation needed.
             </p>
             <p>
               Between now and then, if you&rsquo;d like to read more:
@@ -121,7 +120,7 @@ const slots = ['9:00 am', '9:40 am', '10:20 am', '11:00 am', '1:00 pm', '1:40 pm
               <a href="/pricing">Pricing</a> &middot;
               <a href="/agreement">The full membership agreement</a>
             </p>
-            <p class="sig">I&rsquo;m looking forward to meeting you.<br />— Dr. DuBose</p>
+            <p class="sig">I&rsquo;m looking forward to meeting you.<br />Dr. DuBose</p>
             <p class="fine" style="text-align:left;margin-top:20px">
               Prototype: nothing was saved or sent.
             </p>
@@ -157,7 +156,7 @@ const slots = ['9:00 am', '9:40 am', '10:20 am', '11:00 am', '1:00 pm', '1:40 pm
         }
         err.classList.remove('show');
         document.getElementById('c-when').textContent =
-          day.dataset.full + ' at ' + slot.textContent + ' Central — 30 minutes, by video.';
+          day.dataset.full + ' at ' + slot.textContent + ' Central. 30 minutes, by video.';
         document.getElementById('c-email').textContent = email;
         var s = document.getElementById('sched');
         s.classList.add('done');

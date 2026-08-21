@@ -14,6 +14,17 @@ via Google Fonts for the prototype; self-host at launch. Build note:
 plain token CSS instead of Tailwind — simpler and more faithful to the
 specimen at this size.
 
+Content architecture (decided 2026-08-21): Research lives on the About
+page (Selected research + /cv); it is a credibility signal, not a
+section. Articles/writing, when they exist, become a separate top-level
+section (/articles) built on Astro content collections (markdown in
+this repo) with its own public newsletter signup. Three communication
+systems stay separate by design: (1) public educational newsletter
+(marketing tool, no PHI), (2) practice communications to members
+(operational, minimal PHI, from the physician's address), (3) clinical
+communications (PHI, portal/EHR only, never email marketing tools).
+The /login page holds the future EHR portal URL (PORTAL_URL const).
+
 Design pass 2 (2026-08-21): one grid (`.container` 1120px + `.split`
 editorial columns), consistent section rhythm with deliberate
 paper/warm/tint/pine alternation, eyebrow-label hierarchy, dark-pine

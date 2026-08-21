@@ -406,6 +406,30 @@ p{max-width:var(--measure)}
 .sched-confirm p{font-size:15.5px;margin-top:14px;max-width:none}
 .sched-confirm .sig{font-family:var(--serif);margin-top:18px}
 
+/* goals checklist (two columns) */
+.check-cols{list-style:none;padding:0;font-size:16.5px;columns:2;
+  column-gap:clamp(36px,5vw,80px);max-width:1000px}
+.check-cols li{padding:9px 0 9px 28px;position:relative;break-inside:avoid}
+.check-cols li::before{content:"";position:absolute;left:0;top:18px;width:12px;
+  height:7px;border-left:2px solid var(--accent);border-bottom:2px solid var(--accent);
+  transform:rotate(-45deg)}
+@media (max-width:680px){.check-cols{columns:1}}
+
+/* publications */
+.pubs{max-width:900px}
+.pub{border-top:1px solid var(--hair);padding:16px 0;font-size:15px;
+  line-height:1.6;color:#39423F}
+.pub:last-of-type{border-bottom:1px solid var(--hair)}
+.pub b{font-family:var(--serif);font-size:16px;color:var(--ink);display:block;
+  margin-bottom:4px}
+.pub a{font-weight:600;text-decoration:none}
+.pub a:hover{text-decoration:underline}
+
+/* patient login link */
+.login-link{color:var(--soft);font-size:14px;text-decoration:none;
+  padding:6px 0;border-bottom:2px solid transparent}
+.login-link:hover{color:var(--accent)}
+
 /* ---------- agreement document page ---------- */
 .doc{max-width:76ch}
 .doc h2{margin:48px 0 14px;font-size:24px}

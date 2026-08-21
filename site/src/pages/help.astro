@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 ---
-<Base title="What I can help with — DuBose, M.D." active="help" bookbar={true}>
+<Base title="What I can help with · DuBose, M.D." active="help" bookbar={true}>
 
   <!-- 1 · Intro -->
   <section class="hero" style="padding-block:clamp(56px,8vw,88px)">
@@ -12,14 +12,45 @@ import Base from '../layouts/Base.astro';
           <h1>What I can help with</h1>
         </div>
         <p class="lede">
-          Most good primary care is ordinary medicine, done carefully,
-          with enough time. Here is what that covers.
+          We work on your health, not just your symptoms. Here is what
+          that means in practice.
         </p>
       </div>
     </div>
   </section>
 
-  <!-- 2 · The situations I'm built for -->
+  <!-- 2 · What we work toward -->
+  <section class="section band-tint">
+    <div class="container">
+      <div class="sec-head">
+        <span class="eyebrow">The goal</span>
+        <h2>What we work toward</h2>
+        <p class="lede">
+          Being my patient is an ongoing program for your health, built
+          around what matters to you. Together we work to:
+        </p>
+      </div>
+      <ul class="check-cols">
+        <li>Help you feel better day to day</li>
+        <li>Help you understand your health and your results</li>
+        <li>Improve the numbers that matter, like blood pressure, weight, and labs</li>
+        <li>Prevent disease where we can</li>
+        <li>Keep existing conditions under control</li>
+        <li>Improve sleep, fitness, and nutrition</li>
+        <li>Catch problems early</li>
+        <li>Keep screenings and vaccines up to date</li>
+        <li>Help you stay independent and able</li>
+        <li>Make progress on your own health goals</li>
+      </ul>
+      <p class="prose" style="margin-top:32px">
+        We track these together, so we both know if care is working. I
+        can&rsquo;t promise outcomes. I can promise we work on them and
+        measure.
+      </p>
+    </div>
+  </section>
+
+  <!-- 3 · Common situations -->
   <section class="section band-warm">
     <div class="container">
       <div class="sec-head">
@@ -30,58 +61,57 @@ import Base from '../layouts/Base.astro';
         <div class="card">
           <h4>&ldquo;It&rsquo;s several things at once.&rdquo;</h4>
           <p>
-            Blood pressure, weight, sleep, energy, stress — each one
-            manageable, together overwhelming. We sort out what&rsquo;s
-            urgent, what matters most, and what can wait, then work
-            through it in order.
+            Blood pressure, weight, sleep, stress. Each one manageable,
+            together overwhelming. We sort out what&rsquo;s urgent, what
+            matters most, and what can wait. Then we work through it in
+            order.
           </p>
         </div>
         <div class="card">
           <h4>&ldquo;Something came back abnormal.&rdquo;</h4>
           <p>
-            A lab result, a scan, a number in your portal with no
-            explanation attached. I go through it with you: what it means,
-            what it doesn&rsquo;t, what to do next, and what to watch.
+            A lab result or scan with no explanation attached. I go
+            through it with you: what it means, what to do next, and what
+            to watch.
           </p>
         </div>
         <div class="card">
-          <h4>&ldquo;I have conditions that deserve more than 15 minutes.&rdquo;</h4>
+          <h4>&ldquo;My conditions deserve more than 15 minutes.&rdquo;</h4>
           <p>
-            Diabetes, blood pressure, cholesterol, thyroid — managed, not
-            just refilled: medications reviewed, complications watched for,
-            numbers trending where we agreed they should go.
+            Diabetes, blood pressure, cholesterol, thyroid. Managed, not
+            just refilled: medicines reviewed, complications watched for,
+            numbers moving where we agreed they should.
           </p>
         </div>
         <div class="card">
-          <h4>&ldquo;Nothing&rsquo;s wrong — yet.&rdquo;</h4>
+          <h4>&ldquo;Nothing&rsquo;s wrong yet.&rdquo;</h4>
           <p>
-            You want a doctor who knows your baseline, watches your trends,
-            keeps screening on schedule, and tells you the truth about what
-            matters. Prevention works best before it&rsquo;s urgent.
+            You want a doctor who knows your baseline, watches your
+            trends, and keeps screening on schedule. Prevention works
+            best before it&rsquo;s urgent.
           </p>
         </div>
         <div class="card span">
-          <h4>&ldquo;Honestly, my health and my life are tangled together.&rdquo;</h4>
+          <h4>&ldquo;My health and my life are tangled together.&rdquo;</h4>
           <p>
-            Stress affects sleep, sleep affects eating, money worries sit
-            under all of it — and your body keeps score. This is real
-            medicine, and I take it seriously. We look at the whole
-            picture, treat what needs treating, and work the rest one
-            realistic step at a time. When a counselor or financial
-            professional is the right tool, I help you find a good one and
-            stay involved.
+            Stress affects sleep. Sleep affects eating. Money worry sits
+            under it all, and your body keeps score. This is real
+            medicine, and I take it seriously. We treat what needs
+            treating and work the rest one realistic step at a time. When
+            a counselor or financial professional is the right tool, I
+            help you find one and stay involved.
           </p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 3 · The everyday medicine — open list, no boxes -->
+  <!-- 4 · Conditions -->
   <section class="section" id="bookbar-after">
     <div class="container">
       <div class="sec-head">
         <span class="eyebrow">Day to day</span>
-        <h2>The everyday medicine</h2>
+        <h2>Conditions I treat</h2>
         <p class="lede">Membership covers the full range of adult primary care.</p>
       </div>
       <div class="steps c3">
@@ -92,75 +122,69 @@ import Base from '../layouts/Base.astro';
         </div>
         <div class="step-item">
           <h4>When you&rsquo;re sick</h4>
-          <p>Infections, colds that won&rsquo;t quit, UTIs, rashes, stomach
-          trouble, injuries that don&rsquo;t need an ER, &ldquo;is this
-          serious?&rdquo;</p>
+          <p>Infections, colds that won&rsquo;t quit, UTIs, rashes,
+          stomach trouble, and injuries that don&rsquo;t need an ER.</p>
         </div>
         <div class="step-item">
           <h4>Prevention &amp; screening</h4>
-          <p>Annual reviews, cancer screening on schedule, vaccines planned,
-          risk assessment.</p>
+          <p>Annual reviews, cancer screening on schedule, vaccines
+          planned, risk assessment.</p>
         </div>
         <div class="step-item">
-          <h4>Medications</h4>
+          <h4>Medicines</h4>
           <p>Reviewed as a whole: what&rsquo;s working, what&rsquo;s
-          redundant, what&rsquo;s interacting. New prescriptions and
-          refills handled promptly.</p>
+          redundant, what&rsquo;s interacting. Refills handled
+          promptly.</p>
         </div>
         <div class="step-item">
           <h4>Mind &amp; mood</h4>
-          <p>Depression and anxiety, adult ADHD, stress, burnout, and sleep
-          problems including insomnia — treated seriously within primary
-          care, referred wisely when needed.</p>
+          <p>Depression, anxiety, adult ADHD, stress, burnout, and
+          insomnia. Treated within primary care, referred wisely when
+          needed.</p>
         </div>
         <div class="step-item">
           <h4>Lifestyle &amp; habits</h4>
-          <p>Sleep, weight — including modern weight-loss medications where
-          appropriate — exercise, nutrition, alcohol and tobacco: as
-          medicine, not a lecture.</p>
+          <p>Sleep, weight (including modern weight-loss medicines where
+          appropriate), exercise, nutrition, alcohol, and tobacco.</p>
         </div>
       </div>
-      <p class="prose" style="margin-top:40px">
-        Plus: labs and imaging ordered and explained, specialist referrals
-        with a real handoff, coordination when several doctors are involved —
-        and the paperwork of being a patient handled without extra charges:
+      <p class="prose" style="margin-top:36px">
+        Plus: labs and imaging ordered and explained, referrals with a
+        real handoff, and the paperwork of being a patient included:
         disability and FMLA forms, letters, prior authorizations.
       </p>
     </div>
   </section>
 
-  <!-- 4 · What I don't do -->
+  <!-- 5 · What I don't do -->
   <section class="section band-warm">
     <div class="container">
       <div class="split">
         <div>
           <span class="eyebrow">Boundaries</span>
-          <h2>What I don&rsquo;t do — and what happens instead</h2>
+          <h2>What I don&rsquo;t do</h2>
         </div>
         <div>
         <div class="rows" style="margin-top:0">
         <div class="row">
           <b>Emergencies</b>
-          <p>Chest pain, stroke signs, severe injury — that&rsquo;s 911 and
-          the ER, always. Afterward, I help you make sense of what happened
-          and what comes next.</p>
+          <p>Chest pain, stroke signs, severe injury: that is 911 and the
+          ER, always. Afterward, I help you make sense of what happened.</p>
         </div>
         <div class="row">
           <b>Hospital care</b>
-          <p>If you&rsquo;re admitted, the hospital&rsquo;s physicians run
-          the admission. I stay informed and manage your landing when
-          you&rsquo;re home.</p>
+          <p>The hospital&rsquo;s doctors run the admission. I stay
+          informed and manage your care when you&rsquo;re home.</p>
         </div>
         <div class="row">
           <b>Specialist-led conditions, alone</b>
-          <p>Some conditions need an oncologist, cardiologist, or
-          rheumatologist leading. I refer well, co-manage, and keep the whole
-          picture — I don&rsquo;t pretend to replace them.</p>
+          <p>Some conditions need an oncologist or cardiologist leading.
+          I refer well, co-manage, and keep the whole picture.</p>
         </div>
         <div class="row">
-          <b>Mental health beyond primary care&rsquo;s safe reach</b>
-          <p>Serious psychiatric illness and addiction medicine beyond my
-          scope get honest triage and a warm handoff, not improvisation.</p>
+          <b>Mental health beyond my safe scope</b>
+          <p>Serious psychiatric illness and addiction care beyond
+          primary care get honest triage and a warm handoff.</p>
         </div>
         <div class="row">
           <b>Children</b>
@@ -169,22 +193,21 @@ import Base from '../layouts/Base.astro';
       </div>
         <p class="prose" style="margin-top:28px">
           If I&rsquo;m ever not the right doctor for something, I&rsquo;ll
-          tell you directly — that&rsquo;s part of what you&rsquo;re paying
-          for.
+          tell you directly.
         </p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 5 · CTA -->
+  <!-- 6 · CTA -->
   <section class="section cta-band">
     <div class="container">
       <div class="inner">
-        <h2>Not sure whether your situation fits?</h2>
+        <h2>Not sure if your situation fits?</h2>
         <p>
           That is what the free conversation is for. Tell me what&rsquo;s
-          going on, and I&rsquo;ll tell you honestly whether I can help.
+          going on, and I&rsquo;ll tell you honestly if I can help.
         </p>
         <a class="btn btn-inverse" href="/book">Book a free conversation</a>
         <p style="margin-top:22px"><a class="quiet" href="/how-it-works">How the membership works &rarr;</a></p>

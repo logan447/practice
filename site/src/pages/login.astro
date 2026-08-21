@@ -1,0 +1,41 @@
+---
+import Base from '../layouts/Base.astro';
+// When the EHR patient portal exists (X-03 selection), set PORTAL_URL and
+// this page becomes a direct link. Until then it explains the plan honestly.
+const PORTAL_URL = ''; // e.g. 'https://portal.example.com' at launch
+---
+<Base title="Patient login · DuBose, M.D.">
+  <section class="section">
+    <div class="container">
+      <div class="prose">
+        <span class="eyebrow">For current patients</span>
+        <h1>Patient login</h1>
+        {PORTAL_URL ? (
+          <p style="margin-top:20px">
+            Sign in to the patient portal to message me, see your results,
+            and manage visits.
+          </p>
+        ) : (
+          <p style="margin-top:20px">
+            The patient portal opens when the practice opens. Patients will
+            sign in here to message me, see results and their explanations,
+            and manage visits.
+          </p>
+        )}
+        {PORTAL_URL && (
+          <p style="margin-top:24px"><a class="btn" href={PORTAL_URL}>Go to the portal</a></p>
+        )}
+        <h3 style="margin-top:36px">Not a patient yet?</h3>
+        <p style="margin-top:10px">
+          Start with a free conversation. Thirty minutes by video, no
+          commitment.
+        </p>
+        <p style="margin-top:20px"><a class="btn" href="/book">Book a free conversation</a></p>
+        <p class="small soft" style="margin-top:32px">
+          If this is an emergency, call 911 or go to the nearest ER. The
+          portal is never for emergencies.
+        </p>
+      </div>
+    </div>
+  </section>
+</Base>
