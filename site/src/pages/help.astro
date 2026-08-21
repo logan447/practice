@@ -6,13 +6,17 @@ import Base from '../layouts/Base.astro';
   <!-- 1 · Intro -->
   <section class="hero" style="padding-block:clamp(56px,8vw,88px)">
     <div class="container">
-      <span class="eyebrow">Scope of care</span>
-      <h1>What I can help with</h1>
-      <p class="lede">
-        Most of what makes people feel better isn&rsquo;t exotic. It&rsquo;s
-        ordinary medicine — done carefully, with enough time, by someone who
-        knows you.
-      </p>
+      <div class="page-head">
+        <div>
+          <span class="eyebrow">Scope of care</span>
+          <h1>What I can help with</h1>
+        </div>
+        <p class="lede">
+          Most of what makes people feel better isn&rsquo;t exotic.
+          It&rsquo;s ordinary medicine — done carefully, with enough time,
+          by someone who knows you.
+        </p>
+      </div>
     </div>
   </section>
 
@@ -130,11 +134,13 @@ import Base from '../layouts/Base.astro';
   <!-- 4 · What I don't do -->
   <section class="section band-warm">
     <div class="container">
-      <div class="sec-head">
-        <span class="eyebrow">Boundaries</span>
-        <h2>What I don&rsquo;t do — and what happens instead</h2>
-      </div>
-      <div class="rows">
+      <div class="split">
+        <div>
+          <span class="eyebrow">Boundaries</span>
+          <h2>What I don&rsquo;t do — and what happens instead</h2>
+        </div>
+        <div>
+        <div class="rows" style="margin-top:0">
         <div class="row">
           <b>Emergencies</b>
           <p>Chest pain, stroke signs, severe injury — that&rsquo;s 911 and
@@ -163,10 +169,13 @@ import Base from '../layouts/Base.astro';
           <p>Adults only (18+).</p>
         </div>
       </div>
-      <p class="prose" style="margin-top:28px">
-        If I&rsquo;m ever not the right doctor for something, I&rsquo;ll tell
-        you directly — that&rsquo;s part of what you&rsquo;re paying for.
-      </p>
+        <p class="prose" style="margin-top:28px">
+          If I&rsquo;m ever not the right doctor for something, I&rsquo;ll
+          tell you directly — that&rsquo;s part of what you&rsquo;re paying
+          for.
+        </p>
+        </div>
+      </div>
     </div>
   </section>
 

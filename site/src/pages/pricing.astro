@@ -6,19 +6,23 @@ import Base from '../layouts/Base.astro';
   <!-- 1 · Intro -->
   <section class="hero" style="padding-block:clamp(56px,8vw,88px)">
     <div class="container">
-      <span class="eyebrow">Pricing &amp; insurance</span>
-      <h1>One number, explained completely</h1>
-      <p class="lede">
-        If anything here is unclear, ask me directly — that is what the free
-        conversation is for.
-      </p>
+      <div class="page-head">
+        <div>
+          <span class="eyebrow">Pricing &amp; insurance</span>
+          <h1>One number, explained completely</h1>
+        </div>
+        <p class="lede">
+          If anything here is unclear, ask me directly — that is what the
+          free conversation is for.
+        </p>
+      </div>
     </div>
   </section>
 
   <!-- 2 · The price card + access rate -->
   <section class="section band-tint">
     <div class="container">
-      <div class="split" style="align-items:start">
+      <div class="split even" style="align-items:start">
         <div class="price-card">
           <div class="amt">$100 <span>per month</span></div>
           <div class="per">per adult patient &middot; no per-visit charges</div>
@@ -61,15 +65,17 @@ import Base from '../layouts/Base.astro';
   <!-- 3 · What the fee does not cover -->
   <section class="section">
     <div class="container">
-      <div class="sec-head">
-        <span class="eyebrow">Beyond my fee</span>
-        <h2>What the fee does not cover — and how those get paid</h2>
-        <p class="lede">
-          My fee covers my work as your physician. Care delivered by others
-          is billed by them, usually through your insurance.
-        </p>
-      </div>
-      <div class="rows">
+      <div class="split">
+        <div>
+          <span class="eyebrow">Beyond my fee</span>
+          <h2>What the fee does not cover — and how those get paid</h2>
+          <p class="lede">
+            My fee covers my work as your physician. Care delivered by
+            others is billed by them, usually through your insurance.
+          </p>
+        </div>
+        <div>
+        <div class="rows">
         <div class="row">
           <b>Labs</b>
           <p>Through your insurance — or, where I can arrange discounted
@@ -96,26 +102,30 @@ import Base from '../layouts/Base.astro';
           coverage for these.</p>
         </div>
       </div>
-      <p class="prose" style="margin-top:28px">
-        This is why I recommend every member keep health coverage: the
-        membership works alongside insurance, not instead of it.
-      </p>
+        <p class="prose" style="margin-top:28px">
+          This is why I recommend every member keep health coverage: the
+          membership works alongside insurance, not instead of it.
+        </p>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- 4 · How your coverage fits -->
   <section class="section band-warm" id="bookbar-after">
     <div class="container">
-      <div class="sec-head">
-        <span class="eyebrow">Your coverage</span>
-        <h2>How your coverage fits</h2>
-        <p class="lede">
-          Whatever insurance you have — or none — you can join. The price and
-          the care are the same for everyone. Government programs add one
-          signature.
-        </p>
-      </div>
-      <div class="rows">
+      <div class="split">
+        <div>
+          <span class="eyebrow">Your coverage</span>
+          <h2>How your coverage fits</h2>
+          <p class="lede">
+            Whatever insurance you have — or none — you can join. The price
+            and the care are the same for everyone. Government programs add
+            one signature.
+          </p>
+        </div>
+        <div>
+        <div class="rows">
         <div class="row">
           <b>Private insurance or none</b>
           <p>Sign up. That is all.</p>
@@ -151,6 +161,8 @@ import Base from '../layouts/Base.astro';
           Using HSA funds: recent federal law may allow it for memberships
           like this one. Confirm with your tax advisor.
         </p>
+      </div>
+        </div>
       </div>
     </div>
   </section>

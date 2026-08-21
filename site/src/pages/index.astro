@@ -6,21 +6,27 @@ import Base from '../layouts/Base.astro';
   <!-- 1 · Hero — typographic; candid photography arrives at launch -->
   <section class="hero">
     <div class="container">
-      <span class="eyebrow">Direct primary care &middot; [City], Texas</span>
-      <h1>A doctor with time to actually figure it out with you.</h1>
-      <p class="sub">
-        I&rsquo;m a primary care physician with a small practice and unhurried
-        visits — for people who want a doctor who knows them, listens
-        carefully, and helps make sense of the whole picture.
-      </p>
-      <div class="pstrip">
-        <div><b>$100 a month</b>one flat price</div>
-        <div><b>Cancel anytime</b>no contract, no sign-up fee</div>
-        <div><b>Keeps your insurance</b>works alongside it</div>
+      <div class="hero-grid">
+        <div>
+          <span class="eyebrow">Direct primary care &middot; [City], Texas</span>
+          <h1>A doctor with time to actually figure it out with you.</h1>
+        </div>
+        <div>
+          <p class="sub">
+            I&rsquo;m a primary care physician with a small practice and
+            unhurried visits — for people who want a doctor who knows them,
+            listens carefully, and helps make sense of the whole picture.
+          </p>
+          <div class="cta-row">
+            <a class="btn" href="/book">Book a free conversation</a>
+            <a class="quiet" href="/how-it-works">How it works &rarr;</a>
+          </div>
+        </div>
       </div>
-      <div class="cta-row">
-        <a class="btn" href="/book">Book a free conversation</a>
-        <a class="quiet" href="/how-it-works">How it works &rarr;</a>
+      <div class="pstrip">
+        <div><b>$100 a month</b>one flat price, no per-visit charges</div>
+        <div><b>Cancel anytime</b>no contract, no sign-up fee</div>
+        <div><b>Keeps your insurance</b>works alongside it, never instead of it</div>
       </div>
     </div>
   </section>
@@ -125,7 +131,7 @@ import Base from '../layouts/Base.astro';
         <span class="eyebrow">Pricing</span>
         <h2>The price, plainly</h2>
       </div>
-      <div class="split" style="align-items:start">
+      <div class="split even" style="align-items:start">
         <div class="price-card">
           <div class="amt">$100 <span>/ month per adult</span></div>
           <div class="per">no per-visit charges</div>
@@ -217,11 +223,13 @@ import Base from '../layouts/Base.astro';
   <!-- 8 · Common questions -->
   <section class="section">
     <div class="container">
-      <div class="sec-head">
-        <span class="eyebrow">Questions</span>
-        <h2>Common questions</h2>
-      </div>
-      <div class="faq">
+      <div class="split">
+        <div>
+          <span class="eyebrow">Questions</span>
+          <h2>Common questions</h2>
+          <p style="margin-top:18px"><a class="quiet" href="/questions">All questions, answered &rarr;</a></p>
+        </div>
+        <div class="faq">
         <details>
           <summary>Is this health insurance?</summary>
           <p class="a">
@@ -258,8 +266,8 @@ import Base from '../layouts/Base.astro';
             and when my panel is full it is full. That is the whole catch.
           </p>
         </details>
+        </div>
       </div>
-      <p style="margin-top:28px"><a class="quiet" href="/questions">All questions, answered &rarr;</a></p>
     </div>
   </section>
 
