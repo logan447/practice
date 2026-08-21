@@ -10,11 +10,10 @@ one-pager absorbs the insert's job (the organization note and the
 respectful clinician note live on its back). Revisit the inserts if
 real audiences prove to need more than the one-pager answers. Current
 piece copy lives in `pieces/`; the sections below otherwise keep the
-approved architecture.* Distribution is an Era-2
-(launch-runway) act: nothing here is printed or handed out until the
-publishing gates clear (name/entity/licensure, and the TMB
-advertising/counsel pass, `NEEDS-COUNSEL`, per R-13 and the website
-standing rules). Drafting now is preparation, like the website.*
+approved architecture. Distribution is an Era-2 (launch-runway) act:
+nothing is printed until the publishing gates clear (licensure, the
+TMB advertising/counsel pass `NEEDS-COUNSEL`, the phone number's area
+code, and the real signature).*
 
 Anchors: **`docs/style/README.md` (House Style — binds all copy in this
 packet, §5 physician-respect especially)** · D-022 (grassroots +
@@ -59,7 +58,7 @@ source of truth:
 | Separate "practice model explainer" | **Cut — merged** | This *is* the one-pager. A flyer + an overview + a model explainer are three names for one job. |
 | Standalone pricing / "how $100/month works" sheet | **Cut — merged** | Price belongs on the one-pager and brochure in two sentences. The full coverage-interaction detail (Medicare private contract, Medicaid acknowledgment, QMB exclusion) stays **website-only**: it is counsel-sensitive, easy to get subtly wrong in print, and will drift. Print states the price and links to the pricing page. |
 | Telemedicine / home-visit mechanics sheet | **Cut — merged** | A "how visits work" panel of the brochure; depth lives on the How-it-works page. |
-| **CV / credentials document** | **Cut from default packet** | Three reasons. (a) The full CV and research background already live at `/cv` — every print piece can point there. (b) The credential guardrails (internship at GW; no residency or board certification; IBLM in progress) mean a bare CV in a folder invites the residency question with nobody present to frame it honestly; the accurate one-sentence credential line, *in context* on the clinician insert, serves trust better than a document that raises questions it can't answer. (c) It reads as self-promotion in exactly the packets meant to feel modest. **Posture: printed CV available on request; clinician-facing inserts carry the exact credential sentence + the `/cv` link.** Owner to confirm. |
+| **CV / credentials document** | **Cut from default packet** | Three reasons. (a) The full CV and research background already live at `/cv` — every print piece can point there. (b) The credential guardrails (internship at GW; no residency or board certification; IBLM in progress) mean a bare CV in a folder invites the residency question with nobody present to frame it honestly; the accurate one-sentence credential line, *in context* on the clinician insert, serves trust better than a document that raises questions it can't answer. (c) It reads as self-promotion in exactly the packets meant to feel modest. **Posture: printed CV available on request; clinician-facing inserts carry the exact credential sentence + the `/cv` link.** Confirmed by owner 2026-08-21: no printed CV in the standard packet. The one-pager establishes credibility; the QR and dubosemd.com/cv carry the full CV, publications, and background. Revisit only for a future physician-specific referral packet, and only if referrers actually ask for it. |
 | Research background document | **Cut** | One line on the clinician insert + `/cv` link. |
 | "QR codes" as an item | **Cut — it's a rule** | Not an item; a placement standard (§6): every piece carries the same two destinations. |
 | Fax-back referral form for clinicians | **Cut for v1** | Creates PHI-handling obligations before systems exist, and DPC referral reality is simpler: the patient books the free conversation, or the clinician introduces by email with the patient's permission. The clinician insert states this plainly. Revisit post-launch if referrers ask for it. |

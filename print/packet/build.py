@@ -49,8 +49,8 @@ STAGES = [
      "branding. Cards sit in the slits.",
      "Holds everything. No design, no cost surprise."),
     ("Seen first", "Cover letter &middot; 1",
-     "Addressed by name, signed by hand. Says why I came and what the folder "
-     "is for.",
+     "One standard letter, signed by hand. Says why I came and what the "
+     "folder is for.",
      "A one-minute read."),
     ("Kept on file", "One-pager &middot; 1",
      "The practice on one sheet, front and back. Credentials and the "
@@ -90,8 +90,9 @@ PAGE = f"""
     Respect rule: a physician&rsquo;s office may receive this packet, so no piece
     compares the practice to anyone&rsquo;s care.<br>
     Cost per packet: about $3 to $4 (estimate; production.md &sect;3).<br>
-    Nothing is printed until the publishing gates clear ([City], licensure,
-    counsel pass).</div>
+    Every QR code goes to dubosemd.com.<br>
+    Before print: complete the phone number (941-9110 has no area code),
+    replace the provisional signature, licensure and counsel pass.</div>
   </div>
 </div>"""
 

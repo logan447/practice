@@ -1,166 +1,69 @@
-# Patient Brochure — Copy, v2
+# Patient Brochure — Copy, v3
 
-*Piece 1 of the standard outreach packet. Status: **v2 draft for
-review** (owner feedback 2026-08-21). This version is written to House
-Style from scratch: no em dashes, short sentences, ~5th-grade level, no
-comparisons with other clinicians. Two visuals replace paragraphs. The
-physician's credentials now appear on the back panel.*
+*Piece 1 of the standard packet. Status: v3 draft (owner feedback
+2026-08-21, second round). Build: `print/brochure/build.py`, which is
+the layout of record; this file is the copy of record. House Style
+throughout. Print gates: complete the phone number if added anywhere,
+real signature not applicable here, licensure and counsel pass.*
 
-**Owner decisions recorded (2026-08-21):**
+**v3 changes (all owner-directed):** cover headline is now the exact
+site-header wording, "Unhurried direct primary care by a physician who
+knows you." (from the approved site meta/header) · "What I treat"
+added to the flap (patient-friendly terms, site help-page list) ·
+"What we work toward" added to panel 4 (six goals, wording from the
+approved help-page goals list) · icons centered above labels ·
+pricing simplified, insurance note on two lines, "one extra form"
+removed · "Plain limits" replaced with "Membership highlights" drawn
+from the Membership Agreement, full agreement linked · credentials
+row states: Lifestyle medicine, expected January 2027, International
+Board of Lifestyle Medicine · real QR (dubosemd.com) labeled "Learn
+more at dubosemd.com" · contact is Austin, Texas and
+logan@dubosemd.com.
 
-1. The cover headline "A doctor with time to actually figure it out
-   with you." is **removed**. It implies other doctors lack time.
-   Nothing in the packet may compare this practice to anyone's care.
-2. The brochure is **no longer verbatim website copy**. v1 condensed
-   the approved site; the owner directed a strict House Style rewrite,
-   which the site has not yet had. The site keeps its approved copy
-   until its own House Style pass (style §8). When that pass runs,
-   align the two again. Until then this file is the brochure's source
-   of record.
-3. One standard brochure for every audience. A physician's office must
-   be able to hand it to a patient without explanation or discomfort.
+## The six panels
 
-**Job:** handed to a person by someone who trusts the practice enough
-to pass it on. A quick scan answers: what this is, who it may help,
-what I provide, how care is delivered, that it is ongoing care, the
-price, who I am, how to learn more, how to book. Details live on the
-website.
+1. **Cover:** wordmark · "Unhurried direct primary care by a physician
+   who knows you." · $100 a month, cancel anytime, works alongside
+   your insurance · portrait.
+2. **Flap:** What this is (three sentences) · Who it may help (four
+   bullets) · What I treat: high blood pressure, diabetes, high
+   cholesterol, thyroid problems, asthma, acid reflux, colds and
+   infections, anxiety and depression, sleep problems, weight, closed
+   by "And other common primary care needs."
+3. **What I provide:** seven-item checklist · "This is ongoing care
+   from one doctor, not one-time advice. There are no per-visit
+   charges."
+4. **How care works:** centered icons, Video visits · Home visits ·
+   In-person visits · "Most care is by video. I see people at home or
+   in a clinic when an exam is needed." · four steps: Understand your
+   health, Make a plan, Work on it together, Track progress · "I
+   answer messages within 1 to 2 business days." · What we work
+   toward: feel better day to day, understand your health, improve
+   the numbers that matter, keep conditions under control, prevent
+   disease where we can, stay independent and able.
+5. **The price:** $100 a month, per adult, no contract, cancel
+   anytime · Included and Not included columns · "Your insurance
+   keeps paying for those, as it does today." / "People with Medicare
+   or Medicaid can join." · Membership highlights: month to month
+   from day one, no per-visit charges and no no-show fees, care
+   during business hours Monday to Friday, adult primary care only ·
+   "Full agreement: dubosemd.com/agreement" · reduced-rate sentence.
+6. **Back:** credentials table (M.D. Texas A&M · internship GW ·
+   NIH-funded research on aging and caregiving · lifestyle medicine
+   certification expected January 2027, International Board of
+   Lifestyle Medicine · full CV at dubosemd.com/cv) · Start with a
+   free conversation · QR to dubosemd.com, "Learn more at
+   dubosemd.com", "Book a free conversation: dubosemd.com/book" ·
+   contact · emergency and not-insurance strip.
 
-## Format
+## Notes of record
 
-Letter sheet, tri-fold (roll fold). Reading order: cover → flap →
-inside spread → back. Build: `print/brochure/build.py`.
-
----
-
-## Panel 1 · Front cover
-
-> **DuBose, M.D.**
-> DIRECT PRIMARY CARE
->
-> # Ongoing primary care for adults.
->
-> **$100 a month · Cancel anytime**
-> Works alongside your insurance.
-
-*Portrait photo, lower half. Type-led, left-aligned.*
-
-## Panel 2 · Flap (seen on opening)
-
-> ## What this is
->
-> A small medical practice with one doctor. Members pay one flat
-> monthly price. I provide their ongoing primary care and stay with
-> them over time.
->
-> ## Who it may help
->
-> - Adults who need a primary care doctor
-> - Adults managing ongoing health conditions
-> - Adults who want to prevent future problems
-> - Adults who want care that fits their schedule
-
-## Panel 3 · Inside left
-
-> ## What I provide
->
-> - Visits as long as they need to be
-> - Direct messaging with me
-> - Results reviewed and explained
-> - Prescriptions and refills
-> - Preventive care and checkups
-> - Care for ongoing conditions
-> - Referrals and coordination
->
-> This is ongoing care from one doctor, not one-time advice. There are
-> no per-visit charges.
-
-## Panel 4 · Inside middle
-
-> ## How care works
->
-> *[Visual 1 — three line icons in a row]*
-> **Video visits · Home visits · In-person visits**
->
-> Most care is by video. I see people at home or in a clinic when an
-> exam is needed.
->
-> *[Visual 2 — four-step path]*
-> **1 Understand your health → 2 Make a plan → 3 Work on it together →
-> 4 Track progress**
->
-> I answer messages within 1 to 2 business days.
-
-## Panel 5 · Inside right
-
-> ## The price
->
-> **$100 a month**
-> per adult · no contract · cancel anytime
->
-> | Included | Not included |
-> |---|---|
-> | All care from me, with no per-visit charges | Labs and imaging · medicines · care from other doctors · hospital care |
->
-> Your insurance keeps paying for those, as it does today. People with
-> Medicare or Medicaid can join. One extra form is needed.
->
-> ## Plain limits
->
-> - I keep business hours. This is not an emergency service.
-> - I take real time away each year and plan ahead for it.
-> - I care for adults only.
-> - When my panel is full, it is full.
->
-> If the price would keep you from care, tell me. I hold a small
-> number of reduced-rate memberships.
-
-## Panel 6 · Back cover
-
-> ## About Dr. DuBose
->
-> | | |
-> |---|---|
-> | M.D. | Texas A&M College of Medicine |
-> | Internship | Internal medicine, George Washington University |
-> | Research | NIH-funded work on aging and caregiving |
-> | In progress | Lifestyle medicine certification |
-> | Full CV | [site]/cv |
->
-> ## Start with a free conversation
->
-> Thirty minutes by video, at no cost. Tell me what is going on. I
-> will say honestly whether I can help. If I'm not the right fit, I'll
-> say so and point you toward someone good.
->
-> `[QR]` **Book:** [site]/book
-> Learn more: [site]
->
-> **DuBose, M.D.** · [City], Texas
-> [phone] · [email]
-
-*Bottom strip:*
-
-> If this is an emergency, call 911 or go to the nearest ER.
-> This practice is a direct primary care medical service agreement
-> under Texas law. It is not health insurance.
-
----
-
-## House Style check (§9)
-
-No em dashes anywhere. No comparisons with other clinicians or the
-system. No slogans. Headings state facts. Sentence enumerations
-minimized; lists are vertical. One QR destination pair, back cover
-only. Credentials match the About table; lifestyle medicine marked in
-progress. Canonical phrases used: "when my panel is full, it is full"
-and the fit phrase (both dash-free). Adults-only stated once (limits).
-Price on the cover and in the price panel; the panel adds terms, so it
-is not a repeat.
-
-## Open items
-
-1. Cover portrait: keep, or type-only cover.
-2. v1's recognition panel ("If your health has started to feel like
-   too much") is gone. Its job is done by "Who it may help" in fewer
-   words. Confirm the owner agrees with the cut.
+- The site copy itself has not had its House Style pass; the brochure
+  no longer quotes it wholesale, but the headline, the goals list,
+  and the conditions list are taken from the site verbatim so the two
+  cannot drift on the load-bearing phrases.
+- Membership highlights come from the agreement draft (month to
+  month, no no-show fees, business hours, adults only). The brochure
+  never reproduces the agreement; it links to it.
+- The QR is real and scannable (dubosemd.com). Verify with a phone on
+  the first paper proof.

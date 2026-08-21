@@ -1,8 +1,6 @@
-# Practice One-Pager — Copy, v2
+# Practice One-Pager — Copy, v3
 
-*Piece 2 of the standard outreach packet. Status: **v2 draft for
-review** (aligned with the 2026-08-21 owner feedback and the brochure
-rewrite). Audience: the professional or gatekeeper who receives the
+*Piece 2 of the standard outreach packet. Status: **v3 draft for review** (second-round owner feedback 2026-08-21: identity header with portrait and credentials, What we work toward, real QR, Austin contact facts). Audience: the professional or gatekeeper who receives the
 packet. In the standard packet this sheet also carries the material
 formerly planned as audience inserts: the respectful note to clinicians
 and the organization note. Printed on demand, duplex, 32 lb laser
@@ -16,8 +14,10 @@ to the people they serve.
 
 ## Front
 
-> **DuBose, M.D.**
-> DIRECT PRIMARY CARE · [City], Texas
+> *(Identity header: portrait · **Logan DuBose, M.D., M.B.A.** ·
+> Primary care physician · Austin, Texas · Texas A&M College of
+> Medicine · Lifestyle medicine board certification expected January
+> 2027)*
 >
 > # The practice at a glance
 >
@@ -41,6 +41,13 @@ to the people they serve.
 > - Preventive care and care for ongoing conditions
 > - Referrals and coordination with other doctors
 
+> ## What we work toward
+>
+> Feel better day to day · Understand your health · Improve the
+> numbers that matter · Keep conditions under control · Prevent
+> disease where we can · Stay independent and able
+> *(wording from the approved help-page goals list)*
+
 > ## How care happens
 >
 > Most visits are by video. I make home visits when an exam calls for
@@ -53,8 +60,8 @@ to the people they serve.
 >
 > Members keep their insurance and their other doctors. Insurance
 > keeps paying for labs, medicines, and hospital care as it does
-> today. People on Medicare or Medicaid can join. One extra form is
-> needed. The membership is not insurance.
+> today. People on Medicare or Medicaid can join. The membership is not
+> insurance.
 
 > ## The limits, stated plainly
 >
@@ -64,7 +71,8 @@ to the people they serve.
 
 ## Back
 
-> # Logan DuBose, M.D. *(portrait right)*
+> # About Dr. DuBose *(no photo on the back; the portrait is in the
+> front header)*
 >
 > I have practiced primary care part-time for years while leading
 > research on aging and caregiving. I built this practice to give
@@ -94,10 +102,9 @@ to the people they serve.
 
 > ## Contact
 >
-> `[QR]` **Book a free conversation**
-> [site]/book
-> Learn more: [site]
-> [phone] · [email]
+> `[QR real, dubosemd.com]` **Learn more at dubosemd.com**
+> Book a free conversation: dubosemd.com/book
+> logan@dubosemd.com · [area code] 941-9110
 
 *Small print, bottom edge:*
 

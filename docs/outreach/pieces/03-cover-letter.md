@@ -1,65 +1,47 @@
-# Cover Letter — Copy, v1
+# General Outreach Letter — Copy, v2
 
-*Piece 3 of the standard outreach packet. Status: draft for review.
-One standard letter for every audience (owner decision 2026-08-21; the
-four audience variants are deferred with the inserts). Personalization
-is the recipient's name, one optional sentence, and a hand signature.
-Printed per recipient on letterhead stock. Build:
-`print/letter/build.py`.*
+*Piece 3 of the standard packet. Status: v2 (owner feedback
+2026-08-21). One standard letter, no per-recipient personalization: no
+date, no recipient block, salutation "Dear Reader,". Signed by hand on
+every printed copy. The preview signature is a provisional handwritten
+treatment (Caveat type), never a reproduction of the real signature.
+Build: `print/letter/build.py`.*
 
-**Job:** the first thing seen. Answers why the folder is on their
-desk and what to do with it, in under a minute.
+**PRINT BLOCKER: the phone number is incomplete.** The owner supplied
+941-9110 with no area code. It renders as "[area code] 941-9110" and
+must be completed before print.
 
 ---
 
-> **DuBose, M.D.**
-> DIRECT PRIMARY CARE
-> [City], Texas · [phone] · [email] · [site]
+> **DuBose, M.D.** · DIRECT PRIMARY CARE
+> Austin, Texas · Website: dubosemd.com · Email: logan@dubosemd.com ·
+> Phone: [area code] 941-9110
 >
-> [Date]
+> Dear Reader,
 >
-> [Recipient name]
-> [Organization]
+> I am writing because this practice may be useful to someone you know
+> or serve.
 >
-> Dear [Name],
+> I run a small primary care practice for adults in Austin. Members
+> pay $100 a month. That covers all of my care as their doctor. Visits
+> are unhurried. They happen by video, at home, or in person as
+> needed. Patients keep their insurance and their other doctors.
 >
-> I run a small primary care practice for adults in [City]. I am
-> writing because it may be useful to some of the people you work
-> with.
->
-> Members pay $100 a month. That covers all of my care as their
-> doctor. Visits are by video, at home, or in person as needed.
-> Patients keep their insurance and their other doctors.
->
-> *[Optional: one sentence about this recipient, written by hand or
-> per letter.]*
->
-> This folder has a one-page overview for you and brochures you are
-> welcome to hand out. If they run out, send me a note and I will
-> bring more.
+> This folder has a one-page overview and brochures you are welcome to
+> hand out. If they run out, send me a note and I will bring more.
 >
 > I would be glad to answer questions.
 >
 > Sincerely,
 >
-> *(signature, by hand)*
+> *(hand signature; provisional script in previews)*
 >
 > Logan DuBose, M.D.
 
 ---
 
-## House Style check (§9)
+## House Style check
 
-Under 120 words. No em dashes. No comparisons, no claims about other
-care. States what the folder is for and what the reader may do with
-it. The one enumeration (video, home, in person) is factual and
-appears once.
-
-## Notes
-
-- "Visits are by video, at home, or in person as needed" is the
-  letter's whole delivery-model explanation. The one-pager carries the
-  rest.
-- The letter never asks the recipient to do anything beyond handing
-  out brochures and asking questions. No meeting request. The visit to
-  refill brochures is the follow-up mechanism.
+Under 110 words. No em dashes. "Visits are unhurried." states what the
+practice offers; nothing contrasts other clinicians. One enumeration
+(video, home, in person), used once. No date means no stale copies.

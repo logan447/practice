@@ -11,12 +11,23 @@ import pathlib
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 FONTS = ROOT / "print" / "fonts"
 PHOTO = ROOT / "site" / "public" / "images" / "dr-dubose-square.jpg"
+QR_SVG = ROOT / "print" / "assets" / "qr-dubosemd.svg"
+
+# Practice facts used across pieces. The phone number is deliberately
+# incomplete: the owner supplied 941-9110 without an area code. It must be
+# completed before anything is printed.
+CITY = "Austin, Texas"
+SITE = "dubosemd.com"
+EMAIL = "logan@dubosemd.com"
+PHONE = "[area code] 941-9110"
+CERT_LINE = "Lifestyle medicine board certification expected January 2027"
 
 BASE_CSS = f"""
 @font-face{{font-family:'Source Serif 4';font-weight:400;src:url('{FONTS}/SourceSerif4-400-latin.woff2') format('woff2')}}
 @font-face{{font-family:'Source Serif 4';font-weight:600;src:url('{FONTS}/SourceSerif4-600-latin.woff2') format('woff2')}}
 @font-face{{font-family:'Source Sans 3';font-weight:400;src:url('{FONTS}/SourceSans3-400-latin.woff2') format('woff2')}}
 @font-face{{font-family:'Source Sans 3';font-weight:600;src:url('{FONTS}/SourceSans3-600-latin.woff2') format('woff2')}}
+@font-face{{font-family:'Caveat';font-weight:600;src:url('{FONTS}/Caveat-600.ttf') format('truetype')}}
 :root{{
   --paper:#FAF7F1; --ink:#202826; --soft:#5B6461; --accent:#2A6B5F;
   --pine:#1E3B34; --pine-deep:#16302A; --band-warm:#F1EBDF; --band-tint:#E5EFE9;
@@ -58,11 +69,8 @@ p+p{{margin-top:6pt}}
 .rows div:first-child{{border-top:0}}
 .rows b{{flex:0 0 .95in;font-weight:600;color:var(--soft)}}
 
-.qr{{width:.88in;height:.88in;flex-shrink:0;border:2px solid var(--ink);border-radius:4px;
-  background:repeating-linear-gradient(45deg,#fff 0 3px,#D8D2C4 3px 6px);
-  display:grid;place-items:center}}
-.qr b{{font:600 8pt/1 var(--sans);letter-spacing:.1em;background:#fff;padding:2px 5px;
-  border-radius:3px;color:var(--soft)}}
+.qr{{width:.95in;height:.95in;flex-shrink:0;background:#fff;border:1px solid var(--hair);
+  border-radius:4px;display:block}}
 .qr-row{{display:flex;align-items:center;gap:.14in}}
 .qr-row .lbl b{{display:block;font:600 9.6pt/1.3 var(--sans)}}
 .qr-row .lbl span{{display:block;font-size:8.6pt;color:var(--soft);margin-top:2pt}}
@@ -72,9 +80,18 @@ p+p{{margin-top:6pt}}
 .strip .legal{{margin-top:4pt;color:#8FA39B}}
 
 .icons{{display:flex;gap:.1in;margin:8pt 0 6pt}}
-.icons div{{flex:1;text-align:left}}
-.icons svg{{width:22pt;height:22pt;color:var(--accent);display:block;margin-bottom:3pt}}
+.icons div{{flex:1;text-align:center}}
+.icons svg{{width:22pt;height:22pt;color:var(--accent);display:block;margin:0 auto 3pt}}
 .icons b{{font:600 8.2pt/1.25 var(--sans);display:block}}
+
+.goals{{display:flex;flex-wrap:wrap;margin-top:2pt}}
+.goals span{{flex:0 0 50%;font-size:8.6pt;line-height:1.4;padding:3.2pt 6pt 3.2pt 11pt;
+  position:relative}}
+.goals span::before{{content:"";position:absolute;left:1px;top:8.4pt;width:4pt;height:4pt;
+  border-radius:50%;background:var(--accent)}}
+
+.sig{{font-family:'Caveat',cursive;font-size:24pt;line-height:1;color:var(--ink);
+  transform:rotate(-2deg);display:inline-block}}
 
 .stepper{{list-style:none;counter-reset:s;margin:8pt 0 6pt;padding:0}}
 .stepper li{{counter-increment:s;position:relative;padding:0 0 10pt 22pt;
@@ -103,13 +120,27 @@ ICON_CLINIC = """<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stro
  stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 19.5v-11L12 4l7.5 4.5v11"/>
  <path d="M2.5 19.5h19"/><path d="M12 10.5v5M9.5 13h5"/></svg>"""
 
-CREDENTIAL_ROWS = """<div class="rows">
+CREDENTIAL_ROWS = f"""<div class="rows">
 <div><b>M.D.</b><span>Texas A&amp;M College of Medicine</span></div>
 <div><b>Internship</b><span>Internal medicine, George Washington University</span></div>
 <div><b>Research</b><span>NIH-funded work on aging and caregiving</span></div>
-<div><b>In progress</b><span>Lifestyle medicine certification</span></div>
-<div><b>Full CV</b><span>[site]/cv</span></div>
+<div><b>Certification</b><span>Lifestyle medicine, expected January 2027,
+International Board of Lifestyle Medicine</span></div>
+<div><b>Full CV</b><span>{SITE}/cv</span></div>
 </div>"""
+
+# "What we work toward" — wording from the approved help page (site
+# help.astro goals list), shortened, never reworded.
+WORK_TOWARD = """<div class="goals">
+<span>Feel better day to day</span>
+<span>Understand your health</span>
+<span>Improve the numbers that matter</span>
+<span>Keep conditions under control</span>
+<span>Prevent disease where we can</span>
+<span>Stay independent and able</span>
+</div>"""
+
+QR_IMG = f'<img class="qr" src="{QR_SVG}" alt="QR code for {SITE}">'
 
 STRIP = """<div class="strip" style="padding:.14in .3in .18in">
 <div class="em">If this is an emergency, call 911 or go to the nearest ER.</div>

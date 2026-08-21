@@ -10,8 +10,9 @@ import pathlib
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
-from lib import (BASE_CSS, CREDENTIAL_ROWS, ICON_CLINIC, ICON_HOME, ICON_VIDEO,
-                 PHOTO, STRIP, doc, render)
+from lib import (CITY, CREDENTIAL_ROWS, EMAIL, ICON_CLINIC, ICON_HOME,
+                 ICON_VIDEO, PHOTO, QR_IMG, SITE, STRIP, WORK_TOWARD, doc,
+                 render)
 
 OUT = pathlib.Path(__file__).resolve().parent / "out"
 WIDE, NARROW = 3.6875, 3.625
@@ -27,7 +28,7 @@ CSS = """
 .h3{font-family:var(--serif);font-weight:600;font-size:11pt;margin:11pt 0 5pt}
 .gap{margin-top:12pt}
 
-.cover h1{font:600 21pt/1.24 var(--serif);letter-spacing:-.01em;margin-top:.7in}
+.cover h1{font:600 17.5pt/1.3 var(--serif);letter-spacing:-.01em;margin-top:.55in}
 .cover .pricing{margin-top:.3in}
 .cover .pricing b{display:block;font:600 11pt/1.5 var(--sans)}
 .cover .pricing span{display:block;font-size:9.6pt;color:var(--soft);margin-top:2pt}
@@ -57,7 +58,7 @@ CSS = """
 P1_COVER = f"""
 <section class="panel wide cover">
   <div class="wordmark">DuBose, M.D.<small>Direct primary care</small></div>
-  <h1>Ongoing primary care for adults.</h1>
+  <h1>Unhurried direct primary care by a physician who knows you.</h1>
   <div class="pricing">
     <b>$100 a month &middot; Cancel anytime</b>
     <span>Works alongside your insurance.</span>
@@ -79,6 +80,21 @@ P2_FLAP = """
     <li>Adults who want to prevent future problems</li>
     <li>Adults who want care that fits their schedule</li>
   </ul>
+  <h2 class="gap">What I treat</h2>
+  <hr class="rule">
+  <div class="goals">
+    <span>High blood pressure</span>
+    <span>Diabetes</span>
+    <span>High cholesterol</span>
+    <span>Thyroid problems</span>
+    <span>Asthma</span>
+    <span>Acid reflux</span>
+    <span>Colds and infections</span>
+    <span>Anxiety and depression</span>
+    <span>Sleep problems</span>
+    <span>Weight</span>
+  </div>
+  <p style="margin-top:7pt">And other common primary care needs.</p>
 </section>"""
 
 P3_PROVIDE = """
@@ -117,9 +133,11 @@ P4_HOW = f"""
     <li>Track progress</li>
   </ol>
   <p>I answer messages within 1 to 2 business days.</p>
+  <div class="h3">What we work toward</div>
+  {WORK_TOWARD}
 </section>"""
 
-P5_PRICE = """
+P5_PRICE = f"""
 <section class="panel narrow price">
   <h2>The price</h2>
   <hr class="rule">
@@ -131,16 +149,17 @@ P5_PRICE = """
     <div><b>Not included</b><span>Labs and imaging. Medicines. Care from
     other doctors. Hospital care.</span></div>
   </div>
-  <p>Your insurance keeps paying for those, as it does today. People with
-  Medicare or Medicaid can join. One extra form is needed.</p>
-  <div class="h3">Plain limits</div>
+  <p>Your insurance keeps paying for those, as it does today.<br>
+  People with Medicare or Medicaid can join.</p>
+  <div class="h3">Membership highlights</div>
   <ul class="list bare">
-    <li>I keep business hours. This is not an emergency service.</li>
-    <li>I take real time away each year and plan ahead for it.</li>
-    <li>I care for adults only.</li>
-    <li>When my panel is full, it is full.</li>
+    <li>Month to month from day one</li>
+    <li>No per-visit charges and no no-show fees</li>
+    <li>Care during business hours, Monday to Friday</li>
+    <li>Adult primary care only</li>
   </ul>
-  <p style="margin-top:9pt">If the price would keep you from care, tell me.
+  <p style="margin-top:8pt">Full agreement: {SITE}/agreement</p>
+  <p style="margin-top:8pt">If the price would keep you from care, tell me.
   I hold a small number of reduced-rate memberships.</p>
 </section>"""
 
@@ -155,10 +174,11 @@ P6_BACK = f"""
     <p>Thirty minutes by video, at no cost. Tell me what is going on. I will
     say honestly whether I can help. If I&rsquo;m not the right fit, I&rsquo;ll say so
     and point you toward someone good.</p>
-    <div class="qr-row" style="margin-top:.14in"><div class="qr"><b>QR</b></div>
-      <div class="lbl"><b>Book: [site]/book</b><span>Learn more: [site]</span></div></div>
+    <div class="qr-row" style="margin-top:.14in">{QR_IMG}
+      <div class="lbl"><b>Learn more at {SITE}</b>
+      <span>Book a free conversation: {SITE}/book</span></div></div>
     <div class="contact">
-      <b>DuBose, M.D.</b><br>[City], Texas<br>[phone] &middot; [email]
+      <b>DuBose, M.D.</b><br>{CITY}<br>{EMAIL}
     </div>
   </div>
   {STRIP}

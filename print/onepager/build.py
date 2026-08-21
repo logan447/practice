@@ -8,7 +8,8 @@ import pathlib
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
-from lib import CREDENTIAL_ROWS, PHOTO, doc, render
+from lib import (CERT_LINE, CITY, CREDENTIAL_ROWS, EMAIL, PHONE, PHOTO,
+                 QR_IMG, SITE, WORK_TOWARD, doc, render)
 
 OUT = pathlib.Path(__file__).resolve().parent / "out"
 
@@ -19,6 +20,15 @@ CSS = """
   border-bottom:1px solid var(--hair);padding-bottom:.14in;margin-bottom:.24in}
 .head .loc{font:600 7pt/1 var(--sans);letter-spacing:.18em;text-transform:uppercase;
   color:var(--soft)}
+.idhead{display:flex;gap:.24in;align-items:center;border-bottom:1px solid var(--hair);
+  padding-bottom:.18in;margin-bottom:.24in}
+.idhead img{width:1.05in;height:1.05in;object-fit:cover;object-position:50% 22%;
+  border-radius:8px;flex-shrink:0}
+.idhead .nm{font:600 16pt/1.15 var(--serif);letter-spacing:-.008em}
+.idhead .ti{font:600 7.2pt/1 var(--sans);letter-spacing:.18em;text-transform:uppercase;
+  color:var(--accent);margin-top:4pt}
+.idhead .cr{font-size:8.6pt;color:var(--soft);margin-top:4pt}
+.idhead .wm{margin-left:auto;text-align:right;align-self:flex-start}
 h1{font:600 19pt/1.2 var(--serif);letter-spacing:-.01em;margin-bottom:8pt}
 .intro{font-size:10pt;line-height:1.55;max-width:5.6in}
 .grid{display:flex;gap:.5in;margin-top:.28in}
@@ -33,14 +43,23 @@ h1{font:600 19pt/1.2 var(--serif);letter-spacing:-.01em;margin-bottom:8pt}
   font-size:7.6pt;color:var(--soft)}
 """
 
-HEAD = """<div class="head">
+HEAD = f"""<div class="head">
   <div class="wordmark">DuBose, M.D.<small>Direct primary care</small></div>
-  <div class="loc">[City], Texas</div>
+  <div class="loc">{CITY}</div>
+</div>"""
+
+IDHEAD = f"""<div class="idhead">
+  <img src="{PHOTO}" alt="Dr. Logan DuBose">
+  <div>
+    <div class="nm">Logan DuBose, M.D., M.B.A.</div>
+    <div class="ti">Primary care physician &middot; {CITY}</div>
+    <div class="cr">Texas A&amp;M College of Medicine &middot; {CERT_LINE}</div>
+  </div>
 </div>"""
 
 FRONT = f"""
 <div class="page">
-  {HEAD}
+  {IDHEAD}
   <h1>The practice at a glance</h1>
   <p class="intro">I run a small primary care practice for adults. Members pay
   $100 a month. That covers all of my work as their doctor. I keep the
@@ -76,13 +95,17 @@ FRONT = f"""
         schedule. Care follows need.</p>
       </div>
       <div class="block">
+        <h2>What we work toward</h2><hr class="rule">
+        {WORK_TOWARD}
+      </div>
+      <div class="block">
         <h2>Price and insurance</h2><hr class="rule">
         <p>$100 a month per adult. No sign-up fee. No contract. Cancel
         anytime.</p>
         <p>Members keep their insurance and their other doctors. Insurance
         keeps paying for labs, medicines, and hospital care as it does
-        today. People on Medicare or Medicaid can join. One extra form is
-        needed. The membership is not insurance.</p>
+        today. People on Medicare or Medicaid can join. The membership is
+        not insurance.</p>
       </div>
       <div class="block">
         <h2>The limits, stated plainly</h2><hr class="rule">
@@ -101,13 +124,12 @@ BACK = f"""
   {HEAD}
   <div class="about">
     <div class="txt">
-      <h1>Logan DuBose, M.D.</h1>
+      <h1>About Dr. DuBose</h1>
       <p>I have practiced primary care part-time for years while leading
       research on aging and caregiving. I built this practice to give
       patients one doctor with enough time.</p>
       {CREDENTIAL_ROWS}
     </div>
-    <div class="photo-frame"><img src="{PHOTO}" alt=""></div>
   </div>
   <div class="grid" style="margin-top:0">
     <div>
@@ -128,10 +150,10 @@ BACK = f"""
     <div>
       <div class="block">
         <h2>Contact</h2><hr class="rule">
-        <div class="qr-row" style="margin-top:4pt"><div class="qr"><b>QR</b></div>
-          <div class="lbl"><b>Book a free conversation</b>
-          <span>[site]/book</span></div></div>
-        <p style="margin-top:9pt">Learn more: [site]<br>[phone] &middot; [email]</p>
+        <div class="qr-row" style="margin-top:4pt">{QR_IMG}
+          <div class="lbl"><b>Learn more at {SITE}</b>
+          <span>Book a free conversation: {SITE}/book</span></div></div>
+        <p style="margin-top:9pt">{EMAIL}<br>{PHONE}</p>
       </div>
     </div>
   </div>
