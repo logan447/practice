@@ -11,8 +11,8 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 from lib import (CITY, CREDENTIAL_ROWS, EMAIL, ICON_CLINIC, ICON_HOME,
-                 ICON_VIDEO, PHOTO, QR_IMG, SITE, STRIP, WORK_TOWARD, doc,
-                 render)
+                 ICON_VIDEO, PHOTO, QR_IMG, SITE, STRIP, TREAT_LIST,
+                 WORK_TOWARD, doc, render)
 
 OUT = pathlib.Path(__file__).resolve().parent / "out"
 WIDE, NARROW = 3.6875, 3.625
@@ -66,7 +66,7 @@ P1_COVER = f"""
   <div class="photo-frame"><img src="{PHOTO}" alt=""></div>
 </section>"""
 
-P2_FLAP = """
+P2_FLAP = f"""
 <section class="panel narrow recog">
   <h2>What this is</h2>
   <hr class="rule">
@@ -82,18 +82,7 @@ P2_FLAP = """
   </ul>
   <h2 class="gap">What I treat</h2>
   <hr class="rule">
-  <div class="goals">
-    <span>High blood pressure</span>
-    <span>Diabetes</span>
-    <span>High cholesterol</span>
-    <span>Thyroid problems</span>
-    <span>Asthma</span>
-    <span>Acid reflux</span>
-    <span>Colds and infections</span>
-    <span>Anxiety and depression</span>
-    <span>Sleep problems</span>
-    <span>Weight</span>
-  </div>
+  {TREAT_LIST}
   <p style="margin-top:7pt">And other common primary care needs.</p>
 </section>"""
 

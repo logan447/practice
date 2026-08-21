@@ -61,7 +61,7 @@ STAGES = [
      "book.",
      "Hand to anyone who may benefit. Refills on request."),
     ("Passed along", "Cards &middot; 4",
-     "Name, contact, and the booking QR. The price on the back.",
+     "Name, credentials, contact, and the website QR.",
      "Give away."),
 ]
 
@@ -91,8 +91,8 @@ PAGE = f"""
     compares the practice to anyone&rsquo;s care.<br>
     Cost per packet: about $3 to $4 (estimate; production.md &sect;3).<br>
     Every QR code goes to dubosemd.com.<br>
-    Before print: complete the phone number (941-9110 has no area code),
-    replace the provisional signature, licensure and counsel pass.</div>
+    Before print: replace the provisional signature, licensure and
+    counsel pass.</div>
   </div>
 </div>"""
 

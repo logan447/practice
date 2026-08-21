@@ -9,7 +9,7 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 from lib import (CERT_LINE, CITY, CREDENTIAL_ROWS, EMAIL, PHONE, PHOTO,
-                 QR_IMG, SITE, WORK_TOWARD, doc, render)
+                 QR_IMG, SITE, TREAT_LIST, WORK_TOWARD, doc, render)
 
 OUT = pathlib.Path(__file__).resolve().parent / "out"
 
@@ -74,6 +74,11 @@ FRONT = f"""
           <li>Adults who want to prevent future problems</li>
           <li>Adults who need steady support between specialist visits</li>
         </ul>
+      </div>
+      <div class="block">
+        <h2>What I treat</h2><hr class="rule">
+        {TREAT_LIST}
+        <p style="margin-top:6pt">And other common primary care needs.</p>
       </div>
       <div class="block">
         <h2>What membership includes</h2><hr class="rule">

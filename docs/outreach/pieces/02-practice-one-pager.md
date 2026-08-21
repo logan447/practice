@@ -32,6 +32,15 @@ to the people they serve.
 > - Adults who want to prevent future problems
 > - Adults who need steady support between specialist visits
 
+> ## What I treat
+>
+> High blood pressure · Diabetes · High cholesterol · Thyroid
+> problems · Asthma · Acid reflux · Colds and infections · Anxiety and
+> depression · Sleep problems · Weight
+> And other common primary care needs.
+> *(same list as the brochure, shared in `print/lib.py` so the two
+> cannot drift)*
+
 > ## What membership includes
 >
 > - Visits as long as they need to be
@@ -104,7 +113,7 @@ to the people they serve.
 >
 > `[QR real, dubosemd.com]` **Learn more at dubosemd.com**
 > Book a free conversation: dubosemd.com/book
-> logan@dubosemd.com · [area code] 941-9110
+> logan@dubosemd.com · (979) 481-9110
 
 *Small print, bottom edge:*
 

@@ -47,8 +47,7 @@ BACK = f"""<div class="card back"><div class="bar"></div>
   {QR_IMG}
   <div class="lbl"><b>Learn more at {SITE}</b>
     <span>Book a free conversation: {SITE}/book</span>
-    <div class="more">{EMAIL}<br><span class="soft">{PHONE}</span><br>
-    $100 a month &middot; adult primary care</div></div>
+    <div class="more">{EMAIL}<br>{PHONE}</div></div>
 </div>"""
 
 PREVIEW = doc(f"""<div class="wrap">

@@ -12,8 +12,8 @@ real audiences prove to need more than the one-pager answers. Current
 piece copy lives in `pieces/`; the sections below otherwise keep the
 approved architecture. Distribution is an Era-2 (launch-runway) act:
 nothing is printed until the publishing gates clear (licensure, the
-TMB advertising/counsel pass `NEEDS-COUNSEL`, the phone number's area
-code, and the real signature).*
+TMB advertising/counsel pass `NEEDS-COUNSEL`, and the real
+signature).*
 
 Anchors: **`docs/style/README.md` (House Style — binds all copy in this
 packet, §5 physician-respect especially)** · D-022 (grassroots +

@@ -7,15 +7,15 @@ every printed copy. The preview signature is a provisional handwritten
 treatment (Caveat type), never a reproduction of the real signature.
 Build: `print/letter/build.py`.*
 
-**PRINT BLOCKER: the phone number is incomplete.** The owner supplied
-941-9110 with no area code. It renders as "[area code] 941-9110" and
-must be completed before print.
+*(Phone number completed by owner 2026-08-21: (979) 481-9110. The
+remaining print gates are the real signature, licensure, and the
+counsel pass.)*
 
 ---
 
 > **DuBose, M.D.** · DIRECT PRIMARY CARE
 > Austin, Texas · Website: dubosemd.com · Email: logan@dubosemd.com ·
-> Phone: [area code] 941-9110
+> Phone: (979) 481-9110
 >
 > Dear Reader,
 >

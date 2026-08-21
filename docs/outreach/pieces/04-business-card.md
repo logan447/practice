@@ -24,8 +24,7 @@ book the free conversation.
 > **Learn more at dubosemd.com**
 > Book a free conversation: dubosemd.com/book
 > logan@dubosemd.com
-> [area code] 941-9110 *(complete before print)*
-> $100 a month · adult primary care
+> (979) 481-9110
 
 ---
 
@@ -33,5 +32,7 @@ book the free conversation.
 
 Title is credential-accurate ("Primary care physician", no internist
 or completed-board language; the certification line says expected
-January 2027). The back states the price; hiding it would be the dark
-pattern the style forbids. One QR, one purpose, labeled.
+January 2027). The price is deliberately not on the card (owner
+decision 2026-08-21): a contact card is not a place someone decides to
+join, and the QR puts the published price one tap away. One QR, one
+purpose, labeled.

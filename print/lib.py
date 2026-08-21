@@ -13,13 +13,11 @@ FONTS = ROOT / "print" / "fonts"
 PHOTO = ROOT / "site" / "public" / "images" / "dr-dubose-square.jpg"
 QR_SVG = ROOT / "print" / "assets" / "qr-dubosemd.svg"
 
-# Practice facts used across pieces. The phone number is deliberately
-# incomplete: the owner supplied 941-9110 without an area code. It must be
-# completed before anything is printed.
+# Practice facts used across pieces.
 CITY = "Austin, Texas"
 SITE = "dubosemd.com"
 EMAIL = "logan@dubosemd.com"
-PHONE = "[area code] 941-9110"
+PHONE = "(979) 481-9110"
 CERT_LINE = "Lifestyle medicine board certification expected January 2027"
 
 BASE_CSS = f"""
@@ -141,6 +139,21 @@ WORK_TOWARD = """<div class="goals">
 </div>"""
 
 QR_IMG = f'<img class="qr" src="{QR_SVG}" alt="QR code for {SITE}">'
+
+# "What I treat" — patient-friendly terms, from the approved help page.
+# Shared so the brochure and one-pager cannot drift.
+TREAT_LIST = """<div class="goals">
+<span>High blood pressure</span>
+<span>Diabetes</span>
+<span>High cholesterol</span>
+<span>Thyroid problems</span>
+<span>Asthma</span>
+<span>Acid reflux</span>
+<span>Colds and infections</span>
+<span>Anxiety and depression</span>
+<span>Sleep problems</span>
+<span>Weight</span>
+</div>"""
 
 STRIP = """<div class="strip" style="padding:.14in .3in .18in">
 <div class="em">If this is an emergency, call 911 or go to the nearest ER.</div>
