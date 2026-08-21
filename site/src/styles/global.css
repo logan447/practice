@@ -51,12 +51,10 @@ a{color:var(--accent)}
 .split.even{grid-template-columns:1fr 1fr}
 @media (max-width:860px){.split,.split.even{grid-template-columns:1fr;gap:28px}}
 
-/* page intro: title left, lede right, baseline-aligned */
-.page-head{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);
-  gap:clamp(28px,5vw,88px);align-items:end}
-.page-head .lede{margin-top:0;margin-bottom:6px}
-@media (max-width:860px){.page-head{grid-template-columns:1fr;gap:14px}
-  .page-head .lede{margin-top:10px}}
+/* standard interior page title: eyebrow, h1, one-line lede, left-aligned */
+.page-title{padding-block:clamp(40px,5vw,60px)}
+.page-title h1{font-size:clamp(32px,3.6vw,46px)}
+.page-title .lede{margin-top:12px}
 
 /* ---------- type ---------- */
 h1,h2,h3,h4{font-family:var(--serif);font-weight:600;line-height:1.18;
@@ -105,8 +103,6 @@ p{max-width:var(--measure)}
 .skip:focus{left:0}
 
 /* ---------- header ---------- */
-.draftbar{background:var(--pine-deep);color:#9DB0A9;font-size:11.5px;
-  text-align:center;padding:6px 12px;letter-spacing:.05em}
 .site-header{position:sticky;top:0;z-index:50;background:var(--paper);
   border-bottom:1px solid var(--hair)}
 .site-header .bar{display:flex;align-items:center;justify-content:space-between;
@@ -465,10 +461,6 @@ p{max-width:var(--measure)}
 .doc ul{padding-left:22px;margin:12px 0}
 .doc li{margin:8px 0}
 .doc .vers{font-size:13.5px;color:var(--soft);margin-top:10px}
-.notice{border-left:3px solid var(--ur);background:#F6EFE2;
-  border-radius:0 var(--radius) var(--radius) 0;padding:18px 24px;
-  font-size:15px;margin:28px 0}
-.notice p{max-width:none}
 
 /* document sections on the site grid: number+title left, content right */
 .doc-sec{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);
