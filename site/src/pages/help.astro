@@ -25,27 +25,51 @@ import Base from '../layouts/Base.astro';
       <div class="sec-head">
         <span class="eyebrow">The goal</span>
         <h2>What we work toward</h2>
-        <p class="lede">
-          Being my patient is an ongoing program for your health, built
-          around what matters to you. Together we work to:
-        </p>
       </div>
-      <ul class="check-cols">
-        <li>Help you feel better day to day</li>
-        <li>Help you understand your health and your results</li>
-        <li>Improve the numbers that matter, like blood pressure, weight, and labs</li>
-        <li>Prevent disease where we can</li>
-        <li>Keep existing conditions under control</li>
-        <li>Improve sleep, fitness, and nutrition</li>
-        <li>Catch problems early</li>
-        <li>Keep screenings and vaccines up to date</li>
-        <li>Help you stay independent and able</li>
-        <li>Make progress on your own health goals</li>
-      </ul>
-      <p class="prose" style="margin-top:32px">
-        We track these together, so we both know if care is working. I
-        can&rsquo;t promise outcomes. I can promise we work on them and
-        measure.
+      <div class="steps c3">
+        <div class="step-item">
+          <div class="icon-chip" style="background:#fff">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 1v3M12 20v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M1 12h3M20 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" /></svg>
+          </div>
+          <h4>Feel better day to day</h4>
+        </div>
+        <div class="step-item">
+          <div class="icon-chip" style="background:#fff">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5zM14 3v5h5M9 13h6M9 17h6" /></svg>
+          </div>
+          <h4>Understand your results</h4>
+        </div>
+        <div class="step-item">
+          <div class="icon-chip" style="background:#fff">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 7l-8.5 8.5-5-5L2 17M16 7h6v6" /></svg>
+          </div>
+          <h4>Improve your numbers</h4>
+          <p>Blood pressure, weight, labs.</p>
+        </div>
+        <div class="step-item">
+          <div class="icon-chip" style="background:#fff">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+          </div>
+          <h4>Prevent disease</h4>
+          <p>Screenings and vaccines on time.</p>
+        </div>
+        <div class="step-item">
+          <div class="icon-chip" style="background:#fff">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></svg>
+          </div>
+          <h4>Keep conditions controlled</h4>
+        </div>
+        <div class="step-item">
+          <div class="icon-chip" style="background:#fff">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" /></svg>
+          </div>
+          <h4>Sleep, fitness, nutrition</h4>
+        </div>
+      </div>
+      <p class="prose" style="margin-top:36px">
+        We track these together and adjust, including progress on your
+        own goals. I can&rsquo;t promise outcomes. I can promise we work
+        on them and measure.
       </p>
     </div>
   </section>
@@ -57,7 +81,7 @@ import Base from '../layouts/Base.astro';
         <span class="eyebrow">Where I&rsquo;m most useful</span>
         <h2>Common situations</h2>
       </div>
-      <div class="cards c2">
+      <div class="cards c3">
         <div class="card">
           <h4>&ldquo;It&rsquo;s several things at once.&rdquo;</h4>
           <p>
@@ -81,14 +105,6 @@ import Base from '../layouts/Base.astro';
             Diabetes, blood pressure, cholesterol, thyroid. Managed, not
             just refilled: medicines reviewed, complications watched for,
             numbers moving where we agreed they should.
-          </p>
-        </div>
-        <div class="card">
-          <h4>&ldquo;Nothing&rsquo;s wrong yet.&rdquo;</h4>
-          <p>
-            You want a doctor who knows your baseline, watches your
-            trends, and keeps screening on schedule. Prevention works
-            best before it&rsquo;s urgent.
           </p>
         </div>
         <div class="card span">

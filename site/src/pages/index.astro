@@ -70,27 +70,18 @@ import Base from '../layouts/Base.astro';
   <!-- 3 · How I work on your health -->
   <section class="section">
     <div class="container">
-      <div class="split">
-        <div>
-          <span class="eyebrow">What I do</span>
-          <h2>How I work on your health</h2>
-        </div>
-        <div class="prose">
-          <p>
-            First we understand where you are. Then we decide what matters
-            most, make a plan, and work on it together. We measure
-            progress and adjust.
-          </p>
-          <p>
-            That can cover symptoms, medicines, chronic conditions,
-            prevention, sleep, weight, fitness, and stress. Visits last as
-            long as they need to. Every result comes with my explanation.
-          </p>
-          <p>
-            This is standard medical care, with enough time to do it
-            well.
-          </p>
-        </div>
+      <div class="sec-head">
+        <span class="eyebrow">What I do</span>
+        <h2>How I work on your health</h2>
+        <p class="lede">Standard medical care, with enough time to do it well.</p>
+      </div>
+      <div class="loop">
+        <div class="lnode"><b>Understand</b><span>where you are</span></div>
+        <div class="lnode"><b>Prioritize</b><span>what matters most</span></div>
+        <div class="lnode"><b>Plan</b><span>built together</span></div>
+        <div class="lnode"><b>Work</b><span>visits and messages</span></div>
+        <div class="lnode"><b>Measure</b><span>blood pressure, labs, how you feel</span></div>
+        <div class="lnode"><b>Adjust</b><span>as life changes</span></div>
       </div>
     </div>
   </section>
@@ -116,7 +107,7 @@ import Base from '../layouts/Base.astro';
         </div>
         <div class="step-item">
           <span class="num">03</span>
-          <h4>We meet where it works</h4>
+          <h4>Video, home, or in person</h4>
           <p>Video for most things. Your home when an exam needs it.
           Clinic space when that&rsquo;s better.</p>
         </div>
@@ -283,16 +274,6 @@ import Base from '../layouts/Base.astro';
         </p>
         <a class="btn btn-inverse" href="/book">Book a free conversation</a>
         <p style="margin-top:20px"><a class="quiet" href="/agreement">Or read the membership agreement first &rarr;</a></p>
-        <div class="signup">
-          <p>
-            Not ready to talk? Leave your email for an occasional letter
-            about the practice. No more than monthly.
-          </p>
-          <form action="#" method="post">
-            <input type="email" name="email" placeholder="email address" aria-label="Email address" required />
-            <button class="btn btn-inverse" type="submit">Send me the letter</button>
-          </form>
-        </div>
       </div>
     </div>
   </section>

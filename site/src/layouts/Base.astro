@@ -75,9 +75,8 @@ const nav = [
         <div class="cols">
           <div>
             <div class="fm">DuBose, M.D.<small>direct primary care</small></div>
-            <p style="margin-top:16px;max-width:32ch">
-              One physician, a small panel, and enough time to do medicine
-              properly. [City], Texas.
+            <p style="margin-top:16px;max-width:30ch">
+              One doctor, a small panel, and enough time. [City], Texas.
             </p>
           </div>
           <nav aria-label="Footer">
@@ -87,25 +86,30 @@ const nav = [
             <a href="/pricing">Pricing</a>
             <a href="/about">About Dr. DuBose</a>
             <a href="/questions">Questions</a>
-            <a href="/book">Book a free conversation</a>
-            <a href="/login">Patient login</a>
           </nav>
-          <div>
-            <h5>The fine print</h5>
-            <p>If this is an emergency, call 911 or go to the nearest ER.</p>
-            <p style="margin-top:10px">
-              <a href="/agreement">Read the full membership agreement</a>:
-              the complete terms, published before you ever talk to me.
-            </p>
-            <p style="margin-top:10px">
-              This practice is a direct primary care medical service agreement
-              under Texas law. It is not health insurance.
-            </p>
+          <nav aria-label="For patients">
+            <h5>For patients</h5>
+            <a href="/book">Book a conversation</a>
+            <a href="/login">Patient login</a>
+            <a href="/agreement">Membership agreement</a>
+            <a href="/writing">Writing</a>
+            <a href="/cv">Full CV</a>
+          </nav>
+          <div class="nl">
+            <h5>An occasional letter</h5>
+            <p>Plain-language notes on health and the practice. No more
+            than monthly.</p>
+            <form action="#" method="post">
+              <input type="email" name="email" placeholder="email address" aria-label="Email address" required />
+              <button class="btn" type="submit">Sign up</button>
+            </form>
           </div>
         </div>
         <div class="legal">
           <span>&copy; 2026 DuBose, M.D. &middot; Logan L. DuBose, M.D.</span>
-          <span>Prototype &middot; Privacy notice to follow at launch</span>
+          <span>Not health insurance &middot; a direct primary care agreement under Texas law</span>
+          <span>Emergencies: call 911</span>
+          <span>Prototype</span>
         </div>
       </div>
     </footer>

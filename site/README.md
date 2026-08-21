@@ -17,7 +17,7 @@ specimen at this size.
 Content architecture (decided 2026-08-21): Research lives on the About
 page (Selected research + /cv); it is a credibility signal, not a
 section. Articles/writing, when they exist, become a separate top-level
-section (/articles) built on Astro content collections (markdown in
+section (see /writing, the stable URL) built on Astro content collections (markdown in
 this repo) with its own public newsletter signup. Three communication
 systems stay separate by design: (1) public educational newsletter
 (marketing tool, no PHI), (2) practice communications to members

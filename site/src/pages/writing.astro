@@ -1,0 +1,34 @@
+---
+import Base from '../layouts/Base.astro';
+// Public writing home. Articles will be Astro content collections
+// (markdown in this repo) when they exist; this page is the stable URL
+// and the newsletter's home. Public newsletter stays separate from
+// patient and clinical communications by design (see site README).
+---
+<Base title="Writing · DuBose, M.D.">
+  <section class="section">
+    <div class="container">
+      <div class="split" style="align-items:start">
+        <div>
+          <span class="eyebrow">Writing</span>
+          <h1 style="font-size:clamp(30px,4vw,44px)">Articles</h1>
+        </div>
+        <div class="prose">
+          <p>
+            I write plain-language articles about primary care,
+            prevention, lifestyle medicine, aging, and common medical
+            questions. New articles will appear here.
+          </p>
+          <p>
+            To get them by email, use the letter signup in the footer.
+            No more than monthly.
+          </p>
+          <p style="margin-top:24px">
+            <a class="quiet" href="/about">My research and background &rarr;</a>
+            <br /><a class="quiet" href="/cv">Full CV and publication list &rarr;</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
