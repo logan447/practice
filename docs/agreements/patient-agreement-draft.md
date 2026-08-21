@@ -23,7 +23,7 @@ surprise fees.*
 
 ## Agreement for Direct Primary Care Membership
 
-**[Practice Name — LATER]** · [Physician name], M.D. · Texas
+**DuBose, M.D.** — the practice of Logan L. DuBose, M.D. · Texas *(name per D-034; DBA/TMB check pending)*
 *This is a direct primary care medical service agreement under Texas
 Occupations Code ch. 162, subch. F. It is not health insurance.* `[COUNSEL]`
 

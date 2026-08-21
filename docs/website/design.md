@@ -208,7 +208,7 @@ the least decided vendor).
 ## 10. MVP vs. later
 
 **MVP (this phase):** the six pages, full copy, real design, scheduler
-embed stubbed, `[Practice Name]` placeholders, draft-marked footer —
+embed stubbed, the decided name (DuBose, M.D. — D-034), draft-marked footer —
 reviewable in a browser and usable in validation conversations.
 **Pre-launch (runway):** name/domain/identity finalized (Q-22), counsel
 + TMB-advertising pass, licensure/location facts inserted, scheduler

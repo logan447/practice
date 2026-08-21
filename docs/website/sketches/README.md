@@ -57,7 +57,8 @@ the TMB-advertising/counsel pass before publishing (R-13).*
 
 1. Visual design language (type, color, spacing — calm, credible,
    warm; per design.md register).
-2. Astro + Tailwind prototype on the approved spec, `[Practice Name]`
-   placeholders, draft-marked.
+2. Astro + Tailwind prototype on the approved spec — **name decided
+   (D-034): DuBose, M.D.**; [City] and licensure lines are the only
+   remaining placeholders; draft-marked until publishing gates clear.
 3. Track F validation use; publishing gates unchanged (name Q-22,
    entity, licensure, counsel pass).
