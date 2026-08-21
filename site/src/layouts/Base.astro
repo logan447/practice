@@ -1,0 +1,110 @@
+---
+// Base layout: draft banner, header + mobile drawer, footer, optional
+// sticky mobile Book bar (shows after the element with id="bookbar-after").
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  active?: string;
+  bookbar?: boolean;
+}
+const { title, description = 'Unhurried direct primary care by a physician who knows you. $100 a month, cancel anytime, works alongside your insurance.', active = '', bookbar = false } = Astro.props;
+
+const nav = [
+  { key: 'help', href: '/help', label: 'What I help with' },
+  { key: 'how', href: '/how-it-works', label: 'How it works' },
+  { key: 'pricing', href: '/pricing', label: 'Pricing' },
+  { key: 'about', href: '/about', label: 'About' },
+  { key: 'questions', href: '/questions', label: 'Questions' },
+];
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="draftbar">PROTOTYPE — NOT FOR PUBLIC USE — PENDING LEGAL AND ADVERTISING REVIEW</div>
+
+    <header class="site-header">
+      <div class="wrap">
+        <div class="bar">
+          <a class="wordmark" href="/">DuBose, M.D.<small>direct primary care</small></a>
+          <nav class="nav-desktop" aria-label="Main">
+            {nav.map((n) => (
+              <a href={n.href} class={active === n.key ? 'active' : ''}>{n.label}</a>
+            ))}
+            <a class="btn btn-nav" href="/book">Book a conversation</a>
+          </nav>
+          <div class="nav-toggle">
+            <a class="btn btn-nav" href="/book">Book</a>
+            <label for="nav-check" aria-label="Open menu">&#9776;</label>
+          </div>
+        </div>
+        <input type="checkbox" id="nav-check" aria-hidden="true" />
+        <nav class="drawer" aria-label="Mobile">
+          <a href="/help" class={active === 'help' ? 'active' : ''}>What I help with</a>
+          <a href="/how-it-works" class={active === 'how' ? 'active' : ''}>How it works</a>
+          <a href="/pricing" class={active === 'pricing' ? 'active' : ''}>Pricing</a>
+          <a href="/about" class={active === 'about' ? 'active' : ''}>About Dr. DuBose</a>
+          <a href="/questions" class={active === 'questions' ? 'active' : ''}>Questions</a>
+          <a class="btn" href="/book">Book a free conversation</a>
+          <p class="em-line">If this is an emergency, call 911 or go to the nearest ER.</p>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <div class="fm">DuBose, M.D.</div>
+        <div class="dim">[City], Texas</div>
+        <p>
+          <a href="/">Home</a> · <a href="/help">What I help with</a> ·
+          <a href="/how-it-works">How it works</a> · <a href="/pricing">Pricing</a> ·
+          <a href="/about">About</a> · <a href="/questions">Questions</a> ·
+          <a href="/book">Book a conversation</a>
+        </p>
+        <hr />
+        <p class="dim">If this is an emergency, call 911 or go to the nearest ER.</p>
+        <p class="dim">
+          <a href="/membership-agreement.pdf">Read the full Membership Agreement (PDF)</a>
+          — yes, before you ever talk to me.
+        </p>
+        <p class="dim">
+          Privacy · This practice is a direct primary care medical service
+          agreement under Texas law; it is not health insurance.
+        </p>
+      </div>
+    </footer>
+
+    {bookbar && (
+      <div class="bookbar">
+        <a class="btn" href="/book">Book a free conversation</a>
+      </div>
+    )}
+    {bookbar && (
+      <script is:inline>
+        (function () {
+          var t = document.getElementById('bookbar-after');
+          var b = document.querySelector('.bookbar');
+          if (!t || !b) return;
+          addEventListener('scroll', function () {
+            b.classList.toggle('show', t.getBoundingClientRect().bottom < 0);
+          }, { passive: true });
+        })();
+      </script>
+    )}
+  </body>
+</html>

@@ -1,0 +1,66 @@
+---
+import Base from '../layouts/Base.astro';
+// State A only in the prototype. States B (confirmation screen), C
+// (confirmation + reminder emails), and D (panel-full/waitlist) are
+// specified in docs/website/sketches/07-book.md and live with the
+// scheduler vendor selection (X-03) at launch.
+---
+<Base title="Book a free conversation — DuBose, M.D.">
+
+  <section>
+    <div class="wrap">
+      <h1>Book a free conversation</h1>
+
+      <div class="book-grid" style="margin-top:34px">
+        <div>
+          <h3>What to expect</h3>
+          <p style="margin-top:12px">
+            Thirty minutes, by video. You tell me what&rsquo;s going on — or
+            just that you&rsquo;re curious. I&rsquo;ll ask some questions,
+            answer yours, and tell you honestly whether I can help.
+          </p>
+          <p style="margin-top:16px">A few things you should know going in:</p>
+          <ul class="book-list">
+            <li>It&rsquo;s free, and there is no obligation to join.</li>
+            <li>If I&rsquo;m not the right fit, I&rsquo;ll say so and point
+            you toward someone good.</li>
+            <li>No preparation needed. Don&rsquo;t gather records or rehearse
+            anything — just come as you are.</li>
+            <li>This conversation is not medical care, and nothing about it
+            commits you (or me) to anything.</li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="sched-stub">
+            <p style="font-weight:600;color:var(--ink)">[ Embedded scheduler ]</p>
+            <p style="margin:14px auto 0;max-width:40ch">
+              Step 1: pick a time — business-hours slots, 30 minutes.<br />
+              Step 2: name, email, phone, and an optional &ldquo;How did you
+              hear about me?&rdquo;
+            </p>
+            <p style="margin:18px auto 0;max-width:40ch">
+              Prototype note: the live scheduler (Cal.com or equivalent) is
+              selected and embedded at launch.
+            </p>
+          </div>
+          <p class="subtext">
+            No medical details are needed to book — save those for our
+            conversation.
+          </p>
+        </div>
+      </div>
+
+      <div class="embox">
+        <p>
+          <strong>Before you book — the one thing that never changes:</strong>
+          If you are having an emergency — chest pain, stroke signs, severe
+          trouble breathing, thoughts of self-harm — call 911 or go to the
+          nearest ER now. This page cannot help you today; the emergency room
+          can.
+        </p>
+      </div>
+    </div>
+  </section>
+
+</Base>

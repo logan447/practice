@@ -1,0 +1,206 @@
+---
+import Base from '../layouts/Base.astro';
+import EmergencyStrip from '../components/EmergencyStrip.astro';
+
+// Thin-stroke line icons (Lucide-derived paths, 1.5px stroke) — design rule 1: never emoji.
+const icon = {
+  video: 'M15.6 10.3l4.4-2.5v8.4l-4.4-2.5M4 6.8h9.6a2 2 0 0 1 2 2v6.4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.8a2 2 0 0 1 2-2z',
+  home: 'M3 10.5L12 3l9 7.5M5.5 8.8V20h13V8.8M9.8 20v-6h4.4v6',
+  clinic: 'M4 20V6.5L12 3l8 3.5V20M4 20h16M12 8v6M9 11h6',
+  message: 'M21 12a8 8 0 0 1-8 8H4l1.7-3.4A8 8 0 1 1 21 12z',
+  file: 'M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5zM14 3v5h5M9 13h6M9 17h6',
+  rx: 'M7 4h5a3.5 3.5 0 0 1 0 7H7V4zM7 11v9M10 13l7 7M17 13l-7 7',
+};
+---
+<Base title="How it works — DuBose, M.D." active="how" bookbar={true}>
+
+  <!-- 1 · Intro -->
+  <section>
+    <div class="narrow">
+      <h1>How it works</h1>
+      <p style="margin-top:20px">
+        No packages, no tiers, no fine print — just a straightforward way to
+        have a doctor again. Here&rsquo;s the whole thing, start to finish.
+      </p>
+    </div>
+  </section>
+
+  <!-- 2 · Your first 90 days -->
+  <section class="band-warm">
+    <div class="wrap">
+      <h2>Your first 90 days</h2>
+      <div class="timeline">
+        <div class="tl-item">
+          <h3>Before anything: a free conversation.</h3>
+          <p>
+            Thirty minutes by video. You tell me what&rsquo;s going on; I
+            tell you honestly whether I can help. If we both feel good about
+            it, you join — $100/month, cancel anytime. If not, no hard
+            feelings and no bill.
+          </p>
+        </div>
+        <div class="tl-item">
+          <h3>Week 1&ndash;2: I do my homework, then we meet properly.</h3>
+          <p>
+            I request and actually read your records before your first
+            visit — you shouldn&rsquo;t have to re-tell years of history from
+            memory. Then we have your first full visit: up to 90 minutes,
+            everything on the table — history, medications, concerns, goals.
+            Longer or split into two sittings if your situation needs it.
+          </p>
+        </div>
+        <div class="tl-item">
+          <h3>Week 2&ndash;4: we fill in the picture.</h3>
+          <p>
+            Labs if we need them (I&rsquo;ll tell you the cash price before
+            anything is drawn, or we&rsquo;ll use your insurance). An exam —
+            at your home or at my clinic space — if your situation calls for
+            hands-on. Every result comes back explained, in plain words.
+          </p>
+        </div>
+        <div class="tl-item">
+          <h3>By about week 4: you have a plan.</h3>
+          <p>
+            A short written plan in your portal — what we&rsquo;re working
+            on, in what order, what I&rsquo;m doing, what you&rsquo;re doing,
+            and when we&rsquo;ll check progress. Not a lecture. A plan we
+            both agreed to.
+          </p>
+        </div>
+        <div class="tl-item">
+          <h3>Then: the rhythm that fits your situation.</h3>
+          <p>
+            Some patients see me every two weeks while we work through
+            something active. Some check in monthly, or quarterly, or mostly
+            message me between an annual deep review. There&rsquo;s no
+            required schedule and no per-visit charge — your care fits your
+            health, and around 90 days we look at how it&rsquo;s going.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · Where care happens -->
+  <section>
+    <div class="wrap">
+      <h2>Where care happens</h2>
+      <div class="cards c3">
+        <div class="card">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-bottom:12px"><path d={icon.video} /></svg>
+          <h4>By video — most of the time</h4>
+          <p>
+            Unhurried video visits from wherever you are. Most primary care —
+            follow-ups, results, med changes, new concerns — works
+            beautifully this way when there&rsquo;s enough time.
+          </p>
+        </div>
+        <div class="card">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-bottom:12px"><path d={icon.home} /></svg>
+          <h4>At your home — when it matters</h4>
+          <p>
+            When an exam genuinely needs hands-on and home is the right
+            place, I come to you. Scheduled ahead, within my service area. No
+            extra charge — it&rsquo;s part of how I practice.
+          </p>
+        </div>
+        <div class="card">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-bottom:12px"><path d={icon.clinic} /></svg>
+          <h4>At my clinic space — when that&rsquo;s better</h4>
+          <p>For exams and procedures better done in an equipped room.
+          Scheduled as needed.</p>
+        </div>
+      </div>
+      <p style="margin-top:26px">
+        Where each visit happens is a clinical judgment we make together —
+        video for most things, in person when your body needs to be in the
+        room. I don&rsquo;t run a big office, and you&rsquo;re not paying for
+        one.
+      </p>
+    </div>
+  </section>
+
+  <!-- 4 · Between visits -->
+  <section class="band-warm">
+    <div class="wrap">
+      <h2>Between visits</h2>
+      <div class="cards c3">
+        <div class="card">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-bottom:12px"><path d={icon.message} /></svg>
+          <h4>Message me directly</h4>
+          <p>
+            A question, a symptom you&rsquo;re unsure about, a pharmacy
+            problem — send it through the secure portal. I answer within
+            1&ndash;2 business days, usually faster.
+          </p>
+        </div>
+        <div class="card">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-bottom:12px"><path d={icon.file} /></svg>
+          <h4>Results, explained</h4>
+          <p>
+            Nothing sits unexplained in a portal. Every lab and report comes
+            with my note: what it means, what we&rsquo;re doing about it, or
+            why it&rsquo;s genuinely fine.
+          </p>
+        </div>
+        <div class="card">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-bottom:12px"><path d={icon.rx} /></svg>
+          <h4>Refills, without games</h4>
+          <p>
+            Prescriptions are managed at visits so you&rsquo;re not chasing
+            renewals — and when something slips, message me and I&rsquo;ll
+            sort it out.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · When I'm available, honestly -->
+  <section id="bookbar-after">
+    <div class="wrap">
+      <h2>When I&rsquo;m available, honestly</h2>
+      <p>
+        I keep business hours, Monday through Friday. I don&rsquo;t promise
+        24/7 access, evenings, or weekends — because a doctor who is always
+        on call is a doctor who is eventually no good to anyone. The trade is
+        simple: bounded hours, and inside them, real attention.
+      </p>
+      <p style="margin-top:16px">
+        I also take genuine time away during the year. When I do:
+        you&rsquo;ll know in advance, through the portal; I still check
+        incoming results and messages periodically for anything important —
+        away means slower, never unaware; refills and ongoing care are
+        squared away before I go; and urgent needs follow the same rules as
+        always:
+      </p>
+      <EmergencyStrip />
+    </div>
+  </section>
+
+  <!-- 6 · What's in the price -->
+  <section class="band-warm">
+    <div class="narrow">
+      <h2>What&rsquo;s in the price</h2>
+      <p>
+        All of the above is the membership: $100/month, no per-visit charges,
+        cancel anytime. Labs, medications, specialists, and hospitals are
+        billed by those providers — usually through your insurance — and I
+        help you navigate the costs.
+      </p>
+      <p style="margin-top:22px">
+        <a class="quiet" href="/pricing">The full pricing picture, including insurance, Medicare, and Medicaid &rarr;</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- 7 · CTA -->
+  <section class="band-tint">
+    <div class="narrow">
+      <h2>Ready to see if this fits?</h2>
+      <p>Thirty minutes, by video, free — and an honest answer.</p>
+      <p style="margin-top:26px"><a class="btn" href="/book">Book a free conversation</a></p>
+    </div>
+  </section>
+
+</Base>
