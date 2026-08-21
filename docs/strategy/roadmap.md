@@ -104,6 +104,23 @@ until it ends (Q-21).
   settling is decided)
 - **Perishable: all of it** — dated, `REFRESH-AT-RUNWAY`.
 
+### Track G — Patient acquisition (opened 2026-08-21)
+- ✅ **Acquisition system designed** (`docs/acquisition/`): funnel
+  architecture (one funnel, three engines: stranger funnel, referral-
+  source engine, employer lane), full channel map with priorities,
+  measurement system (prospect ledger + channel scorecard + CAC
+  guardrails), phased plan (pre-launch → 10 → 25 → 50 → mature), and
+  the marketing-compliance map (feeds Q-15/Q-23)
+- **Era-1 execution (the compounding assets):** domain purchase; the
+  letter (founding interest list) live and monthly; the 12-essay
+  cornerstone library at ~1–2/month; referral packet + shareable
+  explainer finished; the community talk deck; the ledger opened; the
+  directory copy pack — see `docs/acquisition/phased-plan.md` Phase 0
+- Channel mix is panel-mix management: scorecard carries an
+  early-utilization flag per channel (R-26 coupling)
+- **Perishable:** market/platform specifics tagged in the docs;
+  the architecture and assets are durable.
+
 ### Track F — Validation and learning
 - The current job as instrumented preparation: workflows, patient needs,
   billing friction — captured in the repo
