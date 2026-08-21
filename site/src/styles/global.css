@@ -27,7 +27,7 @@
   /* shape + rhythm */
   --radius:8px;
   --radius-lg:14px;
-  --measure:64ch;
+  --measure:75ch;
   --section:clamp(64px,9vw,112px);
 }
 
@@ -49,6 +49,9 @@ a{color:var(--accent)}
 .split{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);
   gap:clamp(36px,5vw,96px);align-items:start}
 .split.even{grid-template-columns:1fr 1fr}
+/* inside column layouts the column is the measure: text fills to the
+   container edge, matching the header grid */
+.split .prose,.split p{max-width:none}
 @media (max-width:860px){.split,.split.even{grid-template-columns:1fr;gap:28px}}
 
 /* standard interior page title: eyebrow, h1, one-line lede, left-aligned */
@@ -173,7 +176,7 @@ p{max-width:var(--measure)}
   grid-template-columns:minmax(0,5fr) minmax(0,7fr);
   gap:clamp(20px,3vw,48px);align-items:start;padding:30px}
 .card.span h4{margin-bottom:0}
-.card.span p{max-width:72ch}
+.card.span p{max-width:none}
 @media (max-width:760px){.card.span{grid-template-columns:1fr;gap:10px;padding:26px}}
 .icon-chip{width:46px;height:46px;border-radius:50%;background:var(--band-tint);
   display:grid;place-items:center;margin-bottom:14px}
@@ -198,7 +201,7 @@ p{max-width:var(--measure)}
   padding:18px 0;border-top:1px solid var(--hair);font-size:15.5px}
 .rows .row:last-child{border-bottom:1px solid var(--hair)}
 .rows .row b{font-family:var(--serif);font-size:17px;font-weight:600;line-height:1.4}
-.rows .row p{max-width:72ch}
+.rows .row p{max-width:none}
 @media (max-width:640px){.rows .row{grid-template-columns:1fr;gap:6px;padding:16px 0}}
 
 /* ---------- price card ---------- */
@@ -468,7 +471,7 @@ p{max-width:var(--measure)}
   border-top:1px solid var(--hair);align-items:start}
 .doc-sec .sh{position:sticky;top:100px}
 .doc-sec .sh h2{font-size:clamp(21px,2.2vw,26px);margin:0}
-.doc-sec .sc{max-width:76ch;font-size:16px}
+.doc-sec .sc{max-width:none;font-size:16px}
 .doc-sec .sc p{max-width:none}
 .doc-sec .sc p+p{margin-top:1em}
 .doc-sec .sc ul{padding-left:22px;margin:12px 0}
