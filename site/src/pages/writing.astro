@@ -1,30 +1,78 @@
 ---
 import Base from '../layouts/Base.astro';
-// Public writing home. Articles will be Astro content collections
-// (markdown in this repo) when they exist; this page is the stable URL
-// and the newsletter's home. Public newsletter stays separate from
-// patient and clinical communications by design (see site README).
+// Research & writing home. Articles will be Astro content collections
+// (markdown in this repo) when they exist. Public newsletter stays
+// separate from patient and clinical communications (see site README).
 ---
-<Base title="Writing · DuBose, M.D.">
+<Base title="Research &amp; writing · DuBose, M.D." active="writing">
+
   <section class="page-title">
     <div class="container">
-      <span class="eyebrow">Writing</span>
-      <h1>Articles</h1>
-      <p class="lede">Plain-language articles on primary care, prevention, and aging.</p>
+      <h1>Research &amp; writing</h1>
+      <p class="lede">My published research, and articles to come.</p>
     </div>
   </section>
-  <section class="section tight band-warm">
+
+  <!-- Selected research -->
+  <section class="section band-warm">
     <div class="container">
-      <div class="prose">
-        <p>
-          New articles will appear here. To get them by email, use the
-          letter signup in the footer.
-        </p>
-        <p style="margin-top:20px">
-          <a class="quiet" href="/about">My research and background &rarr;</a>
-          <br /><a class="quiet" href="/cv">Full CV and publication list &rarr;</a>
-        </p>
+      <div class="split">
+        <div>
+          <h2>Selected research</h2>
+          <p style="margin-top:14px" class="soft">
+            Aging, caregiving, access to care, and health technology.
+          </p>
+          <p style="margin-top:18px"><a class="quiet" href="/cv">Full publication list in my CV &rarr;</a></p>
+        </div>
+        <div class="pubs">
+          <p class="pub">
+            <b>Exploring Informal Caregivers&rsquo; Perception of the
+            Olera Digital Caregiving Assistance Platform for Dementia
+            Care</b>
+            Hoang MN, Kim L, Fisher L, DuBose L, Ory MG, Lee S, Falohun
+            T, Fan Q. JMIR Formative Research. 2026;10:e92967.
+            <a href="https://doi.org/10.2196/92967">doi:10.2196/92967</a>
+          </p>
+          <p class="pub">
+            <b>Development and Evaluation of a Web-Based Platform for
+            Dementia Caregivers</b>
+            DuBose L, et al. JMIR Research Protocols. 2024.
+            <a href="https://doi.org/10.2196/64127">doi:10.2196/64127</a>
+          </p>
+          <p class="pub">
+            <b>Financial, Legal, and Functional Challenges of Caring for
+            People Living With Dementia</b>
+            Fan Q, DuBose L (co-first author), et al. JMIR Aging. 2023.
+            <a href="https://doi.org/10.2196/47577">doi:10.2196/47577</a>
+          </p>
+          <p class="pub">
+            <b>Understanding Older Adults&rsquo; Perceptions of AI Use in
+            Financial Decisions</b>
+            Allahvirdi S, et al; DuBose L, senior author. Human Factors
+            in Aging and Special Needs. 2025.
+            <a href="https://doi.org/10.54941/ahfe1006290">doi:10.54941/ahfe1006290</a>
+          </p>
+        </div>
       </div>
     </div>
   </section>
+
+  <!-- Articles -->
+  <section class="section tight">
+    <div class="container">
+      <div class="split">
+        <div>
+          <h2>Articles</h2>
+        </div>
+        <div class="prose">
+          <p>
+            Plain-language articles on primary care, prevention,
+            lifestyle medicine, and aging will appear here. To get them
+            by email, use the newsletter signup in the footer.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </Base>

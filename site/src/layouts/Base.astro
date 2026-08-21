@@ -17,6 +17,7 @@ const nav = [
   { key: 'how', href: '/how-it-works', label: 'How it works' },
   { key: 'pricing', href: '/pricing', label: 'Pricing' },
   { key: 'about', href: '/about', label: 'About' },
+  { key: 'writing', href: '/writing', label: 'Research & writing' },
   { key: 'questions', href: '/questions', label: 'Questions' },
 ];
 ---
@@ -57,6 +58,7 @@ const nav = [
           <a href="/how-it-works" class={active === 'how' ? 'active' : ''}>How it works</a>
           <a href="/pricing" class={active === 'pricing' ? 'active' : ''}>Pricing</a>
           <a href="/about" class={active === 'about' ? 'active' : ''}>About Dr. DuBose</a>
+          <a href="/writing" class={active === 'writing' ? 'active' : ''}>Research &amp; writing</a>
           <a href="/questions" class={active === 'questions' ? 'active' : ''}>Questions</a>
           <a class="btn" href="/book">Book a free conversation</a>
           <a href="/login" style="font-weight:400;color:var(--soft);font-size:16px">Patient login</a>
@@ -84,19 +86,18 @@ const nav = [
             <a href="/how-it-works">How it works</a>
             <a href="/pricing">Pricing</a>
             <a href="/about">About Dr. DuBose</a>
-            <a href="/questions">Questions</a>
+            <a href="/writing">Research &amp; writing</a>
+            <a href="/referrals">For clinicians</a>
           </nav>
           <nav aria-label="For patients">
             <h5>For patients</h5>
             <a href="/book">Book a conversation</a>
             <a href="/login">Patient login</a>
             <a href="/agreement">Membership agreement</a>
-            <a href="/writing">Writing</a>
-            <a href="/cv">Full CV</a>
+            <a href="/contact">Contact</a>
           </nav>
           <div class="nl">
-            <h5>An occasional letter</h5>
-            <p>Plain-language health notes, no more than monthly.</p>
+            <h5>Newsletter</h5>
             <form action="#" method="post">
               <input type="email" name="email" placeholder="email address" aria-label="Email address" required />
               <button class="btn" type="submit">Sign up</button>

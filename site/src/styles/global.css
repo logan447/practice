@@ -440,6 +440,12 @@ p{max-width:var(--measure)}
 @media (max-width:540px){.loop{grid-template-columns:1fr 1fr}
   .lnode::before{display:none}}
 
+/* cv records */
+.cvitem{margin:0 0 18px}
+.cvitem b{font-family:var(--serif);font-size:17px;font-weight:600;display:block}
+.cvitem .org{display:block;font-size:15.5px;color:#39423F}
+.cvitem .dates{display:block;font-size:13.5px;color:var(--soft);margin-top:2px}
+
 /* publications */
 .pubs{max-width:900px}
 .pub{border-top:1px solid var(--hair);padding:16px 0;font-size:15px;

@@ -1,0 +1,60 @@
+---
+import Base from '../layouts/Base.astro';
+// General contact form. Wire the submit to the practice email service
+// at launch; the confirmation state works now.
+---
+<Base title="Contact · DuBose, M.D.">
+  <section class="section">
+    <div class="container">
+      <div class="split even" style="align-items:start">
+        <div class="prose">
+          <h1 style="font-size:clamp(30px,4vw,44px)">Contact me</h1>
+          <p style="margin-top:18px">
+            For general questions about the practice. I reply by email,
+            usually within two business days.
+          </p>
+          <p style="margin-top:16px">
+            Ready to talk instead?
+            <a class="quiet" href="/book">Book a free conversation &rarr;</a>
+          </p>
+          <p class="small soft" style="margin-top:28px">
+            Please don&rsquo;t include medical details. This form is not
+            for medical care. Emergencies: call 911.
+          </p>
+        </div>
+        <div class="sched" id="cform">
+          <div class="sched-form">
+            <div class="fields">
+              <input type="text" id="cf-name" placeholder="Name" aria-label="Name" autocomplete="name" />
+              <input type="email" id="cf-email" placeholder="Email" aria-label="Email" autocomplete="email" />
+              <textarea id="cf-msg" placeholder="Your question" aria-label="Your question" rows="5"
+                style="font:400 15.5px/1.5 var(--sans);padding:14px;width:100%;border:1px solid var(--hair);border-radius:var(--radius);background:var(--paper);color:var(--ink);resize:vertical"></textarea>
+            </div>
+            <button class="btn" type="button" id="cf-send">Send</button>
+            <p class="err" id="cf-err">Please add your name, email, and question.</p>
+          </div>
+          <div class="sched-confirm">
+            <h3>Sent.</h3>
+            <p>I&rsquo;ll reply to <span id="cf-cemail"></span>, usually
+            within two business days.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline>
+    (function () {
+      document.getElementById('cf-send').addEventListener('click', function () {
+        var name = document.getElementById('cf-name').value.trim();
+        var email = document.getElementById('cf-email').value.trim();
+        var msg = document.getElementById('cf-msg').value.trim();
+        var err = document.getElementById('cf-err');
+        if (!name || !email.includes('@') || !msg) { err.classList.add('show'); return; }
+        err.classList.remove('show');
+        document.getElementById('cf-cemail').textContent = email;
+        document.getElementById('cform').classList.add('done');
+      });
+    })();
+  </script>
+</Base>
