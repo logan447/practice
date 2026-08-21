@@ -1,6 +1,7 @@
 ---
-// Base layout: draft banner, header + mobile drawer, footer, optional
-// sticky mobile Book bar (shows after the element with id="bookbar-after").
+// Base layout: draft banner, header + mobile drawer, full-width footer,
+// optional sticky mobile Book bar (shows after the element with
+// id="bookbar-after").
 import '../styles/global.css';
 
 interface Props {
@@ -35,7 +36,7 @@ const nav = [
     <div class="draftbar">PROTOTYPE — NOT FOR PUBLIC USE — PENDING LEGAL AND ADVERTISING REVIEW</div>
 
     <header class="site-header">
-      <div class="wrap">
+      <div class="container">
         <div class="bar">
           <a class="wordmark" href="/">DuBose, M.D.<small>direct primary care</small></a>
           <nav class="nav-desktop" aria-label="Main">
@@ -67,25 +68,41 @@ const nav = [
     </main>
 
     <footer class="site-footer">
-      <div class="wrap">
-        <div class="fm">DuBose, M.D.</div>
-        <div class="dim">[City], Texas</div>
-        <p>
-          <a href="/">Home</a> · <a href="/help">What I help with</a> ·
-          <a href="/how-it-works">How it works</a> · <a href="/pricing">Pricing</a> ·
-          <a href="/about">About</a> · <a href="/questions">Questions</a> ·
-          <a href="/book">Book a conversation</a>
-        </p>
-        <hr />
-        <p class="dim">If this is an emergency, call 911 or go to the nearest ER.</p>
-        <p class="dim">
-          <a href="/membership-agreement.pdf">Read the full Membership Agreement (PDF)</a>
-          — yes, before you ever talk to me.
-        </p>
-        <p class="dim">
-          Privacy · This practice is a direct primary care medical service
-          agreement under Texas law; it is not health insurance.
-        </p>
+      <div class="container">
+        <div class="cols">
+          <div>
+            <div class="fm">DuBose, M.D.<small>direct primary care</small></div>
+            <p style="margin-top:16px;max-width:32ch">
+              One physician, a small panel, and enough time to do medicine
+              properly. [City], Texas.
+            </p>
+          </div>
+          <nav aria-label="Footer">
+            <h5>Explore</h5>
+            <a href="/help">What I help with</a>
+            <a href="/how-it-works">How it works</a>
+            <a href="/pricing">Pricing</a>
+            <a href="/about">About Dr. DuBose</a>
+            <a href="/questions">Questions</a>
+            <a href="/book">Book a conversation</a>
+          </nav>
+          <div>
+            <h5>The fine print</h5>
+            <p>If this is an emergency, call 911 or go to the nearest ER.</p>
+            <p style="margin-top:10px">
+              <a href="/membership-agreement.pdf">Read the full Membership
+              Agreement (PDF)</a> — yes, before you ever talk to me.
+            </p>
+            <p style="margin-top:10px">
+              This practice is a direct primary care medical service agreement
+              under Texas law. It is not health insurance.
+            </p>
+          </div>
+        </div>
+        <div class="legal">
+          <span>&copy; 2026 DuBose, M.D. &middot; Logan L. DuBose, M.D.</span>
+          <span>Prototype &middot; Privacy notice to follow at launch</span>
+        </div>
       </div>
     </footer>
 

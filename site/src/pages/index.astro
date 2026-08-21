@@ -3,116 +3,134 @@ import Base from '../layouts/Base.astro';
 ---
 <Base title="DuBose, M.D. — direct primary care" bookbar={true}>
 
-  <!-- 1 · Hero -->
+  <!-- 1 · Hero — typographic; candid photography arrives at launch -->
   <section class="hero">
-    <div class="wrap">
-      <div class="grid">
-        <div>
-          <h1>A doctor with time to actually figure it out with you.</h1>
-          <p class="sub">
-            I&rsquo;m a primary care physician with a small practice and
-            unhurried visits — for people who want a doctor who knows them,
-            listens carefully, and helps make sense of the whole picture.
-          </p>
-          <p class="priceline">$100 a month. Cancel anytime. Works alongside your insurance.</p>
-          <div class="cta">
-            <a class="btn" href="/book">Book a free conversation</a>
-            <a class="quiet" href="/how-it-works">How it works &rarr;</a>
-          </div>
-        </div>
-        <div class="photo-slot">
-          [Photo: warm candid of Dr.&nbsp;DuBose — seated, listening]
-        </div>
+    <div class="container">
+      <span class="eyebrow">Direct primary care &middot; [City], Texas</span>
+      <h1>A doctor with time to actually figure it out with you.</h1>
+      <p class="sub">
+        I&rsquo;m a primary care physician with a small practice and unhurried
+        visits — for people who want a doctor who knows them, listens
+        carefully, and helps make sense of the whole picture.
+      </p>
+      <div class="pstrip">
+        <div><b>$100 a month</b>one flat price</div>
+        <div><b>Cancel anytime</b>no contract, no sign-up fee</div>
+        <div><b>Keeps your insurance</b>works alongside it</div>
+      </div>
+      <div class="cta-row">
+        <a class="btn" href="/book">Book a free conversation</a>
+        <a class="quiet" href="/how-it-works">How it works &rarr;</a>
       </div>
     </div>
   </section>
 
   <!-- 2 · Recognition -->
-  <section class="band-warm">
-    <div class="narrow">
-      <h2>If your health has started to feel like too much</h2>
-      <p>
-        Maybe it&rsquo;s several things at once — blood pressure creeping up,
-        sleep that never feels like rest, results nobody fully explained,
-        medications you&rsquo;re not sure you still need. Maybe you&rsquo;ve
-        seen good specialists, and each one checked their part — but no one is
-        looking at the whole of it, with you.
-      </p>
-      <p style="margin-top:16px">
-        Or maybe nothing is wrong yet. You&rsquo;d just like a doctor who
-        knows you before something is.
-      </p>
-      <p style="margin-top:16px">
-        Either way, the problem usually isn&rsquo;t a lack of healthcare.
-        It&rsquo;s that nobody has time to think it through with you.
-      </p>
-      <p style="margin-top:22px"><a class="quiet" href="/help">What I can help with &rarr;</a></p>
+  <section class="section band-warm">
+    <div class="container">
+      <div class="split">
+        <div>
+          <span class="eyebrow">The situation</span>
+          <h2>If your health has started to feel like too much</h2>
+        </div>
+        <div class="prose">
+          <p>
+            Maybe it&rsquo;s several things at once — blood pressure creeping
+            up, sleep that never feels like rest, results nobody fully
+            explained, medications you&rsquo;re not sure you still need. Maybe
+            you&rsquo;ve seen good specialists, and each one checked their
+            part — but no one is looking at the whole of it, with you.
+          </p>
+          <p>
+            Or maybe nothing is wrong yet. You&rsquo;d just like a doctor who
+            knows you before something is.
+          </p>
+          <p>
+            Either way, the problem usually isn&rsquo;t a lack of healthcare.
+            It&rsquo;s that nobody has time to think it through with you.
+          </p>
+          <p><a class="quiet" href="/help">What I can help with &rarr;</a></p>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- 3 · What I do -->
-  <section>
-    <div class="narrow">
-      <h2>Medicine, given room to work</h2>
-      <p>
-        My job is to listen carefully, understand your whole situation —
-        medical, and the life around it — figure out what&rsquo;s urgent, what
-        matters most, and what can wait, and then work the plan with you over
-        time. Visits are as long as they need to be. Between visits, you can
-        message me and I&rsquo;ll answer — and every result comes with my
-        explanation, not just a number.
-      </p>
-      <p style="margin-top:16px">
-        This isn&rsquo;t alternative medicine or a wellness program.
-        It&rsquo;s evidence-based primary care with the one thing modern
-        medicine rarely has: enough time.
-      </p>
+  <section class="section">
+    <div class="container">
+      <div class="split">
+        <div>
+          <span class="eyebrow">What I do</span>
+          <h2>Medicine, given room to work</h2>
+        </div>
+        <div class="prose">
+          <p>
+            My job is to listen carefully, understand your whole situation —
+            medical, and the life around it — figure out what&rsquo;s urgent,
+            what matters most, and what can wait, and then work the plan with
+            you over time. Visits are as long as they need to be. Between
+            visits, you can message me and I&rsquo;ll answer — and every
+            result comes with my explanation, not just a number.
+          </p>
+          <p>
+            This isn&rsquo;t alternative medicine or a wellness program.
+            It&rsquo;s evidence-based primary care with the one thing modern
+            medicine rarely has: enough time.
+          </p>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- 4 · How it works, in four cards -->
-  <section class="band-warm">
-    <div class="wrap">
-      <h2>How it works</h2>
-      <div class="cards c4">
-        <div class="card">
-          <span class="step">1</span>
+  <!-- 4 · How it works, in four steps -->
+  <section class="section band-warm">
+    <div class="container">
+      <div class="sec-head">
+        <span class="eyebrow">Membership</span>
+        <h2>How it works</h2>
+      </div>
+      <div class="steps">
+        <div class="step-item">
+          <span class="num">01</span>
           <h4>We talk first</h4>
           <p>A free 30-minute video conversation. No pressure — if I&rsquo;m
           not the right fit, I&rsquo;ll say so.</p>
         </div>
-        <div class="card">
-          <span class="step">2</span>
+        <div class="step-item">
+          <span class="num">02</span>
           <h4>You join if it fits</h4>
-          <p>$100/month. No sign-up fee, no contract. Cancel anytime.</p>
+          <p>$100 a month. No sign-up fee, no contract. Cancel anytime.</p>
         </div>
-        <div class="card">
-          <span class="step">3</span>
+        <div class="step-item">
+          <span class="num">03</span>
           <h4>Care that fits you</h4>
           <p>Mostly by video. I come to you when an exam truly needs it;
           clinic space when that&rsquo;s better.</p>
         </div>
-        <div class="card">
-          <span class="step">4</span>
+        <div class="step-item">
+          <span class="num">04</span>
           <h4>You see it working</h4>
           <p>Your trends — blood pressure, labs, how you feel — visible to
           both of us, so we know it&rsquo;s worth it.</p>
         </div>
       </div>
-      <p style="margin-top:26px"><a class="quiet" href="/how-it-works">The details, start to finish &rarr;</a></p>
+      <p style="margin-top:36px"><a class="quiet" href="/how-it-works">The details, start to finish &rarr;</a></p>
     </div>
   </section>
 
   <!-- 5 · The price, plainly -->
-  <section id="bookbar-after">
-    <div class="wrap">
-      <h2>The price, plainly</h2>
-      <div class="cards c2" style="align-items:start">
+  <section class="section band-tint" id="bookbar-after">
+    <div class="container">
+      <div class="sec-head">
+        <span class="eyebrow">Pricing</span>
+        <h2>The price, plainly</h2>
+      </div>
+      <div class="split" style="align-items:start">
         <div class="price-card">
           <div class="amt">$100 <span>/ month per adult</span></div>
           <div class="per">no per-visit charges</div>
           <ul class="check-list">
-            <li>Unlimited-as-needed visits, no per-visit charges</li>
+            <li>Visits as your care needs them</li>
             <li>Direct messaging with me</li>
             <li>Every result explained</li>
             <li>Your care coordinated</li>
@@ -121,28 +139,32 @@ import Base from '../layouts/Base.astro';
             <li>Cancel anytime</li>
           </ul>
         </div>
-        <div>
+        <div class="prose">
           <h3>What it doesn&rsquo;t cover</h3>
-          <p>
+          <p style="margin-top:8px">
             Labs, imaging, medications, vaccines, specialists, hospitals —
             your insurance keeps covering those, like today.
           </p>
-          <h3 style="margin-top:24px">On Medicare or Medicaid?</h3>
-          <p>You can still join — one extra form handles it. Details on the
-          pricing page.</p>
-          <p style="margin-top:22px"><a class="quiet" href="/pricing">Pricing &amp; how insurance fits &rarr;</a></p>
+          <h3 style="margin-top:28px">On Medicare or Medicaid?</h3>
+          <p style="margin-top:8px">
+            You can still join — one extra form handles it.
+          </p>
+          <p style="margin-top:24px"><a class="quiet" href="/pricing">Pricing &amp; how insurance fits &rarr;</a></p>
         </div>
       </div>
     </div>
   </section>
 
   <!-- 6 · Honest fit -->
-  <section class="band-warm">
-    <div class="wrap">
-      <h2>Who this is for — honestly</h2>
+  <section class="section">
+    <div class="container">
+      <div class="sec-head">
+        <span class="eyebrow">Honest fit</span>
+        <h2>Who this is for — and who it isn&rsquo;t</h2>
+      </div>
       <div class="fit">
         <div>
-          <h3>This practice is a good fit if&hellip;</h3>
+          <h3>A good fit if&hellip;</h3>
           <ul class="yes">
             <li>you want a doctor who actually knows you</li>
             <li>your health feels tangled and you want help sorting it out</li>
@@ -152,11 +174,11 @@ import Base from '../layouts/Base.astro';
           </ul>
         </div>
         <div>
-          <h3>It isn&rsquo;t if&hellip;</h3>
+          <h3>Not a fit if&hellip;</h3>
           <ul class="no">
             <li>you need 24/7 physician access — I keep business hours and
-            take real time off (I&rsquo;ll always tell you how care works
-            while I&rsquo;m away)</li>
+            take real time off, and I&rsquo;ll always tell you how care works
+            while I&rsquo;m away</li>
             <li>you&rsquo;re looking for emergency or hospital care —
             that&rsquo;s the ER&rsquo;s job, and it never stops being the
             ER&rsquo;s job</li>
@@ -164,35 +186,41 @@ import Base from '../layouts/Base.astro';
           </ul>
         </div>
       </div>
-      <p class="soft" style="margin-top:20px">I&rsquo;d rather be clear about this now than disappoint you later.</p>
+      <p class="soft" style="margin-top:28px">I&rsquo;d rather be clear about this now than disappoint you later.</p>
     </div>
   </section>
 
   <!-- 7 · The doctor -->
-  <section>
-    <div class="wrap">
+  <section class="section band-warm">
+    <div class="container">
       <div class="about-grid">
-        <div class="photo-slot" style="aspect-ratio:4/5">
-          [Photo: Dr.&nbsp;DuBose, natural light]
+        <div class="photo-frame">
+          <div class="photo" style="aspect-ratio:1/1">
+            <img src="/images/dr-dubose-square.jpg" alt="Dr. Logan DuBose" width="640" height="640" />
+          </div>
         </div>
-        <div>
-          <h2>The doctor</h2>
-          <p>
-            I&rsquo;m Logan DuBose — a physician and researcher. I built this
-            practice after years of studying why healthcare fails people:
-            because I kept meeting patients who didn&rsquo;t need more
-            healthcare, they needed one doctor with enough time to think.
+        <div class="prose">
+          <span class="eyebrow">The doctor</span>
+          <h2>Logan DuBose, M.D.</h2>
+          <p style="margin-top:16px">
+            I&rsquo;m a physician and researcher. I built this practice after
+            years of studying why healthcare fails people: because I kept
+            meeting patients who didn&rsquo;t need more healthcare — they
+            needed one doctor with enough time to think.
           </p>
-          <p style="margin-top:22px"><a class="quiet" href="/about">More about me and how I practice &rarr;</a></p>
+          <p style="margin-top:20px"><a class="quiet" href="/about">More about me and how I practice &rarr;</a></p>
         </div>
       </div>
     </div>
   </section>
 
   <!-- 8 · Common questions -->
-  <section class="band-warm">
-    <div class="wrap">
-      <h2>Common questions</h2>
+  <section class="section">
+    <div class="container">
+      <div class="sec-head">
+        <span class="eyebrow">Questions</span>
+        <h2>Common questions</h2>
+      </div>
       <div class="faq">
         <details>
           <summary>Is this health insurance?</summary>
@@ -231,32 +259,32 @@ import Base from '../layouts/Base.astro';
           </p>
         </details>
       </div>
-      <p style="margin-top:24px"><a class="quiet" href="/questions">All questions, answered &rarr;</a></p>
+      <p style="margin-top:28px"><a class="quiet" href="/questions">All questions, answered &rarr;</a></p>
     </div>
   </section>
 
   <!-- 9 · Closing invitation -->
-  <section class="band-tint">
-    <div class="narrow">
-      <h2>Start with a conversation. That&rsquo;s all.</h2>
-      <p>
-        Thirty minutes, by video, free. Tell me what&rsquo;s going on;
-        I&rsquo;ll tell you honestly whether I can help — and if I&rsquo;m
-        not the right fit, I&rsquo;ll point you toward someone who is.
-      </p>
-      <p style="margin-top:26px"><a class="btn" href="/book">Book a free conversation</a></p>
-
-      <div class="signup">
-        <p class="small soft">
-          Not ready to talk? Leave your email and I&rsquo;ll send an
-          occasional letter about the practice — what I&rsquo;m building,
-          what I&rsquo;m learning, no more than monthly, and never a sales
-          sequence.
+  <section class="section cta-band">
+    <div class="container">
+      <div class="inner">
+        <h2>Start with a conversation. That&rsquo;s all.</h2>
+        <p>
+          Thirty minutes, by video, free. Tell me what&rsquo;s going on;
+          I&rsquo;ll tell you honestly whether I can help — and if I&rsquo;m
+          not the right fit, I&rsquo;ll point you toward someone who is.
         </p>
-        <form action="#" method="post">
-          <input type="email" name="email" placeholder="email address" aria-label="Email address" required />
-          <button class="btn" type="submit">Send me the letter</button>
-        </form>
+        <a class="btn btn-inverse" href="/book">Book a free conversation</a>
+        <div class="signup">
+          <p>
+            Not ready to talk? Leave your email and I&rsquo;ll send an
+            occasional letter about the practice — no more than monthly, and
+            never a sales sequence.
+          </p>
+          <form action="#" method="post">
+            <input type="email" name="email" placeholder="email address" aria-label="Email address" required />
+            <button class="btn btn-inverse" type="submit">Send me the letter</button>
+          </form>
+        </div>
       </div>
     </div>
   </section>

@@ -1,18 +1,35 @@
 ---
 import Base from '../layouts/Base.astro';
-// State A only in the prototype. States B (confirmation screen), C
-// (confirmation + reminder emails), and D (panel-full/waitlist) are
-// specified in docs/website/sketches/07-book.md and live with the
-// scheduler vendor selection (X-03) at launch.
+// Prototype scheduler: a working mock of the booking flow (State A -> B),
+// so the complete experience is judgeable. Selections and fields drive a
+// real confirmation state, but nothing is saved or sent. The live
+// scheduler (Cal.com or equivalent, X-03) replaces the internals at
+// launch; States C-D live in docs/website/sketches/07-book.md.
+
+// Next five business days, computed at build time.
+const days = [];
+const d = new Date();
+while (days.length < 5) {
+  d.setDate(d.getDate() + 1);
+  const dow = d.getDay();
+  if (dow === 0 || dow === 6) continue;
+  days.push({
+    wd: d.toLocaleDateString('en-US', { weekday: 'short' }),
+    md: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    full: d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }),
+  });
+}
+const slots = ['9:00 am', '9:40 am', '10:20 am', '11:00 am', '1:00 pm', '1:40 pm', '2:20 pm', '3:00 pm'];
 ---
 <Base title="Book a free conversation — DuBose, M.D.">
 
-  <section>
-    <div class="wrap">
+  <section class="section" style="padding-block:clamp(48px,7vw,80px)">
+    <div class="container">
+      <span class="eyebrow">The next step</span>
       <h1>Book a free conversation</h1>
 
-      <div class="book-grid" style="margin-top:34px">
-        <div>
+      <div class="book-grid" style="margin-top:clamp(32px,5vw,52px)">
+        <div class="prose">
           <h3>What to expect</h3>
           <p style="margin-top:12px">
             Thirty minutes, by video. You tell me what&rsquo;s going on — or
@@ -31,36 +48,122 @@ import Base from '../layouts/Base.astro';
           </ul>
         </div>
 
-        <div>
-          <div class="sched-stub">
-            <p style="font-weight:600;color:var(--ink)">[ Embedded scheduler ]</p>
-            <p style="margin:14px auto 0;max-width:40ch">
-              Step 1: pick a time — business-hours slots, 30 minutes.<br />
-              Step 2: name, email, phone, and an optional &ldquo;How did you
-              hear about me?&rdquo;
-            </p>
-            <p style="margin:18px auto 0;max-width:40ch">
-              Prototype note: the live scheduler (Cal.com or equivalent) is
-              selected and embedded at launch.
+        <div class="sched" id="sched">
+          <div class="sched-form">
+            <h3>Choose a time</h3>
+            <p class="tz">All times Central &middot; 30 minutes, by video</p>
+
+            <div class="grp">
+              <span class="lbl">Day</span>
+              <div class="daypick" id="daypick">
+                {days.map((day, i) => (
+                  <button type="button" data-full={day.full} class={i === 0 ? 'sel' : ''}>
+                    {day.wd}<small>{day.md}</small>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div class="grp">
+              <span class="lbl">Time</span>
+              <div class="slotgrid" id="slotgrid">
+                {slots.map((s) => (
+                  <button type="button">{s}</button>
+                ))}
+              </div>
+            </div>
+
+            <div class="grp">
+              <span class="lbl">Your details</span>
+              <div class="fields">
+                <input type="text" id="f-name" placeholder="Name" aria-label="Name" autocomplete="name" />
+                <input type="email" id="f-email" placeholder="Email" aria-label="Email" autocomplete="email" />
+                <input type="tel" id="f-phone" placeholder="Phone — only used for this conversation" aria-label="Phone" autocomplete="tel" />
+                <select id="f-ref" aria-label="How did you hear about me?">
+                  <option value="">How did you hear about me? (optional)</option>
+                  <option>A friend or family member</option>
+                  <option>My doctor</option>
+                  <option>Online</option>
+                  <option>Other</option>
+                </select>
+              </div>
+            </div>
+
+            <button class="btn" type="button" id="confirm">Confirm booking</button>
+            <p class="err" id="err">Please pick a time and add your name and email.</p>
+            <p class="fine">
+              No medical details are needed to book — save those for our
+              conversation.
             </p>
           </div>
-          <p class="subtext">
-            No medical details are needed to book — save those for our
-            conversation.
-          </p>
+
+          <div class="sched-confirm">
+            <h3>You&rsquo;re booked.</h3>
+            <p class="when" id="c-when"></p>
+            <p>
+              A confirmation with your video link is on its way to
+              <span id="c-email"></span>. A reminder will come the day
+              before. If the time stops working, use the link in either
+              email to change it — no explanation needed.
+            </p>
+            <p>
+              Between now and then, if you&rsquo;d like to read more:
+              <a href="/how-it-works">How it works</a> &middot;
+              <a href="/pricing">Pricing</a> &middot;
+              <a href="/membership-agreement.pdf">The full membership agreement (PDF)</a>
+            </p>
+            <p class="sig">I&rsquo;m looking forward to meeting you.<br />— Dr. DuBose</p>
+            <p class="fine" style="text-align:left;margin-top:20px">
+              Prototype: nothing was saved or sent.
+            </p>
+          </div>
         </div>
       </div>
 
-      <div class="embox">
+      <div class="note-em" style="margin-top:clamp(36px,5vw,56px)">
+        <span class="tag">Before you book — the one thing that never changes</span>
         <p>
-          <strong>Before you book — the one thing that never changes:</strong>
           If you are having an emergency — chest pain, stroke signs, severe
           trouble breathing, thoughts of self-harm — call 911 or go to the
-          nearest ER now. This page cannot help you today; the emergency room
-          can.
+          nearest ER now. This page cannot help you today; the emergency
+          room can.
         </p>
       </div>
     </div>
   </section>
+
+  <script is:inline>
+    (function () {
+      function pickOne(container) {
+        container.addEventListener('click', function (e) {
+          var b = e.target.closest('button');
+          if (!b) return;
+          container.querySelectorAll('button').forEach(function (x) { x.classList.remove('sel'); });
+          b.classList.add('sel');
+        });
+      }
+      var days = document.getElementById('daypick');
+      var slots = document.getElementById('slotgrid');
+      pickOne(days); pickOne(slots);
+      document.getElementById('confirm').addEventListener('click', function () {
+        var day = days.querySelector('.sel');
+        var slot = slots.querySelector('.sel');
+        var name = document.getElementById('f-name').value.trim();
+        var email = document.getElementById('f-email').value.trim();
+        var err = document.getElementById('err');
+        if (!day || !slot || !name || !email.includes('@')) {
+          err.classList.add('show');
+          return;
+        }
+        err.classList.remove('show');
+        document.getElementById('c-when').textContent =
+          day.dataset.full + ' at ' + slot.textContent + ' Central — 30 minutes, by video.';
+        document.getElementById('c-email').textContent = email;
+        var s = document.getElementById('sched');
+        s.classList.add('done');
+        s.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    })();
+  </script>
 
 </Base>

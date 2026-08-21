@@ -4,25 +4,31 @@ import Base from '../layouts/Base.astro';
 <Base title="Questions, answered honestly — DuBose, M.D." active="questions">
 
   <!-- Intro -->
-  <section>
-    <div class="wrap">
+  <section class="hero" style="padding-block:clamp(48px,7vw,72px)">
+    <div class="container">
+      <span class="eyebrow">FAQ</span>
       <h1>Questions, answered honestly</h1>
-      <p style="margin-top:20px">
+      <p class="lede">
         If your question isn&rsquo;t here — or you&rsquo;d rather just ask a
         person — the free conversation exists for exactly that.
-      </p>
-      <p style="margin-top:18px">
-        <a class="quiet" href="#model">The model</a> &nbsp;·&nbsp;
-        <a class="quiet" href="#money">Money &amp; coverage</a> &nbsp;·&nbsp;
-        <a class="quiet" href="#availability">Availability</a> &nbsp;·&nbsp;
-        <a class="quiet" href="#medicine">The medicine</a> &nbsp;·&nbsp;
-        <a class="quiet" href="#starting">Starting &amp; stopping</a>
       </p>
     </div>
   </section>
 
-  <section class="band-warm">
-    <div class="wrap">
+  <div class="pillbar">
+    <div class="container">
+      <div class="row">
+        <a href="#model">The model</a>
+        <a href="#money">Money &amp; coverage</a>
+        <a href="#availability">Availability</a>
+        <a href="#medicine">The medicine</a>
+        <a href="#starting">Starting &amp; stopping</a>
+      </div>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="container">
 
       <div class="faq-group" id="model">
         <h2>The model</h2>
@@ -302,11 +308,13 @@ import Base from '../layouts/Base.astro';
   </section>
 
   <!-- Closing CTA -->
-  <section class="band-tint">
-    <div class="narrow">
-      <h2>Still have a question? Ask me directly.</h2>
-      <p>The conversation is free, and honest answers are the point.</p>
-      <p style="margin-top:26px"><a class="btn" href="/book">Book a free conversation</a></p>
+  <section class="section cta-band">
+    <div class="container">
+      <div class="inner">
+        <h2>Still have a question? Ask me directly.</h2>
+        <p>The conversation is free, and honest answers are the point.</p>
+        <a class="btn btn-inverse" href="/book">Book a free conversation</a>
+      </div>
     </div>
   </section>
 
