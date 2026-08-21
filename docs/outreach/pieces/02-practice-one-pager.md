@@ -92,8 +92,8 @@ to the people they serve.
 > | M.D. | Texas A&M College of Medicine |
 > | Internship | Internal medicine, George Washington University |
 > | Research | NIH-funded work on aging and caregiving |
-> | In progress | Lifestyle medicine certification |
-> | Full CV | [site]/cv |
+> | Certification | Lifestyle medicine, expected January 2027, International Board of Lifestyle Medicine |
+> | Full CV | dubosemd.com/cv |
 
 > ## How someone starts
 >
