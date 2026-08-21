@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DuBose, M.D. — Visual Language Specimen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Source+Sans+3:wght@400;600;700&family=Lora:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAF8F4; --ink:#232B2A; --soft:#5A6360;
+    --accent:#2E6E64; --accent-deep:#245A52;
+    --band-warm:#F3F0E9; --band-tint:#EDF3EF; --hair:#DDD8CE;
+    --em:#A6392F; --ur:#96691E;
+    --serif:"Source Serif 4",Georgia,serif;
+    --sans:"Source Sans 3",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);
+       font-size:17.5px;line-height:1.68;}
+  .wrap{max-width:920px;margin:0 auto;padding:0 28px}
+  section{padding:56px 0;border-bottom:1px solid var(--hair)}
+  .label{font:600 11px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;
+         color:var(--accent);margin-bottom:18px}
+  h2.spec{font:600 26px/1.3 var(--serif);margin-bottom:10px}
+  .note{color:var(--soft);font-size:15px;max-width:62ch}
+  /* wordmark */
+  .mark{font:600 42px/1.1 var(--serif);letter-spacing:.005em}
+  .mark small{display:block;font:600 11px/1 var(--sans);letter-spacing:.22em;
+              text-transform:uppercase;color:var(--soft);margin-top:10px}
+  .headerdemo{display:flex;align-items:center;justify-content:space-between;
+              border:1px solid var(--hair);border-radius:8px;background:#fff;
+              padding:16px 22px;margin-top:22px;flex-wrap:wrap;gap:12px}
+  .headerdemo .m{font:600 20px/1 var(--serif)}
+  .headerdemo .m small{font:600 9px/1 var(--sans);letter-spacing:.18em;color:var(--soft);
+                        text-transform:uppercase;display:block;margin-top:4px}
+  .headerdemo nav{display:flex;gap:20px;align-items:center;font-size:14.5px;flex-wrap:wrap}
+  .headerdemo nav a{color:var(--ink);text-decoration:none}
+  /* palette */
+  .swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+            gap:14px;margin-top:22px}
+  .sw{border:1px solid var(--hair);border-radius:8px;overflow:hidden;background:#fff}
+  .sw .chip{height:64px}
+  .sw .info{padding:10px 12px;font-size:12.5px;line-height:1.45}
+  .sw .info b{display:block;font-size:13px}
+  .sw .info span{color:var(--soft)}
+  /* type */
+  .t-display{font:600 48px/1.12 var(--serif);letter-spacing:-.005em;max-width:16ch}
+  .t-h2{font:600 28px/1.25 var(--serif)}
+  .t-h3{font:600 21px/1.3 var(--serif)}
+  .t-body{max-width:60ch;margin-top:12px}
+  .t-cap{font-size:13.5px;color:var(--soft);margin-top:10px}
+  .trow{display:flex;gap:18px;align-items:baseline;border-top:1px dashed var(--hair);
+        padding:10px 0;flex-wrap:wrap}
+  .trow .tag{width:150px;font-size:12px;color:var(--soft);flex-shrink:0}
+  /* buttons */
+  .btn{display:inline-block;background:var(--accent);color:var(--paper);
+       font:600 15px/1 var(--sans);padding:15px 26px;border-radius:8px;
+       text-decoration:none;transition:background .15s ease}
+  .btn:hover{background:var(--accent-deep)}
+  .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .quiet{color:var(--accent);font-weight:600;text-decoration:none;font-size:16px}
+  .quiet:hover{text-decoration:underline}
+  .btnrow{display:flex;gap:26px;align-items:center;margin-top:20px;flex-wrap:wrap}
+  /* bands */
+  .bands{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+  .band{border-radius:8px;padding:22px;border:1px solid var(--hair);font-size:14.5px}
+  .band b{font-family:var(--serif);font-size:17px}
+  /* price card */
+  .price{background:#fff;border:1px solid var(--hair);border-radius:10px;
+         box-shadow:0 1px 3px rgb(0 0 0 / .06);padding:34px;max-width:430px;margin-top:22px}
+  .price .amt{font:600 40px/1 var(--serif)}
+  .price .per{color:var(--soft);font-size:14px;margin-bottom:16px}
+  .price ul{list-style:none;padding:0;margin:0 0 18px;font-size:15.5px}
+  .price li{padding:7px 0 7px 26px;position:relative;border-top:1px solid var(--band-warm)}
+  .price li:before{content:"";position:absolute;left:2px;top:16px;width:12px;height:7px;
+        border-left:2px solid var(--accent);border-bottom:2px solid var(--accent);
+        transform:rotate(-45deg)}
+  /* situation card */
+  .sit{background:var(--band-warm);border-radius:10px;padding:26px;max-width:430px;margin-top:22px}
+  .sit h4{font:600 20px/1.35 var(--serif);margin-bottom:8px}
+  .sit p{font-size:15.5px}
+  /* emergency strip */
+  .estrip{border:1px solid var(--hair);border-radius:10px;background:#fff;
+          margin-top:22px;overflow:hidden}
+  .erow{display:flex;gap:16px;padding:16px 20px;font-size:15px;align-items:baseline}
+  .erow+.erow{border-top:1px solid var(--band-warm)}
+  .erow b{flex-shrink:0;width:110px;font-size:13px;letter-spacing:.06em;
+          text-transform:uppercase}
+  .e1 b{color:var(--em)} .e2 b{color:var(--ur)} .e3 b{color:var(--accent)}
+  /* faq */
+  .faq{border-top:1px solid var(--hair);margin-top:22px;max-width:640px}
+  .faq .q{border-bottom:1px solid var(--hair);padding:18px 0}
+  .faq .q h4{font:600 18px/1.4 var(--serif);display:flex;justify-content:space-between;gap:14px}
+  .faq .q h4 span{color:var(--accent);font-family:var(--sans);font-weight:400}
+  .faq .a{margin-top:10px;font-size:15.5px;color:var(--ink);max-width:58ch}
+  /* hero mock */
+  .hero{background:var(--paper);border:1px solid var(--hair);border-radius:12px;
+        padding:64px 48px;margin-top:22px}
+  .hero .hmark{font:600 15px/1 var(--serif);margin-bottom:40px}
+  .hero .hmark small{font:600 8.5px/1 var(--sans);letter-spacing:.18em;color:var(--soft);
+                     text-transform:uppercase;display:block;margin-top:3px}
+  .hero h1{font:600 46px/1.12 var(--serif);max-width:15ch;letter-spacing:-.005em}
+  .hero p.sub{max-width:46ch;margin-top:20px;font-size:17px}
+  .hero p.price{margin-top:16px;font-weight:600;font-size:16.5px}
+  .hero .cta{margin-top:28px}
+  /* footer mock */
+  .footmock{background:var(--ink);color:var(--paper);border-radius:10px;
+            padding:28px 30px;margin-top:22px;font-size:13.5px;line-height:1.7}
+  .footmock .fm{font:600 17px/1 var(--serif)}
+  .footmock .dim{color:#B8BDB9}
+  /* variations */
+  .varrow{display:flex;gap:14px;flex-wrap:wrap;margin-top:22px}
+  .var{border:1px solid var(--hair);border-radius:8px;background:#fff;padding:18px;width:214px}
+  .var .dot{width:34px;height:34px;border-radius:50%;margin-bottom:10px}
+  .var b{font-size:14px;display:block}
+  .var span{font-size:12.5px;color:var(--soft)}
+  .draft{position:sticky;bottom:0;background:var(--ink);color:var(--paper);
+         font-size:12px;text-align:center;padding:8px}
+  @media(max-width:640px){.t-display{font-size:34px}.hero{padding:40px 24px}
+    .hero h1{font-size:32px}.bands{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<section>
+  <div class="label">DuBose, M.D. — Visual Language Specimen · for review</div>
+  <h2 class="spec">The idea: space is the brand</h2>
+  <p class="note">The practice sells time and attention. The design expresses
+  it as room — warm paper, one serious serif, a single deep green, real
+  photography, and air. Everything a concierge-luxury, wellness, or
+  corporate-health site would add is deliberately absent.</p>
+</section>
+
+<section>
+  <div class="label">01 · Wordmark</div>
+  <div class="mark">DuBose, M.D.<small>direct primary care</small></div>
+  <p class="note" style="margin-top:18px">Source Serif 4 Semibold, ink. The
+  comma and periods are the identity — a physician's shingle, typeset. No
+  symbol, no monogram. In the header:</p>
+  <div class="headerdemo">
+    <div class="m">DuBose, M.D.<small>direct primary care</small></div>
+    <nav><a href="#">What I help with</a><a href="#">How it works</a>
+    <a href="#">Pricing</a><a href="#">About</a><a href="#">Questions</a>
+    <a class="btn" style="padding:11px 18px;font-size:14px" href="#">Book a conversation</a></nav>
+  </div>
+</section>
+
+<section>
+  <div class="label">02 · Color</div>
+  <div class="swatches">
+    <div class="sw"><div class="chip" style="background:#FAF8F4;border-bottom:1px solid #DDD8CE"></div><div class="info"><b>Paper #FAF8F4</b><span>page background — warm ivory</span></div></div>
+    <div class="sw"><div class="chip" style="background:#232B2A"></div><div class="info"><b>Ink #232B2A</b><span>text, wordmark, footer</span></div></div>
+    <div class="sw"><div class="chip" style="background:#2E6E64"></div><div class="info"><b>Accent #2E6E64</b><span>the one accent — juniper</span></div></div>
+    <div class="sw"><div class="chip" style="background:#5A6360"></div><div class="info"><b>Soft #5A6360</b><span>secondary text</span></div></div>
+    <div class="sw"><div class="chip" style="background:#F3F0E9"></div><div class="info"><b>Band #F3F0E9</b><span>alternating sections</span></div></div>
+    <div class="sw"><div class="chip" style="background:#EDF3EF"></div><div class="info"><b>Tint #EDF3EF</b><span>highlight band, price</span></div></div>
+    <div class="sw"><div class="chip" style="background:#A6392F"></div><div class="info"><b>Emergency #A6392F</b><span>only in the strip</span></div></div>
+    <div class="sw"><div class="chip" style="background:#96691E"></div><div class="info"><b>Urgent #96691E</b><span>only in the strip</span></div></div>
+  </div>
+  <p class="note" style="margin-top:16px">One accent, used sparingly. Red and
+  amber exist only inside the emergency strip — they never decorate.</p>
+</section>
+
+<section>
+  <div class="label">03 · Typography</div>
+  <div class="trow"><div class="tag">Display · Serif 600 · 44–56</div>
+    <div class="t-display">A doctor with time to actually figure it out with you.</div></div>
+  <div class="trow"><div class="tag">H2 · Serif 600 · 28</div>
+    <div class="t-h2">If your health has started to feel like too much</div></div>
+  <div class="trow"><div class="tag">H3 · Serif 600 · 21</div>
+    <div class="t-h3">Your first 90 days</div></div>
+  <div class="trow"><div class="tag">Body · Sans 400 · 17.5/1.68</div>
+    <div class="t-body">Either way, the problem usually isn't a lack of
+    healthcare. It's that nobody has time to think it through with you.
+    Visits are as long as they need to be, and every result comes with my
+    explanation — not just a number.</div></div>
+  <div class="trow"><div class="tag">Caption · Sans · 13.5 soft</div>
+    <div class="t-cap">Serif carries meaning; sans carries mechanics.</div></div>
+</section>
+
+<section>
+  <div class="label">04 · Actions</div>
+  <div class="btnrow">
+    <a class="btn" href="#">Book a free conversation</a>
+    <a class="quiet" href="#">How it works &rarr;</a>
+  </div>
+  <p class="note" style="margin-top:16px">One button style, one quiet-link
+  style. There is never a second button competing on a screen. Focus:
+  2px accent outline, offset, always visible.</p>
+</section>
+
+<section>
+  <div class="label">05 · Surfaces &amp; components</div>
+  <div class="bands">
+    <div class="band" style="background:var(--band-warm)"><b>Warm band</b><br>
+      Alternating sections — the recognition section lives here.</div>
+    <div class="band" style="background:var(--band-tint)"><b>Tint band</b><br>
+      Highlight moments — the closing invitation lives here.</div>
+  </div>
+
+  <div class="price">
+    <div class="amt">$100 <span style="font-size:17px;font-family:var(--sans);font-weight:400">per month</span></div>
+    <div class="per">per adult patient</div>
+    <ul>
+      <li>Visits as your care needs them — no per-visit charges</li>
+      <li>Direct messaging, answered in 1–2 business days</li>
+      <li>Every result reviewed and explained</li>
+      <li>Forms and paperwork handled</li>
+      <li>Cancel anytime</li>
+    </ul>
+    <a class="btn" href="#">Book a free conversation</a>
+  </div>
+
+  <div class="sit">
+    <h4>&ldquo;It's several things at once.&rdquo;</h4>
+    <p>Blood pressure, weight, sleep, energy, stress — each one manageable,
+    together overwhelming. We'll sort out what's urgent, what matters most,
+    and what can wait — then work through it in order, at a humane pace.</p>
+  </div>
+
+  <div class="estrip">
+    <div class="erow e1"><b>Emergency</b><span>Chest pain, stroke signs, severe
+      breathing trouble, thoughts of self-harm: <strong>call 911 or go to the
+      nearest ER. Never wait for me.</strong></span></div>
+    <div class="erow e2"><b>Urgent</b><span>Today, and I'm not reachable:
+      urgent care. Tell me after — I'll fold it into your care.</span></div>
+    <div class="erow e3"><b>Everything else</b><span>Message me — 1–2 business
+      days, usually faster.</span></div>
+  </div>
+
+  <div class="faq">
+    <div class="q"><h4>Why is it only $100 a month? What's the catch? <span>&minus;</span></h4>
+      <div class="a">The price works because the practice is small by design:
+      no office building, no billing department, no staff, and a limited
+      number of patients. The limits are stated rather than hidden — and when
+      my panel is full, it is full. That is the whole catch.</div></div>
+    <div class="q"><h4>Is this health insurance? <span>+</span></h4></div>
+    <div class="q"><h4>I'm on Medicare. Can I join? <span>+</span></h4></div>
+  </div>
+</section>
+
+<section>
+  <div class="label">06 · The hero, assembled</div>
+  <div class="hero">
+    <div class="hmark">DuBose, M.D.<small>direct primary care</small></div>
+    <h1>A doctor with time to actually figure it out with you.</h1>
+    <p class="sub">I'm a primary care physician with a small practice and
+    unhurried visits — for people who want a doctor who knows them, listens
+    carefully, and helps make sense of the whole picture.</p>
+    <p class="price">$100 a month. Cancel anytime. Works alongside your insurance.</p>
+    <div class="cta"><a class="btn" href="#">Book a free conversation</a>
+      &nbsp;&nbsp;<a class="quiet" href="#">How it works &rarr;</a></div>
+  </div>
+  <div class="footmock">
+    <div class="fm">DuBose, M.D.</div>
+    <span class="dim">[City], Texas &nbsp;·&nbsp; What I help with · How it
+    works · Pricing · About · Questions · Book a conversation</span><br>
+    <span class="dim">If this is an emergency, call 911 or go to the nearest
+    ER. &nbsp;·&nbsp; Read the full Membership Agreement (PDF) — yes, before
+    you ever talk to me.</span>
+  </div>
+</section>
+
+<section style="border-bottom:none">
+  <div class="label">07 · Variations for your reaction</div>
+  <div class="varrow">
+    <div class="var"><div class="dot" style="background:#2E6E64"></div>
+      <b>Juniper green (recommended)</b><span>calm, alive, unclinical —
+      health without wellness</span></div>
+    <div class="var"><div class="dot" style="background:#3D5F78"></div>
+      <b>Slate blue</b><span>more traditional-medical, cooler, safer</span></div>
+    <div class="var"><div class="dot" style="background:#8C5A2E"></div>
+      <b>Warm bronze</b><span>bookish and distinctive — riskier</span></div>
+    <div class="var"><div style="font:600 22px/1.2 Lora,serif;margin-bottom:8px">DuBose, M.D.</div>
+      <b>Serif alternate: Lora</b><span>rounder, warmer, slightly less
+      editorial than Source Serif 4</span></div>
+  </div>
+</section>
+
+</div>
+<div class="draft">DRAFT — visual language specimen for design review · DuBose, M.D. · not a public page</div>
+</body>
+</html>
