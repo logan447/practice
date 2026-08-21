@@ -2,19 +2,20 @@
 
 ## Header (desktop, sticky, white, thin bottom rule, ~64px)
 
-Left: **[Practice Name]** wordmark + "direct primary care" descriptor.
+Left: **DuBose, M.D.** wordmark + "direct primary care" descriptor.
 Right nav: What I help with · How it works · Pricing · About · Questions ·
 **[Book a conversation]** (soft accent button).
 
 ## Header (mobile, collapsed)
 
-`[Practice Name]  [Book]  ≡` — the Book button is ALWAYS visible in the
+`DuBose, M.D.  [Book]  ≡` — the Book button is ALWAYS visible in the
 collapsed header; it never moves inside the drawer.
 
 ## Mobile navigation drawer
 
-Slides down, full screen, calm. Large tap targets, no icons. Current page
-marked with a small accent rule at left. Order: What I help with · How it
+Slides down, full screen, calm (wordmark "DuBose, M.D." at top). Large
+tap targets, no icons. Current page marked with a small accent rule at
+left. Order: What I help with · How it
 works · Pricing · About Dr. DuBose · Questions. Below the links: the
 [Book a free conversation] button repeated (thumb zone). At the bottom,
 quiet and small:
@@ -23,7 +24,7 @@ quiet and small:
 
 ## Footer (dark ink background, small type)
 
-Line 1: [Practice Name] · [Dr. Name], M.D. · [City], Texas
+Line 1: DuBose, M.D. · [City], Texas   (the name IS the physician — no redundant second credit)
 Line 2: page links (all six) · Book a conversation
 Rule, then:
 > If this is an emergency, call 911 or go to the nearest ER.

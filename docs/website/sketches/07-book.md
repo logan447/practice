@@ -78,8 +78,8 @@ me?" dropdown (friend or family / my doctor / online / other).
 >
 > See you soon,
 > Logan DuBose, M.D.
-> [Practice Name] — [city], Texas
-> [practice website]
+> DuBose, M.D. — direct primary care, [city], Texas
+> [dubosemd.com]
 
 **Reminder email (day before):** same skeleton, two sentences —
 "Looking forward to talking tomorrow at [time]. Video link and

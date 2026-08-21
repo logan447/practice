@@ -28,11 +28,31 @@ plan · D-027 cancel-anytime monthly; no outcomes guarantee · D-021
 established EHR core + simple front-door website · D-007 integrate before
 build
 
-**Project:** D-011 preparation project · D-012 Texas, Austin lean · D-019
+**Project:** D-034 named: **DuBose, M.D.** · D-011 preparation project · D-012 Texas, Austin lean · D-019
 ~12–24 mo horizon; VA license now, TX after settling · D-020 $20k prep
 ceiling · D-010/D-013/D-025 how this repo works
 
 ---
+
+## D-034 — The practice is named: DuBose, M.D.
+
+**Date:** 2026-08-18 — resolves Q-22.
+
+The practice name is **DuBose, M.D.** — the physician's shingle as the
+brand, in its most classic form. Header lockup: "DuBose, M.D. · direct
+primary care." Rationale: the practice's entire differentiation is a
+person accountable to you; the site is written in the first person; in
+grassroots referral the sentence is "you should call Dr. DuBose" — the
+name and the promise are the same thing. Runner-up considered: DuBose
+Medicine; concept names (Whole Picture Medicine, Steady Medicine)
+screened and set aside — "whole picture," "unhurried," and "plain"
+remain working vocabulary, not trademarks.
+
+**Domains (DNS-screened likely available 2026-08-18 — verify and buy
+promptly):** dubosemd.com, dubose.md, dubosemedicine.com (defensive).
+**Still required before public use:** trademark screen; Texas
+assumed-name (DBA) registration under the future PLLC; TMB
+advertising-rule check on the name — all on the existing counsel list.
 
 ## D-029 — Standard direct-pay price: $100/month per patient
 

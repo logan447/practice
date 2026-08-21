@@ -10,13 +10,7 @@ D-029 re-baseline.
 
 ## Design questions the re-baseline created (answer during preparation)
 
-### Q-22 — The practice name `YOU` + me
-Made unavoidable by the website phase. Needs: name candidates that fit
-the register (credible, warm, unexotic — not concierge-luxury, not
-wellness), domain availability, Texas entity-name compatibility
-(`COUNSEL` at formation), and TMB advertising-rule sanity. A working
-name can carry the prototype; the real decision lands before anything
-publishes.
+
 
 ### Q-19 — The boundary design: what sits outside $100/month? `YOU` + me
 **Draft v1 exists** — Patient Agreement draft §7
@@ -106,6 +100,9 @@ Q-03b income floor and runway (`CPA`).
 ---
 
 ## Resolved (recent)
+
+- ~~Q-22 — practice name~~ → **DuBose, M.D.** (D-034); domains to
+  purchase; trademark/DBA/TMB checks on the counsel list
 
 - ~~Pricing/packaging (Q-14, X-09)~~ → **$100/month flat** (D-029)
 - ~~Family/child pricing~~ → none; adults only, per-adult (D-030)

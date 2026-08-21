@@ -4,8 +4,8 @@
 D-016, D-017, D-022, the Patient Agreement v2). Phase deliverable: a
 **prototype for visualization and Track F validation** — publishing waits
 on name, entity, licensure posture, and a TMB-advertising/counsel pass
-(R-13). Placeholder identity: `[Practice Name]` / `[Dr. Name]` until the
-naming decision (new open item Q-22).*
+(R-13). Identity decided (D-034): **DuBose, M.D.** — header lockup
+"DuBose, M.D. · direct primary care"; physician: Logan DuBose, M.D.*
 
 ## 1. What the website is for
 
