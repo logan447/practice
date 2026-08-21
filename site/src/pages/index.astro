@@ -3,19 +3,26 @@ import Base from '../layouts/Base.astro';
 ---
 <Base title="DuBose, M.D. — direct primary care" bookbar={true}>
 
-  <!-- 1 · Hero — typographic; candid photography arrives at launch -->
+  <!-- 1 · Hero -->
   <section class="hero">
     <div class="container">
       <div class="hero-grid">
-        <div>
+        <div class="h-head">
           <span class="eyebrow">Direct primary care &middot; [City], Texas</span>
           <h1>A doctor with time to actually figure it out with you.</h1>
         </div>
-        <div>
+        <div class="h-photo">
+          <div class="photo-frame">
+            <div class="photo" style="aspect-ratio:4/5">
+              <img src="/images/dr-dubose.jpg" alt="Dr. Logan DuBose" width="800" height="1000" />
+            </div>
+          </div>
+        </div>
+        <div class="h-body">
           <p class="sub">
-            I&rsquo;m a primary care physician with a small practice and
-            unhurried visits — for people who want a doctor who knows them,
-            listens carefully, and helps make sense of the whole picture.
+            I&rsquo;m Logan DuBose, a primary care physician. My practice is
+            small on purpose: unhurried visits, direct messaging, and one
+            doctor who follows your whole picture.
           </p>
           <div class="cta-row">
             <a class="btn" href="/book">Book a free conversation</a>
@@ -42,18 +49,18 @@ import Base from '../layouts/Base.astro';
         <div class="prose">
           <p>
             Maybe it&rsquo;s several things at once — blood pressure creeping
-            up, sleep that never feels like rest, results nobody fully
-            explained, medications you&rsquo;re not sure you still need. Maybe
-            you&rsquo;ve seen good specialists, and each one checked their
-            part — but no one is looking at the whole of it, with you.
+            up, poor sleep, results nobody explained, medications
+            you&rsquo;re not sure you still need. You may have seen good
+            specialists, each one checking their part, with no one looking
+            at the whole of it.
           </p>
           <p>
-            Or maybe nothing is wrong yet. You&rsquo;d just like a doctor who
-            knows you before something is.
+            Or maybe nothing is wrong yet, and you want a doctor who knows
+            you before something is.
           </p>
           <p>
-            Either way, the problem usually isn&rsquo;t a lack of healthcare.
-            It&rsquo;s that nobody has time to think it through with you.
+            The problem usually isn&rsquo;t a lack of healthcare. It&rsquo;s
+            that nobody has time to think it through with you.
           </p>
           <p><a class="quiet" href="/help">What I can help with &rarr;</a></p>
         </div>
@@ -67,28 +74,25 @@ import Base from '../layouts/Base.astro';
       <div class="split">
         <div>
           <span class="eyebrow">What I do</span>
-          <h2>Medicine, given room to work</h2>
+          <h2>Primary care with enough time</h2>
         </div>
         <div class="prose">
           <p>
-            My job is to listen carefully, understand your whole situation —
-            medical, and the life around it — figure out what&rsquo;s urgent,
-            what matters most, and what can wait, and then work the plan with
-            you over time. Visits are as long as they need to be. Between
-            visits, you can message me and I&rsquo;ll answer — and every
-            result comes with my explanation, not just a number.
+            I listen, understand your whole situation, sort out what&rsquo;s
+            urgent and what can wait, and work a plan with you over time.
+            Visits last as long as they need to. Between visits you can
+            message me, and every result comes with my explanation.
           </p>
           <p>
-            This isn&rsquo;t alternative medicine or a wellness program.
-            It&rsquo;s evidence-based primary care with the one thing modern
-            medicine rarely has: enough time.
+            This is not alternative medicine or a wellness program. It is
+            evidence-based primary care with enough time to do it well.
           </p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 4 · How it works, in four steps -->
+  <!-- 4 · How it works -->
   <section class="section band-warm">
     <div class="container">
       <div class="sec-head">
@@ -99,8 +103,8 @@ import Base from '../layouts/Base.astro';
         <div class="step-item">
           <span class="num">01</span>
           <h4>We talk first</h4>
-          <p>A free 30-minute video conversation. No pressure — if I&rsquo;m
-          not the right fit, I&rsquo;ll say so.</p>
+          <p>A free 30-minute video call. If I&rsquo;m not the right fit,
+          I&rsquo;ll say so.</p>
         </div>
         <div class="step-item">
           <span class="num">02</span>
@@ -110,26 +114,26 @@ import Base from '../layouts/Base.astro';
         <div class="step-item">
           <span class="num">03</span>
           <h4>Care that fits you</h4>
-          <p>Mostly by video. I come to you when an exam truly needs it;
-          clinic space when that&rsquo;s better.</p>
+          <p>Mostly by video. Home visits when an exam needs it; clinic
+          space when that&rsquo;s better.</p>
         </div>
         <div class="step-item">
           <span class="num">04</span>
           <h4>You see it working</h4>
-          <p>Your trends — blood pressure, labs, how you feel — visible to
-          both of us, so we know it&rsquo;s worth it.</p>
+          <p>Your blood pressure, labs, and progress are visible to both
+          of us.</p>
         </div>
       </div>
       <p style="margin-top:36px"><a class="quiet" href="/how-it-works">The details, start to finish &rarr;</a></p>
     </div>
   </section>
 
-  <!-- 5 · The price, plainly -->
+  <!-- 5 · The price -->
   <section class="section band-tint" id="bookbar-after">
     <div class="container">
       <div class="sec-head">
         <span class="eyebrow">Pricing</span>
-        <h2>The price, plainly</h2>
+        <h2>The price</h2>
       </div>
       <div class="split even" style="align-items:start">
         <div class="price-card">
@@ -140,7 +144,7 @@ import Base from '../layouts/Base.astro';
             <li>Direct messaging with me</li>
             <li>Every result explained</li>
             <li>Your care coordinated</li>
-            <li>Forms and paperwork handled</li>
+            <li>Forms and paperwork included</li>
             <li>Home visits when needed</li>
             <li>Cancel anytime</li>
           </ul>
@@ -148,12 +152,13 @@ import Base from '../layouts/Base.astro';
         <div class="prose">
           <h3>What it doesn&rsquo;t cover</h3>
           <p style="margin-top:8px">
-            Labs, imaging, medications, vaccines, specialists, hospitals —
-            your insurance keeps covering those, like today.
+            Labs, imaging, medications, vaccines, specialists, hospitals.
+            Your insurance keeps covering those, as it does today.
           </p>
-          <h3 style="margin-top:28px">On Medicare or Medicaid?</h3>
+          <h3 style="margin-top:28px">Medicare or Medicaid</h3>
           <p style="margin-top:8px">
-            You can still join — one extra form handles it.
+            You can still join. One extra form, required by federal or
+            state rules, handles it.
           </p>
           <p style="margin-top:24px"><a class="quiet" href="/pricing">Pricing &amp; how insurance fits &rarr;</a></p>
         </div>
@@ -172,10 +177,10 @@ import Base from '../layouts/Base.astro';
         <div>
           <h3>A good fit if&hellip;</h3>
           <ul class="yes">
-            <li>you want a doctor who actually knows you</li>
+            <li>you want a doctor who knows you</li>
             <li>your health feels tangled and you want help sorting it out</li>
-            <li>you&rsquo;re managing ongoing conditions and want them truly
-            managed, not just refilled</li>
+            <li>you have ongoing conditions and want them managed, not just
+            refilled</li>
             <li>you&rsquo;d rather prevent problems than chase them</li>
           </ul>
         </div>
@@ -183,11 +188,9 @@ import Base from '../layouts/Base.astro';
           <h3>Not a fit if&hellip;</h3>
           <ul class="no">
             <li>you need 24/7 physician access — I keep business hours and
-            take real time off, and I&rsquo;ll always tell you how care works
-            while I&rsquo;m away</li>
-            <li>you&rsquo;re looking for emergency or hospital care —
-            that&rsquo;s the ER&rsquo;s job, and it never stops being the
-            ER&rsquo;s job</li>
+            take real time off</li>
+            <li>you need emergency or hospital care — that is the
+            ER&rsquo;s job, always</li>
             <li>you&rsquo;re under 18 — I care for adults only</li>
           </ul>
         </div>
@@ -199,22 +202,18 @@ import Base from '../layouts/Base.astro';
   <!-- 7 · The doctor -->
   <section class="section band-warm">
     <div class="container">
-      <div class="about-grid">
-        <div class="photo-frame">
-          <div class="photo" style="aspect-ratio:1/1">
-            <img src="/images/dr-dubose-square.jpg" alt="Dr. Logan DuBose" width="640" height="640" />
-          </div>
-        </div>
-        <div class="prose">
+      <div class="split">
+        <div>
           <span class="eyebrow">The doctor</span>
           <h2>Logan DuBose, M.D.</h2>
-          <p style="margin-top:16px">
-            I&rsquo;m a physician and researcher. I built this practice after
-            years of studying why healthcare fails people: because I kept
-            meeting patients who didn&rsquo;t need more healthcare — they
-            needed one doctor with enough time to think.
+        </div>
+        <div class="prose">
+          <p>
+            I&rsquo;m a physician and researcher. I built this practice
+            because I kept meeting patients who didn&rsquo;t need more
+            healthcare — they needed one doctor with enough time to think.
           </p>
-          <p style="margin-top:20px"><a class="quiet" href="/about">More about me and how I practice &rarr;</a></p>
+          <p><a class="quiet" href="/about">More about me and how I practice &rarr;</a></p>
         </div>
       </div>
     </div>
@@ -234,7 +233,7 @@ import Base from '../layouts/Base.astro';
           <summary>Is this health insurance?</summary>
           <p class="a">
             No. It is a direct agreement between you and me for my services
-            as your physician. It does not replace insurance, and I recommend
+            as your physician. It does not replace insurance. I recommend
             every member keep coverage for everything outside our
             relationship — labs, medications, specialists, hospitals.
           </p>
@@ -242,28 +241,27 @@ import Base from '../layouts/Base.astro';
         <details>
           <summary>Why is it only $100 when concierge doctors charge thousands?</summary>
           <p class="a">
-            The price works because the practice is small by design: no
-            office building, no billing department, no staff, and a limited
-            number of patients. Concierge fees typically run $2,400 to $5,000
-            a year on top of insurance billing; this is $100 a month, and I
-            bill no one.
+            The practice is small by design: no office building, no billing
+            department, no staff, and a limited number of patients.
+            Concierge fees typically run $2,400 to $5,000 a year on top of
+            insurance billing. This is $100 a month, and I bill no one.
           </p>
         </details>
         <details>
           <summary>I already have doctors I like — does this still make sense?</summary>
           <p class="a">
-            Often, yes. You can keep every doctor you have — including
-            another primary care physician. Members in that situation use me
-            as the doctor who has time: to explain, to coordinate, to watch
-            the whole picture between everyone else&rsquo;s appointments.
+            Often, yes. You can keep every doctor you have, including
+            another primary care physician. Members in that situation use
+            me as the doctor who has time: to explain, to coordinate, and
+            to watch the whole picture.
           </p>
         </details>
         <details>
           <summary>What&rsquo;s the catch?</summary>
           <p class="a">
-            The limits are stated rather than hidden: I keep business hours,
-            I am not an emergency service, I take real time away each year,
-            and when my panel is full it is full. That is the whole catch.
+            The limits are stated, not hidden: I keep business hours, I am
+            not an emergency service, I take real time away each year, and
+            when my panel is full it is full.
           </p>
         </details>
         </div>
@@ -275,18 +273,17 @@ import Base from '../layouts/Base.astro';
   <section class="section cta-band">
     <div class="container">
       <div class="inner">
-        <h2>Start with a conversation. That&rsquo;s all.</h2>
+        <h2>Start with a free conversation.</h2>
         <p>
-          Thirty minutes, by video, free. Tell me what&rsquo;s going on;
-          I&rsquo;ll tell you honestly whether I can help — and if I&rsquo;m
-          not the right fit, I&rsquo;ll point you toward someone who is.
+          Thirty minutes by video. Tell me what&rsquo;s going on, and
+          I&rsquo;ll tell you honestly whether I can help. If I&rsquo;m not
+          the right fit, I&rsquo;ll point you toward someone good.
         </p>
         <a class="btn btn-inverse" href="/book">Book a free conversation</a>
         <div class="signup">
           <p>
             Not ready to talk? Leave your email and I&rsquo;ll send an
-            occasional letter about the practice — no more than monthly,
-            never a sales sequence.
+            occasional letter about the practice — no more than monthly.
           </p>
           <form action="#" method="post">
             <input type="email" name="email" placeholder="email address" aria-label="Email address" required />

@@ -92,7 +92,7 @@ p{max-width:var(--measure)}
 .btn:active{transform:translateY(1px)}
 .btn-inverse{background:var(--paper);color:var(--pine)}
 .btn-inverse:hover{background:#fff}
-.btn-nav{padding:11px 20px;min-height:42px;font-size:14px}
+.btn-nav{padding:12px 22px;min-height:44px;font-size:14px}
 .quiet{color:var(--accent);font-weight:600;text-decoration:none;font-size:16px}
 .quiet:hover{text-decoration:underline;text-underline-offset:3px}
 .subtext{font-size:14.5px;color:var(--soft);margin-top:12px}
@@ -115,9 +115,9 @@ p{max-width:var(--measure)}
 .wordmark small{display:block;font:600 9px/1 var(--sans);letter-spacing:.22em;
   text-transform:uppercase;color:var(--soft);margin-top:4px}
 .nav-desktop{display:flex;gap:26px;align-items:center}
-.nav-desktop a{color:var(--ink);text-decoration:none;font-size:15px;
+.nav-desktop a:not(.btn){color:var(--ink);text-decoration:none;font-size:15px;
   padding:6px 0;border-bottom:2px solid transparent}
-.nav-desktop a:hover{color:var(--accent)}
+.nav-desktop a:not(.btn):hover{color:var(--accent)}
 .nav-desktop a.active{color:var(--accent);border-bottom-color:var(--accent)}
 .nav-toggle{display:none}
 #nav-check{display:none}
@@ -212,8 +212,16 @@ p{max-width:var(--measure)}
 
 /* hero composition + full-width price strip */
 .hero-grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);
-  gap:clamp(36px,6vw,100px);align-items:center}
-@media (max-width:860px){.hero-grid{grid-template-columns:1fr;gap:24px}}
+  grid-template-areas:"head photo" "body photo";
+  column-gap:clamp(40px,6vw,110px);align-items:center}
+.hero-grid .h-head{grid-area:head;align-self:end}
+.hero-grid .h-body{grid-area:body;margin-top:26px}
+.hero-grid .h-photo{grid-area:photo;max-width:480px;justify-self:end;width:100%}
+@media (max-width:860px){
+  .hero-grid{grid-template-columns:1fr;grid-template-areas:"head" "photo" "body"}
+  .hero-grid .h-photo{margin-top:28px;justify-self:start;max-width:380px}
+  .hero-grid .h-body{margin-top:24px}
+}
 .pstrip{display:grid;grid-template-columns:repeat(3,1fr);gap:0;
   margin-top:clamp(40px,6vw,64px);border-block:1px solid var(--hair)}
 .pstrip div{padding:18px 28px 18px 0;font-size:14.5px;color:var(--soft)}
@@ -259,7 +267,8 @@ p{max-width:var(--measure)}
 .faq summary::after{content:"+";color:var(--accent);font-family:var(--sans);
   font-weight:400;font-size:22px;flex-shrink:0;line-height:1.2}
 .faq details[open] summary::after{content:"\2212"}
-.faq .a{padding:0 0 22px;font-size:15.5px;max-width:66ch;color:#39423F}
+.faq .a{padding:0 clamp(28px,6vw,80px) 22px 0;font-size:16px;color:#39423F;
+  max-width:none}
 .faq .a a{font-weight:600;text-decoration:none}
 .faq .a a:hover{text-decoration:underline}
 .faq-group{margin-top:64px;scroll-margin-top:150px;display:grid;
@@ -396,6 +405,20 @@ p{max-width:var(--measure)}
 .sched-confirm .when{font:600 17px/1.5 var(--sans);color:var(--accent);margin-top:10px}
 .sched-confirm p{font-size:15.5px;margin-top:14px;max-width:none}
 .sched-confirm .sig{font-family:var(--serif);margin-top:18px}
+
+/* ---------- agreement document page ---------- */
+.doc{max-width:76ch}
+.doc h2{margin:48px 0 14px;font-size:24px}
+.doc h3{margin:30px 0 10px}
+.doc p{max-width:none}
+.doc p+p{margin-top:1em}
+.doc ul{padding-left:22px;margin:12px 0}
+.doc li{margin:8px 0}
+.doc .vers{font-size:13.5px;color:var(--soft);margin-top:10px}
+.notice{border-left:3px solid var(--ur);background:#F6EFE2;
+  border-radius:0 var(--radius) var(--radius) 0;padding:18px 24px;
+  font-size:15px;margin:28px 0}
+.notice p{max-width:none}
 
 /* ---------- sticky mobile book bar ---------- */
 .bookbar{display:none}
