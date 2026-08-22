@@ -4,94 +4,97 @@
 resolves, update the source-of-truth document and mark it here (or
 delete it once it needs no attention). Source docs:
 `docs/strategy/va-dc-launch-decision.md` (launch plan),
-`docs/strategy/medicare-medicaid-brief.md` (Medicare/Medicaid),
-`tools/va_launch_model.py` (economics). Started 2026-08-22.*
+`docs/strategy/medicare-medicaid-brief.md` (three-lanes analysis),
+`medicare-ffs-lane-brief.md` (Path B), `two-settings-brief.md`,
+`dc-license-brief.md`, `tools/va_launch_model.py` (economics).
+Updated 2026-08-22 (evening).*
 
 ## Needs my decision (owner)
 
-- **Medicare strategy: Path A (FCHC-only for Medicare pts) vs B
-  (private practice bills Medicare FFS) vs C (hybrid non-covered
-  fee).** Research in progress 2026-08-22; decide after briefs.
-- **DC license now vs at Stage 2 vs later.** Leaning now; pressure
-  test in progress 2026-08-22.
-- Adopt lane-A membership screen (exclude Medicare/MA/Medicaid/QMB)
-  as interim planning posture? (Recommended; superseded if Path B
-  chosen.)
-- Honest weekly time budget (~6–10 hr/wk needed). UNSET.
+- **Medicare model.** Recommended: membership stays non-Medicare;
+  PLLC also enrolls in Medicare and serves Medicare patients as
+  ordinary FFS patients (hybrid, traditional Medicare only at
+  first); FCHC door stays an informational fallback. Decide, then
+  one coherent project update.
+- **DC license.** Recommendation: file now (~$1,500 first year,
+  ~$650/yr carry; 2–4 month clock starts at filing). Decide.
+- Honest weekly time budget (~6–10 hr/wk + Medicare billing 3–6
+  hr/mo if hybrid). UNSET.
 - Kill/hibernate criterion (<5 members at month 4) — confirm.
-
-## In progress (research/agents)
-
-- Path B mechanics + economics: dual reassignment (FCHC + own PLLC),
-  CMS-460 scope, 2026 PFS revenue per Medicare patient, admin burden,
-  MIPS low-volume exemption. Agent running 2026-08-22.
-- "Two care settings" boundaries: Stark/AKS on directing Medicare
-  prospects to FCHC, records/marketing separation, FCHC-side
-  constraints. Agent running 2026-08-22.
-- DC license value: sitting-in-DC telemedicine legality, DC taxes
-  (UBT personal-services exemption), home visits, DEA anchoring,
-  carrying cost, Texas implications. Agent running 2026-08-22.
-
-## Needs research (queued, not yet assigned)
-
-- Medicare telehealth coverage state in 2026 (post-cliff) — folded
-  into Path B agent; verify again at contract time. REFRESH.
-- DEA special registration final rule (~Nov 2026) — REFRESH before
-  2027; affects remote prescribing after a Texas move.
-- Whether Cerbo supports FFS billing workflows (claims, ERA) if Path
-  B chosen — vendor question, ask Erica if Path B survives.
-- Virginia private-pay exception scope for Medicaid members (only if
-  we ever want Medicaid members) — parked; NEEDS-DMAS + counsel.
+- Billing ops choice if hybrid: DIY clearinghouse vs biller (4–8%).
 
 ## Needs owner facts (blocking)
 
-- FCHC: bills Medicare for his encounters? Under what method (Part B
-  PFS / FQHC PPS / nothing)? Same for Medicaid. Written answer.
+- FCHC: bills Medicare/Medicaid for his encounters? Method (Part B
+  PFS / FQHC PPS / none)? Accepting new Medicare patients?
+  Service-area/eligibility rules? Comp tied to volume? Malpractice
+  coverage type? Written answers (question list in
+  two-settings-brief.md).
 - PECOS pull: enrolled? CMS-460 on file? Active reassignments.
 - FCHC employment contract: outside practice, non-solicit,
-  moonlighting policy, use of FCHC name in bio.
-- FCHC patient-eligibility criteria (can a referred Medicare prospect
-  actually become an FCHC patient?).
+  moonlighting, FCHC-name-in-bio permission.
 - Olera: conflict/time terms touching outside clinical practice.
-- **Cerbo quote line items** (tier quoted, add-ons) — forward the
-  quote; model carries a list-price bracket until then.
+- **Cerbo quote line items** (tier + add-ons) — forward the quote;
+  model carries a list-price bracket until then.
 
 ## Needs professional confirmation
 
-- NEEDS-BROKER: malpractice re-quote (Core Specialty expired);
-  remove/price the DC-sitting exclusion; occurrence vs claims-made +
-  tail; DC patients/DC sitting rating; home-visit rider; future TX.
-- NEEDS-COUNSEL: VA DPC agreement package (§§54.1-2997/2998),
-  relocation clause, membership screen + aging-in clause,
-  §54.1-3303(f) in-person-first rule, VA ad-rules pass; Stark/AKS
-  comfort letter on the two-settings design (pending brief).
-- NEEDS-CPA: entity/tax election; DC-resident taxation of practice
-  income (DC credit for VA-source? UBT exemption).
-- NEEDS-MAC (only if opt-out ever revisited or FCHC is FQHC-like):
-  Palmetto GBA questions per medicare-medicaid-brief.md §D.
+- NEEDS-BROKER: malpractice re-quote (expired): DC territory for
+  patient-location AND physician-location, house calls, telemedicine;
+  occurrence vs claims-made + tail; admitted DC/VA markets (MedPro,
+  TDC, Curi); dual-practice disclosure.
+- NEEDS-COUNSEL: VA DPC agreement package; membership screen +
+  aging-in clause; §54.1-3303(f) rule; VA ad pass; two-class
+  service-tier design memo (hybrid); DC outbound-telemedicine
+  position; VA PLLC qualification in DC; DEA anchoring plan for
+  2027; employment-contract read.
+- NEEDS-CPA: entity/tax election; DC-resident taxation of
+  pass-through (VA nonresident + DC credit); DC UBT
+  personal-services exemption filing mechanics (D-30).
+- NEEDS-MAC (Palmetto GBA, if hybrid): house-call/home-office
+  practice-location acceptance; CMS-460 interaction with new PLLC
+  enrollment; processing time; EDI tooling; locality.
 
-## Parked until the Medicare/DC decisions land (do NOT patch yet)
+## Needs research (queued)
 
-- Website: agreement page asserts Texas law + effective opt-out
-  (false for VA posture); [City] placeholders; Medicare wording on
-  pricing/questions pages; possible DC service-area language.
-- Membership agreement: Virginia edition; screen/aging-in clause;
-  relocation clause; Path-B implications if chosen.
-- Unit-economics doc + decision log: update once model is final.
-- Acquisition docs: channels.md A8 Zocdoc annotation; beachhead
-  geography (NoVa vs NoVa+DC) pending DC decision.
-- One coherent cross-project update after alignment (owner's rule:
-  no piecemeal rewrites).
+- DEA special-registration final rule (~Nov 2026) + whether the
+  separate patient-state registration exception survives 2027.
+  REFRESH before 2027.
+- Whether Cerbo supports FFS claims workflows (837/ERA,
+  clearinghouse integrations) — ask Erica if hybrid chosen.
+- Medicare telehealth statutory cliff Jan 1, 2028. REFRESH.
+- CY2026→27 fee schedule refresh each fall. REFRESH-AT-RUNWAY.
+
+## Parked until decisions land (do NOT patch yet)
+
+- Website: agreement page (Texas law + opt-out assertions), [City]
+  placeholders, Medicare wording, DC service area.
+- Membership agreement: VA edition; screen/aging-in; relocation
+  clause; hybrid-lane paperwork separation.
+- Unit-economics doc, decision log entries, acquisition docs
+  (beachhead geography NoVa+DC; channels.md A8 note).
+- Economics model: add Medicare-FFS lane revenue + DC costs once
+  model chosen (inputs ready in medicare-ffs-lane-brief.md).
+- One coherent cross-project update after alignment.
 
 ## Resolved (pointer to source of truth)
 
-- Virginia DPC legality, telemedicine onboarding, in-person-first
-  operating rule → va-dc-launch-decision.md §3.
-- Move-to-Texas continuity for VA panel → §6.
-- Medicare three-lanes analysis; Medicaid exclusion posture while
-  DMAS-enrolled; QMB never enrolled → medicare-medicaid-brief.md.
-- Malpractice reality: Core Specialty $5,472/yr quote (expired,
-  claims-made, DC-sitting exclusion) → decision doc §11.1.
-- EMR: Cerbo preferred; $1 signup, 50% off months 1–3 → §11.2.
-- Economics v2 break-evens (7–9 members at bracket prices) → §11.3.
-- Website/collateral baseline locked (D-035) — no discretionary edits.
+- Medicare: enrollment individual; mandatory claims; three lanes;
+  hybrid (members + FFS) lawful; no homebound rule for house calls;
+  MIPS-exempt at micro scale; telehealth funded through 2027; MA =
+  same rules, defer → medicare-medicaid-brief.md +
+  medicare-ffs-lane-brief.md.
+- Medicaid: exclude members while DMAS-enrolled; QMB never →
+  medicare-medicaid-brief.md.
+- Two-settings concept sound with guardrails; FCHC door
+  informational only; never-recruit line; records wall →
+  two-settings-brief.md.
+- DC: sitting-in-DC analysis; UBT exempt; FN-1 $220; carry
+  ~$650/yr; recommendation file now → dc-license-brief.md.
+- Virginia DPC law, telemedicine, in-person-first rule; Texas move
+  continuity → va-dc-launch-decision.md §§3, 6.
+- Malpractice reality (Core Specialty $5,472/yr, expired, DC-sitting
+  exclusion, tail) → decision doc §11.1.
+- Cerbo preferred EMR; $1 signup, 50% × 3 mo → §11.2. Economics v2
+  break-evens → §11.3.
+- Website/collateral baseline locked (D-035).
