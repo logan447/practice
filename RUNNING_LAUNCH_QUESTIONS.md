@@ -98,6 +98,17 @@ Updated 2026-08-22 (evening).*
 
 Deliverable: one short collaborative email to Faith (Ops) + Dr.
 Steiner. Draft-in-progress; do NOT send until pre-draft items clear.
+Agenda (2026-08-22): (1) credentialing/billing incl. Epic
+billing-provider setup + unsigned 8/18 notes; (2) Medicare Wellness
+Visit workflow — telehealth-from-clinic days (9/14 candidate, 9/18
+scheduled), AWV telehealth-eligible through 12/31/2027, interim
+billing path 42 CFR 410.15 (furnish under supervising physician —
+FCHC biller's call) pending his own enrollment; (3) Q4 availability
+(~3 clinic days/mo, wife's schedule ~2 wks out; DC license may add
+home-telehealth flexibility); (4) inbox cadence ~5 hr/wk + comp
+logging question ($50/hr rate — also new comp data point: FCHC
+gross ≈ ~$2.3k/mo at 3 days + inbox, EST, owner to correct →
+~35-40 DPC members ≈ full FCHC income replacement).
 - In the email (current cut): Medicare enrollment gap (PECOS empty;
   self-file offer; gentle ordering/referring flag), credentialing
   snapshot request (their existing MedTrainer report), Sentara
