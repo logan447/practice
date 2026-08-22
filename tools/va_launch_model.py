@@ -8,6 +8,9 @@ Run: python3 tools/va_launch_model.py
 
 FEE = 100.0  # $/member/month (D-029)
 
+# NOTE on malpractice: prefer an occurrence policy if priced sanely;
+# a claims-made policy adds a tail cost (~1.5-2x annual premium) at
+# exit, which matters for the hibernate/wind-down scenarios. NEEDS-BROKER.
 # ---- Cost scenarios (monthly fixed) -------------------------------
 # Sources: channel/pricing research brief 2026-08-22 (vendor pages);
 # malpractice = derived estimate from published part-time discount
@@ -40,14 +43,17 @@ SCENARIOS = {
 # One-time launch costs (both scenarios; DC items listed separately)
 ONE_TIME = {
     "VA PLLC formation (SCC articles)": 100.0,
-    "Counsel: VA DPC agreement adaptation + ad review (est band mid)": 2000.0,  # NEEDS-COUNSEL quote; band $1.5-3.5k
+    "Counsel: VA DPC agreement + 54.1-3303(f) rule + ad review (mid)": 2000.0,  # NEEDS-COUNSEL; band $1.5-3.5k
     "EPCS identity proofing / setup": 100.0,
     "Print run: packets + explainers": 300.0,
     "Misc (stamps/cards/supplies)": 200.0,
 }
 ONE_TIME_DC = {
-    "DC license by endorsement (fees, est)": 780.0,   # verify from DC brief
-    "DC CSR + misc DC filings (est)": 400.0,          # verify
+    # DC brief 2026-08-22: $805 fee + ~$100-300 third-party items,
+    # DMV reciprocity pathway, 2-4 month processing
+    "DC license (DMV reciprocity; $805 + verifications)": 1000.0,
+    "DC controlled substance registration (biennial)": 130.0,
+    "DC foreign entity registration (FN-1, NEEDS-COUNSEL)": 220.0,
 }
 
 # Variable cost per member per month
