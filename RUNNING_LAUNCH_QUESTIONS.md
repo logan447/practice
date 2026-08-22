@@ -94,6 +94,27 @@ Updated 2026-08-22 (evening).*
   already the assumed posture. FCHC credentialing would not
   transfer to the PLLC anyway (per-TIN contracts).
 
+## FCHC workstream (opened 2026-08-22)
+
+Deliverable: one short collaborative email to Faith (Ops) + Dr.
+Steiner. Draft-in-progress; do NOT send until pre-draft items clear.
+- In the email (current cut): Medicare enrollment gap (PECOS empty;
+  self-file offer; gentle ordering/referring flag), credentialing
+  snapshot request (their existing MedTrainer report), Sentara
+  notice division of labor (his CAQH fixes done; COI + admitting
+  arrangement are FCHC-side; GP-designation question), Medicaid
+  enrollment status/who-files.
+- Deliberately separate (conversation, not this email):
+  outside-practice disclosure + FCHC-name-in-bio permission +
+  never-recruit policy (likely in-person w/ Dr. Steiner);
+  payer-mix and schedule-to-uninsured questions (conversational);
+  comp-structure/Stark hygiene (contract read + counsel).
+- Pre-draft checklist: Gainwell call result (verify Medicaid
+  independently first); owner fixes CAQH education/training entries
+  himself (self-service); owner decision on self-filing the 855I;
+  Dr. Steiner's role; whether Sentara email/CAQH already answered
+  by anyone; status of Faith's reply to his earlier email.
+
 ## Needs owner facts (blocking)
 
 - FCHC: bills Medicare/Medicaid for his encounters? (Medicare now
