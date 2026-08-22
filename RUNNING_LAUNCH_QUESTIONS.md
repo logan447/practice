@@ -23,6 +23,41 @@ Updated 2026-08-22 (evening).*
 - Kill/hibernate criterion (<5 members at month 4) — confirm.
 - Billing ops choice if hybrid: DIY clearinghouse vs biller (4–8%).
 
+## Credentialing status (opened 2026-08-22 — payer-by-payer, do not collapse)
+
+- Fact (email 2026-08-19): **Sentara Health Plans** deems the CAQH
+  application INCOMPLETE — initial credentialing NOT yet started
+  there. Missing: current COI under FCHC's group policy at VA-code
+  limits ($2.75M/$5.5M, 7/1/26–6/30/27), hospital
+  affiliation/admitting arrangement or emergency plan, education
+  dates. Substantive flag: Sentara requires **3 years completed
+  specialty training for Internal Medicine designation**; CAQH shows
+  1 year. Not a denial; the training criterion is the item CAQH
+  edits cannot fix. Possible routes (FCHC/MedTrainer to pursue):
+  General Practice designation, or committee exception (network
+  need / safety-net context). UNKNOWN which Sentara product lines
+  (commercial / MA / Medicaid MCO) this application covers.
+- Ops Director statements ("credentialed with many insurers,"
+  "covered for Medicare and Medicaid") remain UNVERIFIED hearsay
+  until the roster (below) arrives.
+- Self-verification routes (no FCHC needed): PECOS via his own I&A
+  login; CMS Ordering & Referring public dataset by NPI; DMAS/
+  Gainwell provider services by NPI.
+- Request from FCHC/MedTrainer: payer-by-payer roster — payer +
+  product line (Medicare Part B/PECOS reassignment; DMAS FFS; each
+  Medicaid MCO; each MA plan; each commercial), status
+  (not-submitted / submitted date / in committee / approved +
+  effective date + provider ID / declined + reason), specialty
+  designation requested (IM vs GP); copies of PECOS approval letter
+  + PTAN, CMS-460 if any, DMAS confirmation; FCHC malpractice
+  carrier + current COI.
+- Impact on private practice: NONE on the membership lane or the
+  traditional-Medicare FFS lane (PECOS enrollment has no
+  board-cert/residency-completion requirement). Confirms
+  MA/commercial in-network is hard without completed residency —
+  already the assumed posture. FCHC credentialing would not
+  transfer to the PLLC anyway (per-TIN contracts).
+
 ## Needs owner facts (blocking)
 
 - FCHC: bills Medicare/Medicaid for his encounters? Method (Part B
