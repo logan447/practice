@@ -47,12 +47,23 @@ Updated 2026-08-22 (evening).*
   the opt-out list (verified not opted out); NPPES active,
   attested 6/9/2026, location FCHC Fredericksburg, taxonomy
   **General Practice 208D00000X**, sole-proprietor YES.
-  Implication: FCHC almost certainly is not yet billing Medicare
-  for his encounters (it lawfully can't without his approved
-  enrollment + reassignment). "Covered for Medicare/Medicaid" is
-  not corroborated. Definitive check remaining: PECOS → My
-  Enrollments (pending application vs nothing); DMAS/Gainwell call
-  for Medicaid.
+  CONFIRMED 2026-08-22 (owner, PECOS My Enrollments): **empty — no
+  Medicare enrollment exists and none is pending.** Status is
+  unenrolled (not opted out). Therefore FCHC is not billing
+  Medicare for his services and cannot until an 855I is filed and
+  approved; his orders/referrals for Medicare patients at FCHC are
+  not honorable (O&R eligibility requires enrollment or opt-out) —
+  operational issue FCHC needs to know. "Covered for Medicare" was
+  wrong for Medicare. Medicaid still unverified: call
+  DMAS/Gainwell (804-786-6273) with NPI.
+- NEW DECISION (owner): Medicare enrollment status is now an
+  affirmative choice — (a) enroll via his own 855I (reassign to
+  FCHC; PLLC addable later; he sets the CMS-460 election) —
+  aligns with FCHC intent and enables Path B; (b) stay unenrolled
+  (simplest DPC but breaks FCHC's Medicare plans and his
+  ordering/referring there); (c) opt out (pure DPC; most
+  disruptive to FCHC). Recommended: (a), self-filed, coordinated
+  with FCHC/MedTrainer.
 - Request from FCHC/MedTrainer: payer-by-payer roster — payer +
   product line (Medicare Part B/PECOS reassignment; DMAS FFS; each
   Medicaid MCO; each MA plan; each commercial), status
