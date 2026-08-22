@@ -1,5 +1,20 @@
 # Running launch questions
 
+## Framing (adopted 2026-08-22): two separate branches
+
+- **FCHC question:** can FCHC credential and use him within its
+  payer environment? (Employment/income question. Not yet knowable;
+  see credentialing section. Resolution = payer roster + FCHC's
+  payer-mix answer + Ops Director's own read.)
+- **Private-practice question:** can he independently build a
+  small, sustainable direct-pay practice in VA/DC? (Already
+  substantially answered yes on law/cost grounds; gated on demand
+  evidence, not on FCHC.)
+- They interact only at: Medicare enrollment mechanics (one 855I
+  serves both), time budget, and the never-recruit line. FCHC
+  uncertainty is an argument FOR the staged private build
+  (optionality), never a reason to overbuild it.
+
 *Working memory, not a strategy doc. Keep short. When an item
 resolves, update the source-of-truth document and mark it here (or
 delete it once it needs no attention). Source docs:
@@ -81,11 +96,18 @@ Updated 2026-08-22 (evening).*
 
 ## Needs owner facts (blocking)
 
-- FCHC: bills Medicare/Medicaid for his encounters? Method (Part B
-  PFS / FQHC PPS / none)? Accepting new Medicare patients?
-  Service-area/eligibility rules? Comp tied to volume? Malpractice
-  coverage type? Written answers (question list in
+- FCHC: bills Medicare/Medicaid for his encounters? (Medicare now
+  answered: NO — no enrollment exists.) Accepting new Medicare
+  patients? Service-area/eligibility rules? Comp tied to volume?
+  Malpractice coverage type? Written answers (question list in
   two-settings-brief.md).
+- FCHC viability inputs (new 2026-08-22): payer mix of FCHC visit
+  volume (% Medicaid / Medicare / uninsured / commercial); whether
+  he can be scheduled to Medicaid/uninsured/self-pay patients while
+  credentialing runs (uninsured need NO credentialing); who was
+  supposed to file the 855I and DMAS enrollment; Ops Director's own
+  read: any threat to his role? His FCHC comp terms (UNSET) — needed
+  to size any replacement math.
 - PECOS pull: enrolled? CMS-460 on file? Active reassignments.
 - FCHC employment contract: outside practice, non-solicit,
   moonlighting, FCHC-name-in-bio permission.
