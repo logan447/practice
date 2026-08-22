@@ -120,11 +120,17 @@ gross ≈ ~$2.3k/mo at 3 days + inbox, EST, owner to correct →
   never-recruit policy (likely in-person w/ Dr. Steiner);
   payer-mix and schedule-to-uninsured questions (conversational);
   comp-structure/Stark hygiene (contract read + counsel).
-- Pre-draft checklist: Gainwell call result (verify Medicaid
-  independently first); owner fixes CAQH education/training entries
-  himself (self-service); owner decision on self-filing the 855I;
-  Dr. Steiner's role; whether Sentara email/CAQH already answered
-  by anyone; status of Faith's reply to his earlier email.
+- OWNER DECISIONS 2026-08-22: no independent Gainwell call for now;
+  no CAQH changes for now; NO self-filed 855I — FCHC owns
+  credentialing/enrollment; he messaged Faith re: responding to
+  Sentara and awaits guidance. (Consequence: Medicare enrollment
+  timeline is in FCHC's hands; Path B's on-ramp timing now depends
+  on their filing. Membership lane unaffected.)
+- Email DRAFTED 2026-08-22 (4 items: Sentara signpost, MWV
+  readiness, scheduling incl. 9/14 + Q4 + tentative DC-license
+  mention, inbox cadence + logging question). Awaiting owner
+  review/send. Drop the "sent you a note" parenthetical if Faith
+  replies first.
 
 ## Needs owner facts (blocking)
 
