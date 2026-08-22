@@ -33,13 +33,17 @@ kill the plan, are in §9 — read that section before deciding.
 These come before any stage. Nothing else matters until they're known.
 
 1. **Does FCHC bill Medicare for your professional services?**
-   Medicare opt-out is all-or-nothing under your NPI (Q-21 brief,
-   Ch. 15 §40.5). If FCHC bills Medicare, you cannot opt out while
-   employed there — so a Virginia launch **excludes Medicare
-   beneficiaries** (private contracts impossible without opt-out).
-   That's survivable: the beachhead becomes under-65 adults. If FCHC
-   does *not* bill Medicare (many charitable clinics don't), opt-out
-   is available now and the D-033 architecture works in Virginia too.
+   Medicare opt-out is all-or-nothing under your NPI, all locations
+   (MBPM Ch. 15 §40.23; refined analysis in
+   `medicare-medicaid-brief.md`). If FCHC bills Medicare for him,
+   opt-out would cut off FCHC's payment for his services — so it's
+   effectively blocked while employed, and the launch posture is
+   **lane A: membership excludes Medicare (incl. Medicare Advantage)
+   and Medicaid beneficiaries**, screened by insurance status with an
+   aging-in clause. Survivable: the beachhead is under-65,
+   commercially-insured/uninsured adults. If FCHC bills no Medicare
+   for him (true free-clinic model), lane C (opt-out + private
+   contracts) opens now and the D-033 architecture works in Virginia.
 2. **What does your FCHC employment agreement say** about outside
    practice, non-competition, and non-solicitation? A primary-care
    employer 50 miles from your market may or may not care. Related
@@ -338,3 +342,89 @@ moment the evidence says stop.
 8. Employment-contract review (FCHC outside-practice terms) — may be a
    self-read plus a one-question counsel confirm. `OWNER-FACT →
    NEEDS-COUNSEL if ambiguous`
+
+---
+
+## 11. Addendum v2 (2026-08-22, evening) — real quotes and the Medicare resolution
+
+Two real documents and two research briefs landed after §§0–10 were
+written. They change numbers, not the verdict.
+
+### 11.1 Malpractice: the Core Specialty quote (`VERIFIED` document)
+
+StarStone/Core Specialty quote HLC01208813Q-00 for **DuBose Medical
+Services, PLLC** (the entity name is now chosen): Concierge Medicine,
+no surgery; $1M/$3M; $2,500 deductible applying to damages AND
+defense; claims-made; **$5,472.25/yr all-in** (~$456/mo) — roughly
+double the earlier estimate. Issues to resolve before binding:
+
+- **Expired.** Valid only until its 5/13/2026 effective date;
+  re-quote required regardless.
+- **DC-sitting exclusion.** No coverage for services rendered while
+  the physician is physically in DC, *including patient calls and
+  telemedicine*. He lives in DC — as written, every telehealth visit
+  from home would be uninsured. Must be removed, priced, or the
+  operating pattern changes. `NEEDS-BROKER`.
+- **Claims-made economics.** Tail: 150%/200%/250% of premium for
+  12/36/60 months. A 36-month tail ≈ $10k — this is the hibernate
+  scenario's dominant cost. Shop occurrence or free-DDR-tail
+  alternatives (TDC, Curi, CM&F, Indigo). 25% minimum earned premium;
+  surplus-lines (non-admitted) paper. `NEEDS-BROKER`.
+- Malpractice is now **50–59% of monthly fixed cost** — the single
+  biggest economic lever in the whole model.
+
+### 11.2 EMR: Cerbo replaces Hint as the preferred stack (`OWNER` choice)
+
+Quoted by Erica Smith (Cerbo): sign-up $595 → **$1**, monthly line
+items **50% off months 1–3** (`VERIFIED` from her email). The quoted
+line items themselves are NOT in the project — the model brackets
+them from published list prices (cer.bo/pricing, 2026-08-22):
+part-time prescriber $174 / full-time $281, portal $79, telemed $27,
+incoming e-fax $27; eRx/EPCS included. `UNSET` until the quote
+document arrives; do not treat the bracket as the quote.
+
+### 11.3 Economics v2 (from `tools/va_launch_model.py`)
+
+| | Cerbo LOW bracket | Cerbo HIGH bracket |
+|---|---|---|
+| Fixed/mo, months 1–3 | ~$633 | ~$700 |
+| Fixed/mo, month 4+ | ~$773 | ~$907 |
+| Break-even (m1–3) | 6.6 members | 7.3 members |
+| Break-even (m4+) | 8.0 members | 9.4 members |
+| Net/mo at 15 members | ~$670 | ~$536 |
+| Net/mo at 25 members | ~$1,633 | ~$1,499 |
+
+One-time ≈ **$2,711** (Cerbo $1; counsel ~$2,000 is the bulk).
+Each member still nets ~$96/mo. Worst case if acquisition fails by
+month 4: ~$2,711 + ~4 × $650–900 ≈ **$5.5–6.5k**, plus tail if
+claims-made stood — hence the occurrence preference.
+
+### 11.4 Medicare/Medicaid: resolved to a posture (see `medicare-medicaid-brief.md`)
+
+The owner's instinct was right: "Medicare-enrolled" does NOT mean "no
+Medicare beneficiaries may ever join." There are exactly three lawful
+lanes (exclude / concierge non-covered-only fee / opt-out + private
+contracts). But for THIS practice while employed at FCHC: the $100
+bundle is overwhelmingly Medicare-covered services, the concierge lane
+guts the model, and opt-out collides with FCHC billing (if any).
+**Launch posture: lane A — exclude Medicare (incl. MA) and Medicaid
+beneficiaries at enrollment, by insurance status; duals/QMBs never
+enrolled; aging-in clause in the agreement.** Re-evaluate lane C on
+FCHC-facts change. Medicaid is stricter than Medicare in Virginia
+(categorical member-billing bar); same exclusion posture.
+
+### 11.5 This week's tasks (v1 of the weekly list, 2026-08-22)
+
+1. FCHC facts + PECOS pull (gates everything) — written answers.
+2. Send the actual Cerbo quote line items into the repo.
+3. Malpractice re-quote round: fix DC exclusion, get 1–2 admitted
+   occurrence comparisons. Biggest cost lever.
+4. Adopt the lane-A membership screen as the planning posture.
+5. Time-budget honesty check (~6–10 hr/wk available?).
+6. Draft the warm-network announcement + list of 25 conversations
+   (Stage-1 prep; costs nothing, right under any decision).
+7. Counsel shortlist + quotes for the §10 package (quotes only).
+
+Entity formation and Cerbo activation stay gated on G1 (demand
+evidence) AND a bindable malpractice quote with DC telemedicine
+covered.
