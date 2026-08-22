@@ -81,9 +81,15 @@ Updated 2026-08-22 (evening).*
 
 - Medicare: enrollment individual; mandatory claims; three lanes;
   hybrid (members + FFS) lawful; no homebound rule for house calls;
-  MIPS-exempt at micro scale; telehealth funded through 2027; MA =
-  same rules, defer → medicare-medicaid-brief.md +
-  medicare-ffs-lane-brief.md.
+  MIPS-exempt at micro scale; telehealth funded through 2027 →
+  medicare-medicaid-brief.md + medicare-ffs-lane-brief.md.
+- MA posture (2026-08-22): in-network credentialing unavailable
+  (no board cert) and not pursued; MA PPO out-of-network
+  case-by-case after launch (42 CFR 422.214 rates); MA HMO closed;
+  membership closed to all Medicare types. Market context: MA
+  penetration VA ~41% / DC ~37% vs ~54% national, and ~half of DC
+  MA is SNP/dual — traditional-Medicare lane reaches ~60%+ of
+  local 65+. REFRESH-AT-RUNWAY (KFF/Becker's 2024–26).
 - Medicaid: exclude members while DMAS-enrolled; QMB never →
   medicare-medicaid-brief.md.
 - Two-settings concept sound with guardrails; FCHC door
