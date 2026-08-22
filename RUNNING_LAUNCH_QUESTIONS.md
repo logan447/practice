@@ -40,9 +40,19 @@ Updated 2026-08-22 (evening).*
 - Ops Director statements ("credentialed with many insurers,"
   "covered for Medicare and Medicaid") remain UNVERIFIED hearsay
   until the roster (below) arrives.
-- Self-verification routes (no FCHC needed): PECOS via his own I&A
-  login; CMS Ordering & Referring public dataset by NPI; DMAS/
-  Gainwell provider services by NPI.
+- Self-verification results (2026-08-22, public CMS data, NPI
+  1487396222): NOT in the Order & Referring file (dated
+  2026-08-20) → very likely **no approved Medicare enrollment**
+  yet (pending or never submitted); NOT on Care Compare; NOT on
+  the opt-out list (verified not opted out); NPPES active,
+  attested 6/9/2026, location FCHC Fredericksburg, taxonomy
+  **General Practice 208D00000X**, sole-proprietor YES.
+  Implication: FCHC almost certainly is not yet billing Medicare
+  for his encounters (it lawfully can't without his approved
+  enrollment + reassignment). "Covered for Medicare/Medicaid" is
+  not corroborated. Definitive check remaining: PECOS → My
+  Enrollments (pending application vs nothing); DMAS/Gainwell call
+  for Medicaid.
 - Request from FCHC/MedTrainer: payer-by-payer roster — payer +
   product line (Medicare Part B/PECOS reassignment; DMAS FFS; each
   Medicaid MCO; each MA plan; each commercial), status
