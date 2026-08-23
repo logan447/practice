@@ -50,7 +50,8 @@ patient one (unit economics §3, risk R-26).
 | `docs/outreach/` | Physical outreach packet: architecture, production plan, piece drafts |
 | `docs/style/` | **House Style** — the binding writing standard for all materials |
 | `docs/archive/` | Superseded concepts, preserved with an index — how we got here |
-| `tools/` | `practice_model.py` — the subscription economics model |
+| `kb/` | **Medical knowledge base** — source-based learning and clinical-reference system (see `kb/README.md`) |
+| `tools/` | `practice_model.py` — the subscription economics model · `kb_audit.py` — knowledge-base staleness audit |
 
 ## Working agreements
 

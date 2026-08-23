@@ -30,3 +30,17 @@ verbatim, no emojis.
 - The website sketches (`docs/website/sketches/`) are approved copy:
   change only with owner approval, and keep print/site copy from
   forking (duplication rule).
+
+## Medical knowledge base (`kb/`)
+
+`kb/README.md` is the binding manual for all knowledge-base work. Core
+rules: one note, one file — topics live in faceted tags, not folders;
+what a source says stays separate from synthesis and from personal
+notes; clinically important sources carry full provenance front matter
+and a `status:` (`unverified` / `current` / `superseded`) — anything
+seeded from model memory starts `unverified`; conflicts between
+sources are documented, never silently resolved; board-review material
+is preserved as taught, with `BOARDS-VS-PRACTICE:` markers where it
+diverges from current guidance. `python3 tools/kb_audit.py` lists what
+needs rechecking. House Style does not gate `kb/` (internal notes) —
+but does gate anything patient-facing derived from it.
