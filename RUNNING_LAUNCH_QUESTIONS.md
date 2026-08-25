@@ -153,6 +153,24 @@ gross ≈ ~$2.3k/mo at 3 days + inbox, EST, owner to correct →
 - **Cerbo quote line items** (tier + add-ons) — forward the quote;
   model carries a list-price bracket until then.
 
+## Malpractice: two separate policies, not one (clarified 2026-08-22)
+
+- **FCHC work** → ProAssurance Indemnity claims-made application
+  (VA form PRA-A-030), practice location FCHC, employment date
+  8/18/2026, prior-acts retro 8/18/2026, contact Bonnie Childress
+  (practice manager). Draft filled 2026-08-22; unsigned. This is
+  what satisfies the Sentara COI requirement ("covered under FCHC
+  group policy or have a self-insured policy").
+- **Private practice** → the Core Specialty/StarStone quote
+  ($5,472/yr, concierge medicine, DuBose Medical Services PLLC,
+  expired, DC-sitting exclusion). Separate policy, separate cost.
+- Consequence for the model: the ~$456/mo malpractice line belongs
+  to the PLLC lane only. Open question for the broker: can one
+  carrier write both settings (FCHC employment + solo DPC + house
+  calls + telemedicine incl. sitting in DC), and is ProAssurance
+  cheaper than surplus-lines for the private practice too? Ask
+  while the FCHC application is in front of them.
+
 ## Needs professional confirmation
 
 - NEEDS-BROKER: malpractice re-quote (expired): DC territory for
