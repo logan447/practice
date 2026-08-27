@@ -216,13 +216,21 @@ practice as clinical site or subcontractor.
   salary. Real constraints: he does not control it (FCHC must want and
   be able to administer it), and grants + VA-SLRP create 2-3 yr
   Virginia commitments that collide with the Texas move.
-- **VA-SLRP (Virginia State Loan Repayment Program)** may beat a grant
-  on effort-per-dollar: up to ~$100k for 2 yrs (older guidelines
-  $140k/4 yrs; proposed legislation up to $200k), paid to HIM, needs
-  only that FCHC be an eligible HPSA site — no grant writing or
-  administration by FCHC. OWNER-FACTS needed: does he carry qualifying
-  educational debt? Is FCHC in a HPSA / an eligible site? Is he
-  willing to commit 2 yrs in Virginia?
+- **VA-SLRP: RULED OUT at current effort (corrected 2026-08-27).**
+  Guidelines require full-time (40 hr/wk, >=32 hr direct patient care,
+  >=45 wk/yr) or half-time (20-39 hr/wk, >=16 hr direct care,
+  >=45 wk/yr). He is at ~10-11 hr/wk at FCHC (3 clinic days/mo +
+  ~5 inbox hr/wk) — below even half-time. Would require roughly
+  doubling FCHC commitment, which directly competes with the launch.
+  Other gates found: site must be in a **federally designated HPSA**
+  (MUA/MUP and state-designated areas do NOT qualify); eligible
+  private practices must be **non-profit** (his PLLC could never be a
+  site); 2-yr minimum obligation, max $100k for the first two years
+  with a $50k "community" share (possible employer/local match —
+  confirm with VDH-OHE); participant must have "completed graduate or
+  appropriate training from an accredited program" — a question mark
+  with one internship year, same issue as Sentara. Revisit ONLY if he
+  decides to make FCHC a half-time-or-more job.
 - Best FCHC-as-applicant targets: VHCF Health Access (next cycle
   ~Jan 2027, $60-100k first year), Ardmore (LOI window open NOW
   through 10/19/2026), local community foundation + hospital
