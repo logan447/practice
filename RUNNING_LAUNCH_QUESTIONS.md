@@ -203,6 +203,33 @@ practice as clinical site or subcontractor.
   has none — needs partner IRB or commercial IRB). NEEDS-COUNSEL on
   grant-subsidized memberships (inducement risk if any beneficiary
   is federal) and on research/clinical separation.
+- **Owner idea 2026-08-27 (strong): grant *through FCHC* funding his
+  own salary + revenue for FCHC.** Solves every eligibility wall at
+  once (FCHC is the 501(c)(3)) and — key insight — grant-funded care
+  for **uninsured** patients needs NO payer credentialing, so it
+  hedges the Branch-1 credentialing risk directly. Mechanism for a
+  raise: grant budgets use market physician salary rates, not $50/hr.
+  Rules that shape it: grant-funded time must NOT be time billed to a
+  payer (no double-dipping); non-supplanting (must fund new/expanded
+  activity, not replace what FCHC already pays); effort certification;
+  board-level COI handling since he'd be an employee proposing his own
+  salary. Real constraints: he does not control it (FCHC must want and
+  be able to administer it), and grants + VA-SLRP create 2-3 yr
+  Virginia commitments that collide with the Texas move.
+- **VA-SLRP (Virginia State Loan Repayment Program)** may beat a grant
+  on effort-per-dollar: up to ~$100k for 2 yrs (older guidelines
+  $140k/4 yrs; proposed legislation up to $200k), paid to HIM, needs
+  only that FCHC be an eligible HPSA site — no grant writing or
+  administration by FCHC. OWNER-FACTS needed: does he carry qualifying
+  educational debt? Is FCHC in a HPSA / an eligible site? Is he
+  willing to commit 2 yrs in Virginia?
+- Best FCHC-as-applicant targets: VHCF Health Access (next cycle
+  ~Jan 2027, $60-100k first year), Ardmore (LOI window open NOW
+  through 10/19/2026), local community foundation + hospital
+  community-benefit funds. HRSA only if FCHC is an FQHC/look-alike
+  (still an unanswered owner-fact — now materially more important).
+- Sequencing: NOT in the current administrative email. Strategic
+  conversation with Dr. Steiner, after credentialing clarity.
 - **Decision pending:** whether this becomes an active workstream
   now or after G1 demand evidence. Time budget is the binding
   constraint, not opportunity availability.
