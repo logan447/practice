@@ -297,6 +297,42 @@ do PSLF too." Verified mechanics:
   afford him. The grant matters most precisely if credentialing
   stalls and the work is uninsured care.
 
+## Ardmore + VHCF mechanics (verified 2026-08-27)
+
+**Money goes to FCHC, not to him.** He cannot apply; only FCHC can.
+His salary is a budget line FCHC owns. So the FCHC conversation
+strictly precedes any application work.
+
+**VHCF Health Access** (best fit): funds "new providers (medical)" to
+expand capacity, and programs for chronically ill uninsured patients.
+$60-100k typical first year (range $10k-$200k+). Renewable up to
+**3 years total, with years 2 and 3 each 25% less** than the prior
+year. **25% minimum match** (local cash and/or in-kind). **No
+indirect costs.** LOI-only (Jan and July); no attachments; late LOIs
+not reviewed. LOI asks whether AI was used to prepare it — disclose.
+Ineligible: supplanting existing/recent operations, **pilot
+projects**, sponsoring specific visit slots, supply purchases.
+Fall 2026 cycle closed (LOI was 7/14/26); Spring 2027 dates TBD.
+**POSSIBLE BLOCKER:** applicant must have a **full-time PAID ED/CEO**
+(or a nonprofit fiscal sponsor with one). FCHC's 2024 Form 990 shows
+an *uncompensated* interim CEO and only the Medical Director
+(Dr. Theron Stinar, $139,293) as compensated key staff. Verify
+current status before investing effort.
+
+**Ardmore** (date corrected): eligibility 501(c)(3) or government —
+FCHC qualifies. Focus areas all fit: whole-person primary care
+integration, comprehensive obesity care / food-is-medicine,
+underserved communities. Spring 2027 cycle is **two-step**:
+**10/19/2026 is the deadline to request an LOI *invitation***, not to
+submit; if invited, **LOI due 12/2/2026**, decisions **5/10/2027**.
+Favors projects that use Full Plate Living resources, secure multiple
+funding sources, and emphasize direct program costs over
+administrative salaries. Indirect cost limits apply.
+
+**They combine:** Ardmore favors multi-funder projects; VHCF requires
+a 25% match. Each can serve the other. Realistic money arrival:
+**mid-to-late 2027**.
+
 ## Needs professional confirmation
 
 - NEEDS-BROKER: malpractice re-quote (expired): DC territory for
