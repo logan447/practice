@@ -228,6 +228,17 @@ practice as clinical site or subcontractor.
   through 10/19/2026), local community foundation + hospital
   community-benefit funds. HRSA only if FCHC is an FQHC/look-alike
   (still an unanswered owner-fact — now materially more important).
+- **RESOLVED 2026-08-27 (public record): FCHC IS a 501(c)(3).** EIN
+  54-2061482, IRS ruling 2002, classified Health – General &
+  Rehabilitative / Public Health Program. FY2023: revenue ~$1.68M,
+  expenses ~$1.6M, assets ~$923k, liabilities ~$227k. FY2024 revenue
+  ~$1.64M. Mission: charity care / sliding scale for uninsured and
+  underinsured, all ages; >$5M in charity care to date. (Owner
+  believed it was a for-profit clinic — it is not.) Consequence:
+  the grant-through-FCHC path is LIVE, and FCHC is a credible
+  Ardmore/VHCF applicant. Still unknown and still material: FQHC
+  vs look-alike vs private charitable clinic (billing method), HPSA
+  status, and whether they have grant-administration capacity.
 - Sequencing: NOT in the current administrative email. Strategic
   conversation with Dr. Steiner, after credentialing clarity.
 - **Decision pending:** whether this becomes an active workstream
