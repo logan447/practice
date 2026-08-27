@@ -171,6 +171,42 @@ gross ≈ ~$2.3k/mo at 3 days + inbox, EST, owner to correct →
   cheaper than surplus-lines for the private practice too? Ask
   while the FCHC application is in front of them.
 
+## Grant funding workstream (opened 2026-08-27)
+
+**Core finding: grant money almost never comes to the medical
+practice.** Practice infrastructure (EMR, malpractice, startup) is
+essentially unfundable by grants. The realistic architecture is three
+entities: (1) PLLC = clinical care, patient revenue; (2) a small
+business (Olera or new) = SBIR/STTR technology money; (3) a
+501(c)(3)/university partner = foundation and AHRQ money, with the
+practice as clinical site or subcontractor.
+
+- **VERIFIED blockers:** AHRQ statute bars for-profit orgs from
+  *leading* R01/R03 applications (subcontract only). Ardmore
+  Institute of Health funds only 501(c)(3)s and government agencies.
+  VHCF requires a nonprofit (or nonprofit fiscal sponsor) with a
+  paid ED/CEO. CMMI's small-practice model (Making Care Primary) was
+  terminated 6/30/2025 — no solo-practice primary care model is
+  currently open.
+- **VERIFIED open path:** NIH SBIR **PA-27-100** / STTR
+  **PA-27-102**, due **9/5/2026, 1/5/2027, 4/5/2027**. NIA caps:
+  $500k Phase I / $2.5M Phase II ($700k/$3M for AD/ADRD).
+- **Key eligibility fact:** SBIR requires the PI to be >50% employed
+  by the small business — hard with FCHC + Olera + practice. **STTR
+  does not** (PI may sit at the nonprofit partner; ≥40% work at the
+  small business, ≥30% at the partner). His Texas A&M affiliate
+  faculty appointment (Center for Community Health and Aging) is the
+  natural STTR partner. STTR is likely the right instrument.
+- **Open items:** does Olera want the practice as a test site (and
+  on what IP/effort terms)? Would Texas A&M host an STTR/AHRQ role?
+  IRB coverage for any research on his own patients (solo practice
+  has none — needs partner IRB or commercial IRB). NEEDS-COUNSEL on
+  grant-subsidized memberships (inducement risk if any beneficiary
+  is federal) and on research/clinical separation.
+- **Decision pending:** whether this becomes an active workstream
+  now or after G1 demand evidence. Time budget is the binding
+  constraint, not opportunity availability.
+
 ## Needs professional confirmation
 
 - NEEDS-BROKER: malpractice re-quote (expired): DC territory for
