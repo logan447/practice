@@ -333,6 +333,48 @@ administrative salaries. Indirect cost limits apply.
 a 25% match. Each can serve the other. Realistic money arrival:
 **mid-to-late 2027**.
 
+## Funding a FOR-PROFIT PLLC to serve underserved patients (researched 2026-08-27)
+
+**No grant writes a check to a PLLC for charity care.** Four real
+mechanisms exist instead:
+1. **NHSC-approved site** — VERIFIED that for-profit "private
+   practices (solo or group)" ARE an eligible site type. But
+   requirements rebuild the practice: accept Medicare *assignment*,
+   maintain Medicaid/CHIP agreements, sliding fee discount program
+   (free/nominal <=100% FPL, discounted 100-200% FPL), "no one denied
+   for inability to pay" signage, HPSA location. **Explicitly
+   ineligible: 100%-telehealth facilities and home-based settings of
+   patients or clinicians.** Incompatible with the current
+   telemedicine-predominant, no-office, no-insurance design. Real
+   option only if he builds a different practice.
+2. **Cross-subsidy inside the practice** — no grant, no eligibility
+   gate, fully under his control. Precedents: Unorthodoc Foundation's
+   Pillar/Core/Arch tiers; East Bay Health (members fund care for the
+   uninsured). NOTE: reopens D-029 (single flat published $100, no
+   tiers) but serves the already-open D-003/X-10 affordability item.
+3. **Own 501(c)(3)** raising charity funds that sponsor memberships at
+   the PLLC — legal but needs independent board, nonprofit control of
+   the program, FMV payments to the PLLC, no private benefit /
+   inurement. IRS red line: must "look nothing like an unprofitable
+   private practice dressed in charitable language." ~12+ mo to
+   determination, real ongoing admin.
+4. **Fiscal sponsorship** by an existing 501(c)(3) — faster than #3;
+   sponsor must control the charitable activity; typical 5-15% admin
+   fee.
+Also: direct sponsorship by churches/employers/individuals is revenue,
+not philanthropy — legal and immediate, just not deductible unless
+routed through a nonprofit. Foundation grants to for-profits are
+technically possible (expenditure responsibility / PRIs) but rare and
+burdensome — not worth pursuing. SBIR/STTR requires for-profit but
+funds R&D, not care delivery.
+**Checked and ruled out as funders:** Unorthodoc Foundation (operates
+its own clinics, does not fund outside practices); DirectMD Foundation
+(tiny, no published outside-practice program).
+**Strategic implication:** FCHC already IS the nonprofit with the
+sliding scale, charitable mission, and donor base. Plugging into it
+beats rebuilding that infrastructure — which is what the existing
+two-settings architecture already does.
+
 ## Needs professional confirmation
 
 - NEEDS-BROKER: malpractice re-quote (expired): DC territory for
