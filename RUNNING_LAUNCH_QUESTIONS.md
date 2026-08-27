@@ -253,6 +253,50 @@ practice as clinical site or subcontractor.
   now or after G1 demand evidence. Time budget is the binding
   constraint, not opportunity availability.
 
+## PSLF / 30-hour scenario (opened 2026-08-27 — potentially plan-changing)
+
+Owner: "30 hours/week funded would be the sweet spot cause I get to
+do PSLF too." Verified mechanics:
+- **PSLF full-time = 30 hr/wk flat**, regardless of employer's own
+  definition; hours across multiple *qualifying* employers combine.
+  FCHC is a 501(c)(3) → qualifying. The "substantial illegal purpose"
+  rule effective 7/1/2026 applies prospectively and leaves traditional
+  501(c)(3) charities qualifying. **His PLLC and Olera are for-profit
+  → those hours never count.**
+- At ~10-11 hr/wk today he is earning **zero** PSLF months. The jump
+  to 30 hr/wk is not a 3x pay change, it's zero-to-full PSLF credit.
+- 30 hr/wk also satisfies VA-SLRP **half-time** (20-39 hr/wk) — so one
+  schedule hits both. Aim >30 (e.g. 32) for buffer; PSLF counts an
+  average and dips below 30 cost months.
+- **But VA-SLRP and PSLF largely cancel:** under an income-driven
+  plan the monthly payment is set by income, not balance, so
+  VA-SLRP principal paydown reduces the eventual PSLF forgiveness
+  roughly dollar-for-dollar without lowering monthly outlay. Pursue
+  VA-SLRP only as insurance against PSLF failing, not as a stack.
+- **Structural tension to decide:** PSLF = 120 qualifying monthly
+  payments (10 yrs) at 30+ hr/wk for a nonprofit/government employer.
+  That makes the DPC practice a permanent *side* practice for a
+  decade, and a Texas move requires finding another nonprofit
+  employer there. Compatible with a deliberately small panel
+  (10-15 hr/wk, ~25-40 members ≈ $2.4-3.8k/mo net); incompatible with
+  "the practice becomes my livelihood" before ~2036.
+- **URGENT owner action:** SAVE was vacated by court order 3/10/2026;
+  borrowers parked on SAVE sit in administrative forbearance that does
+  NOT earn PSLF credit. RAP launches 7/1/2026; PAYE and ICR sunset
+  7/1/2028; IBR and RAP are the survivors. Check studentaid.gov for
+  (a) loan types (Direct?), (b) current plan, (c) qualifying payment
+  count, (d) whether the GW internship year (06/2022-06/2023)
+  certified — GW University Hospital is for-profit (UHS-owned), so
+  the qualifying employer, if any, would have been the university or
+  the nonprofit faculty practice.
+- OWNER-FACTS: total federal loan balance; qualifying payments to
+  date; willingness to commit ~10 yrs of 30 hr/wk nonprofit work.
+- FCHC-side: can they *fund* 30 hr/wk (~0.75 FTE at market rate is
+  ~10% of their $1.6M revenue)? Chain is either credentialing →
+  billable capacity → they can afford him, OR grant → they can
+  afford him. The grant matters most precisely if credentialing
+  stalls and the work is uninsured care.
+
 ## Needs professional confirmation
 
 - NEEDS-BROKER: malpractice re-quote (expired): DC territory for
