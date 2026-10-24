@@ -297,6 +297,50 @@ do PSLF too." Verified mechanics:
   afford him. The grant matters most precisely if credentialing
   stalls and the work is uninsured care.
 
+## FCHC ramp: six stages (adopted 2026-10-24 — supersedes the Jan-2027 / Jun-2028 two-phase shape)
+
+Owner's sequence, now the shape of the proposal doc (Claude Docs:
+"FCHC Partnership Proposal"):
+
+1. **Now–Dec 2026** — open more dates on the existing schedule;
+   confirm claims go out, get paid, and cover what he costs.
+   Gated on credentialing / Medicare enrollment (PECOS still empty).
+2. **Q1 2027** — 1 day/week, 12 patients/day (planning number, not a
+   quota; scheduled by visit length, 30/45/60).
+3. **Q2–Q4 2027** — same day + slow-building pipeline work.
+4. **Q1 2028** — same day + full assessment. This is the decision point.
+5. **Q2 2028** — contract, credentialing for the new role, HR/schedule.
+6. **From Q3 2028 (Jul 1)** — 30 hr/week salaried, $80k, 3 clinic days,
+   12 weeks leave. PSLF clock starts here → 120 payments runs into 2038.
+
+Phase II start moved Jun 1 → Jul 1 2028 so Q2 2028 is contracting time,
+not overlap.
+
+### Demand-throttle rule (answers owner's "is the demand project too early?")
+
+The risk is real: volume created in 2027 lands on a team he cannot help
+until Jul 2028. Rule adopted:
+
+- 2027 = work that raises revenue **per patient**, not patient count
+  (AWV list, G2211 capture, TCM on discharges already happening).
+- 2027 also starts **long-lead, slow-slope** work (Mary Washington,
+  home health, senior living) precisely because it takes quarters to
+  produce anything.
+- **Short-lead, steep-slope** work (recall campaigns, anything
+  marketing-shaped) waits for Q1–Q2 2028, two quarters before the
+  third day exists.
+- Control: new demand books into **his** day first. If his day fills
+  and the pipeline keeps producing before Jul 2028, that is the signal
+  to renegotiate the start date or add capacity another way — not to
+  let the team absorb it silently.
+
+EST figures unchanged: Phase I 480 encounters/yr ($52.8k rev vs $17.2k
+cost, ~3.1x); Phase II 1,440/yr ($158.4k vs $86.1k, ~1.8x); break-even
+$59.81/visit ≈ 6.5 patients/day. The Jan-2027→Jun-2028 span is now 18
+months ≈ 720 encounters, ~$79k rev vs ~$25.8k cost. All of it rests on
+the blended collection per encounter — still **UNSET** ($110 EST),
+still owed by Bonnie. REFRESH-AT-RUNWAY.
+
 ## Ardmore + VHCF mechanics (verified 2026-08-27)
 
 **Money goes to FCHC, not to him.** He cannot apply; only FCHC can.
