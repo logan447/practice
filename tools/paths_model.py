@@ -99,3 +99,31 @@ if __name__ == "__main__":
     for s in (110_000., 130_000., 150_000.):
         print(f"   ${s:,.0f} salary, 18 hrs of care   "
               f"${w2_path(s,4_000,21):>10,.0f}")
+
+
+# =====================================================================
+# Fallbacks if PSLF is off the table. Added 2026-10-24 after the owner
+# flagged he is likely a PRE-2014 borrower (IBR = 15% / 25 yrs, not
+# 10% / 20) and may end up on RAP (30 yrs).
+#
+# THE SURPRISE: RAP wins despite being the longest, because its
+# interest subsidy stops the balance ballooning, and the balance is
+# what the year-30 tax bill is charged on. IDR forgiveness has been
+# taxable again since 2026 (ARPA exclusion lapsed; DC conforms).
+#
+#   plan                      total paid   forgiven      tax    TOTAL
+#   IBR pre-2014  (25 yr)       220,749     921,617   368,647   589,396
+#   IBR post-2014 (20 yr)       115,404     816,849   326,739   442,143
+#   RAP           (30 yr)       287,300     302,321   120,928   408,228
+#   PSLF          (10 yr)        13,420     524,000         0    13,420
+#
+# PSLF is worth ~$395,000 more than the best fallback, and ends at 41
+# instead of 59. But the NEAR-TERM cash cost of giving it up is only
+# about $11,000/yr ($8,921 more in payments + $2,072 of sinking fund
+# for the tax bill). Those two numbers point in opposite directions
+# and the choice is really about which horizon he is optimizing.
+#
+# OWNER-FACT to settle this: did he carry an outstanding FFEL/Direct
+# balance on 2014-07-01? That decides 15%/25yr vs 10%/20yr. Also which
+# IDR plan he is on NOW, since that is what his 22 payments sit under.
+# =====================================================================
