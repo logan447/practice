@@ -362,3 +362,73 @@ if __name__ == "__main__":
     print(f"  Family size assumed to include Jamie even when filing")
     print(f"  separately. If the servicer excludes her, payments rise")
     print(f"  about $70-90/mo and the conclusion does not change.")
+
+
+# =====================================================================
+# Nanny, 6am-9pm T/W/Th. VERIFIED owner-stated requirement 2026-10-24.
+# 15 hours x 3 days = 45 hours a week, so 5 of them are overtime:
+# DC domestic workers are non-exempt under the FLSA unless live-in,
+# and DC's Domestic Workers Act (2022) requires a written agreement.
+# =====================================================================
+NANNY_HOURS_DAY = 15.0        # VERIFIED 6am to 9pm
+NANNY_DAYS_WK = 3             # VERIFIED T/W/Th
+NANNY_RATE = {1: 28.0, 2: 31.0, 3: 34.0}   # EST DC $/hr by # of kids
+                                           # NEEDS a real quote
+NANNY_WEEKS_PAID = 52         # EST: guaranteed year-round. A nanny
+                              # paid only his 40 working weeks will
+                              # not stay. 44 weeks is the floor case.
+EMPLOYER_TAX = 0.09           # EST FICA + FUTA + DC UI + workers comp
+JAMIE_COVERS = 0.50           # EST share of clinic days Jamie can
+                              # take. UNSET until her block schedule
+                              # is known; this is the whole ballgame.
+
+
+def nanny_cost(kids, weeks=NANNY_WEEKS_PAID, covered=0.0):
+    rate = NANNY_RATE.get(min(max(kids, 1), 3), NANNY_RATE[3])
+    hrs = NANNY_HOURS_DAY * NANNY_DAYS_WK          # 45
+    weekly = 40 * rate + max(hrs - 40, 0) * rate * 1.5
+    gross = weekly * weeks * (1 - covered)
+    return gross * (1 + EMPLOYER_TAX)
+
+
+def nanny_table():
+    print(f"\n{'=' * 70}\nNANNY at 6am-9pm, T/W/Th = 45 hrs/wk "
+          f"(5 of them overtime)\n{'=' * 70}")
+    print(f"  {'kids':>5s} {'$/hr':>6s} {'per week':>10s} "
+          f"{'52 wks + tax':>13s} {'44 wks + tax':>13s}")
+    for k in (1, 2, 3):
+        rate = NANNY_RATE[k]
+        weekly = 40 * rate + 5 * rate * 1.5
+        print(f"  {k:5d} {rate:6,.0f} {weekly:10,.0f} "
+              f"{nanny_cost(k, 52):13,.0f} {nanny_cost(k, 44):13,.0f}")
+    print(f"\n  The 15-hour day is the problem, and it is the COMMUTE,")
+    print(f"  not the clinic: 30 hours of work generates 45 hours of")
+    print(f"  childcare. About 12 hrs/wk of nanny time, roughly")
+    print(f"  ${12 * NANNY_RATE[1] * 52 * (1 + EMPLOYER_TAX):,.0f} a year,")
+    print(f"  pays someone to mind the kids while you sit on I-95.")
+
+
+def net_with_nanny(year, salary, covered):
+    k = deps(year)
+    if k == 0:
+        care = 0.0
+    else:
+        care = nanny_cost(k, NANNY_WEEKS_PAID, covered)
+    fica = salary * FICA_EMPLOYEE
+    tax = (tiered(max(salary - STD_DED_MFS, 0), FED_MFS_BRACKETS)
+           + tiered(max(salary - STD_DED_MFS, 0), DC_BRACKETS) + fica)
+    loan = ibr_payment(salary, FPL150[min(2 + k, 5)])
+    dcfsa = min(care, 3_750.0) * 0.30
+    return salary - tax - loan - car_cost_year()["TOTAL"] - care + dcfsa
+
+
+if __name__ == "__main__":
+    nanny_table()
+    for cov in (0.0, 0.5, 0.75):
+        print(f"\n--- net cash left, if Jamie covers {cov:.0%} of "
+              f"clinic days ---")
+        print(f"  {'yr':>4s} {'kids':>5s} {'$65k':>10s} {'$80k':>10s}")
+        for y in (2028, 2029, 2032, 2034):
+            print(f"  {y:4d} {deps(y):5d} "
+                  f"{net_with_nanny(y, SALARY, cov):10,.0f} "
+                  f"{net_with_nanny(y, ALT_SALARY, cov):10,.0f}")
