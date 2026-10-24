@@ -300,3 +300,65 @@ if __name__ == "__main__":
               f"{r[4]:8,.0f} {r[5]:10,.0f} {r[6]:9,.0f}")
     print(f"  {'8-yr total left to save':>47s} {tot:9,.0f}")
     print(f"  {'+ forgiven, tax-free, Sep 2036':>47s} {523_998:9,.0f}")
+
+
+# =====================================================================
+# Filing-status decision, priced with Jamie's real numbers.
+# VERIFIED owner-stated 2026-10-24: pediatric hospitalist, $185,000
+# base, rising to ~$205,000 around 2031, schedule sporadic.
+# =====================================================================
+JAMIE_BASE = 185_000.0
+JAMIE_RAISE_YEAR, JAMIE_RAISED = 2031, 205_000.0
+STD_DED_MFJ = 32_200.0                      # EST 2026. NEEDS-CPA.
+FED_MFJ_BRACKETS = [(24_800, .10), (100_800, .12), (211_400, .22),
+                    (403_550, .24)]         # EST 2026. NEEDS-CPA.
+FPL150 = {2: 31_725., 3: 39_975., 4: 48_225., 5: 56_475.}  # 2025 x1.5
+MFS_SIDE_COSTS = 1_700.0   # EST/yr: dependent-care credit lost + the
+                           # DCFSA cap halved to $3,750. Roth IRA
+                           # eligibility also disappears under MFS
+                           # (backdoor only). NEEDS-CPA.
+
+
+def jamie(year):
+    return JAMIE_RAISED if year >= JAMIE_RAISE_YEAR else JAMIE_BASE
+
+
+def filing_compare(year, salary=SALARY):
+    k = deps(year)
+    joint_agi = salary + jamie(year)
+    fam = 2 + k
+    sep_pay = ibr_payment(salary, FPL150[min(fam, 5)])
+    joint_pay = ibr_payment(joint_agi, FPL150[min(fam, 5)])
+    fed_joint = tiered(max(joint_agi - STD_DED_MFJ, 0), FED_MFJ_BRACKETS)
+    fed_sep = (tiered(max(salary - STD_DED_MFS, 0), FED_MFS_BRACKETS)
+               + tiered(max(jamie(year) - STD_DED_MFS, 0),
+                        FED_MFS_BRACKETS))
+    return {"year": year, "kids": k, "joint_agi": joint_agi,
+            "sep_pay": sep_pay, "joint_pay": joint_pay,
+            "tax_penalty": fed_sep - fed_joint + MFS_SIDE_COSTS,
+            "net_gain": (joint_pay - sep_pay)
+                        - (fed_sep - fed_joint + MFS_SIDE_COSTS)}
+
+
+if __name__ == "__main__":
+    print(f"\n{'=' * 70}\nFILE SEPARATELY OR JOINTLY — "
+          f"priced with Jamie at $185k/$205k\n{'=' * 70}")
+    print(f"  {'yr':>4s} {'kids':>4s} {'joint AGI':>10s} "
+          f"{'loan if sep':>12s} {'loan if joint':>14s} "
+          f"{'MFS tax cost':>13s} {'net gain':>10s}")
+    tot_gain = tot_sep = tot_joint = 0.0
+    for y in range(2029, 2037):
+        r = filing_compare(y)
+        tot_gain += r["net_gain"]
+        tot_sep += r["sep_pay"]
+        tot_joint += r["joint_pay"]
+        print(f"  {r['year']:4d} {r['kids']:4d} {r['joint_agi']:10,.0f} "
+              f"{r['sep_pay']:12,.0f} {r['joint_pay']:14,.0f} "
+              f"{r['tax_penalty']:13,.0f} {r['net_gain']:10,.0f}")
+    print(f"\n  loan paid over the 8 years, SEPARATE   ${tot_sep:12,.0f}")
+    print(f"  loan paid over the 8 years, JOINT      ${tot_joint:12,.0f}")
+    print(f"  NET GAIN FROM FILING SEPARATELY        ${tot_gain:12,.0f}")
+    print(f"\n  (Half of 2028 omitted; the clock starts that July.)")
+    print(f"  Family size assumed to include Jamie even when filing")
+    print(f"  separately. If the servicer excludes her, payments rise")
+    print(f"  about $70-90/mo and the conclusion does not change.")
