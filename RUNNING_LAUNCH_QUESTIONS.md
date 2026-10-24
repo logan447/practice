@@ -359,11 +359,22 @@ still owed by Bonnie. REFRESH-AT-RUNWAY.
   **year-round salaried employment with scheduled leave** (route A).
   Route B is the backstop: 40 working weeks ≈ 9.2 months > 8. A
   seasonal role that ends and restarts each year does NOT certify.
-- **Religious-activity exclusion — matters because FCHC is a faith-based
-  501(c)(3).** Same form: "If your employer is a 501(c)(3) or a
-  not-for-profit organization, do not include any hours you spent on
-  religious instruction, worship services, or proselytizing." Keep the
-  30 hours clinical and clinic-administrative.
+- **Religious-activity exclusion: REPEALED, do not plan around it.**
+  That sentence still printed on older copies of the certification form
+  ("do not include any hours you spent on religious instruction,
+  worship services, or proselytizing") reflects the pre-2021 rule. The
+  2020 amendment (85 FR 49798, 8/14/2020, effective 7/1/2021) removed
+  it; the current 34 CFR 685.219 contains no religious carve-out at
+  all. The 10/31/2025 final rule (90 FR, effective 7/1/2026) recites
+  the history: in 2020 the definition was changed "to allow employees
+  of organizations engaged in religious activities (regardless of
+  whether the borrower's duties included religious instruction, worship
+  services, or any form of proselytizing) to be eligible for PSLF."
+  VERIFIED from govinfo text of the 2025 rule. Operational risk is not
+  the law but the certifier: if FCHC fills out a stale copy of the form
+  and subtracts devotional or prayer hours, the certification
+  understates the week. Use the current form from studentaid.gov and
+  have them certify all 30 hours.
 - **Contract 32 hr/wk, not 30.** At exactly 30 a single short week can
   pull the certified average under the line. 32 costs FCHC nothing in
   the proposal's framing and removes the risk.
