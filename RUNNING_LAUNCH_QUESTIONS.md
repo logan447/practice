@@ -367,10 +367,27 @@ still owed by Bonnie. REFRESH-AT-RUNWAY.
   8-month route is not teachers-only on the form either: "If you are a
   teacher or in another position under contract for at least eight out
   of 12 months..."
-- **So the 12-weeks-off design qualifies** provided the contract is
-  **year-round salaried employment with scheduled leave** (route A).
-  Route B is the backstop: 40 working weeks ≈ 9.2 months > 8. A
-  seasonal role that ends and restarts each year does NOT certify.
+- **DO THE ARITHMETIC, it is the whole question.** The test is an
+  average over the certified period, i.e. 52 weeks. 40 weeks × 30 hr =
+  1,200 paid hours ÷ 52 = **23 hr/wk = PART-TIME = no PSLF.** It only
+  reaches 30 if the 12 leave weeks are themselves PAID at 30 hr:
+  1,200 worked + 360 paid leave = 1,560 ÷ 52 = **exactly 30.0**.
+- **So the contract wording is the control, not the calendar.** It must
+  read "30 hours per week, year-round, with 12 weeks of paid leave"
+  (1,560 paid hours). If FCHC writes "30 hours a week, 40 weeks a
+  year" or "1,200 hours," a careful certifier enters 23 in box 6 and he
+  is part-time for ten years. Payroll has to carry the leave as paid
+  time, not smooth a 1,200-hour salary over 12 months.
+- **Route B (8-month contract) is NOT a usable backstop here.**
+  Corrected 2026-10-24: it covers a contract shorter than 12 months
+  where the employer still credits a full year (the school-year case).
+  A year-round contract with five scattered leave blocks falls under
+  the average test instead. Do not plan on it.
+- **What the 32-hour buffer does and does not do.** At 32 contracted
+  hours, 1,664 ÷ 52 = 32, which survives short weeks and even one
+  unpaid 3-week block (30.2). It does NOT survive unpaid leave across
+  the board: 32 × 40 ÷ 52 = 24.6. The buffer covers sloppiness, not a
+  wrongly written contract.
 - **Religious-activity exclusion: REPEALED, do not plan around it.**
   That sentence still printed on older copies of the certification form
   ("do not include any hours you spent on religious instruction,
@@ -409,6 +426,11 @@ still owed by Bonnie. REFRESH-AT-RUNWAY.
   Thanksgiving, 4 across Christmas and New Year, 1 at spring break, 2
   in May (Belize), 3 in July or early August (before ~Aug 24, average
   school start). 40 working weeks.
+- **Hourly check (corrected 2026-10-24).** Paid hours are 1,560/yr, not
+  1,200: $65,000 = **$41.67/hr**, against the $50/hr he is paid now.
+  $80,000 = $51.28/hr ≈ parity with today. Use this framing in the
+  salary conversation; the older "$66.67/hr" figure divided by 1,200
+  hours and understated the discount he is offering.
 - **Owner's reservation price: $65,000** if that schedule is granted,
   down from the $80,000 ask. NOTE: the one-page proposal opens at
   $65k, so there is no room left to come down. Revisit before sending
