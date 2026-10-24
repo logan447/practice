@@ -351,10 +351,22 @@ still owed by Bonnie. REFRESH-AT-RUNWAY.
   period ... in which case the borrower is deemed to have worked full
   time" — the "such as" teachers/professors clause is illustrative, not
   limiting; (C) credit-hour equivalence (higher ed only).
-- **Employer-provided leave counts toward the hours average.** PSLF
-  Employment Certification Form, field 8 "Hours Per Week (Average)":
-  "Include vacation, leave time, or any leave taken under the Family
-  Medical Leave Act of 1993."
+- **Employer-provided PAID leave counts toward the hours average.**
+  Current PSLF form (pulled from studentaid.gov 2026-10-24, 16 pp.),
+  Section 7 definitions: "For PSLF purposes, full-time means at least
+  an average of 30 hours per week for the employment period being
+  certified. All hours for which you are paid should be included in
+  the average hours worked per week ... Vacation or leave time
+  provided by the employer or leave taken for a condition that is a
+  qualifying reason for leave under the Family and Medical Leave Act
+  of 1993 ... should be included in the average hours worked per
+  week." The employer instructions repeat it: "an employer must
+  include all hours, including vacation, leave time..." **"All hours
+  for which you are paid" is the operative phrase: the 12 weeks must
+  be PAID leave under a year-round salary, not unpaid time off.** The
+  8-month route is not teachers-only on the form either: "If you are a
+  teacher or in another position under contract for at least eight out
+  of 12 months..."
 - **So the 12-weeks-off design qualifies** provided the contract is
   **year-round salaried employment with scheduled leave** (route A).
   Route B is the backstop: 40 working weeks ≈ 9.2 months > 8. A
@@ -374,7 +386,9 @@ still owed by Bonnie. REFRESH-AT-RUNWAY.
   the law but the certifier: if FCHC fills out a stale copy of the form
   and subtracts devotional or prayer hours, the certification
   understates the week. Use the current form from studentaid.gov and
-  have them certify all 30 hours.
+  have them certify all 30 hours. CONFIRMED by pulling the current
+  form: "religious" and "proselytizing" appear ZERO times in its
+  16 pages. Only older copies carry that sentence.
 - **Contract 32 hr/wk, not 30.** At exactly 30 a single short week can
   pull the certified average under the line. 32 costs FCHC nothing in
   the proposal's framing and removes the risk.
