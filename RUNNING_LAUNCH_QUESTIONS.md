@@ -341,6 +341,59 @@ months ≈ 720 encounters, ~$79k rev vs ~$25.8k cost. All of it rests on
 the blended collection per encounter — still **UNSET** ($110 EST),
 still owed by Bonnie. REFRESH-AT-RUNWAY.
 
+## PSLF verification for the 30-hour role (checked 2026-10-24 — VERIFIED from primary text)
+
+- **Full-time = 30 hr/wk, three alternative routes.** 34 CFR
+  685.219(b)(11) (current text, Cornell eCFR mirror):
+  (A) "A minimum average of 30 hours per week during the period being
+  certified"; (B) "A minimum of 30 hours per week throughout a
+  contractual or employment period of at least 8 months in a 12-month
+  period ... in which case the borrower is deemed to have worked full
+  time" — the "such as" teachers/professors clause is illustrative, not
+  limiting; (C) credit-hour equivalence (higher ed only).
+- **Employer-provided leave counts toward the hours average.** PSLF
+  Employment Certification Form, field 8 "Hours Per Week (Average)":
+  "Include vacation, leave time, or any leave taken under the Family
+  Medical Leave Act of 1993."
+- **So the 12-weeks-off design qualifies** provided the contract is
+  **year-round salaried employment with scheduled leave** (route A).
+  Route B is the backstop: 40 working weeks ≈ 9.2 months > 8. A
+  seasonal role that ends and restarts each year does NOT certify.
+- **Religious-activity exclusion — matters because FCHC is a faith-based
+  501(c)(3).** Same form: "If your employer is a 501(c)(3) or a
+  not-for-profit organization, do not include any hours you spent on
+  religious instruction, worship services, or proselytizing." Keep the
+  30 hours clinical and clinic-administrative.
+- **Contract 32 hr/wk, not 30.** At exactly 30 a single short week can
+  pull the certified average under the line. 32 costs FCHC nothing in
+  the proposal's framing and removes the risk.
+- **Salary is irrelevant to qualification.** $65k vs $80k changes
+  nothing about eligibility; it lowers the income-driven payment, so
+  more is forgiven. EST: the real cost of the $15k cut is ~$9-10k/yr
+  after tax and lower loan payments. NEEDS-CPA.
+- Unchanged prerequisites: Direct Loans, IBR or RAP (SAVE vacated
+  3/10/2026; PAYE and ICR sunset 7/1/2028), 120 qualifying payments,
+  employer certification. **Phase I at ~8-10 hr/wk earns ZERO PSLF
+  months** — the clock genuinely starts with the 30-hour role.
+
+## Phase II schedule design (owner, 2026-10-24)
+
+- **T/W/Th clinic days.** 30 hr/wk = three clinic days + ~6 hr of panel
+  work (results, refills, messages, forms).
+- **12 weeks of leave in five fixed blocks**, set a year ahead: 2 at
+  Thanksgiving, 4 across Christmas and New Year, 1 at spring break, 2
+  in May (Belize), 3 in July or early August (before ~Aug 24, average
+  school start). 40 working weeks.
+- **Owner's reservation price: $65,000** if that schedule is granted,
+  down from the $80,000 ask. NOTE: the one-page proposal opens at
+  $65k, so there is no room left to come down. Revisit before sending
+  if he wants negotiating room.
+- Break-even at $65k: ~$70,000 loaded ÷ 1,440 encounters =
+  **$48.59/visit ≈ 5.3 patients a day** at the $110 EST blended rate.
+- New one-page doc: "Three Days a Week at FCHC"
+  https://claude.ai/artifact/JgixBUbkVbhna6UTRhFrD5 — supersedes the
+  longer "FCHC Partnership Proposal" for the Stinar conversation.
+
 ## Ardmore + VHCF mechanics (verified 2026-08-27)
 
 **Money goes to FCHC, not to him.** He cannot apply; only FCHC can.
