@@ -430,3 +430,70 @@ the example year calendar, which now sits on the same page rather than
 as an appendix. 49 words of prose. The governing test remains: the least
 we can present and still be effective.
 
+
+---
+
+## D-037 — Start the FCHC contract in January 2027 at $40 an hour
+
+**Decided 2026-10-25.**
+
+The contract begins **January 2027**, not June 2028, at **$40 an hour**.
+Everything else is unchanged: 35 Service Weeks, 70 clinic days, two a
+week, 15 clocked hours, 16 patients a day, $42,000 a year.
+
+**Reasoning.** Owner, 2026-10-25: "in 2027, I could strike this deal
+with Dr. Steiner... If I did that, regardless of what I do with my off
+time (be it for Olera now over the next 20 months or in the future when
+I have kids), it would be the same. I could start that now, start
+counting for PSLF." The contract is the same contract whatever fills the
+other days, so the proving period was buying nothing. It cost 17 months
+of qualifying payments: forgiveness moves from about September 2036 to
+about April 2035 at no extra cash cost, because he is already in
+repayment and the payments happen either way.
+
+$40 rather than $45 is the owner's own offer to the clinic
+(2026-10-25), on the reasoning that volume is free to him and a $10
+rate cut buys the clinic what four more patients a day would. At $40
+and 16 patients the clinic keeps $21,420 a year on a $100 blended rate,
+a 47 percent return on a $45,780 loaded cost
+(`tools/fchc_roi_2027.py`).
+
+**Consequences for the document.** The Gantt chart and the now/then
+columns came out, because with no waiting period a timeline has nothing
+to draw. They are replaced by a strip of four numbers: 70 clinic days,
+1,050 clocked hours, 1,120 visits, $42,000. The example year is now
+2027 rather than 2029. 25 words of prose, one page.
+
+**Revisit trigger:** FCHC counters on rate, or counsel finds the
+8-month provision does not reach a clinic.
+
+## D-038 — Day picks differ in 2027, and the second car comes out
+
+**Decided 2026-10-25.**
+
+In 2027, with no children, clinic days go where **Jamie is already
+working**, so their off time lines up. From 2029 they go where she is
+**home**, so somebody is already doing childcare. The contract shape
+does not change; only the weekdays do.
+(`tools/fchc_schedule_2027.py`, `tools/fchc_schedule_2029.py`.)
+
+The 2027 picks also choose for **one car**. Owner, 2026-10-25: "I
+probably wouldn't even have to get a car at first because there are
+always two days where I can either ride with Jamie to work, or she's
+off and I can take the car." The model now prefers her post-call days
+and her 12s, which are days she is working and the car is home: 70 of
+70 clinic days on her working days, 46 of them car-safe. The 24
+remaining are weeks with two 24s, where only one weekday is both hers
+and car-safe. The cost is six weeks with the two clinic days back to
+back.
+
+**This is what makes the savings floor work at $40.** Two cars saves
+$17,649 against a $25,000 floor. One car clears it, by $99 if he drives
+and $1,613 if he rides in (`tools/fchc_one_car.py`). The second car was
+$8,964 a year, $7,450 of it fixed.
+
+**Revisit trigger:** `NEEDS-CONFIRMING` that riding in together is
+geographically possible at all, which nobody has checked. If Jamie's
+hospital and the clinic are not a shared trip, only her days off give a
+free car and both the day picks and the floor change. Revisit again
+from 2029, when three children and car seats are in the picture.

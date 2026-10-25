@@ -17,7 +17,7 @@ const img=(data,srcH,o={})=>new Paragraph({
   children:[new ImageRun({type:"png",data,
     transformation:{width:720,height:Math.round(720*srcH/2160)}})]});
 
-const merged=fs.readFileSync('merged.png'), cal=fs.readFileSync('appendix.png');
+const terms=fs.readFileSync('terms.png'), cal=fs.readFileSync('appendix27.png');
 
 const doc=new Document({
   sections:[{
@@ -38,12 +38,12 @@ const doc=new Document({
       new Paragraph({spacing:{line:240,lineRule:"auto",after:150},
         children:[run("Logan DuBose, MD",{size:22,color:GREY})]}),
 
-      body("Transition to a contract of 35 weeks a year, two clinic days a week at 15 clocked hours and $45 per hour, beginning June 1, 2028, while maintaining the current hourly arrangement until then to demonstrate sufficient demand and financial viability. Schedule provided a quarter in advance.",{after:190}),
+      body("A contract of 35 weeks a year, two clinic days a week at 15 clocked hours and $40 per hour, beginning January 2027. Schedule provided a quarter in advance.",{after:170}),
 
-      img(merged,488),
+      img(terms,233),
 
       heading("An example year"),
-      img(cal,1652*2160/2240),
+      img(cal,1796*2160/2240),
     ]}]});
 
 Packer.toBuffer(doc).then(b=>{fs.writeFileSync('FCHC-proposal.docx',b);console.log('built');});

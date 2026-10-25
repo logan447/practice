@@ -22,6 +22,13 @@ Both leave two. Day 0 = Monday.
 import datetime as dt
 from collections import Counter
 
+# Filled by build(): day index -> what Jamie is doing that day.
+#   start24  she drives in and stays overnight
+#   postcall she drives home in the morning
+#   shift12  she drives in and back the same day
+#   allday   a backup or regular Monday-to-Friday week
+STATE = {}
+
 # (24-hour shift days, 12-hour shift days) -> exactly 2 free weekdays
 MED = [([0],[3]), ([1],[4]), ([2],[0]), ([3],[1]), ([0],[2]),
        ([1],[3]), ([2],[4]), ([3],[0]), ([1],[4]), ([2],[0])]
@@ -37,18 +44,24 @@ def build(backup=1, regular=1, two=16, empty_weeks=(6,13,25,39,40), verbose=Fals
         TYPE[w] = 'two' if (i % (len(free)//two or 1) == 0 and
                             sum(1 for t in TYPE if t=='two') < two) else 'med'
     busy=[False]*366; n={'med':0,'two':0}; s24=s12=wknd=0
+    STATE.clear(); STATE.update({i:None for i in range(366)})
     for w in range(52):
         t=TYPE[w]
         if t in ('backup','regular'):
-            for d in range(7 if t=='backup' else 5): busy[w*7+d]=True
+            for d in range(7 if t=='backup' else 5):
+                busy[w*7+d]=True; STATE[w*7+d]='allday'
             continue
         tbl = MED if t=='med' else TWO
         a,b = tbl[n[t] % len(tbl)]; n[t]+=1
         s24+=len(a); s12+=len(b); wknd+=sum(1 for d in a+b if d>=5)
         for d in a:
+            busy[w*7+d]=True; STATE[w*7+d]='start24'
+            if w*7+d+1 < 366:
+                busy[w*7+d+1]=True
+                if STATE.get(w*7+d+1) is None: STATE[w*7+d+1]='postcall'
+        for d in b:
             busy[w*7+d]=True
-            if w*7+d+1 < 366: busy[w*7+d+1]=True
-        for d in b: busy[w*7+d]=True
+            if STATE.get(w*7+d) is None: STATE[w*7+d]='shift12'
     if verbose:
         print(f"  weeks: {dict(Counter(TYPE))}")
         print(f"  24s {s24}   12s {s12}   weekend shifts {wknd}")

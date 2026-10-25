@@ -3,6 +3,18 @@
 *2026-10-25. Plain language. Each line is something that could be
 wrong, and most of them you can check or change.*
 
+## Which days, and why 2027 differs from 2029
+
+0. **The contract shape never changes; only the weekdays do.** In 2027,
+   with no children, clinic days go where Jamie is **already working**,
+   so your off time lines up. From 2029 they go where she is **home**,
+   so somebody is already doing childcare. Models:
+   `tools/fchc_schedule_2027.py` and `tools/fchc_schedule_2029.py`.
+0a. **In 2027 the day picks also choose for one car**, preferring her
+   post-call days and her 12s over the days she starts a 24. The cost
+   is that six of the 35 weeks end up with the two clinic days back to
+   back.
+
 ## About Jamie's work
 
 1. **She works one or two 24-hour shifts most weeks.** On a one-24
@@ -86,15 +98,26 @@ wrong, and most of them you can check or change.*
 26. **The clinic collects $90 to $110 a visit.** UNSET. Nobody has
     told us the real number and it drives everything on their side.
 27. **Employer payroll burden is 9 percent.**
-28. **Two cars**, $9,094 a year, so nobody is stranded.
+28. **A second car is no longer assumed.** It was $8,964 a year in the
+    model. You said you could ride in with Jamie or take the car on her
+    days off, and the 2027 day picks now choose for that: all 70 clinic
+    days are days she is working, and 46 of them are days the car is at
+    home. The other 24 are days she starts a 24 and keeps the car
+    overnight. See `tools/fchc_one_car.py`.
+28a. **That riding in together is even possible.** It needs her hospital
+    and the clinic to be a shared trip. Nobody has checked. UNSET.
+28b. **From 2029 this has to survive three children and car seats.**
 29. **150 percent of the poverty line for a family of four is
     $48,225.** An estimate for 2026; it moves yearly and your IBR
     payment moves with it.
 30. **Three children by 2029.**
 31. **Married filing separately**, so only your income counts for IBR.
-32. **Your savings floor is $25,000. This saves $21,552**, short by
-    $3,448. Three of the five off-contract weeks are a choice, and each
-    one costs about $900 of savings.
+32. **Your savings floor is $25,000, and the car decides it.** At $40
+    an hour, two cars saves $17,649 and misses by $7,351. One car and
+    you drive it saves $25,099, clearing by $99. One car and you ride
+    in with Jamie saves $26,613, clearing by $1,613. The margin is
+    thin either way. Three of the five off-contract weeks are a choice,
+    and each one costs about $800 of savings.
 
 ## Where the opportunities are
 
@@ -102,10 +125,14 @@ wrong, and most of them you can check or change.*
   gives more than two free weekdays in some weeks, the day gets
   shorter than 15 hours. Every extra covered day is worth about
   0.4 hours off the day.
-- **Line 26 decides whether the clinic says yes.** At $40 an hour
-  and sixteen patients they keep $15,960, a 32 percent return, and
-  break even at $68 a visit. Ask them what they actually collect.
+- **Line 26 decides whether the clinic says yes.** At $40 an hour,
+  sixteen patients and a $100 blended rate they keep $21,420, a 47
+  percent return, and break even at $68 a visit. Ask them what they
+  actually collect.
 - **Line 9 is the one Dr. Stinar will question.** Fifteen clocked
   hours for 16 patients is 56 minutes each.
+- **Line 28 is now worth more than any of them.** Not buying the
+  second car is the difference between missing the savings floor by
+  $7,351 and clearing it. Check line 28a before counting on it.
 - **Lines 17 to 20 are the ones that need a lawyer**, not more
   modelling.
