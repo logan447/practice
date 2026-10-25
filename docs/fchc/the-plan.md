@@ -188,6 +188,37 @@ The two things being tracked are the two UNSET inputs below. If October
 2027 says they do not hold, we do not do this and the hourly arrangement
 continues.
 
+## PSLF: the leave mechanism is in doubt (2026-10-25)
+
+Research in `docs/fchc/pslf-fulltime-research.md`, against the eCFR
+current text, the annual CFR editions and the Federal Register.
+
+**The paid-leave clause was dropped from 34 CFR 685.219(b) when the
+definitions were renumbered in the October 2025 rule.** It is in the
+2024 and 2025 annual editions and absent from the current text. Every
+version of this plan has relied on leave counting toward the 30-hour
+average. The PSLF form still says to count it; the regulation no longer
+does. `NEEDS-COUNSEL`
+
+**Leave never lifted the average anyway.** Credited at the contracted
+weekly rate, paid leave is neutral. The working weeks still have to
+average 30 hours on their own. On the current numbers, 83 ten-hour days
+is 830 hours, or 16 hours a week. The pathways need 120 to 157
+ten-hour days, or about 70 twelve-hour days inside an 8-month period
+with roughly 6 hours a week of documented administrative time.
+
+**Separately: the $0 payment now depends on being on IBR.** SAVE, PAYE
+and ICR sunset 1 July 2028, one month after the proposed start date.
+The replacement plan, RAP, carries a statutory $10 monthly minimum and
+never reaches $0. IBR survives for borrowers who take no new loans and
+still reaches $0 below 150 percent FPL. Confirm the loans sit on IBR
+before 1 July 2028.
+
+**Consequence for the proposal.** The figure in the document says "0.75
+FTE, 83 days per year, 10 hours per day". That does not meet the
+30-hour test on the current regulation. The schedule, the hours basis
+or the structure has to change before a contract is signed.
+
 ## Still open
 
 - What the clinic actually collects per encounter. Everything above
