@@ -56,3 +56,33 @@ print("\n  Eight months is a FLOOR on how long the period must be.")
 print("  It is not a divisor to choose. Whatever the contract says the")
 print("  period is, that is what the hours are averaged over, so the")
 print("  shortest period that still clears 8 months is the best one.")
+
+# ---- excluding the weeks Jamie cannot cover ---------------------------
+print("\n" + "="*66)
+print("EXCLUDING EMPTY WEEKS: right direction, but there is a floor")
+print("="*66)
+wkc=[0]*53
+for d in OPEN: wkc[(d-JAN1).days//7]+=1
+wkc=wkc[:52]
+zero=[w for w in range(52) if wkc[w]==0]
+vacw=[w for w in zero if any((JAN1+dt.timedelta(w*7+i)) in off for i in range(7))]
+jamiew=[w for w in zero if w not in vacw]
+print(f"  weeks with zero coverage: {len(zero)} "
+      f"({len(vacw)} my time off, {len(jamiew)} Jamie-driven)")
+print(f"  Jamie-driven empty weeks (1-indexed): {[w+1 for w in jamiew]}")
+print(f"  weeks with at least one clinic day: {sum(1 for x in wkc if x>0)}\n")
+TOT=len(OPEN)*12.5
+print(f"  83 days at 12.5 clocked hours = {TOT:,.1f} h\n")
+print(f"  {'weeks':>6} {'months':>7} {'needs':>8} {'h/week':>8}  verdict")
+for w in (34, 34.32, 35, 36, 40):
+    mo=w/52.1786*12; need=30*w
+    v=('BELOW THE 8-MONTH FLOOR' if mo<8 else
+       ('OK' if TOT>=need else f'short {need-TOT:,.0f} h'))
+    print(f"  {w:>6} {mo:>7.2f} {need:>8,.0f} {TOT/w:>8.2f}  {v}")
+print("\n  Shortest whole-week period that still clears 8 months: 35 weeks.")
+print("  Five of the six empty weeks can come out; taking all six lands")
+print("  at 34 weeks, which is 7.82 months and fails the minimum.\n")
+for d,h in ((83,12.5),(83,12.75),(84,12.5)):
+    t=d*h
+    print(f"  {d} days x {h} h = {t:>7,.1f} -> {t/35:>5.2f} h/wk over 35 wks "
+          f"{'OK' if t>=1050 else 'short':<6} ${t*50:,.0f}")
