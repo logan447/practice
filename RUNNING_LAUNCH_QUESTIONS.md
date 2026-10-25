@@ -2155,3 +2155,68 @@ band at the salary required.**
 $65,000 was the right idea and the wrong number. **What makes $89,000
 askable is precisely that it is a 0.75 FTE salary rather than a rate.**
 Supersedes the $62.25/hr hourly ask.
+
+## $33,200 at 0.75 FTE: $0 loan payments, negative household (2026-10-25)
+
+Owner asked for $33,200 total from FCHC at 0.75 FTE, 30 hr/wk average,
+12 weeks paid leave. Model: `tools/fchc_low_salary.py`.
+$33,200 / 1,560 paid hrs = **$21.28/hr**.
+
+### THE STRUCTURAL FIND: the IBR payment is $0
+
+$33,200 sits **below 150% of poverty for a family of four**
+($48,225 EST 2026), so the income-driven payment is **$0** -- and a
+**$0 payment still counts as a qualifying PSLF payment.** Forgiveness
+would be reached having paid nothing.
+
+| salary | IBR/yr | paid over the 100 months |
+|--------|--------|--------------------------|
+| **33,200** | **0** | **0** |
+| 65,000 | 1,678 | 13,978 |
+| 89,026 | 3,600 | 29,988 |
+| 95,583 | 4,200 | 34,986 |
+
+Worth ~$30,000 more than the $89,026 version. PSLF itself unchanged:
+40 x 30 + 12 x 30 = 1,560 = 30.00 hr/wk.
+
+### FCHC would accept instantly
+
+120 days x 24 patients = 2,880 encounters, loaded $36,188 =
+**$12.57/encounter = 12-14% of collections.** Their surplus from the
+role alone would be **$93,412-112,089, or 4.4-5.3x their entire
+FY2024 organisational surplus of $21,133.**
+
+### But the household goes negative
+
+| care $/hr | care days | care $ | RESULT |
+|-----------|-----------|--------|--------|
+| 28 | 68 | 23,800 | **-13,151** |
+| 24 | 68 | 20,400 | **-9,751** |
+| 20 | 68 | 17,000 | **-6,351** |
+
+Childcare at $24 is **61% of the salary**; childcare plus car
+($30,446) **exceeds it**. Before buying a single care day, salary less
+tax, car and the fixed household lines leaves **$9,524** against 68
+care days needed. Break-even would require holding care to 30-35 days.
+**The $25,000 floor is unreachable at $33,200 at any childcare price.**
+
+### THE OPEN QUESTION -- owner to answer
+
+**Is $33,200 the only income?**
+
+- **If yes:** coherent strategy. Contribute ~-$10,000/yr, Jamie's
+  $185,000 carries the household, pay **$0** on the loan, collect
+  ~$490,000 in 2037. About **$81,000 of drag for half a million** --
+  the best trade of any version built here. Requires (a) **MFS to
+  hold**, since that is what keeps the payment at $0, and (b) the
+  **$25,000 floor to become a HOUSEHOLD figure** rather than his own
+  contribution.
+- **If no:** other income raises AGI, the payment returns, and the
+  entire advantage of the low salary disappears. Needs re-running with
+  the actual other income.
+
+Practical flag: $21.28/hr is below what FCHC pays a medical assistant.
+Nothing improper -- nonprofits pay below market and the hours are
+genuinely worked -- but a board may balk at putting a physician on
+that line. The role must look like what it is: a physician choosing a
+charity clinic, not a figure reverse-engineered from a payment formula.
