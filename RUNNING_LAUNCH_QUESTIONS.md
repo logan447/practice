@@ -2364,3 +2364,63 @@ Write it as **"0.75 FTE, 30 hours per week annualized."** Same
 arrangement, hours and certification, but nobody on a board has to
 defend a leave figure and the paperwork hours stop needing a separate
 argument.
+
+## $50/hr, 10-hr days, 16 patients: the patient count breaks it (2026-10-25)
+
+Owner's stated ideal. Model: `tools/fchc_fifty_sixteen.py`.
+83 Jamie-free days x 10 hrs = 830 clinic hours, zero childcare.
+
+### 16 patients is only 1,328 encounters, and that is the problem
+
+At $90/enc that is $119,520 of collections, so after 50% overhead
+there is $59,760 for the physician: **$54,826 is the most FCHC could
+pay before losing money, at zero margin.**
+
+| pts/day | slot | encounters | FCHC can fund @$90 | @$103 | clears $53,096? |
+|---------|------|-----------|--------------------|-------|-----------------|
+| **16** | 38 min | 1,328 | 43,861 | 50,181 | **no** |
+| 18 | 33 min | 1,494 | 49,343 | 56,454 | at $103 only |
+| **20** | 30 min | 1,660 | **54,826** | **62,727** | **yes** |
+| 24 | 25 min | 1,992 | 65,791 | 75,272 | yes |
+
+**37.5-minute slots are more generous than the clinic needs and are
+what makes the arithmetic fail.** 30 minutes is still unhurried.
+
+### "$50 an hour" does not map onto a salaried FTE
+
+| reading | salary | owner saves | FCHC cost @$90 |
+|---------|--------|-------------|----------------|
+| $50 x 1,560 paid hrs | 78,000 | 39,728 | **71% unaffordable** |
+| $50 x 830 clinic hrs | 41,500 | 16,866 | 38% affordable |
+
+One is too much for them, the other too little for him. "Per hour"
+means two different things once leave is paid.
+
+### THE ASK
+
+**$55,000. 0.75 FTE, 30 hrs/wk annualized. 10-hour clinic days on the
+days Jamie is home. 20 patients a day.**
+
+| | |
+|---|---|
+| SAVED | **$26,225** |
+| childcare | **$0** |
+| FCHC cost | **40% of collections** @$90, 35% @$103 |
+| per CLINIC hour | **$66.27** |
+| per paid FTE hour | $35.26 |
+| the 12 weeks | intact |
+
+**Worth noticing: $55,000 across 830 clinic hours is $66.27/hr of
+clinic time, well above the $50 goal.** The $35.26 FTE figure is the
+one to use against the director's $66.97, and it is half of his. So
+the owner gets a better clinic-hour rate than the stated goal AND a
+rate that is trivially defensible.
+
+Keeping the 16-patient pace caps FCHC at $50,181 and only if they
+collect $103 -- $2,900 under the floor. **Ask for 20 patients at
+$55,000.** If collections come in at $103 rather than $90 there is
+room to drop to 16 patients later without touching the salary.
+
+Money by salary, zero childcare: $45,000 -> $19,468; $50,000 ->
+$23,008; **$53,096 -> $25,000**; $55,000 -> $26,225; $60,000 ->
+$29,423; $78,000 -> $39,728.
