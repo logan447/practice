@@ -2009,3 +2009,68 @@ decide, and the assumptions are mine.
 **Standing summary: the practice is better on money and on life, worse
 on certainty. FCHC is the safe version of a worse outcome.** Owner's
 call, not the model's.
+
+## Can vacation substitute for the nanny? No. (2026-10-25)
+
+Model: `tools/fchc_vacation_tradeoff.py`.
+
+### The hard ceiling is Jamie's calendar, not the vacation
+
+| | |
+|---|---|
+| Jamie-free weekdays OUTSIDE the 12 blocks | **83** |
+| Jamie-free weekdays INSIDE the 12 blocks | **53** |
+| **total workable days in the year** | **136** |
+
+The 53 exist only because she syncs ~70% of her leave to his blocks,
+so working a vacation week means she is home with the children.
+
+### At 3 days/week and 12 hours, NO amount of vacation works
+
+All 12 weeks surrendered, 3-day cap: **112 days, 1,344 hrs, 25.85
+hr/wk. Fails by 4.15.** The cap holds him to 112 when 130 are needed.
+
+### What passes, and the price of each
+
+| weeks given up | days/wk | hrs/day | avg/wk | weeks off left |
+|----------------|---------|---------|--------|----------------|
+| 5 | 5 | **15** | 31.2 | 7 |
+| 6 | 4 | **15** | 30.9 | 6 |
+| 6 | 5 | **14** | 30.4 | 6 |
+| 8 | 4 | **14** | 31.0 | 4 |
+| 10 | 3 | **15** | 30.6 | 2 |
+| 12 (all) | 3 | **14** | 30.15 | **0** |
+
+**Every passing row needs 14-15 clocked hours** = 16.5-17.5 hrs away
+with the drive, roughly 5am to 10:30pm. Arithmetic, not options.
+
+No day cap at all, working every weekday Jamie is free:
+
+| | days | hours | avg/wk | |
+|---|------|-------|--------|-|
+| keep all 12 weeks off | 83 | 996 | 19.15 | fails |
+| give up 6 weeks | 113 | 1,356 | 26.08 | fails |
+| **give up EVERY vacation week** | **136** | **1,632** | **31.38** | **passes** |
+
+That is the only no-nanny route to 30 hours: zero vacation, no fixed
+schedule, all 136 days Jamie's calendar happens to leave open,
+sometimes five days a week and sometimes none.
+
+### The finding
+
+**Vacation and childcare are the only two currencies, and only one has
+enough in it.**
+
+- **Vacation** buys 53 days. He needs 54 more than he has. All twelve
+  weeks is almost exactly the gap, and then the 3-day rule eats it.
+- **Childcare** buys the 54 days directly for ~$28,000/yr, and the
+  twelve weeks stay intact (alternating 3/4-day weeks, 12 hrs, 32.54
+  hr/wk, $25,000 saved).
+
+**The nanny was never buying convenience. She was buying the 54 days
+that do not exist in Jamie's calendar.** There is no version where
+vacation substitutes.
+
+If those days are not bought, forgiveness is off the table, and then
+**the practice at $64,026 is the better no-nanny life than FCHC at
+$20,135.**
