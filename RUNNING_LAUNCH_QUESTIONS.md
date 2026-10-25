@@ -2074,3 +2074,84 @@ vacation substitutes.
 If those days are not bought, forgiveness is off the table, and then
 **the practice at $64,026 is the better no-nanny life than FCHC at
 $20,135.**
+
+## 0.75 FTE SALARIED WITH PAID LEAVE -- the clean structure (2026-10-25)
+
+Owner's proposal: salaried 0.75 FTE, 30 hrs/week, paid time off
+included so the average is 30. Model: `tools/fchc_salaried_075.py`.
+
+**PSLF is airtight here:** 40 working wks x 30 + 12 leave wks x 30 =
+**1,560 = 30.00 hr/wk.** Nothing rests on an argument or on how anyone
+reads a sentence. Cleanest version of the hours found all session.
+
+### CORRECTION: my first pass mis-computed childcare
+
+I set care days = clinic days beyond the 83 Jamie is already home for,
+which silently assumes every clinic day can be PLACED on a day she is
+free. **A salaried schedule fixed a year ahead cannot do that** -- her
+calendar lands a month out, which is the whole reason the fixed
+structure appeals to the clinic. Corrected, at $65,000:
+
+| shape | days | care days | SAVED | what I first said |
+|-------|------|-----------|-------|-------------------|
+| 2 x 15 hrs | 80 | 45 | **11,786** | 32,711 |
+| alternating 2/3 x 12 | 101 | 58 | **9,624** | 26,301 |
+| 3 x 10 hrs | 120 | 68 | **8,770** | 19,620 |
+
+**Placement flexibility is worth $12,000-20,000/yr, and it cannot
+coexist with a schedule the clinic can book patients against.**
+
+### Salary needed (fixed schedule)
+
+| shape | @$28 care | @$26 | @$24 |
+|-------|-----------|------|------|
+| 2 x 15 hrs | 89,768 | 86,730 | **83,693** |
+| alternating 2/3 x 12 | 93,938 | 90,694 | 87,450 |
+| 3 x 10 hrs | 95,583 | 92,305 | **89,026** |
+
+### The salaried structure gives far MORE rate headroom
+
+Paid for 1,560 hrs where the director is paid for 2,080, so a bigger
+salary is a smaller rate:
+
+| salary | rate | director |
+|--------|------|----------|
+| 83,693 | **$53.65/hr** | $66.97 |
+| 89,026 | **$57.07/hr** | $66.97 |
+| 95,583 | **$61.27/hr** | $66.97 |
+
+$89,000 is askable and still $9.90/hr under him. Hourly framing never
+allowed this.
+
+### New problem: encounter count must rise
+
+Paid leave means FCHC buys 1,560 hrs and gets 1,200 hrs of patient
+contact, so 20 patients/day does not fund the salary:
+
+| shape | pts/day | encounters | $/enc | % coll @$90 |
+|-------|---------|-----------|-------|-------------|
+| 3 x 10 | 20 | 2,400 | 43.41 | 48% |
+| **3 x 10** | **24** | **2,880** | **36.18** | **40% in band** |
+| 3 x 10 | 28 | 3,360 | 31.01 | 34% in band |
+| alternating 2/3 x 12 | 24 | 2,424 | 42.24 | 47% |
+| 2 x 15 | 24 | 1,920 | 50.96 | 57% |
+
+**3 days x 10 hrs at 24 patients (25-min slots) is the only shape in
+band at the salary required.**
+
+### THE ASK
+
+**0.75 FTE salaried, 30 hrs/wk, 3 days x 10 hrs, 24 patients/day,
+12 weeks paid leave, $89,000.**
+
+| | |
+|---|---|
+| rate | $57.07/hr, $9.90 under the director |
+| PSLF | 1,560 paid hrs, 30.00/wk, no argument needed |
+| FCHC cost | 37% of collections at $90/encounter |
+| owner saves | $25,000 with in-home care at $24/hr |
+| childcare | 68 days, out 12.5 hrs |
+
+$65,000 was the right idea and the wrong number. **What makes $89,000
+askable is precisely that it is a 0.75 FTE salary rather than a rate.**
+Supersedes the $62.25/hr hourly ask.
