@@ -3,20 +3,20 @@
   body{margin:0;background:#fff;font:11pt/1.2 Arial,Helvetica,sans-serif;color:#111}
   .fig{width:720px}
   .lab{position:relative;height:30px}
-  .lab span{position:absolute;font-size:8.5pt;font-weight:bold;white-space:nowrap}
-  .strip{position:relative;height:24px;background:#ececec;margin-bottom:3px}
-  .blk{position:absolute;top:0;bottom:0;background:#4a4a4a}
+  .lab span{position:absolute;font-size:8.5pt;font-weight:bold;white-space:nowrap;color:#8a5614}
+  .strip{position:relative;height:24px;background:#dfeae6;margin-bottom:3px;border-radius:2px;overflow:hidden}
+  .blk{position:absolute;top:0;bottom:0;background:#c47d20}
   .ticks{position:absolute;top:0;bottom:0;width:100%}
   .ticks i{position:absolute;top:0;bottom:0;width:1px;background:#fff}
-  .months{position:relative;height:14px;font-size:8.5pt;color:#444}
+  .months{position:relative;height:14px;font-size:8.5pt;color:#5f6874}
   .months span{position:absolute;transform:translateX(-50%)}
-  .cap{font-size:8.5pt;color:#444;margin-top:4px}
+  .cap{font-size:8.5pt;color:#5f6874;margin-top:4px}
 </style>
 <div class="fig" id="fig">
   <div class="lab" id="lab"></div>
   <div class="strip" id="strip"><div class="ticks" id="ticks"></div></div>
   <div class="months" id="mo"></div>
-  <div class="cap">Twelve weeks off, in six blocks. Everything else is a working week.</div>
+  <div class="cap">Orange is time off. Green is a working week.</div>
 </div>
 <script>
 var Y=2029, JAN1=Date.UTC(Y,0,1), YEARLEN=365;
