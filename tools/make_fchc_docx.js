@@ -38,9 +38,9 @@ const doc=new Document({
       new Paragraph({spacing:{line:240,lineRule:"auto",after:150},
         children:[run("Logan DuBose, MD",{size:22,color:GREY})]}),
 
-      body("A salaried part-time position at 0.75 FTE and $41,500 a year, beginning 1 June 2028. Until then we stay on the current hourly arrangement and use it to prove the economics work and the demand is there.",{after:190}),
+      body("Transition to a 0.75 FTE salaried position at $41,500 annually beginning June 1, 2028, while maintaining the current hourly arrangement until then to demonstrate sufficient demand and financial viability.",{after:190}),
 
-      img(merged,511),
+      img(merged,488),
 
       heading("An example year"),
       img(cal,1652*2160/2240),

@@ -22,32 +22,29 @@ body{margin:0;background:#fff;font:30px/1.35 Arial,Helvetica,sans-serif;color:va
       margin:9px auto 11px;border:3px solid #fff}
 .m b{display:block;font-size:24px;color:var(--green)}
 .m span{display:block;font-size:22px;color:var(--muted);margin-top:3px}
-.cols{display:grid;grid-template-columns:1fr 1fr;gap:0 70px;
-      border-top:2px solid var(--rule);padding-top:20px}
+.cols{position:relative;border-top:2px solid var(--rule);padding-top:20px}
+.col{position:absolute;top:20px}
 .h{font-size:23px;font-weight:bold;letter-spacing:.1em;margin-bottom:14px}
 .hn{color:var(--orange)} .ht{color:var(--green)}
-.cols p{margin:0 0 9px;font-size:30px}
-.cols .t{font-weight:bold}
+.col p{margin:0 0 9px;font-size:29px;line-height:1.34}
+.col .t{font-weight:bold}
 </style>
 <div class="wrap">
  <div class="yr"><div>2027</div><div>2028</div></div>
  <div class="qs"><div>Q1</div><div>Q2</div><div>Q3</div><div>Q4</div><div>Q1</div><div>Q2</div><div>Q3</div><div>Q4</div></div>
  <div class="rows" id="rows"></div>
  <div class="ms" id="ms"></div>
- <div class="cols">
-   <div>
+ <div class="cols" id="cols">
+   <div class="col" style="left:0;width:67%">
      <div class="h hn">NOW, THROUGH MAY 2028</div>
      <p>Hourly</p>
      <p>Opening up more clinic days as we go</p>
    </div>
-   <div>
+   <div class="col" style="left:70.8%;width:29.2%">
      <div class="h ht">FROM 1 JUNE 2028</div>
-     <p class="t">Salaried, 0.75 FTE, 30 hours a week annualized</p>
-     <p class="t">About two clinic days a week, 83 a year, ten hours each</p>
-     <p class="t">Sixteen patients a day to start, up to twenty</p>
+     <p class="t">Salary, 0.75 FTE, 83 days per year, 10 hours per day, $50 per hour, 16 to 20 patients per day.</p>
    </div>
  </div>
-</div>
 <script>
 var N=24, pct=function(m){return (m/N*100)+'%';};
 var rows=document.getElementById('rows'), ms=document.getElementById('ms');
@@ -64,4 +61,7 @@ MS.forEach(function(x){var L=pct(x[0]+0.5);
   var m=document.createElement('div');m.className='m';m.style.left=L;
   m.innerHTML='<div class="d"></div><b>'+x[1]+'</b><span>'+x[2]+'</span>';ms.appendChild(m);
   var v=document.createElement('div');v.className='vl';v.style.left=L;rows.appendChild(v);});
+var cols=document.getElementById('cols'), h=0;
+[].forEach.call(cols.children,function(c){h=Math.max(h,c.offsetTop+c.offsetHeight);});
+cols.style.height=(h-20)+'px';
 </script>

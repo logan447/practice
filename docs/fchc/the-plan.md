@@ -125,11 +125,13 @@ outcome.
 
 ## What goes in the document
 
-**One page. Everything on it, including the example year.** 49 words,
+**One page. Everything on it, including the example year.** 41 words,
 two figures, no footnotes, no page break.
 
-- The title, the byline, and one paragraph: the ask and the proving
-  period.
+- The title, the byline, and one sentence, owner's wording: "Transition
+  to a 0.75 FTE salaried position at $41,500 annually beginning June 1,
+  2028, while maintaining the current hourly arrangement until then to
+  demonstrate sufficient demand and financial viability."
 - One combined figure (`docs/fchc/timeline-figure.html`): the timeline
   across 2027 and 2028 with the three milestones, and directly beneath
   it, tied to the same two bars, what the arrangement is now and what it
@@ -148,15 +150,29 @@ negotiating table.
 Owner deleted them 2026-10-25. The salary still appears once, in the
 opening sentence, as part of the ask.
 
-**The PSLF wording risk stands.** "0.75 FTE, 30 hours per week
-annualized" appears in the opening sentence and in the figure. The
-explanation of why it matters is not in the document. **A contract that
-comes back phrased as a day rate or an hourly rate must be caught and
-corrected**, most likely in January 2028. This is the highest-stakes
-item in the plan and nothing in the document protects it.
+**The PSLF wording risk stands, and iteration 12 raised it.** Owner
+direction, 2026-10-25, put "$50 per hour" into the figure alongside
+"Salary, 0.75 FTE, 83 days per year, 10 hours per day". Two
+consequences:
 
-**The appendix says "in town, not in clinic," not "at home with my
-children."**
+1. The document now states an hourly rate, which is the framing that
+   fails the 30-hour test if it reaches the contract. **A contract that
+   comes back phrased as a day rate or an hourly rate must be caught and
+   corrected**, most likely in January 2028.
+2. The arithmetic is now visible. 83 days at 10 hours is 830 clinic
+   hours, and $41,500 over 830 is exactly $50. But 0.75 FTE at 30 hours
+   a week is about 1,560 hours a year, which is $26.60 an hour. A
+   reader who multiplies may ask how 830 hours is 0.75 FTE. The answer
+   is the one the PSLF form already gives: leave counts at the
+   contracted weekly rate. We should have that answer ready rather than
+   be surprised by the question.
+
+The phrase "30 hours per week annualized" no longer appears in the
+figure, only "0.75 FTE". It is worth confirming that the contract still
+carries the full phrase.
+
+**The calendar legend reads "In clinic", "In town", "Weekends and time
+off".**
 
 ## Between now and then
 
