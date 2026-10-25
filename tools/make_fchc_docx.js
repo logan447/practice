@@ -50,8 +50,8 @@ function table(head,rows){
 const link=(t,url)=>new ExternalHyperlink({link:url,
   children:[run(t,{color:GREEN,underline:{}})]});
 
-const fig=fs.readFileSync('weeksfig.png'), cal=fs.readFileSync('appendix.png'),
-      gantt=fs.readFileSync('gantt.png');
+const cal=fs.readFileSync('appendix.png'), gantt=fs.readFileSync('gantt.png'),
+      nowthen=fs.readFileSync('nowthen.png');
 
 const doc=new Document({
   footnotes:{
@@ -88,32 +88,32 @@ const doc=new Document({
         children:[run("Logan DuBose, MD",{size:22,color:GREY})]}),
 
       section("The proposal"),
-      body("A salaried part-time position at 0.75 FTE and $41,500 a year, beginning 1 June 2028. Until then we stay on the current hourly arrangement and use it to prove the economics work and the demand is there. The one thing I need from you in the meantime is what the clinic collects per encounter. Nothing here needs deciding now.",{after:150}),
+      body("A salaried part-time position at 0.75 FTE and $41,500 a year, beginning 1 June 2028. Until then we stay on the current hourly arrangement and use it to prove the economics work and the demand is there.",{after:150}),
       new Paragraph({spacing:{line:240,lineRule:"auto",after:60},
         children:[new ImageRun({type:"png",data:gantt,
           transformation:{width:720,height:Math.round(720*372/2160)}})]}),
 
       section("What this earns the clinic"),
-      body("$41,500, or $45,235 with payroll taxes. That is $34.06 an encounter at sixteen patients a day, and $27.25 at twenty.",{after:80}),
+      body("I cost $45,235 a year with payroll taxes. At sixteen patients a day that is 1,328 encounters, or $34 an encounter.",{after:80}),
       new Paragraph({spacing:{line:264,lineRule:"auto",after:80},
-        children:[run("What the clinic keeps each year after overhead"),
+        children:[run("What the clinic would have to collect for the position to cover itself, after the overhead another session adds"),
                   new FootnoteReferenceRun(1),
-                  run(" and after paying me:")]}),
-      table(["","At $90 a visit","At $103 a visit"],[
-        ["16 patients a day","$26,477","$36,811"],
-        ["20 patients a day","$44,405","$57,323"]]),
+                  run(":")]}),
+      table(["","Covers itself at","At $90 a visit, ahead by"],[
+        ["16 patients a day","$57 a visit","$26,477"],
+        ["20 patients a day","$45 a visit","$44,405"]]),
       new Paragraph({spacing:{line:264,lineRule:"auto",before:110,after:0},
-        children:[run("The clinic's surplus last year was $21,133"),
+        children:[run("Last year's surplus was $21,133"),
                   new FootnoteReferenceRun(2),
                   run(". Median total compensation for a primary care physician is $312,427"),
                   new FootnoteReferenceRun(3),
-                  run(".")]}),
+                  run(". This role is $41,500.")]}),
 
       section("My compensation and schedule"),
-      body("0.75 FTE, which is 30 hours per week annualized. I would give you my days a quarter at a time, as I do now."),
-      body("About 83 clinic days a year, roughly two a week, at ten hours each. Sixteen patients a day to start, which is 38 minutes a visit, and up to twenty if demand supports it. Twelve weeks off, the same weeks I take now. The time off does not change in June 2028. What changes is that I open up more clinic days a week.",{after:130}),
-      new Paragraph({spacing:{line:240,lineRule:"auto",after:110},
-        children:[new ImageRun({type:"png",data:fig,transformation:{width:720,height:89}})]}),
+      body("What changes in June 2028 is the arrangement and the number of clinic days. The time off stays as it is.",{after:150}),
+      new Paragraph({spacing:{line:240,lineRule:"auto",after:120},
+        children:[new ImageRun({type:"png",data:nowthen,
+          transformation:{width:720,height:Math.round(720*512/2160)}})]}),
       new Paragraph({spacing:{line:264,lineRule:"auto",after:0},
         children:[run("One request on the wording. I am working toward Public Service Loan Forgiveness"),
           new FootnoteReferenceRun(4),

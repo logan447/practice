@@ -1,0 +1,67 @@
+<!doctype html><meta charset="utf-8">
+<style>
+:root{--ink:#15181d;--muted:#5f6874;--green:#1d7a5c;--orange:#c47d20;--rule:#c9d5d1;--soft:#dfeae6}
+body{margin:0;background:#fff;font:31px/1.3 Arial,Helvetica,sans-serif;color:var(--ink)}
+.wrap{width:2160px;box-sizing:border-box}
+.band{font-size:24px;font-weight:bold;letter-spacing:.12em;color:var(--muted);
+      padding-bottom:9px;border-bottom:2px solid var(--rule);margin-bottom:4px}
+.g{display:grid;grid-template-columns:300px 1fr 1fr;align-items:start}
+.g>div{padding:12px 26px 12px 0;border-bottom:1.5px solid var(--rule)}
+.rl{color:var(--muted);font-size:28px}
+.hd{font-size:23px;font-weight:bold;letter-spacing:.1em;padding-bottom:9px;border-bottom:none}
+.hn{color:var(--orange)}
+.ht{color:var(--green)}
+.now{color:var(--ink)}
+.then{color:var(--ink);font-weight:bold}
+.sp{height:30px}
+.lab{position:relative;height:62px;margin-top:6px}
+.lab span{position:absolute;font-size:23px;font-weight:bold;white-space:nowrap;color:#8a5614}
+.strip{position:relative;height:40px;background:var(--soft);border-radius:4px;overflow:hidden}
+.blk{position:absolute;top:0;bottom:0;background:var(--orange)}
+.ticks{position:absolute;top:0;bottom:0;width:100%}
+.ticks i{position:absolute;top:0;bottom:0;width:2px;background:#fff}
+.months{position:relative;height:30px;font-size:23px;color:var(--muted);margin-top:5px}
+.months span{position:absolute;transform:translateX(-50%)}
+</style>
+<div class="wrap">
+  <div class="band">WHAT CHANGES</div>
+  <div class="g">
+    <div class="hd"></div><div class="hd hn">NOW, THROUGH MAY 2028</div><div class="hd ht">FROM 1 JUNE 2028</div>
+    <div class="rl">Arrangement</div><div class="now">Hourly</div><div class="then">Salaried, 0.75 FTE, 30 hours a week annualized</div>
+    <div class="rl">Clinic days</div><div class="now">Opening up more as we go</div><div class="then">About two a week, 83 a year, ten hours each</div>
+    <div class="rl">Patients a day</div><div class="now"></div><div class="then">Sixteen to start, up to twenty</div>
+  </div>
+  <div class="sp"></div>
+  <div class="band">WHAT DOES NOT: MY DAYS A QUARTER AT A TIME, AND THE SAME TWELVE WEEKS OFF</div>
+  <div class="lab" id="lab"></div>
+  <div class="strip" id="strip"><div class="ticks" id="ticks"></div></div>
+  <div class="months" id="mo"></div>
+</div>
+<script>
+var Y=2029, JAN1=Date.UTC(Y,0,1), YEARLEN=365;
+function doy(m,d){return Math.round((Date.UTC(Y,m-1,d)-JAN1)/86400000);}
+function pct(n){return n/YEARLEN*100;}
+var OFF=[[[1,1],[1,13],'New Year',0],[[4,1],[4,7],'Spring break',1],
+         [[5,6],[5,19],'May',0],[[7,22],[8,11],'Summer',1],
+         [[11,18],[12,1],'Thanksgiving',0],[[12,16],[12,31],'Christmas',1]];
+var B='',L='';
+OFF.forEach(function(o){
+  var s=doy(o[0][0],o[0][1]), e=doy(o[1][0],o[1][1])+1;
+  B+='<div class="blk" style="left:'+pct(s)+'%;width:'+pct(e-s)+'%"></div>';
+  var mid=pct((s+e)/2), top=o[3]?32:0, style;
+  if (mid<10)      style='left:0;top:'+top+'px';
+  else if (mid>90) style='right:0;top:'+top+'px';
+  else             style='left:'+mid+'%;top:'+top+'px;transform:translateX(-50%)';
+  L+='<span style="'+style+'">'+o[2]+'</span>';
+});
+document.getElementById('strip').insertAdjacentHTML('afterbegin',B);
+document.getElementById('lab').innerHTML=L;
+var T='',M='',MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+for(var m=1;m<=12;m++){
+  var st=doy(m,1), en=(m===12?YEARLEN:doy(m+1,1));
+  if(m>1) T+='<i style="left:'+pct(st)+'%"></i>';
+  M+='<span style="left:'+pct((st+en)/2)+'%">'+MN[m-1]+'</span>';
+}
+document.getElementById('ticks').innerHTML=T;
+document.getElementById('mo').innerHTML=M;
+</script>

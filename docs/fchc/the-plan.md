@@ -126,13 +126,25 @@ outcome.
 ## What goes in the document
 
 One page plus the appendix calendar. Three sections: the proposal, what
-this earns the clinic, my compensation and schedule. The time off is the
-same before and after June 2028; what changes is that I open up more
-clinic days a week. The cost table (encounters, share of collections)
-came out: the dollars the clinic keeps carry that on their own, and the
-share-of-collections rows were the ratio framing we dropped. The PSLF
-wording request is now a closing paragraph inside the compensation
-section rather than a section of its own.
+this earns the clinic, my compensation and schedule. 211 words.
+
+**The economics are stated as a break-even, not as a grid of guesses.**
+Neither of us knows what the clinic collects per encounter, so a table
+of outcomes at $90 and $103 was presenting my assumption as analysis.
+Inverting it gives one number the clinic can check against its own
+books: the position covers itself at **$57 a visit** at sixteen patients
+a day, or **$45** at twenty. That also retired the $102.97-rounded-to-
+$103 column and the inconsistency it carried.
+
+**Section 3 is one graphic and one sentence.** The graphic carries what
+changes (arrangement, clinic days, patients a day) against what does not
+(days given a quarter at a time, the same twelve weeks off, with the
+year strip inside the same figure). Source in
+`docs/fchc/now-then-figure.html`. The standalone weeks-off figure is no
+longer used in the document.
+
+The PSLF wording request closes the compensation section rather than
+standing alone.
 
 ## Between now and then
 

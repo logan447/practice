@@ -403,3 +403,11 @@ chart rather than prose or a table. Owner test for any further change:
 is this the easiest way to present it to him, and what is the least we
 can present and still be effective.
 
+**Amended 2026-10-25 (iteration 9):** the clinic economics are presented
+as a **break-even per visit** rather than as outcomes at assumed
+collection rates. $57 a visit at sixteen patients a day, $45 at twenty,
+both at 40 percent marginal overhead and a $45,235 loaded cost
+(`tools/fchc_roi.py`). This is the honest form of the argument while the
+collection rate is UNSET, and it gives Dr. Stinar one number he can
+check himself. Revisit when the actual collection per encounter lands.
+
