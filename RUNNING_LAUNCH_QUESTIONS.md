@@ -1373,13 +1373,15 @@ the $60 asked for. DC FQHC physician pay EST $190-230K FTE =
 $91-111/hr, so 2-3x the floor. REFRESH-AT-RUNWAY; NEEDS real DC
 nonprofit comp data.
 
-### Why FCHC cannot carry this (none of it about willingness)
+### Three constraints, none of them negotiable by rate
 
-1. **Structure** -- 8 clocked hrs x 3 days = 24.
+1. **Hours** -- 8 clocked hrs x 3 days = 24. A rate cannot fix an
+   hours shortfall.
 2. **Distance** -- the 55 miles cost ~$8,400/yr in car, tolls and two
-   extra childcare hours a day.
-3. **Size** -- $1.6M revenue, 1.3% margin. Cannot fund a six-figure
-   physician.
+   extra childcare hours per clinic day.
+3. **Scale** -- the ask would be a large share of a small budget; see
+   the Form 990 section above for the figures and the demand question
+   that goes with it.
 
 Three DC days reach 30 hrs/week alone, so **any FCHC time becomes
 optional rather than load-bearing** -- the version that keeps the
