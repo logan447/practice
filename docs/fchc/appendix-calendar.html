@@ -1,0 +1,84 @@
+<!doctype html><meta charset="utf-8">
+<style>
+:root{--ink:#15181d;--muted:#5f6874;--base:#eef1f0;
+      --clin:#1d7a5c;--clin-ink:#fff;--home:#c47d20;--home-ink:#fff;
+      --off:#d6dcda;--off-ink:#7b8683}
+body{background:#fff;color:var(--ink);margin:0;
+     font:15px/1.5 system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+.wrap{width:1120px;padding:14px 0 10px}
+h1{font-size:25px;font-weight:650;margin:0 0 12px;letter-spacing:-.01em;color:var(--clin)}
+.keys{display:flex;gap:26px;align-items:center;margin-bottom:18px}
+.key{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--muted)}
+.sw{width:19px;height:19px;border-radius:4px;flex:none}
+.months{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.mo{background:var(--base);border-radius:10px;padding:11px}
+.mo h2{font-size:12px;font-weight:650;letter-spacing:.06em;text-transform:uppercase;
+       margin:0 0 7px;color:var(--muted)}
+.dows,.days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.dows div{font-size:9.5px;text-align:center;padding-bottom:3px;color:var(--muted)}
+.cell{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;
+      justify-content:center;font-size:10.5px;font-variant-numeric:tabular-nums}
+.blank{background:none}
+.clin{background:var(--clin);color:var(--clin-ink);font-weight:650}
+.home{background:var(--home);color:var(--home-ink)}
+.off{background:var(--off);color:var(--off-ink)}
+</style>
+<div class="wrap">
+  <h1>Appendix: an example year</h1>
+  <div class="keys">
+    <span class="key"><span class="sw" style="background:var(--clin)"></span>Clinic day</span>
+    <span class="key"><span class="sw" style="background:var(--home)"></span>At home with my children</span>
+    <span class="key"><span class="sw" style="background:var(--off)"></span>Weekends and time off</span>
+  </div>
+  <div class="months" id="months"></div>
+</div>
+<script>
+(function(){
+  var TYPE=[]; for(var i=0;i<52;i++) TYPE[i]='med';
+  [3,14,25,36,47].forEach(function(i){TYPE[i]='backup';});
+  [8,21,41].forEach(function(i){TYPE[i]='three';});
+  [1,5,10,16,19,24,29,33,38,44,49].forEach(function(i){TYPE[i]='two';});
+  [12,27].forEach(function(i){TYPE[i]='light';});
+  var MED=[{a:[5],b:[0]},{a:[1],b:[4]},{a:[6],b:[2]},{a:[3],b:[0]},{a:[0],b:[3]}],
+      TWO=[{a:[0,3],b:[]},{a:[1,4],b:[]},{a:[2,5],b:[]},{a:[0,4],b:[]}],
+      THREE=[{a:[0,2,4],b:[]},{a:[1,3,5],b:[]}], LIGHT=[{a:[2],b:[]}];
+  var busy=new Array(366).fill(false), nM=0,nT=0,nTh=0,nL=0;
+  for(var w=0;w<52;w++){
+    var t=TYPE[w],plan;
+    if(t==='backup'){for(var d=0;d<7;d++) busy[w*7+d]=true; continue;}
+    if(t==='med') plan=MED[nM++%MED.length];
+    if(t==='two') plan=TWO[nT++%TWO.length];
+    if(t==='three') plan=THREE[nTh++%THREE.length];
+    if(t==='light') plan=LIGHT[nL++%LIGHT.length];
+    plan.a.forEach(function(d){busy[w*7+d]=true; if(w*7+d+1<366) busy[w*7+d+1]=true;});
+    plan.b.forEach(function(d){busy[w*7+d]=true;});
+  }
+  var VAC=[[[0,1],[0,13]],[[3,1],[3,7]],[[4,6],[4,19]],
+           [[6,22],[7,11]],[[10,18],[11,1]],[[11,16],[11,31]]];
+  function doy(m,d){return Math.round((Date.UTC(2029,m,d)-Date.UTC(2029,0,1))/86400000);}
+  var off=new Array(366).fill(false);
+  VAC.forEach(function(r){for(var k=doy(r[0][0],r[0][1]);k<=doy(r[1][0],r[1][1]);k++) off[k]=true;});
+  VAC.forEach(function(r){var s=doy(r[0][0],r[0][1]),e=doy(r[1][0],r[1][1]);
+    var sync=Math.round((e-s+1)*0.7); for(var k=s;k<s+sync;k++) busy[k]=false;});
+  var MONTHS=['January','February','March','April','May','June','July','August',
+              'September','October','November','December'], DOW=['S','M','T','W','T','F','S'];
+  var html='';
+  for(var m=0;m<12;m++){
+    var offset=new Date(Date.UTC(2029,m,1)).getUTCDay(),
+        len=new Date(Date.UTC(2029,m+1,0)).getUTCDate();
+    html+='<div class="mo"><h2>'+MONTHS[m]+'</h2><div class="dows">';
+    for(var k=0;k<7;k++) html+='<div>'+DOW[k]+'</div>';
+    html+='</div><div class="days">';
+    for(var o=0;o<offset;o++) html+='<div class="cell blank"></div>';
+    for(var day=1;day<=len;day++){
+      var wd=new Date(Date.UTC(2029,m,day)).getUTCDay(), n=doy(m,day), cls;
+      if(wd>=1&&wd<=5&&!off[n]&&!busy[n]) cls='clin';
+      else if(wd>=1&&wd<=5&&!off[n])      cls='home';
+      else                                 cls='off';
+      html+='<div class="cell '+cls+'">'+day+'</div>';
+    }
+    html+='</div></div>';
+  }
+  document.getElementById('months').innerHTML=html;
+})();
+</script>

@@ -101,7 +101,7 @@ const doc=new Document({
       new Paragraph({children:[new PageBreak()]}),
       new Paragraph({spacing:{line:240,lineRule:"auto",after:0},
         children:[new ImageRun({type:"png",data:cal,
-          transformation:{width:700,height:Math.round(700*2586/2304)}})]}),
+          transformation:{width:720,height:Math.round(720*1792/2240)}})]}),
     ]}]});
 
 Packer.toBuffer(doc).then(b=>{fs.writeFileSync('FCHC-proposal.docx',b);console.log('built');});
