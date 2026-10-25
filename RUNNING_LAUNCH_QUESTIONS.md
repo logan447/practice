@@ -624,26 +624,48 @@ cost cancels. For what actually lands in the account, charge the
 whole $10,046. The solo-practice figure of $65,348 predates this and
 needs re-running with two cars.
 
-With the whole second car charged to the household:
+**CORRECTED 2026-10-25.** An earlier version asked $95,000. That
+figure was solved backwards from the $25,000 savings floor and was
+never checked against the owner's actual wage, which is **$50/hr
+(OWNER-FACT)** for **8 clinic hours per working day (OWNER-FACT)**.
+No hourly rate on a three-day schedule produces $95,000. Withdrawn.
 
-| salary | net/clinic day | kept on a care day | SAVED/yr |
-|--------|---------------|--------------------|----------|
-| 80,000 | 484 |  76 | 21,436 |
-| 85,000 | 506 |  98 | 24,028 |
-| 90,000 | 527 | 119 | 26,621 |
-| 95,000 | 549 | 141 | 29,214 |
+Rebuilt forward from the rate. Clinic time alone does not qualify:
 
-**Ask $95,000.** $90K clears the $25,000 floor by only $1,621 and
-$80K misses it. On a care day the take-home is $549 and the sitter
-takes $408, leaving $141; on a Jamie-home day the whole $549 stays.
-The earlier $65K and $80K asks are both superseded: $65K predates
-three kids and $27,744 of bought childcare, $80K predates the
-two-car floor.
+- 3 days x 8 hrs = **24 hrs/week in clinic**
+- 120 clinic days x 8 = 960 hrs/yr, /52 = **18.5 paid hrs/week**
+- pay for those hours alone: 960 x $50 = **$48,000**
 
-Day rate check: $95,000 / 120 days = $792/day, ~$863 fully loaded
-(DERIVED, 9% EST employer tax). At an assumed $110/encounter x 14
-encounters that is **56% of collections, above the normal 35-45%
-primary care band**, so this is a real ask rather than a formality.
+Paid leave is what closes it. At 32 hrs/week: 40 working weeks x 32
+= 1,280, plus 12 leave weeks x 32 = 384, total **1,664 paid hrs =
+32.0 hrs/week**, salary **$83,200**. Inside a working week that is
+24 clinic + **8 hrs charting, inbox, results, refills, calls** --
+realistic for a three-day panel, and it must be contracted, not
+assumed.
+
+The 8-hour day also cuts childcare: away from home is 8 + 2.5
+driving = **10.5 hrs**, so $357/day not $408, and **$24,276/yr not
+$27,744**. That $3,468 is most of why a lower salary still works.
+
+| salary | basis | tax | IBR | care | car | FSA | SAVED |
+|--------|-------|-----|-----|------|-----|-----|-------|
+| 48,000 | clinic hrs only | 8,966 | 0 | 24,276 | 10,046 | 1,125 | 5,837 PSLF FAILS |
+| 78,000 | 30 hr/wk @ $50 | 17,958 | 2,978 | 24,276 | 10,046 | 1,125 | 23,867 misses floor |
+| **83,200** | **32 hr/wk @ $50** | 19,942 | 3,498 | 24,276 | 10,046 | 1,125 | **26,563** |
+
+**The ask is $83,200**: the current rate, held at 32 hrs/week for 52
+weeks. The rate needed to clear the $25,000 floor is **$48.19/hr**
+(DERIVED), below what is already paid, so **no raise is required** --
+only that the contract state 32 hrs/week and pay the twelve weeks.
+
+$78,000 at 30 hrs/week fails twice: misses the floor by $1,133 and
+sits exactly on the PSLF line with no room for a cancelled clinic.
+**32, not 30.**
+
+Day rate check: $83,200 / 120 days = **$693/day**, ~**$756 fully
+loaded** (DERIVED, 9% EST employer tax). At an assumed $110/encounter
+x 14 encounters that is 49% of collections, at the top of the normal
+35-45% band rather than above it.
 **UNSET: FCHC collection per encounter** is now the binding unknown,
 not a nice-to-have.
 

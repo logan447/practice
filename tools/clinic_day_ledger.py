@@ -12,9 +12,14 @@ from phase2_personal_model import (tiered, ibr_payment, FICA_EMPLOYEE,
 import phase2_personal_model as M
 M.DEPENDENTS = 3
 
-SALARY   = 95_000.0      # recommended ask
+# $50/hr (OWNER-FACT, current FCHC rate) held at 32 hrs/wk x 52 wks.
+# 32 hrs/wk during the 40 working weeks = 24 clinic + 8 admin; the 12
+# weeks are paid, which is what carries the average to 32.0 and keeps
+# margin over the 30.0 PSLF line.
+RATE     = 50.0
+SALARY   = RATE * 32 * 52     # $83,200
 CARE_HR  = 34.0          # EST loaded rate, NEEDS real quotes
-CARE_DAY = 12.0          # 10 hr clinic + ~2.5 hr drive, rounded
+CARE_DAY = 10.5          # 8 hr clinic (OWNER-FACT) + ~2.5 hr drive
 
 # ---- Jamie's representative year, ported from the calendar ----
 TYPE = ['med'] * 52
@@ -77,7 +82,10 @@ net   = SALARY - tax - loan
 gross_day, net_day = SALARY/N, net/N
 care_day = CARE_HR * CARE_DAY
 
-print(f"FIXED T/W/Th, 2029, salary ${SALARY:,.0f}, three kids, MFS\n")
+print(f"FIXED T/W/Th, 2029, ${RATE:.0f}/hr x 32 hrs/wk = "
+      f"${SALARY:,.0f}, three kids, MFS")
+print(f"  clinic hours alone: {120*8:,} /52 = {120*8/52:.1f} hr/wk -- "
+      f"FAILS. Paid leave is what reaches 32.0\n")
 print(f"  clinic days                 {N}")
 print(f"  of those, paid care needed  {NCARE}   ({NCARE/N:.0%})")
 print(f"  Jamie home, no care         {N-NCARE}\n")
@@ -106,6 +114,8 @@ fsa = min(tot[3], 3_750.)*0.30
 print(f"\n  dependent-care FSA back     ${fsa:,.0f}")
 print(f"  less the second car         $-10,046   (purchase, parking, insurance, fuel)")
 print(f"  SAVED FOR THE YEAR          ${tot[5]+fsa-10_046:,.0f}")
+print(f"  rate needed to clear $25K   $48.19/hr (DERIVED) -- below the "
+      f"current ${RATE:.0f}, so no raise is required")
 
 print(f"\n\nTHE {NCARE} DATED CHILDCARE DAYS  (12 hrs x ${CARE_HR:.0f} = ${care_day:.0f} each)\n")
 run = 0.0
