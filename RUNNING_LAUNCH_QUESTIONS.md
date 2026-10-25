@@ -2640,3 +2640,45 @@ from a timesheet and fails. Same money, same work, opposite outcome.
   **retracted**, it came from an expired (Exp. 08/31/2023) form.
 - Paid leave counts toward the average: stated in the current form
   instruction the certifying official reads.
+
+## BASE 16 / BULL 20 (2026-10-25)
+
+Owner: base at 16 patients/day, bull at 20 as something to work up to.
+Model: `tools/fchc_base_bull.py`. Plan doc updated.
+
+**Salary fixed at $41,500 in both cases. Household saves $16,866
+either way -- the patient count does not touch his pay.**
+
+| case | pts/day | slot | encounters | his $/enc | % @$90 | % @$103 |
+|------|---------|------|-----------|-----------|--------|---------|
+| **BASE** | 16 | 38 min | 1,328 | 34.06 | 38% | 33% |
+| **BULL** | 20 | 30 min | 1,660 | 27.25 | 30% | 26% |
+
+### What the clinic keeps, after 50% overhead and his salary
+
+| | @$90 | @$103 |
+|---|------|-------|
+| 16 a day | 14,525 | 23,137 |
+| **20 a day** | **29,465** | **40,230** |
+
+**Growing 16 -> 20 adds $14,940-17,093 of surplus and costs the clinic
+nothing, because the salary is fixed.** All upside from a fuller
+schedule stays with them. Their FY2024 whole-organisation surplus was
+$21,133, so the bull case alone is 1.4x-1.9x that.
+
+### The bull case also creates room for a raise later
+
+If 20/day is reached, FCHC could fund at 40% of collections:
+**$54,826 at $90** (+$13,326) or **$62,727 at $103** (+$21,227). At
+$54,826 the household would save **$26,113 -- clearing the $25,000
+floor.** Frame as a later conversation, not a condition now.
+
+### Why this is the right proposal shape
+
+16 is affordable for them today and inside the normal band. 20 is
+upside they capture entirely. Growing between them is a **demand**
+question, not a pace question: 332 more encounters a year, slots
+moving 38 -> 30 minutes, both normal.
+
+Collections per encounter remains **UNSET**; everything above spans
+$90-103.

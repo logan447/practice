@@ -17,7 +17,10 @@ for reasons in the last section.
 
 I work only the days Jamie is home with our children. That comes to
 about **83 clinic days a year**, roughly two a week. Ten hours each.
-Sixteen patients a day, which is 38 minutes a visit.
+
+We start at **sixteen patients a day**, which is 38 minutes a visit.
+If the demand is there, we work up to **twenty**, which is 30 minutes.
+Both are normal primary care pacing. My salary is the same either way.
 
 I give you the days a quarter at a time. Some weeks will have four.
 Some will have one. About six weeks a year will have none. You will
@@ -33,21 +36,37 @@ week where we are both at work and paying someone.
 
 ## What it costs you
 
-| | |
-|---|---|
-| salary | $41,500 |
-| with payroll taxes | $45,235 |
-| encounters a year | 1,328 |
-| cost per encounter | $34.06 |
-| share of collections at $90 a visit | 38% |
-| share at $103 a visit | 33% |
+Salary $41,500, or $45,235 with payroll taxes. That figure does not
+move between the two cases.
+
+| | at 16 a day | at 20 a day |
+|---|---|---|
+| encounters a year | 1,328 | 1,660 |
+| my cost per encounter | $34.06 | $27.25 |
+| share of collections at $90 | 38% | 30% |
+| share at $103 | 33% | 26% |
 
 Primary care normally runs physician pay at 35 to 45 percent of
-collections. This sits inside that.
+collections. Sixteen a day sits inside that. Twenty sits below it.
 
-After overhead at half of collections, the clinic keeps **$14,525** at
-$90 a visit and **$23,137** at $103. The clinic's whole surplus last
-year was $21,133.
+## What the clinic keeps
+
+After overhead at half of collections, and after paying me:
+
+| | at $90 a visit | at $103 a visit |
+|---|---|---|
+| 16 a day | $14,525 | $23,137 |
+| 20 a day | **$29,465** | **$40,230** |
+
+The clinic's whole surplus last year was $21,133.
+
+Growing from sixteen to twenty adds about $15,000 to $17,000 of
+surplus and costs the clinic nothing, because my salary is fixed. All
+of the upside from a fuller schedule stays with the clinic.
+
+If we do reach twenty, the clinic could fund a salary of about $54,826
+at 40 percent of collections and still keep its margin. That is a
+conversation for later, not a condition now.
 
 My rate works out to $26.60 an hour of paid time. The medical
 director's is $66.97.
@@ -83,7 +102,8 @@ outcome.
 
 - What the clinic actually collects per encounter. Everything above
   assumes $90 to $103. UNSET.
-- Whether 16 patients a day is the right pace for you, or whether you
-  would rather I see 20 in the same ten hours.
+- How quickly we try to grow from sixteen a day to twenty. That is a
+  demand question rather than a pace question: twenty on 83 days is
+  332 more encounters a year.
 - Confirming my payment count with the servicer before anything is
   signed.
