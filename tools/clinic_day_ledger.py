@@ -19,7 +19,8 @@ M.DEPENDENTS = 3
 RATE     = 50.0
 SALARY   = RATE * 32 * 52     # $83,200
 CARE_HR  = 34.0          # EST loaded rate, NEEDS real quotes
-CARE_DAY = 10.5          # 8 hr clinic (OWNER-FACT) + ~2.5 hr drive
+CLIN_H   = 8.0           # OWNER-FACT clinic hours per working day
+CARE_DAY = CLIN_H + 2.5  # away from home: clinic plus the drive
 
 # ---- Jamie's representative year, ported from the calendar ----
 TYPE = ['med'] * 52
@@ -127,11 +128,23 @@ for m in range(1,13):
     print(f"  {MON[m]} ({len(dd):>2})  {line:<38} ${cost:>7,.0f}   "
           f"cum ${run:>8,.0f}")
 
-print("\n\nSENSITIVITY on the ask")
-print(f"{'salary':>8}{'net/day':>10}{'kept on a dotted day':>23}{'SAVED/yr':>11}")
-for s in (80_000, 85_000, 90_000, 95_000):
-    tx = (s*FICA_EMPLOYEE + tiered(max(s-STD_DED_MFS,0), FED_MFS_BRACKETS)
-          + tiered(max(s-STD_DED_MFS,0), DC_BRACKETS))
-    nd = (s - tx - ibr_payment(s, FPL150_FAM4)) / N
+print(f"\n\nSENSITIVITY on contracted hours, all at ${RATE:.0f}/hr")
+print(f"{'hr/wk':>6}{'salary':>9}{'paid hrs':>10}{'avg hr/wk':>11}"
+      f"{'net/day':>9}{'kept, care day':>16}{'SAVED/yr':>10}")
+for X in (28, 30, 32, 34, 36):
+    s2 = RATE * X * 52
+    tx = (s2*FICA_EMPLOYEE + tiered(max(s2-STD_DED_MFS,0), FED_MFS_BRACKETS)
+          + tiered(max(s2-STD_DED_MFS,0), DC_BRACKETS))
+    nd = (s2 - tx - ibr_payment(s2, FPL150_FAM4)) / N
     saved = nd*N - NCARE*care_day + fsa - 10_046
-    print(f"{s:>8,}{nd:>10,.0f}{nd-care_day:>23,.0f}{saved:>11,.0f}")
+    flag = ""
+    if X < 30:   flag = "  PSLF FAILS"
+    elif X == 30: flag = "  no margin"
+    if saved < 25_000 and X >= 30: flag += "  misses floor"
+    print(f"{X:>6}{s2:>9,.0f}{X*52:>10,}{X:>11.1f}{nd:>9,.0f}"
+          f"{nd-care_day:>16,.0f}{saved:>10,.0f}{flag}")
+print(f"\n  admin hrs/week needed during the 40 working weeks, "
+      f"on top of {3*CLIN_H:.0f} clinic hrs:")
+for X in (30, 32, 34):
+    print(f"    {X} hr/wk contract -> {X - 3*CLIN_H:.0f} hrs/wk "
+          f"({(X - 3*CLIN_H)*40:.0f} hrs/yr)")
