@@ -83,7 +83,7 @@ h1{font-size:clamp(24px,4.5vw,32px);font-weight:650;margin:0 0 6px;letter-spacin
 
 <div class="wrap">
   <h1>2029 coverage</h1>
-  <p class="sub">A 35-week contract. I offer the clinic every weekday Jamie is already home, in all twelve months, at 12 hours 45 minutes clocked. Held back: the twelve weeks off, plus five weeks outside the contract. That is 83 days and 1,058 hours, or 30.2 hours a week across the contract. No paid childcare anywhere in the year.</p>
+  <p class="sub">A 35-week contract. I offer the clinic every weekday Jamie is already home, in all twelve months, at thirteen clocked hours each, which includes the inbox, charting and overage the clinic is willing to count. Held back: the twelve weeks off, plus five weeks outside the contract. That is 83 days and 1,079 hours, or 30.8 hours a week across the contract. No paid childcare anywhere in the year.</p>
 
   <div class="legend">
     <div class="caption">Every green square is a day Jamie is home. There is no nanny in this year, and no day where both of us are working.</div>
@@ -98,7 +98,7 @@ h1{font-size:clamp(24px,4.5vw,32px);font-weight:650;margin:0 0 6px;letter-spacin
   <div class="stats" id="stats"></div>
   <div class="months" id="months"></div>
 
-  <p class="note"><strong>How the hours get there.</strong> The forgiveness rule treats a borrower as full time who averages thirty hours a week across a contractual period of at least eight months. The contract here is 35 weeks, which is 8.05 months, so the bar is 1,050 hours. Eighty-three days at 12 hours 45 minutes is 1,058. Thirty-five weeks is the shortest whole-week period that still clears eight months: dropping the sixth empty week too would leave 34 weeks, a better average but only 7.82 months, which fails the minimum.</p>
+  <p class="note"><strong>How the hours get there.</strong> The forgiveness rule treats a borrower as full time who averages thirty hours a week across a contractual period of at least eight months. The contract here is 35 weeks, which is 8.05 months, so the bar is 1,050 hours. Eighty-three days at thirteen clocked hours is 1,079, which clears it with a little room. The floor is 12.65 hours a day, so thirteen leaves about a quarter of an hour of margin. Thirty-five weeks is the shortest whole-week period that still clears eight months: dropping the sixth empty week too would leave 34 weeks, a better average but only 7.82 months, which fails the minimum.</p>
 
   <p class="note"><strong>Why no childcare.</strong> I book a clinic day only when Jamie\'s schedule leaves her home with the children, so childcare never enters the plan. That is also what caps the year at 83 days: she is home about two weekdays a week, and no rearrangement finds more. Count the green squares week by week and the unevenness shows itself, some weeks three or four and most weeks two. Thirty-four weeks of the year carry at least one clinic day, which is where eight months\' worth of working weeks comes from.</p>
 
@@ -160,7 +160,7 @@ h1{font-size:clamp(24px,4.5vw,32px);font-weight:650;margin:0 0 6px;letter-spacin
 
   var EXCL = [12, 14, 25, 36, 41];    // weeks outside the contract, 0-indexed
   var CONTRACT = 35;                  // weeks: 8.05 months
-  var NEED = 30 * CONTRACT, HRS = 12.75, RATE = 50;
+  var NEED = 30 * CONTRACT, HRS = 13, RATE = 50;
   function excluded(n){ return EXCL.indexOf(Math.floor(n / 7)) >= 0; }
 
   var MONTHS = ['January','February','March','April','May','June',
