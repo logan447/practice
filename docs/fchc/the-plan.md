@@ -125,33 +125,38 @@ outcome.
 
 ## What goes in the document
 
-One page plus the appendix calendar. Two sections: the proposal, and my
-compensation and schedule. 76 words and three figures.
+**One page. Everything on it, including the example year.** 49 words,
+two figures, no footnotes, no page break.
 
-**The visit economics are not in the document.** Owner call, 2026-10-25,
-and it is the right one. We do not know the clinic's cost structure, so
-any model we present to the person who runs their books is a guess
-dressed as analysis. The break-even work stays in `tools/fchc_roi.py`
-for the negotiating table: if FCHC asks how the number was arrived at,
-we have an answer ready. We do not volunteer it.
+- The title, the byline, and one paragraph: the ask and the proving
+  period.
+- One combined figure (`docs/fchc/timeline-figure.html`): the timeline
+  across 2027 and 2028 with the three milestones, and directly beneath
+  it, tied to the same two bars, what the arrangement is now and what it
+  becomes on 1 June 2028. The old separate now/then table is folded into
+  this.
+- The example year calendar, under a plain heading.
 
-What the document carries instead: the ask, the timeline, exactly what
-the clinic gets and when, and one market comparison ($41,500 against a
-$312,427 median) which is a fact about physician pay rather than a claim
-about their finances.
+**The vacation strip is gone.** It said the same thing as the grey weeks
+in the calendar. Redundant, so it came out.
 
-**The PSLF explanation came out too.** The contract language that makes
-forgiveness work, "0.75 FTE, 30 hours per week annualized", is still
-stated twice, in Section 1 and in the figure. What is gone is the
-paragraph explaining why. That is defensible, since the terms are the
-ask whether or not the reason is given. The risk it creates: nobody at
-FCHC knows the wording matters, so **a contract that comes back phrased
-as a day rate or an hourly rate must be caught and corrected**. This is
-the highest-stakes item in the plan.
+**The clinic economics are not in the document** (see iteration 10
+below). `tools/fchc_roi.py` holds the break-even work for the
+negotiating table.
 
-**The appendix no longer says "at home with my children."** Three keys:
-in clinic, in town not in clinic, weekends and time off. The clinic gets
-the operational picture without the domestic detail.
+**The salary and the market comparison are not in the document either.**
+Owner deleted them 2026-10-25. The salary still appears once, in the
+opening sentence, as part of the ask.
+
+**The PSLF wording risk stands.** "0.75 FTE, 30 hours per week
+annualized" appears in the opening sentence and in the figure. The
+explanation of why it matters is not in the document. **A contract that
+comes back phrased as a day rate or an hourly rate must be caught and
+corrected**, most likely in January 2028. This is the highest-stakes
+item in the plan and nothing in the document protects it.
+
+**The appendix says "in town, not in clinic," not "at home with my
+children."**
 
 ## Between now and then
 

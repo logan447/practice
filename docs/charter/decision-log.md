@@ -422,3 +422,11 @@ document now carries the ask, the timeline, the schedule, and one market
 comparison. **Revisit trigger:** FCHC asks how $41,500 was arrived at,
 or counters on salary.
 
+**Amended 2026-10-25 (iteration 11):** the proposal is **one page, one
+section, two figures**. The timeline and the now/then table merged into
+a single figure, since the attributes belong to the two phases the
+timeline already draws. The vacation strip came out as redundant with
+the example year calendar, which now sits on the same page rather than
+as an appendix. 49 words of prose. The governing test remains: the least
+we can present and still be effective.
+

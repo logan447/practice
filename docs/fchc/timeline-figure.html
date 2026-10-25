@@ -1,0 +1,67 @@
+<!doctype html><meta charset="utf-8">
+<style>
+:root{--ink:#15181d;--muted:#5f6874;--green:#1d7a5c;--orange:#c47d20;--rule:#c9d5d1}
+body{margin:0;background:#fff;font:30px/1.35 Arial,Helvetica,sans-serif;color:var(--ink)}
+.wrap{width:2160px;box-sizing:border-box}
+.yr{display:grid;grid-template-columns:repeat(2,1fr)}
+.yr div{font-size:25px;font-weight:bold;letter-spacing:.1em;color:var(--muted);
+        text-align:center;padding-bottom:8px;border-bottom:2px solid var(--rule)}
+.qs{display:grid;grid-template-columns:repeat(8,1fr);margin:10px 0 20px}
+.qs div{font-size:22px;color:var(--muted);text-align:center}
+.rows{position:relative;height:88px}
+.bar{position:absolute;top:0;height:88px;border-radius:8px;display:flex;align-items:center;
+     padding:0 22px;box-sizing:border-box;color:#fff;font-size:28px;z-index:2}
+.ob{background:var(--orange)}
+.gb{background:var(--green)}
+.fade{position:absolute;top:0;height:88px;z-index:2;border-radius:0 8px 8px 0;
+      background:linear-gradient(90deg,var(--green),rgba(29,122,92,0))}
+.vl{position:absolute;width:2px;background:var(--rule);z-index:1;top:0;height:88px}
+.ms{position:relative;height:104px}
+.m{position:absolute;top:0;transform:translateX(-50%);text-align:center;width:360px}
+.m .d{width:15px;height:15px;background:var(--green);transform:rotate(45deg);
+      margin:9px auto 11px;border:3px solid #fff}
+.m b{display:block;font-size:24px;color:var(--green)}
+.m span{display:block;font-size:22px;color:var(--muted);margin-top:3px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:0 70px;
+      border-top:2px solid var(--rule);padding-top:20px}
+.h{font-size:23px;font-weight:bold;letter-spacing:.1em;margin-bottom:14px}
+.hn{color:var(--orange)} .ht{color:var(--green)}
+.cols p{margin:0 0 9px;font-size:30px}
+.cols .t{font-weight:bold}
+</style>
+<div class="wrap">
+ <div class="yr"><div>2027</div><div>2028</div></div>
+ <div class="qs"><div>Q1</div><div>Q2</div><div>Q3</div><div>Q4</div><div>Q1</div><div>Q2</div><div>Q3</div><div>Q4</div></div>
+ <div class="rows" id="rows"></div>
+ <div class="ms" id="ms"></div>
+ <div class="cols">
+   <div>
+     <div class="h hn">NOW, THROUGH MAY 2028</div>
+     <p>Hourly</p>
+     <p>Opening up more clinic days as we go</p>
+   </div>
+   <div>
+     <div class="h ht">FROM 1 JUNE 2028</div>
+     <p class="t">Salaried, 0.75 FTE, 30 hours a week annualized</p>
+     <p class="t">About two clinic days a week, 83 a year, ten hours each</p>
+     <p class="t">Sixteen patients a day to start, up to twenty</p>
+   </div>
+ </div>
+</div>
+<script>
+var N=24, pct=function(m){return (m/N*100)+'%';};
+var rows=document.getElementById('rows'), ms=document.getElementById('ms');
+function bar(a,b,cls,txt){var d=document.createElement('div');d.className='bar '+cls;
+  d.style.left=pct(a);d.style.width=pct(b-a);d.textContent=txt;rows.appendChild(d);}
+bar(0,16.8,'ob','Current hourly arrangement');
+bar(17.2,22,'gb','Salaried position');
+var f=document.createElement('div');f.className='fade';
+f.style.left=pct(22);f.style.width=pct(2);rows.appendChild(f);
+var MS=[[9,'October 2027','Check the figures'],
+        [12,'January 2028','Decide and write it'],
+        [19,'August 2028','First review']];
+MS.forEach(function(x){var L=pct(x[0]+0.5);
+  var m=document.createElement('div');m.className='m';m.style.left=L;
+  m.innerHTML='<div class="d"></div><b>'+x[1]+'</b><span>'+x[2]+'</span>';ms.appendChild(m);
+  var v=document.createElement('div');v.className='vl';v.style.left=L;rows.appendChild(v);});
+</script>
