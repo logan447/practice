@@ -1101,3 +1101,72 @@ from FCHC's EMR and panel.
 
 PSLF unchanged in every row above: 1,200 clinic + 360 leave = 1,560 /
 52 = **30.00 hr/wk**, still conditional on the unpaid-leave reading.
+
+## FCHC's Form 990: gate cleared, new gate opened (2026-10-25)
+
+Source: ProPublica Nonprofit Explorer, EIN **54-2061482** (Form 990,
+public filing). All figures below are FACT, sourced. Individual names
+from Part VII are deliberately NOT recorded here -- only the pay level
+that sets the ceiling, which is all the decision needs.
+
+### SETTLED: FCHC is a 501(c)(3)
+
+Subsection 3, ruling date 2002-03-01, NTEE Health/Public Health
+Program. **The PSLF qualifying-employer gate is CLOSED as a risk.**
+
+### The medical director's pay -- the rate ceiling
+
+Medical Director compensation (Form 990 Part VII, one incumbent
+since 2017): 2018 $109,653 / 2020 $130,938 / 2021 $146,000 /
+2022 $137,053 / 2023 $130,241 / **2024 $139,293**. Flat to slightly
+up; no trend that would open room above it.
+
+Implied rate: $139,293 / 2,080 hrs = **$66.97/hr**; / 1,920 hrs
+(4 wks off) = **$72.55/hr**.
+
+**So the earlier $74.25/hr ask would have EXCEEDED the medical
+director. Withdrawn.** Owner-constraint (2026-10-25): rate must not
+exceed the medical director's, ideally lower, target ~$60.
+
+### PA/NP pay is not individually public
+
+Part VII discloses only officers, directors, key employees and the
+five highest-compensated employees **over $100,000**. Across 2011-2024
+no PA or NP ever appears -- only the medical director. **Inference
+(labelled as such): no mid-level at FCHC earns over $100,000.** Their
+pay sits inside "other salaries and wages," $849,390 in FY2024.
+ProPublica's people lists end in "+ View more people", so truncation
+is possible, but the pattern holds across fourteen filings.
+
+### Revenue mix: they DO collect. Not a free clinic.
+
+| FY2023 | amount | share |
+|--------|--------|-------|
+| contributions and grants | $694,892 | 41% |
+| **program service revenue** | **$936,554** | **56%** |
+| total revenue | $1,682,118 | |
+| total functional expenses | $1,599,999 | |
+
+Backing into it against an ESTIMATED ~10,000 encounters/yr gives
+**$85-100 per encounter** (the volume is my estimate, NOT their
+figure; NEEDS the real encounter count). That is close to, and
+slightly below, the $102.97 the models have been using.
+
+### NEW BINDING CONSTRAINT: their margin is 1.3%
+
+**FY2024: revenue $1,643,163, expenses $1,622,030, surplus
+$21,133.** The ask of $93,600 ($102,024 loaded) is **6.3% of their
+entire expense base** and turns that surplus into an $80,891 deficit
+unless it is revenue-funded.
+
+20 enc x 120 days = **2,400 encounters**, about a **23% volume
+increase** on their current scale, worth roughly $204,000-240,000 at
+$85-100. Against $102,024 of cost that works comfortably --
+**but only if the encounters are genuinely new.** If they are patients
+the existing providers would have seen anyway, FCHC pays $102,024 for
+nothing and runs a deficit.
+
+**So the pitch is not about rate at all:** "I bring 2,400 encounters a
+year you are currently turning away, worth roughly $200,000, and I
+cost $102,000." Demand generation -- the owner's own question from the
+ramp plan -- is now the only thing that decides this.
