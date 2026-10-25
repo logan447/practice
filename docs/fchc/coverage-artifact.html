@@ -1,0 +1,220 @@
+<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>2029 Coverage Year</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+:root{
+  --bg:#f3f4f6; --ink:#15181d; --muted:#5f6874;
+  --base:#c9ced6; --base-ink:#434a55;
+  --jamie:#c47d20; --jamie-ink:#fff;
+  --mine:#1d7a5c; --mine-ink:#fff;
+  --split-ink:#ffffff;
+  --lab:rgba(26,32,40,.82);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#13161a; --ink:#eef1f4; --muted:#98a2ae;
+  --base:#333a44; --base-ink:#aab3bf;
+  --jamie:#e3a24e; --jamie-ink:#251602;
+  --mine:#3fb98f; --mine-ink:#051c15;
+  --split-ink:#06161c; --lab:rgba(232,238,245,.85);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#13161a; --ink:#eef1f4; --muted:#98a2ae;
+  --base:#333a44; --base-ink:#aab3bf;
+  --jamie:#e3a24e; --jamie-ink:#251602;
+  --mine:#3fb98f; --mine-ink:#051c15;
+  --split-ink:#06161c; --lab:rgba(232,238,245,.85);
+  color-scheme:dark}
+body{background:var(--bg);color:var(--ink);margin:0;
+  font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:1000px;margin:0 auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:32px 48px}
+h1{font-size:clamp(24px,4.5vw,32px);font-weight:650;margin:0 0 6px;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:0 0 22px;max-width:66ch}
+.legend{background:var(--base);color:var(--base-ink);border-radius:10px;
+  padding:14px 16px;margin-bottom:24px}
+.legend .caption{font-size:12.5px;font-weight:600;margin-bottom:10px}
+.keys{display:flex;flex-wrap:wrap;gap:9px 20px;align-items:center}
+.key{display:flex;align-items:center;gap:8px;font-size:13px}
+.sw{width:20px;height:20px;border-radius:4px;flex:none}
+.sw.split{background:linear-gradient(135deg,var(--mine) 0 50%,var(--jamie) 50% 100%)}
+.sw.vac{background:linear-gradient(135deg,var(--mine) 0 50%,var(--jamie) 50% 100%);opacity:.45}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:10px;margin-bottom:26px}
+.stat{background:var(--base);color:var(--base-ink);border-radius:10px;padding:13px 15px}
+.stat b{display:block;font-size:26px;font-weight:650;font-variant-numeric:tabular-nums;
+  line-height:1.15;color:var(--ink)}
+.stat span{font-size:12.5px}
+.months{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:18px}
+.mo{background:var(--base);color:var(--base-ink);border-radius:10px;padding:12px;
+  position:relative}
+.mo.outside{opacity:.72}
+.mo h2{font-size:13px;font-weight:650;letter-spacing:.05em;text-transform:uppercase;
+  margin:0 0 8px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.mo h2 em{font-style:normal;font-size:9.5px;font-weight:700;letter-spacing:.07em;
+  opacity:.75}
+.triplab{align-self:start;height:52%;display:flex;align-items:center;
+  justify-content:flex-start;padding-left:5px;font-size:9.5px;font-weight:700;
+  line-height:1;letter-spacing:.07em;text-transform:uppercase;color:var(--lab);
+  overflow:hidden;white-space:nowrap}
+.dows,.days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.gridwrap{position:relative}
+.overlay{position:absolute;inset:0;display:grid;grid-template-columns:repeat(7,1fr);
+  gap:5px;pointer-events:none}
+.dows div{font-size:10px;text-align:center;padding-bottom:3px;opacity:.7}
+.cell{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;
+  justify-content:center;font-size:11px;font-variant-numeric:tabular-nums;
+  box-sizing:border-box;position:relative}
+.cell.blank{background:none}
+.cell.f{background:linear-gradient(135deg,var(--mine) 0 50%,var(--jamie) 50% 100%);
+  color:var(--split-ink)}
+.cell.j{background:var(--jamie);color:var(--jamie-ink)}
+.cell.m{background:var(--mine);color:var(--mine-ink);font-weight:600}
+.cell.vac{opacity:.45;align-items:flex-end;padding-bottom:3px}
+.note{margin-top:26px;color:var(--muted);font-size:13.5px;max-width:68ch}
+.note + .note{margin-top:10px}
+</style></head><body>
+
+<div class="wrap">
+  <h1>2029 coverage</h1>
+  <p class="sub">An eight-month contract, 5 March to 4 November. Inside it I work every weekday Jamie is already home, twelve clocked hours each, plus paid administrative time. The twelve weeks off stay exactly where they are. No paid childcare anywhere in the year.</p>
+
+  <div class="legend">
+    <div class="caption">Every green square is a day Jamie is home. There is no nanny in this year, and no day where both of us are working.</div>
+    <div class="keys">
+      <span class="key"><span class="sw" style="background:var(--mine)"></span><b>Jamie</b> has them, I'm in clinic</span>
+      <span class="key"><span class="sw" style="background:var(--jamie)"></span><b>I</b> have them, Jamie's on shift</span>
+      <span class="key"><span class="sw split"></span>Both of us have them</span>
+      <span class="key"><span class="sw vac"></span>Faded: weekends, my twelve weeks off, and the months outside the contract</span>
+    </div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+  <div class="months" id="months"></div>
+
+  <p class="note"><strong>Why eight months.</strong> The forgiveness rule counts a borrower full time who averages thirty hours a week across a contractual period of at least eight months, even where the rest of the year is not worked. Thirty hours across thirty-five weeks is 1,050. Sixty-three clinic days at twelve hours is 756 of them, so the remaining 294 are administrative: charting, inbox, results and coordination, about eight and a half hours a week. That is the load-bearing part of this plan. If the clinic will pay and certify those hours, the year works. If it will only certify half of them, the gap comes back as longer days or a sitter.</p>
+
+  <p class="note"><strong>Why no childcare.</strong> I book a clinic day only when Jamie's schedule leaves her home with the children, so childcare never enters the plan. Count the green squares week by week and the cost of that shows itself: some weeks carry three or four, most carry two, and several carry none. The eight-month average is what absorbs the uneven weeks. A week-by-week test would not, which is why the contract period matters more than the day count.</p>
+
+  <p class="note"><strong>My weeks off:</strong> Jan 1&ndash;13, Apr 1&ndash;7 spring break, May 6&ndash;19 Belize, Jul 22&ndash;Aug 11 summer, Nov 18&ndash;Dec 1 Thanksgiving, Dec 16&ndash;31 holidays. Three of those blocks fall outside the contract window altogether. <strong>Jamie's pattern:</strong> a 24-hour shift takes that day and the next; a 12-hour day takes one; five backup weeks take the whole week. She aims about 70% of her leave at my blocks. A representative year, not her real schedule.</p>
+</div>
+
+<script>
+(function(){
+  var TYPE = [];
+  for (var i = 0; i < 52; i++) TYPE[i] = 'med';
+  [3,14,25,36,47].forEach(function(i){ TYPE[i] = 'backup'; });
+  [8,21,41].forEach(function(i){ TYPE[i] = 'three'; });
+  [1,5,10,16,19,24,29,33,38,44,49].forEach(function(i){ TYPE[i] = 'two'; });
+  [12,27].forEach(function(i){ TYPE[i] = 'light'; });
+
+  var MED = [{a:[5],b:[0]},{a:[1],b:[4]},{a:[6],b:[2]},{a:[3],b:[0]},{a:[0],b:[3]}];
+  var TWO = [{a:[0,3],b:[]},{a:[1,4],b:[]},{a:[2,5],b:[]},{a:[0,4],b:[]}];
+  var THREE = [{a:[0,2,4],b:[]},{a:[1,3,5],b:[]}];
+  var LIGHT = [{a:[2],b:[]}];
+
+  var busy = new Array(366).fill(false);
+  var nMed = 0, nTwo = 0, nThree = 0, nLight = 0;
+  for (var w = 0; w < 52; w++) {
+    var t = TYPE[w], plan;
+    if (t === 'backup') { for (var d = 0; d < 7; d++) busy[w * 7 + d] = true; continue; }
+    if (t === 'med')   plan = MED[nMed++ % MED.length];
+    if (t === 'two')   plan = TWO[nTwo++ % TWO.length];
+    if (t === 'three') plan = THREE[nThree++ % THREE.length];
+    if (t === 'light') plan = LIGHT[nLight++ % LIGHT.length];
+    plan.a.forEach(function(d){
+      busy[w * 7 + d] = true;
+      if (w * 7 + d + 1 < 366) busy[w * 7 + d + 1] = true;
+    });
+    plan.b.forEach(function(d){ busy[w * 7 + d] = true; });
+  }
+
+  var TRIPS = ['', 'Spring break', 'Belize', 'Summer', 'Texas', 'Winter'];
+  var VAC = [[[0,1],[0,13]], [[3,1],[3,7]], [[4,6],[4,19]],
+             [[6,22],[7,11]], [[10,18],[11,1]], [[11,16],[11,31]]];
+  function doy(m, d){ return Math.round((Date.UTC(2029, m, d) - Date.UTC(2029, 0, 1)) / 86400000); }
+  var off = new Array(366).fill(false);
+  VAC.forEach(function(r){
+    for (var k = doy(r[0][0], r[0][1]); k <= doy(r[1][0], r[1][1]); k++) off[k] = true;
+  });
+  VAC.forEach(function(r){
+    var s = doy(r[0][0], r[0][1]), e = doy(r[1][0], r[1][1]);
+    var sync = Math.round((e - s + 1) * 0.7);
+    for (var k = s; k < s + sync; k++) busy[k] = false;
+  });
+
+  var WS = doy(2, 5), WE = doy(10, 4);          // 5 Mar to 4 Nov, 35 weeks
+  var WEEKS = Math.round((WE - WS + 1) / 7);
+  var NEED = 30 * WEEKS, HRS = 12, RATE = 50;
+
+  var MONTHS = ['January','February','March','April','May','June',
+                'July','August','September','October','November','December'];
+  var DOW = ['S','M','T','W','T','F','S'];
+  var jDays = 0, mDays = 0, runLen = 0, bestRun = 0;
+  var html = '';
+
+  for (var m = 0; m < 12; m++) {
+    var offset = new Date(Date.UTC(2029, m, 1)).getUTCDay();
+    var len = new Date(Date.UTC(2029, m + 1, 0)).getUTCDate();
+    var mEnd = doy(m, len), mStart = doy(m, 1);
+    var whollyOut = (mEnd < WS || mStart > WE);
+    var partly = !whollyOut && (mStart < WS || mEnd > WE);
+    html += '<div class="mo' + (whollyOut ? ' outside' : '') + '"><h2>' + MONTHS[m] +
+            (whollyOut ? '<em>off contract</em>' : (partly ? '<em>contract starts</em>' : '')) +
+            '</h2><div class="dows">';
+    for (var k = 0; k < 7; k++) html += '<div>' + DOW[k] + '</div>';
+    html += '</div><div class="gridwrap"><div class="days">';
+    for (var o = 0; o < offset; o++) html += '<div class="cell blank"></div>';
+    for (var day = 1; day <= len; day++) {
+      var wd = new Date(Date.UTC(2029, m, day)).getUTCDay();
+      var n = doy(m, day), cls;
+      var inWin = (n >= WS && n <= WE);
+      if (wd >= 1 && wd <= 5 && !off[n] && !busy[n] && inWin) {
+        cls = 'm'; mDays++; runLen = 0;
+      } else if (busy[n]) { cls = 'j'; jDays++; runLen = 0; }
+      else { cls = 'f'; runLen++; if (runLen > bestRun) bestRun = runLen; }
+      var dim = off[n] || wd === 0 || wd === 6 || !inWin;
+      html += '<div class="cell ' + cls + (dim ? ' vac' : '') + '">' + day + '</div>';
+    }
+    html += '</div><div class="overlay" style="grid-template-rows:repeat(' +
+            Math.ceil((offset + len) / 7) + ',1fr)">';
+    VAC.forEach(function(r, ti){
+      if (!TRIPS[ti]) return;
+      if (r[0][0] !== m) return;
+      var s = doy(r[0][0], r[0][1]), e = doy(r[1][0], r[1][1]);
+      var first = 0;
+      for (var dd = 1; dd <= len && !first; dd++) {
+        var nn = doy(m, dd);
+        if (nn >= s && nn <= e) first = dd;
+      }
+      if (!first) return;
+      var ixx = offset + first - 1;
+      var row = Math.floor(ixx / 7) + 1, c1 = (ixx % 7) + 1;
+      var span = Math.min(8 - c1, e - doy(m, first) + 1);
+      if (c1 === 1) { c1 = 2; span -= 1; }
+      if (span < 1) return;
+      html += '<div class="triplab" style="grid-row:' + row + ';grid-column:' +
+              c1 + '/' + (c1 + span) + '">' + TRIPS[ti] + '</div>';
+    });
+    html += '</div></div></div>';
+  }
+  document.getElementById('months').innerHTML = html;
+
+  var clinicH = mDays * HRS;
+  var adminH  = Math.max(0, NEED - clinicH);
+  document.getElementById('stats').innerHTML =
+    '<div class="stat"><b>' + mDays + '</b><span>clinic days, 5 Mar to 4 Nov</span></div>' +
+    '<div class="stat"><b>' + clinicH.toLocaleString() + '</b><span>clinic hours clocked</span></div>' +
+    '<div class="stat"><b>' + adminH.toLocaleString() + '</b><span>paid admin hours needed</span></div>' +
+    '<div class="stat"><b>' + (adminH / WEEKS).toFixed(1) + '</b><span>admin hours per week</span></div>' +
+    '<div class="stat"><b>' + (NEED / WEEKS).toFixed(1) + '</b><span>hours per week across the contract</span></div>' +
+    '<div class="stat"><b>0</b><span>nanny days</span></div>' +
+    '<div class="stat"><b>$' + (NEED * RATE).toLocaleString() + '</b><span>at $50 an hour, all hours paid</span></div>' +
+    '<div class="stat"><b>' + bestRun + '</b><span>longest stretch all together</span></div>';
+})();
+</script>
+
+</body></html>

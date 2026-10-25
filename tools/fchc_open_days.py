@@ -109,3 +109,22 @@ print("\n  Averaging across one window beats counting weeks one by one:")
 print("  under an average the 4-day weeks carry the 2-day weeks, and")
 print("  all 12 weeks off survive. Counting week by week, every counted")
 print("  week has to stand alone, so about 4 weeks of vacation go.")
+
+# ---- ceiling: best average any contiguous period can reach -------------
+print("\n" + "="*66)
+print("CEILING: best average over ANY contiguous period, 35 to 52 weeks")
+print("="*66)
+OPENd=sorted(OPEN); best=(0,None)
+for L in range(35,53):
+    rows=[]
+    for s in range(52-L+1 if L<52 else 1):
+        st=JAN1+dt.timedelta(s*7); en=st+dt.timedelta(L*7-1)
+        rows.append((sum(1 for d in OPENd if st<=d<=en),s,st,en))
+    nd,s,st,en=max(rows)
+    if nd*HRS/L>best[0]: best=(nd*HRS/L,(L,nd,st,en))
+L,nd,st,en=best[1]
+print(f"  best is {best[0]:.1f} h/week: {L} weeks, {st:%d %b} to {en:%d %b}, "
+      f"{nd} clinic days")
+print(f"  no placement or length reaches 30. Jamie is home about 2 weekdays")
+print(f"  a week, and 2 x {HRS} = {2*HRS} hours. The gap is structural, about")
+print(f"  {30-best[0]:.1f} h/week, and only counted admin time closes it.")
