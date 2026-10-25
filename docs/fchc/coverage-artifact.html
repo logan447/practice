@@ -62,7 +62,7 @@ h1{font-size:clamp(24px,4.5vw,32px);font-weight:650;margin:0 0 6px;letter-spacin
 .triplab{align-self:start;height:52%;display:flex;align-items:center;
   justify-content:flex-start;padding-left:5px;font-size:9.5px;font-weight:700;
   line-height:1;letter-spacing:.07em;text-transform:uppercase;color:var(--lab);
-  overflow:hidden;white-space:nowrap}
+  overflow:visible;white-space:nowrap;z-index:2}
 .dows,.days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
 .gridwrap{position:relative}
 .overlay{position:absolute;inset:0;display:grid;grid-template-columns:repeat(7,1fr);
@@ -159,6 +159,19 @@ h1{font-size:clamp(24px,4.5vw,32px);font-weight:650;margin:0 0 6px;letter-spacin
   moved.forEach(function(q3){ busy[TWK * 7 + q3] = false; });
 
   var EXCL = [12, 14, 25, 36, 41];    // weeks outside the contract, 0-indexed
+  // One label per faded block: off contract, with the trip where there is one
+  var LABELS = [
+    [[0,1],[0,13],'Off contract – winter'],
+    [[2,26],[3,1],'Off contract – birthday'],
+    [[3,2],[3,15],'Off contract – spring break'],
+    [[4,6],[4,19],'Off contract – Belize'],
+    [[5,25],[6,1],'Off contract'],
+    [[6,22],[7,11],'Off contract – summer break'],
+    [[8,10],[8,16],'Off contract'],
+    [[9,15],[9,21],'Off contract'],
+    [[10,18],[11,1],'Off contract – Thanksgiving'],
+    [[11,16],[11,31],'Off contract – winter']
+  ];
   var CONTRACT = 35;                  // weeks: 8.05 months
   var NEED = 30 * CONTRACT, HRS = 13, RATE = 50;
   function excluded(n){ return EXCL.indexOf(Math.floor(n / 7)) >= 0; }
@@ -189,24 +202,8 @@ h1{font-size:clamp(24px,4.5vw,32px);font-weight:650;margin:0 0 6px;letter-spacin
     }
     html += '</div><div class="overlay" style="grid-template-rows:repeat(' +
             Math.ceil((offset + len) / 7) + ',1fr)">';
-    EXCL.forEach(function(ew){
-      var s0 = ew * 7, e0 = s0 + 6, first = 0;
-      for (var dd = 1; dd <= len && !first; dd++) {
-        var nn = doy(m, dd);
-        if (nn >= s0 && nn <= e0) first = dd;
-      }
-      if (!first) return;
-      var ix = offset + first - 1;
-      var row = Math.floor(ix / 7) + 1, c1 = (ix % 7) + 1;
-      var span = Math.min(8 - c1, e0 - doy(m, first) + 1);
-      if (c1 === 1) { c1 = 2; span -= 1; }
-      if (span < 1) return;
-      html += '<div class="exlab" style="grid-row:' + row + ';grid-column:' +
-              c1 + '/' + (c1 + span) + '">Off contract</div>';
-    });
-    VAC.forEach(function(r, ti){
-      if (!TRIPS[ti]) return;
-      if (r[0][0] !== m) return;
+    LABELS.forEach(function(r){
+      if (r[0][0] !== m) return;              // label only where the block starts
       var s = doy(r[0][0], r[0][1]), e = doy(r[1][0], r[1][1]);
       var first = 0;
       for (var dd = 1; dd <= len && !first; dd++) {
@@ -220,7 +217,7 @@ h1{font-size:clamp(24px,4.5vw,32px);font-weight:650;margin:0 0 6px;letter-spacin
       if (c1 === 1) { c1 = 2; span -= 1; }
       if (span < 1) return;
       html += '<div class="triplab" style="grid-row:' + row + ';grid-column:' +
-              c1 + '/' + (c1 + span) + '">' + TRIPS[ti] + '</div>';
+              c1 + '/' + (c1 + span) + '">' + r[2] + '</div>';
     });
     html += '</div></div></div>';
   }
