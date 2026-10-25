@@ -42,6 +42,15 @@ h1{font-size:clamp(24px,4.5vw,32px);font-weight:650;margin:0 0 6px;letter-spacin
 .sw{width:20px;height:20px;border-radius:4px;flex:none}
 .sw.split{background:linear-gradient(135deg,var(--mine) 0 50%,var(--jamie) 50% 100%)}
 .sw.vac{background:linear-gradient(135deg,var(--mine) 0 50%,var(--jamie) 50% 100%);opacity:.45}
+.sw.exsw{background:repeating-linear-gradient(45deg,var(--base-ink) 0 3px,transparent 3px 7px);
+  outline:1.5px solid var(--base-ink);outline-offset:-1.5px;opacity:.6}
+.cell.ex{opacity:.3}
+.cell.ex::before{content:'';position:absolute;inset:0;border-radius:4px;
+  background:repeating-linear-gradient(45deg,rgba(0,0,0,.42) 0 2px,transparent 2px 6px)}
+.exlab{align-self:start;height:52%;display:flex;align-items:center;
+  justify-content:flex-start;padding-left:5px;font-size:9px;font-weight:700;
+  line-height:1;letter-spacing:.06em;text-transform:uppercase;color:var(--lab);
+  overflow:hidden;white-space:nowrap;opacity:.9}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
   gap:10px;margin-bottom:26px}
 .stat{background:var(--base);color:var(--base-ink);border-radius:10px;padding:13px 15px}
@@ -79,7 +88,7 @@ h1{font-size:clamp(24px,4.5vw,32px);font-weight:650;margin:0 0 6px;letter-spacin
 
 <div class="wrap">
   <h1>2029 coverage</h1>
-  <p class="sub">I offer the clinic every weekday Jamie is already home, in all twelve months, at twelve and a half clocked hours each. The only days I hold back are the twelve weeks off. That comes to 83 days and 1,037 hours, which is 30.2 hours a week across eight months&rsquo; worth of weeks. No paid childcare anywhere in the year.</p>
+  <p class="sub">A 35-week contract. I offer the clinic every weekday Jamie is already home, in all twelve months, at 12 hours 45 minutes clocked. Held back: the twelve weeks off, plus five weeks outside the contract. That is 83 days and 1,058 hours, or 30.2 hours a week across the contract. No paid childcare anywhere in the year.</p>
 
   <div class="legend">
     <div class="caption">Every green square is a day Jamie is home. There is no nanny in this year, and no day where both of us are working.</div>
@@ -88,17 +97,18 @@ h1{font-size:clamp(24px,4.5vw,32px);font-weight:650;margin:0 0 6px;letter-spacin
       <span class="key"><span class="sw" style="background:var(--jamie)"></span><b>I</b> have them, Jamie's on shift</span>
       <span class="key"><span class="sw split"></span>Both of us have them</span>
       <span class="key"><span class="sw vac"></span>Faded: weekends and my twelve weeks off</span>
+      <span class="key"><span class="sw exsw"></span>Hatched: the five weeks outside the contract</span>
     </div>
   </div>
 
   <div class="stats" id="stats"></div>
   <div class="months" id="months"></div>
 
-  <p class="note"><strong>How the hours get there.</strong> The forgiveness rule treats a borrower as full time who averages thirty hours a week across a contractual period of at least eight months. Eight months is 34.32 weeks, so the bar is 1,030 hours. Eighty-three days at twelve hours is 996, which lands at 29.0 and just misses. At twelve and a half clocked hours it is 1,037, which is 30.2. The whole gap is twenty-four minutes a day.</p>
+  <p class="note"><strong>How the hours get there.</strong> The forgiveness rule treats a borrower as full time who averages thirty hours a week across a contractual period of at least eight months. The contract here is 35 weeks, which is 8.05 months, so the bar is 1,050 hours. Eighty-three days at 12 hours 45 minutes is 1,058. Thirty-five weeks is the shortest whole-week period that still clears eight months: dropping the sixth empty week too would leave 34 weeks, a better average but only 7.82 months, which fails the minimum.</p>
 
   <p class="note"><strong>Why no childcare.</strong> I book a clinic day only when Jamie\'s schedule leaves her home with the children, so childcare never enters the plan. That is also what caps the year at 83 days: she is home about two weekdays a week, and no rearrangement finds more. Count the green squares week by week and the unevenness shows itself, some weeks three or four and most weeks two. Thirty-four weeks of the year carry at least one clinic day, which is where eight months\' worth of working weeks comes from.</p>
 
-  <p class="note"><strong>My weeks off:</strong> Jan 1&ndash;13, Apr 1&ndash;7 spring break, May 6&ndash;19 Belize, Jul 22&ndash;Aug 11 summer, Nov 18&ndash;Dec 1 Thanksgiving, Dec 16&ndash;31 holidays. Nothing else is held back: November, December, January and February are all offered. <strong>Jamie's pattern:</strong> a 24-hour shift takes that day and the next; a 12-hour day takes one; five backup weeks take the whole week. She aims about 70% of her leave at my blocks. A representative year, not her real schedule.</p>
+  <p class="note"><strong>My weeks off:</strong> Jan 1&ndash;13, Apr 1&ndash;7 spring break, May 6&ndash;19 Belize, Jul 22&ndash;Aug 11 summer, Nov 18&ndash;Dec 1 Thanksgiving, Dec 16&ndash;31 holidays. <strong>Outside the contract:</strong> the weeks of 26 Mar, 9 Apr, 25 Jun, 10 Sep and 15 Oct. The week of 26 March is my birthday and the week before spring break, so it comes out by choice; its clinic days move to the week of 26 February. The others are weeks Jamie is on shift or backup throughout and there is no day I could take. The week of 22 January is the same but stays inside the contract, because dropping a sixth week would take the period under eight months. <strong>Jamie's pattern:</strong> a 24-hour shift takes that day and the next; a 12-hour day takes one; five backup weeks take the whole week. She aims about 70% of her leave at my blocks. A representative year, not her real schedule.</p>
 </div>
 
 <script>
@@ -145,8 +155,19 @@ h1{font-size:clamp(24px,4.5vw,32px);font-weight:650;margin:0 0 6px;letter-spacin
     for (var k = s; k < s + sync; k++) busy[k] = false;
   });
 
-  var W8 = 0.66 * 52;                 // eight months' worth of weeks
-  var NEED = 30 * W8, HRS = 12.5, RATE = 50;
+  // Owner adjustment: the birthday week (26 Mar, before spring break) comes
+  // out, and its clinic days move to the week of 26 Feb, which Jamie's rota
+  // had left empty. Same number of days, different placement.
+  var BWK = 12, TWK = 8;
+  var moved = [];
+  for (var q = 0; q < 5; q++) if (!busy[BWK * 7 + q]) moved.push(q);
+  for (var q2 = 0; q2 < 7; q2++) busy[BWK * 7 + q2] = true;
+  moved.forEach(function(q3){ busy[TWK * 7 + q3] = false; });
+
+  var EXCL = [12, 14, 25, 36, 41];    // weeks outside the contract, 0-indexed
+  var CONTRACT = 35;                  // weeks: 8.05 months
+  var NEED = 30 * CONTRACT, HRS = 12.75, RATE = 50;
+  function excluded(n){ return EXCL.indexOf(Math.floor(n / 7)) >= 0; }
 
   var MONTHS = ['January','February','March','April','May','June',
                 'July','August','September','October','November','December'];
@@ -164,15 +185,32 @@ h1{font-size:clamp(24px,4.5vw,32px);font-weight:650;margin:0 0 6px;letter-spacin
     for (var day = 1; day <= len; day++) {
       var wd = new Date(Date.UTC(2029, m, day)).getUTCDay();
       var n = doy(m, day), cls;
-      if (wd >= 1 && wd <= 5 && !off[n] && !busy[n]) {
+      if (wd >= 1 && wd <= 5 && !off[n] && !busy[n] && !excluded(n)) {
         cls = 'm'; mDays++; runLen = 0;
       } else if (busy[n]) { cls = 'j'; jDays++; runLen = 0; }
       else { cls = 'f'; runLen++; if (runLen > bestRun) bestRun = runLen; }
       var dim = off[n] || wd === 0 || wd === 6;
-      html += '<div class="cell ' + cls + (dim ? ' vac' : '') + '">' + day + '</div>';
+      var ex = excluded(n);
+      html += '<div class="cell ' + cls + (dim && !ex ? ' vac' : '') +
+              (ex ? ' ex' : '') + '">' + day + '</div>';
     }
     html += '</div><div class="overlay" style="grid-template-rows:repeat(' +
             Math.ceil((offset + len) / 7) + ',1fr)">';
+    EXCL.forEach(function(ew){
+      var s0 = ew * 7, e0 = s0 + 6, first = 0;
+      for (var dd = 1; dd <= len && !first; dd++) {
+        var nn = doy(m, dd);
+        if (nn >= s0 && nn <= e0) first = dd;
+      }
+      if (!first) return;
+      var ix = offset + first - 1;
+      var row = Math.floor(ix / 7) + 1, c1 = (ix % 7) + 1;
+      var span = Math.min(8 - c1, e0 - doy(m, first) + 1);
+      if (c1 === 1) { c1 = 2; span -= 1; }
+      if (span < 1) return;
+      html += '<div class="exlab" style="grid-row:' + row + ';grid-column:' +
+              c1 + '/' + (c1 + span) + '">Off contract</div>';
+    });
     VAC.forEach(function(r, ti){
       if (!TRIPS[ti]) return;
       if (r[0][0] !== m) return;
@@ -201,10 +239,11 @@ h1{font-size:clamp(24px,4.5vw,32px);font-weight:650;margin:0 0 6px;letter-spacin
     '<div class="stat"><b>' + mDays + '</b><span>clinic days, all twelve months</span></div>' +
     '<div class="stat"><b>' + HRS + '</b><span>clocked hours a day</span></div>' +
     '<div class="stat"><b>' + fmt(clinicH) + '</b><span>hours worked</span></div>' +
-    '<div class="stat"><b>' + (clinicH / W8).toFixed(1) + '</b><span>hours per week over eight months</span></div>' +
+    '<div class="stat"><b>' + (clinicH / CONTRACT).toFixed(1) + '</b><span>hours per week over the contract</span></div>' +
     '<div class="stat"><b>0</b><span>nanny days</span></div>' +
+    '<div class="stat"><b>' + CONTRACT + '</b><span>contract weeks (8.05 months)</span></div>' +
     '<div class="stat"><b>12</b><span>weeks off, unchanged</span></div>' +
-    '<div class="stat"><b>$' + fmt(clinicH * RATE) + '</b><span>at $50 an hour</span></div>' +
+    '<div class="stat"><b>$' + Math.round(clinicH * RATE).toLocaleString() + '</b><span>at $50 an hour</span></div>' +
     '<div class="stat"><b>' + bestRun + '</b><span>longest stretch all together</span></div>';
 })();
 </script>
