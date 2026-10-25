@@ -64,9 +64,11 @@ on a Tuesday. After that overhead and after paying me:
 | 16 a day | $26,477 | $36,811 |
 | 20 a day | **$44,405** | **$57,323** |
 
-Stated as the return on what I cost, which is the number to carry into
-the conversation: **59 cents, 81 cents, 98 cents, $1.27** of retained
-margin per dollar of my loaded cost.
+The same figures as a return on what I cost are 59 cents, 81 cents, 98
+cents and $1.27 per dollar of my loaded cost. That ratio stays internal.
+The document presents the dollars kept, not the ratio: showing what the
+clinic makes reads better than showing a percentage return on me
+(owner direction, 2026-10-25).
 
 The clinic's whole surplus last year was $21,133 on $1,643,163 of
 revenue, a 1.3 percent margin (FACT, Form 990 FY2024, EIN 54-2061482).
