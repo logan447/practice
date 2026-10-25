@@ -1787,3 +1787,81 @@ first** -- it decides whether this shape exists.
 Calendar: `year2029.html` Version 36 -- 141 clinic days, 81 dotted,
 1,692 hours, 32.54 worked hrs/week.
 https://claude.ai/artifact/QhKBckd3LTKdY3TLN94UAh
+
+## THE PITCH FRAME: surplus to FCHC, not hourly rate (2026-10-25)
+
+Owner's framing: collections - 50% overhead - physician = FCHC
+surplus. Model: `tools/fchc_margin_frame.py`. Config: alternating
+3/4-day weeks, 12 clocked hrs, 141 days, 2,820 encounters, 1,692
+worked hrs, 81 care days.
+
+At 50% overhead the physician share and the clinic surplus are
+complements out of the same half of collections:
+
+| physician takes | FCHC keeps |
+|-----------------|------------|
+| 35% | 15% |
+| 40% | 10% |
+| 44% | 6% |
+| 50% | 0% |
+
+**Benchmark to argue against (FACT, their own 990): FCHC's
+whole-organisation FY2024 margin was 1.3%** -- $21,133 surplus on
+$1,622,030 of expenses. Nonprofit clinics generally need 3-5% to be
+sustainable, so FCHC is below that and any book returning 5%+ is
+several times their current rate.
+
+### Rate solved from their surplus (* clears floor AND under director)
+
+| $/enc | collections | 5% | 8% | 10% | 12% | 15% |
+|-------|-------------|----|----|-----|-----|-----|
+| 80 | 225,600 | 55.05 | 51.38 | 48.93 | 46.48 | 42.81 |
+| 90 | 253,800 | 61.93 | 57.80 | 55.05 | 52.29 | 48.17 |
+| 100 | 282,000 | 68.81! | **64.22\*** | 61.16 | 58.10 | 53.52 |
+| 103 | 290,460 | 70.87! | **66.15\*** | **63.00\*** | 59.85 | 55.12 |
+| 110 | 310,200 | 75.69! | 70.64! | 67.28! | **63.91\*** | 58.87 |
+
+### The dollars at $100/encounter (collections $282,000)
+
+| rate | your pay | loaded | **FCHC SURPLUS** | % coll | you save | vs dir |
+|------|----------|--------|------------------|--------|----------|--------|
+| 55.00 | 93,060 | 101,435 | **39,565** | 14.0% | 18,639 | -11.97 |
+| 60.00 | 101,520 | 110,657 | **30,343** | 10.8% | 23,026 | -6.97 |
+| **62.25** | **105,327** | **114,806** | **26,194** | **9.3%** | **25,000** | **-4.72** |
+| 64.00 | 108,288 | 118,034 | **22,966** | 8.1% | 26,535 | -2.97 |
+| 66.97 | 113,313 | 123,511 | **17,489** | 6.2% | 29,141 | 0.00 |
+
+### THE LINE TO LEAD WITH
+
+**At $62.25/hr the role generates $26,194 of surplus for FCHC. Their
+entire organisation produced $21,133 last year.** One physician, four
+days a week, 40 weeks, returning 124% of what the whole clinic
+currently clears.
+
+And it holds across the whole range: **even at the director's rate
+FCHC keeps $17,489, 83% of their current total surplus.** There is no
+rate the owner is willing to ask for that makes the role
+unprofitable to them. **The ceiling is the owner's own rule about the
+director, not FCHC's economics.**
+
+### Two sensitivities
+
+**Average overhead is not marginal overhead, and this favours the
+ask.** Their 50% includes rent, EMR, admin and management already
+being paid. Seating another provider in existing rooms with existing
+front-desk staff should cost less at the margin:
+
+| marginal overhead | FCHC surplus at $62.25 |
+|-------------------|------------------------|
+| 50% | $26,194 |
+| 45% | $40,294 |
+| 40% | **$54,394** |
+
+ASK FCHC DIRECTLY what the marginal cost of another provider session
+is. If it is 40%, the real number is ~$54K not ~$26K.
+
+**Collections per encounter still swings everything and is still
+UNSET.** At $90 the floor-clearing rate leaves them $12,093 (4.8%);
+at $110 it leaves $40,293 (13.0%). Same work, same rate, triple the
+surplus. **Get this number before negotiating** -- it decides whether
+the ask is "accept 5%" or "here is 13%."
