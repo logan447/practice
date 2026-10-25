@@ -139,3 +139,37 @@ d_noleave=round(30*52.1786/HRS)
 line("4. Pathway (A) with no leave credit: every hour worked",
      d_noleave, max(0,d_noleave-sum(free)), 0, 0,
      "Yes, cleanly. Nothing to argue about.")
+
+# ---- the two readings of (B), compared ---------------------------------
+print("\n" + "="*64)
+print("THE TWO READINGS OF (B). Both set the bar at 30 h/week.")
+print("="*64)
+W8=MONTHS8=8/12*52.1786
+need_hours=W8*30
+print(f"8-month window = {W8:.1f} weeks. 30 h/week x {W8:.1f} = "
+      f"{need_hours:,.0f} hours, either way.\n")
+print(f"70 clinic days x 12 h = {70*12:,} hours")
+print(f"   over {W8:.1f} weeks that is {70*12/W8:.1f} h/week, not 30.")
+print(f"   short by {need_hours-70*12:,.0f} hours.\n")
+print("REGULATION, 'a minimum of 30 hours per week THROUGHOUT':")
+print(f"   every week must reach 30. 2 clinic days = 24 h, so 6 h/week")
+print(f"   of admin. {2*W8:.0f} clinic days + {(30-24)*W8:,.0f} admin hours.")
+print("FORM, 'an average of 30 hours per week for a minimum of 8 months':")
+print(f"   only the total matters. {need_hours/12:.0f} clinic days and no admin,")
+print(f"   or 70 clinic days + {need_hours-840:,.0f} admin hours.\n")
+print("The difference is the SHAPE, not the TOTAL. Average lets a week")
+print("go light or empty. It does not turn 840 hours into 30 a week.")
+
+# does the looser reading fit Jamie's schedule better?
+best=max(range(52), key=lambda s: sum(free[(s+i)%52] for i in range(WIN)))
+avail=sum(free[(best+i)%52] for i in range(WIN))
+start=JAN1+dt.timedelta(best*7)
+print(f"\nUNDER THE AVERAGE READING, the empty weeks stop mattering.")
+print(f"   best {WIN}-week window starts {start:%d %b}: "
+      f"{avail} weekdays Jamie is home")
+for adm,lbl in ((0,"no admin counted"),(210,"6 h/week admin counted")):
+    d=round((need_hours-adm)/12)
+    cc=max(0,d-avail)
+    print(f"   {lbl:<24} needs {d:>3} clinic days -> "
+          f"{cc:>2} childcare days (${cc*12*CARE_HR:,.0f}), "
+          f"gross ${d*12*RATE:,.0f}")
