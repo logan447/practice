@@ -753,3 +753,65 @@ wins on annual cash ($65,348 vs $26,606).
   way the plan changes, and 2026 is when to learn that, not 2028.
 - **Pull the official qualifying-payment count** from the servicer.
   Every date above moves if the real number is not 22.
+
+## Clinic-day length is a bigger lever than salary (2026-10-25)
+
+Models: `tools/thirty_hour_ledger.py`, `tools/fchc_hours_matrix.py`.
+Inputs: $50/hr (OWNER-FACT), 120 T/W/Th clinic days, 68 care days,
+$34/hr care (EST), 2.5 hr round-trip commute (EST, 55 mi each way).
+
+At **10 clinic hours/day**, three days a week IS exactly 30 hrs, so
+30.00 is reached with **zero admin hours to claim**: 40 working weeks
+x 30 = 1,200, plus 12 paid leave weeks x 30 = 360, total 1,560.
+That is the strongest possible PSLF position -- nothing for a
+certifying official to second-guess. But away-from-home is 12.5 hrs,
+so care is $425/day and the floor fails badly.
+
+**Same salary, same 30 contracted hours, only the shape of the day:**
+
+| clinic/day | admin/wk | away | care/day | care/yr | salary | SAVED |
+|-----------|----------|------|----------|---------|--------|-------|
+| 8  | 6 | 10.5 h | 357 | 24,276 | 78,000 | 23,867 |
+| 10 | 0 | 12.5 h | 425 | 28,900 | 78,000 | 19,243 |
+
+**The 8-hour clinic day is worth $4,624/yr at identical pay**, because
+6 of the 30 hrs become admin done at home (no sitter) instead of
+clinic hours away (sitter). **Admin hours are cheaper than clinic
+hours.** This runs opposite to how such contracts are usually
+negotiated and is the single most useful finding in this section.
+
+SAVED/yr by clinic hours per day x contracted hrs/week (DERIVED;
+\* clears the $25,000 floor):
+
+| clinic/day | 30 hr | 32 hr | 34 hr | 36 hr | 38 hr |
+|-----------|-------|-------|-------|-------|-------|
+| 8  | 23,867 | **26,563\*** | 29,259\* | 31,956\* | 34,652\* |
+| 9  | 21,555 | 24,251 | 26,947\* | 29,644\* | 32,340\* |
+| 10 | 19,243 | 21,939 | 24,635 | **27,332\*** | 30,028\* |
+
+Salaries: 30hr $78,000 / 32hr $83,200 / 34hr $88,400 / 36hr $93,600
+/ 38hr $98,800.
+
+**Insisting on 10-hour clinic days costs $10,400 of salary** to stay
+whole ($93,600 vs $83,200). On a 10-hour day at 30 hrs/wk the kept
+amount on a care day is **$51**: 110 miles driven, ten hours of
+patients, fifty-one dollars.
+
+### If 30 hrs/week is strictly fixed
+
+$78,000 qualifies for PSLF and misses the household floor -- by
+$5,757 at 10-hour days, $1,133 at 8-hour days. The only version of
+strictly-30 that clears is **8 clinic hours + 6 admin hours**, then
+two of Jamie's backup weeks moved into the off-blocks (each backup
+week holds 3 clinic days). Jamie's 4 usable backup weeks are Jan
+23-25, Apr 10-12, Jun 26-28, Sep 11-13 in the representative year,
+all known a year ahead.
+
+### Exposure at exactly 30.00
+
+Salaried, it survives a cancelled clinic: pay does not drop and the
+form asks what you were PAID for. It does NOT survive one unpaid
+week (29.4 hrs/wk), FCHC certifying from timesheets rather than the
+contract, or any month at reduced pay. Protection: the contract
+states "30 hours per week" as a number, and no unpaid leave is ever
+taken.
