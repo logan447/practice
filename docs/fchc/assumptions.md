@@ -43,29 +43,38 @@ wrong, and most of them you can check or change.*
 
 ## About the contract and PSLF
 
-15. **The Service Period is 38 weeks**, which is 8.74 months, and is
+15. **35 is the floor, 38 is the plan.** 34.32 weeks is exactly eight
+    months, so 35 is the least that qualifies. 38 is simply what the
+    year leaves after twelve weeks off and the two weeks Jamie covers
+    nothing. Dropping to 35 would mean deliberately not working three
+    more weeks, which costs six clinic days and about $4,050, and
+    leaves only 0.2 weeks of margin above the floor instead of 3.2.
+16. **The Service Period is counted, not chosen.** The average is
+    hours divided by the weeks actually worked in, so working in 38
+    weeks and calling the period 35 does not work.
+17. **The Service Period is 38 weeks**, which is 8.74 months, and is
     counted as the weeks you actually work rather than an elapsed
     span. **This is the single most contestable assumption.** The
     regulation says "a period", singular.
-16. **The 8-month provision applies to a clinic**, not only to
+18. **The 8-month provision applies to a clinic**, not only to
     schools. Textually it is not excluded, but nobody has published
     an example outside education.
-17. **An average across the period is enough.** The regulation says
+19. **An average across the period is enough.** The regulation says
     "throughout", which may mean every single week.
-18. **FCHC will certify the hours** against the Service Period rather
+20. **FCHC will certify the hours** against the Service Period rather
     than against your employment dates, in writing.
-19. **You stay employed all twelve months** even in the weeks you do
+21. **You stay employed all twelve months** even in the weeks you do
     not work.
-20. **You are on IBR, not RAP**, before 1 July 2028. RAP has a $10
+22. **You are on IBR, not RAP**, before 1 July 2028. RAP has a $10
     minimum and never reaches zero.
-21. **You take no new federal loans**, which is what keeps IBR
+23. **You take no new federal loans**, which is what keeps IBR
     available.
 
 ## About the money
 
-22. **$45 an hour.** $51,300 for the year. Between the $50 that
+24. **$45 an hour.** $51,300 for the year. Between the $50 that
     clears your floor and the $40 that gives the clinic the most room.
-23. **The clinic's marginal overhead is 40 percent of collections.**
+25. **The clinic's marginal overhead is 40 percent of collections.**
     Built bottom-up in `tools/fchc_overhead_bottomup.py` and it lands
     between 19 and 55 percent depending on one thing: whether you work
     on days the clinic is already open and staffed. Published
@@ -73,16 +82,16 @@ wrong, and most of them you can check or change.*
     includes rent, management and the front desk. Those do not change
     because you are there on a Tuesday, so they are the wrong number
     for this decision.
-24. **The clinic collects $90 to $103 a visit.** UNSET. Nobody has
+26. **The clinic collects $90 to $110 a visit.** UNSET. Nobody has
     told us the real number and it drives everything on their side.
-25. **Employer payroll burden is 9 percent.**
-26. **Two cars**, $9,094 a year, so nobody is stranded.
-27. **150 percent of the poverty line for a family of four is
+27. **Employer payroll burden is 9 percent.**
+28. **Two cars**, $9,094 a year, so nobody is stranded.
+29. **150 percent of the poverty line for a family of four is
     $48,225.** An estimate for 2026; it moves yearly and your IBR
     payment moves with it.
-28. **Three children by 2029.**
-29. **Married filing separately**, so only your income counts for IBR.
-30. **Your savings floor is $25,000. At $45 an hour this saves
+30. **Three children by 2029.**
+31. **Married filing separately**, so only your income counts for IBR.
+32. **Your savings floor is $25,000. At $45 an hour this saves
     $24,066**, short by $934. $47 clears it at $25,533.
 
 ## Where the opportunities are
@@ -91,10 +100,10 @@ wrong, and most of them you can check or change.*
   gives more than two free weekdays in some weeks, the day gets
   shorter than 15 hours. Every extra covered day is worth about
   0.4 hours off the day.
-- **Line 24 decides whether the clinic says yes.** At $40 an hour
+- **Line 26 decides whether the clinic says yes.** At $40 an hour
   and sixteen patients they keep $15,960, a 32 percent return, and
   break even at $68 a visit. Ask them what they actually collect.
 - **Line 9 is the one Dr. Stinar will question.** Fifteen clocked
   hours for 16 patients is 56 minutes each.
-- **Lines 15 to 18 are the ones that need a lawyer**, not more
+- **Lines 17 to 20 are the ones that need a lawyer**, not more
   modelling.
