@@ -2528,3 +2528,61 @@ owner's judgement, not the model's.
 **If the floor is wanted back, the lever is patients, not pay:** at 20
 patients/day on the same 83 days FCHC could fund **$54,826** at the
 same $50-per-clinic-hour logic. 30-minute slots instead of 38.
+
+## FORM: my copy was EXPIRED. Risk retracted. (2026-10-25)
+
+The PDF quoted throughout the earlier sections carries **"Exp. Date
+08/31/2023"** -- an outdated version. That is why the owner's quoted
+instruction text does not appear in it.
+
+**This retracts the top risk I recorded.** I flagged the Section 7
+clause defining full-time as *"the greater of: (1) an annual average
+of at least 30 hours per week ... or (2) ... the number of hours the
+employer considers full time"* as the single biggest threat to the
+plan, on the reasoning that a 40-hour FCHC definition would require
+40 hours. **That came from the expired form.**
+
+The owner's text, from the current form (OWNER-SOURCED, supersedes
+mine):
+
+> "Check the Full-Time box if you worked an average of 30 hours or
+> more per week for the period of time being certified in Question 4
+> **or** otherwise meet the definition of Full-Time provided in
+> Section 7. If you worked an average of less than 30 hours per week,
+> check the Part-Time box. Provide the average number of hours you
+> worked per week during the period being certified rounded up to the
+> nearest whole number. This should include vacation, leave time, or
+> any leave taken under the Family Medical Leave Act of 1993, but
+> should not include time spent performing volunteer services."
+
+Three things it settles:
+
+1. **30-hour average is SUFFICIENT on its own.** The Section 7
+   definition is an alternative route ("or"), not a second hurdle.
+   The employer's-own-definition worry is gone.
+2. **"This should include vacation, leave time"** -- paid leave counts
+   toward the average, stated in the instruction the certifying
+   official actually reads. This is the mechanism the plan rests on.
+3. Volunteer-service exclusion is irrelevant here; the work is paid.
+
+### Also settled by the owner (2026-10-25)
+
+- **20 qualifying payments banked, 100 to go** (clean figure, replaces
+  the 22/20 ambiguity recorded earlier).
+- **FCHC already works on a quarterly schedule** and has since the
+  beginning. The notice-period objection is closed.
+
+### Remaining item: contract wording
+
+**"0.75 FTE, 30 hours per week annualized."** So the Authorized
+Official enters 30 because that is what the contract says, not 16
+because that is what a timesheet shows.
+
+### And a note on the two rate figures (owner asked)
+
+$41,500 / 83 clinic days = **$500 per clinic day**; a clinic day is
+10 hours, so **$50/hour of clinic time** -- exactly the stated goal.
+$26.60 is the same salary over 1,560 PAID hours, and exists only
+because the director's $66.97 is computed the same way ($139,293 /
+2,080). Use $500/day for his own thinking; use $26.60 only for the
+comparison against the director.
