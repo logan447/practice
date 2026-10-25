@@ -815,3 +815,68 @@ week (29.4 hrs/wk), FCHC certifying from timesheets rather than the
 contract, or any month at reduced pay. Protection: the contract
 states "30 hours per week" as a number, and no unpaid leave is ever
 taken.
+
+## No paid leave: can it work? Yes, one way (2026-10-25)
+
+Owner ruled out counting paid leave. Model: `tools/no_paid_leave.py`.
+
+**Terminology fix for this file:** salary does not make PSLF work,
+hours do. 1,560 worked hours is the requirement; at $50/hr that
+happens to pay $78,000. Earlier wording in this file said "$78,000
+works for PSLF" and that was wrong on its face.
+
+With no paid leave the whole average must come from worked hours:
+**1,560 / 40 working weeks = 39.0 paid hours in every week worked.**
+Three clinic days cannot be 39 hours unless they are 13 hours each,
+so the balance has to be **paid admin** -- charting, inbox, results,
+calls -- which is done at home and therefore costs no childcare.
+
+| clinic/day | clinic/wk | PAID ADMIN needed | away | care/yr | SAVED |
+|-----------|-----------|-------------------|------|---------|-------|
+| **8 hr**  | 24 | **15 hrs/wk** | 10.5 h | 24,276 | **23,867** |
+| 9 hr      | 27 | 12 hrs/wk | 11.5 h | 26,588 | 21,555 |
+| 10 hr     | 30 | 9 hrs/wk  | 12.5 h | 28,900 | 19,243 |
+| 11 hr     | 33 | 6 hrs/wk  | 13.5 h | 31,212 | 16,931 |
+| 13 hr     | 39 | 0         | 15.5 h | 35,836 | 12,307 |
+
+Salary is $78,000 in every row. Identical hours, identical pay. The
+only variable is how much of the day is spent away from the children
+paying a sitter. **Every hour moved from clinic to admin is worth
+about $385/yr in childcare not paid.**
+
+### The working version
+
+8-hour clinic days + **15 paid admin hrs/week** = $78,000, saves
+$23,867, which is $1,133 under the floor. Moving two of Jamie's four
+backup weeks (Jan 23-25, Apr 10-12, Jun 26-28, Sep 11-13) into the
+off-blocks gets to **$26,009 and clears**.
+
+### What has to be true
+
+**FCHC must pay for ~15 hrs/week of admin, not clinic sessions only.**
+That is the entire negotiation. Without it the alternatives are
+13-hour days, four days a week, or no vacation, each of which breaks
+a stated constraint and saves ~$12,000 instead of ~$24,000.
+
+### The honest weakness
+
+15 admin hours against 24 clinic hours is nearly two extra days for a
+three-day panel. Defensible with a slow EMR and complex patients, but
+a clinic manager will push back. The easily defensible version --
+10-hour clinic days with 9 admin hours -- saves $19,243 and misses the
+floor by $5,757, and no backup-week shuffling closes that gap.
+
+**Retracted:** an earlier note said 10-hour days give the cleanest
+PSLF story because no admin hours need claiming. True only while paid
+leave counted. Without it, 9 admin hours are needed even at 10-hour
+days, and **no version reaches 1,560 worked hours with zero admin
+hours and 12 weeks off.**
+
+### Route C, considered and set aside
+
+Take the 12 weeks unpaid and certify only the months worked: 40/52
+weeks = 9.23 qualifying months/yr, so 100 payments take **10.8 years
+instead of 8.3** -- 2.5 extra years. Worse, months holding a partial
+leave block average under 30 and fail individually, so the blocks
+would have to be re-cut onto whole months. It does not help the
+savings floor either. Not recommended.
