@@ -56,19 +56,8 @@ const cal=fs.readFileSync('appendix.png'), gantt=fs.readFileSync('gantt.png'),
 const doc=new Document({
   footnotes:{
     1:{children:[new Paragraph({children:[
-        run("Overhead here is marginal, at 40 percent of collections. Family medicine averages nearer 60 percent (",{size:16}),
-        link("AAFP, Family Practice Management","https://www.aafp.org/pubs/fpm/issues/2010/0300/p38.html"),
-        run("), but most of that is rent, records, management and front desk, which another session does not add to. Your own figure would be better than my estimate.",{size:16})]})]},
-    2:{children:[new Paragraph({children:[
-        run("IRS Form 990 for the year ending December 2024, as digitized by ",{size:16}),
-        link("ProPublica Nonprofit Explorer","https://projects.propublica.org/nonprofits/organizations/542061482"),
-        run(". Revenue $1,643,163 against expenses $1,622,030.",{size:16})]})]},
-    3:{children:[new Paragraph({children:[
         link("MGMA Provider Compensation, 2024 report on 2023 data","https://mgmatraining.com/wp-content/uploads/2025/01/ProviderSpecialtyRollUps2024.pdf"),
-        run(". Primary care, all practices, 36,368 providers.",{size:16})]})]},
-    4:{children:[new Paragraph({children:[
-        link("PSLF & TEPSLF Certification & Application","https://studentaid.gov/sites/default/files/public-service-application-for-forgiveness.pdf"),
-        run(", U.S. Department of Education. Section 7 and the Section 3 instructions.",{size:16})]})]}},
+        run(". Primary care, all practices, 36,368 providers.",{size:16})]})]}},
   sections:[{
     properties:{page:{size:{width:12240,height:15840},
       margin:{top:720,bottom:650,left:720,right:720}}},
@@ -91,33 +80,16 @@ const doc=new Document({
       body("A salaried part-time position at 0.75 FTE and $41,500 a year, beginning 1 June 2028. Until then we stay on the current hourly arrangement and use it to prove the economics work and the demand is there.",{after:150}),
       new Paragraph({spacing:{line:240,lineRule:"auto",after:60},
         children:[new ImageRun({type:"png",data:gantt,
-          transformation:{width:720,height:Math.round(720*372/2160)}})]}),
-
-      section("What this earns the clinic"),
-      body("I cost $45,235 a year with payroll taxes. At sixteen patients a day that is 1,328 encounters, or $34 an encounter.",{after:80}),
-      new Paragraph({spacing:{line:264,lineRule:"auto",after:80},
-        children:[run("What the clinic would have to collect for the position to cover itself, after the overhead another session adds"),
-                  new FootnoteReferenceRun(1),
-                  run(":")]}),
-      table(["","Covers itself at","At $90 a visit, ahead by"],[
-        ["16 patients a day","$57 a visit","$26,477"],
-        ["20 patients a day","$45 a visit","$44,405"]]),
-      new Paragraph({spacing:{line:264,lineRule:"auto",before:110,after:0},
-        children:[run("Last year's surplus was $21,133"),
-                  new FootnoteReferenceRun(2),
-                  run(". Median total compensation for a primary care physician is $312,427"),
-                  new FootnoteReferenceRun(3),
-                  run(". This role is $41,500.")]}),
+          transformation:{width:720,height:Math.round(720*472/2160)}})]}),
 
       section("My compensation and schedule"),
-      body("What changes in June 2028 is the arrangement and the number of clinic days. The time off stays as it is.",{after:150}),
-      new Paragraph({spacing:{line:240,lineRule:"auto",after:120},
+      new Paragraph({spacing:{line:240,lineRule:"auto",after:140},
         children:[new ImageRun({type:"png",data:nowthen,
-          transformation:{width:720,height:Math.round(720*512/2160)}})]}),
+          transformation:{width:720,height:Math.round(720*682/2160)}})]}),
       new Paragraph({spacing:{line:264,lineRule:"auto",after:0},
-        children:[run("One request on the wording. I am working toward Public Service Loan Forgiveness"),
-          new FootnoteReferenceRun(4),
-          run(". The form asks you for my average hours per week, counting vacation and leave. Writing the contract as 0.75 FTE, 30 hours per week annualized gives that figure directly.")]}),
+        children:[run("The salary is $41,500 a year, or $45,235 with payroll taxes. Median total compensation for a primary care physician is $312,427"),
+                  new FootnoteReferenceRun(1),
+                  run(".")]}),
 
       new Paragraph({children:[new PageBreak()]}),
       new Paragraph({spacing:{line:240,lineRule:"auto",after:0},

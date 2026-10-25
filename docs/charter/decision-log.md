@@ -411,3 +411,14 @@ both at 40 percent marginal overhead and a $45,235 loaded cost
 collection rate is UNSET, and it gives Dr. Stinar one number he can
 check himself. Revisit when the actual collection per encounter lands.
 
+**Amended 2026-10-25 (iteration 10):** the clinic economics come **out
+of the document entirely**. Reasoning: we do not know FCHC's cost
+structure, so presenting marginal-overhead modelling to the person who
+runs their books is a guess dressed as analysis, and it invites an
+argument we cannot win on their turf. The modelling was for us, to reach
+a defensible number. It stays in `tools/fchc_roi.py` and in this repo
+for the negotiating table, and is volunteered only if asked. The
+document now carries the ask, the timeline, the schedule, and one market
+comparison. **Revisit trigger:** FCHC asks how $41,500 was arrived at,
+or counters on salary.
+

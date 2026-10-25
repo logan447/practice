@@ -125,26 +125,33 @@ outcome.
 
 ## What goes in the document
 
-One page plus the appendix calendar. Three sections: the proposal, what
-this earns the clinic, my compensation and schedule. 211 words.
+One page plus the appendix calendar. Two sections: the proposal, and my
+compensation and schedule. 76 words and three figures.
 
-**The economics are stated as a break-even, not as a grid of guesses.**
-Neither of us knows what the clinic collects per encounter, so a table
-of outcomes at $90 and $103 was presenting my assumption as analysis.
-Inverting it gives one number the clinic can check against its own
-books: the position covers itself at **$57 a visit** at sixteen patients
-a day, or **$45** at twenty. That also retired the $102.97-rounded-to-
-$103 column and the inconsistency it carried.
+**The visit economics are not in the document.** Owner call, 2026-10-25,
+and it is the right one. We do not know the clinic's cost structure, so
+any model we present to the person who runs their books is a guess
+dressed as analysis. The break-even work stays in `tools/fchc_roi.py`
+for the negotiating table: if FCHC asks how the number was arrived at,
+we have an answer ready. We do not volunteer it.
 
-**Section 3 is one graphic and one sentence.** The graphic carries what
-changes (arrangement, clinic days, patients a day) against what does not
-(days given a quarter at a time, the same twelve weeks off, with the
-year strip inside the same figure). Source in
-`docs/fchc/now-then-figure.html`. The standalone weeks-off figure is no
-longer used in the document.
+What the document carries instead: the ask, the timeline, exactly what
+the clinic gets and when, and one market comparison ($41,500 against a
+$312,427 median) which is a fact about physician pay rather than a claim
+about their finances.
 
-The PSLF wording request closes the compensation section rather than
-standing alone.
+**The PSLF explanation came out too.** The contract language that makes
+forgiveness work, "0.75 FTE, 30 hours per week annualized", is still
+stated twice, in Section 1 and in the figure. What is gone is the
+paragraph explaining why. That is defensible, since the terms are the
+ask whether or not the reason is given. The risk it creates: nobody at
+FCHC knows the wording matters, so **a contract that comes back phrased
+as a day rate or an hourly rate must be caught and corrected**. This is
+the highest-stakes item in the plan.
+
+**The appendix no longer says "at home with my children."** Three keys:
+in clinic, in town not in clinic, weekends and time off. The clinic gets
+the operational picture without the domestic detail.
 
 ## Between now and then
 
