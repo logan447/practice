@@ -17,7 +17,7 @@ wrong, and most of them you can check or change.*
    year, you gain days.
 5. **One backup week a year and one regular Monday-to-Friday week.**
    You said about two of each. I used one of each, placed on the week
-   of Valentine's and the week after spring break.
+   of Valentine's and the week of 1 October, taken as a fall break.
 6. **Her schedule is shaped to leave exactly two free weekdays every
    week.** This is the big one. It is a *request* of her rota, not a
    prediction. A real rota is lumpy; this one is not.
@@ -33,10 +33,12 @@ wrong, and most of them you can check or change.*
     overage**, and the clinic pays for all of it at $50 an hour.
 11. **You work only on days Jamie is already home.** No paid
     childcare anywhere in the year.
-12. **Twelve weeks off**, in the six blocks you chose, unchanged.
+12. **Twelve weeks off**: New Year's, spring break (w/c 26 Mar),
+    Belize, summer, Thanksgiving, Christmas. Plus two off-contract
+    weeks: Valentine's and the fall break w/c 1 Oct.
 13. **A 2.5-hour round-trip commute** on every clinic day, in the car
     costs but not in the clocked hours.
-14. **16 to 20 patients a day.** At 15 hours that is 45 to 56 minutes
+14. **16 patients a day.** At 15 clocked hours that is 56 minutes
     each, including documentation.
 
 ## About the contract and PSLF
@@ -61,7 +63,9 @@ wrong, and most of them you can check or change.*
 
 ## About the money
 
-22. **$50 an hour.** $57,000 for the year.
+22. **$40 an hour.** $45,600 for the year. Chosen over $50 to put
+    the clinic's return at 32 percent rather than 6 percent at sixteen
+    patients a day. It costs $7,594 of savings.
 23. **The clinic's marginal overhead is 40 percent of collections.**
     Family medicine averages nearer 60, but rent and front desk do
     not change because you are there. This is an estimate.
@@ -74,7 +78,10 @@ wrong, and most of them you can check or change.*
     payment moves with it.
 28. **Three children by 2029.**
 29. **Married filing separately**, so only your income counts for IBR.
-30. **Your savings floor is $25,000.** This plan saves $27,729.
+30. **Your savings floor is $25,000. This plan saves $20,135.**
+    It is the one constraint this version breaks, by $4,865. At $47 an
+    hour it would clear, but the clinic's return at sixteen patients
+    falls to 12 percent.
 
 ## Where the opportunities are
 
@@ -82,8 +89,9 @@ wrong, and most of them you can check or change.*
   gives more than two free weekdays in some weeks, the day gets
   shorter than 15 hours. Every extra covered day is worth about
   0.4 hours off the day.
-- **Line 24 decides whether the clinic says yes.** At 16 patients a
-  day they keep $3,534. At 20 they keep $19,950. Ask them.
+- **Line 24 decides whether the clinic says yes.** At $40 an hour
+  and sixteen patients they keep $15,960, a 32 percent return, and
+  break even at $68 a visit. Ask them what they actually collect.
 - **Line 9 is the one Dr. Stinar will question.** Fifteen clocked
   hours for 16 patients is 56 minutes each.
 - **Lines 15 to 18 are the ones that need a lawyer**, not more

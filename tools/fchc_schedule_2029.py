@@ -11,7 +11,7 @@ spec=importlib.util.spec_from_file_location("js","tools/jamie_schedule.py")
 js=importlib.util.module_from_spec(spec); spec.loader.exec_module(js)
 
 JAN1=dt.date(2029,1,1)
-VAC=[((1,1),(1,13)),((4,1),(4,7)),((5,6),(5,19)),
+VAC=[((1,1),(1,13)),((3,26),(4,1)),((5,6),(5,19)),
      ((7,22),(8,11)),((11,18),(12,1)),((12,16),(12,31))]
 busy,TYPE=js.build()
 off=[False]*366
