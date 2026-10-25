@@ -391,3 +391,15 @@ Jamie's work pattern that moves the 83 free weekdays; confirmation of the
 payment count with the servicer; a sourced figure for physician pay as a
 share of collections, which is currently paywalled and therefore absent
 from the document.
+
+**Amended 2026-10-25 (iteration 8):** the document that goes to the
+clinic is **one page plus the appendix calendar**, in three sections:
+the proposal, what this earns the clinic, and my compensation and
+schedule. 284 words. The structure answers the three things Dr. Stinar
+has to decide: does this cost or make the clinic money, what exactly am
+I agreeing to, and what do I have to do now. Everything that was
+sourcing or explanation moved into footnotes. The timeline is a Gantt
+chart rather than prose or a table. Owner test for any further change:
+is this the easiest way to present it to him, and what is the least we
+can present and still be effective.
+

@@ -123,6 +123,17 @@ qualify. If it says a day rate or an hourly rate, a timesheet shows
 about 16 hours a week and I do not. Same money, same work, different
 outcome.
 
+## What goes in the document
+
+One page plus the appendix calendar. Three sections: the proposal, what
+this earns the clinic, my compensation and schedule. The time off is the
+same before and after June 2028; what changes is that I open up more
+clinic days a week. The cost table (encounters, share of collections)
+came out: the dollars the clinic keeps carry that on their own, and the
+share-of-collections rows were the ratio framing we dropped. The PSLF
+wording request is now a closing paragraph inside the compensation
+section rather than a section of its own.
+
 ## Between now and then
 
 | | |
