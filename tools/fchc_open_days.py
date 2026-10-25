@@ -67,3 +67,45 @@ if gap>0:
           f"-> {gap/HRS:.0f} sitter days, ${gap/HRS*HRS*28:,.0f}")
     print(f"  - {gap/WIN:.1f} h/week of counted admin ({gap:,} h/yr)")
     print(f"  - longer days: {need/nd:.1f} clocked hours on each of the {nd} days")
+
+# ---- non-consecutive reading: count weeks that reach 30 h on their own --
+print("\n" + "="*66)
+print("NON-CONSECUTIVE READING: count the weeks that reach 30 h by themselves")
+print("="*66)
+wk=[0]*52
+for d in OPEN: wk[(d-JAN1).days//7]+=1
+need_days = 30/HRS            # 2.5 twelve-hour days
+hit=[w for w in range(52) if wk[w]*HRS>=30]
+print(f"A week needs {need_days:.1f} twelve-hour days to reach 30 h, "
+      f"so 3 days in practice.")
+print("  open days per week: "+" ".join(str(x) for x in wk))
+print(f"  weeks reaching 30 h on open days alone: {len(hit)} of 52")
+print(f"  8 months of weeks = {8/12*52.1786:.1f}. "
+      f"{'MEETS' if len(hit)>=34.8 else f'SHORT by {34.8-len(hit):.1f} weeks'}")
+tot=sum(min(wk[w],3)*HRS for w in hit)
+print(f"  hours in those weeks: {tot:,}")
+print(f"\n  weeks with 0 open days: {wk.count(0)}   1 day: {wk.count(1)}   "
+      f"2 days: {wk.count(2)}   3+: {sum(1 for x in wk if x>=3)}")
+
+# ---- week-by-week counting, with admin lifting the 2-day weeks ---------
+allwk=[0]*53; openwk=[0]*53
+for i in range(364):
+    d=JAN1+dt.timedelta(i)
+    if d.weekday()<5 and not busy[i]:
+        allwk[i//7]+=1
+        if d not in off: openwk[i//7]+=1
+allwk, openwk = allwk[:52], openwk[:52]
+NEEDW=8/12*52.1786
+print(f"\nIf each counted week must reach 30 h on its own "
+      f"(need {NEEDW:.1f} such weeks):")
+for adm,lbl in ((0,'no admin'),(6,'6 h/wk admin')):
+    dn=(30-adm)/12
+    a=sum(1 for x in openwk if x>=dn-1e-9)
+    b=sum(1 for x in allwk  if x>=dn-1e-9)
+    print(f"  {lbl:<13} week needs {dn:.2f} clinic days | "
+          f"all 12 wks off kept: {a:>2} weeks | "
+          f"working through vacation: {b:>2} weeks")
+print("\n  Averaging across one window beats counting weeks one by one:")
+print("  under an average the 4-day weeks carry the 2-day weeks, and")
+print("  all 12 weeks off survive. Counting week by week, every counted")
+print("  week has to stand alone, so about 4 weeks of vacation go.")
