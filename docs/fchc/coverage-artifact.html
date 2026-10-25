@@ -83,7 +83,7 @@ h1{font-size:clamp(24px,4.5vw,32px);font-weight:650;margin:0 0 6px;letter-spacin
 
 <div class="wrap">
   <h1>2029 coverage</h1>
-  <p class="sub">A 35-week contract. I offer the clinic every weekday Jamie is already home, in all twelve months, at thirteen clocked hours each, which includes the inbox, charting and overage the clinic is willing to count. Held back: the twelve weeks off, plus five weeks outside the contract. That is 83 days and 1,079 hours, or 30.8 hours a week across the contract. No paid childcare anywhere in the year.</p>
+  <p class="sub">A 37-week contract, built on a corrected model of Jamie’s rota. I work every weekday she is already home, which comes to 70 days. Held back: the twelve weeks off. At 15.86 clocked hours a day that is 1,110 hours, or 30.0 hours a week across the contract. No paid childcare anywhere in the year.</p>
 
   <div class="legend">
     <div class="caption">Every green square is a day Jamie is home. There is no nanny in this year, and no day where both of us are working.</div>
@@ -107,133 +107,65 @@ h1{font-size:clamp(24px,4.5vw,32px);font-weight:650;margin:0 0 6px;letter-spacin
 
 <script>
 (function(){
-  var TYPE = [];
-  for (var i = 0; i < 52; i++) TYPE[i] = 'med';
-  [3,14,25,36,47].forEach(function(i){ TYPE[i] = 'backup'; });
-  [8,21,41].forEach(function(i){ TYPE[i] = 'three'; });
-  [1,5,10,16,19,24,29,33,38,44,49].forEach(function(i){ TYPE[i] = 'two'; });
-  [12,27].forEach(function(i){ TYPE[i] = 'light'; });
-
-  var MED = [{a:[5],b:[0]},{a:[1],b:[4]},{a:[6],b:[2]},{a:[3],b:[0]},{a:[0],b:[3]}];
-  var TWO = [{a:[0,3],b:[]},{a:[1,4],b:[]},{a:[2,5],b:[]},{a:[0,4],b:[]}];
-  var THREE = [{a:[0,2,4],b:[]},{a:[1,3,5],b:[]}];
-  var LIGHT = [{a:[2],b:[]}];
-
-  var busy = new Array(366).fill(false);
-  var nMed = 0, nTwo = 0, nThree = 0, nLight = 0;
-  for (var w = 0; w < 52; w++) {
-    var t = TYPE[w], plan;
-    if (t === 'backup') { for (var d = 0; d < 7; d++) busy[w * 7 + d] = true; continue; }
-    if (t === 'med')   plan = MED[nMed++ % MED.length];
-    if (t === 'two')   plan = TWO[nTwo++ % TWO.length];
-    if (t === 'three') plan = THREE[nThree++ % THREE.length];
-    if (t === 'light') plan = LIGHT[nLight++ % LIGHT.length];
-    plan.a.forEach(function(d){
-      busy[w * 7 + d] = true;
-      if (w * 7 + d + 1 < 366) busy[w * 7 + d + 1] = true;
-    });
-    plan.b.forEach(function(d){ busy[w * 7 + d] = true; });
-  }
-
-  var TRIPS = ['', 'Spring break', 'Belize', 'Summer', 'Texas', 'Winter'];
-  var VAC = [[[0,1],[0,13]], [[3,1],[3,7]], [[4,6],[4,19]],
-             [[6,22],[7,11]], [[10,18],[11,1]], [[11,16],[11,31]]];
-  function doy(m, d){ return Math.round((Date.UTC(2029, m, d) - Date.UTC(2029, 0, 1)) / 86400000); }
-  var off = new Array(366).fill(false);
-  VAC.forEach(function(r){
-    for (var k = doy(r[0][0], r[0][1]); k <= doy(r[1][0], r[1][1]); k++) off[k] = true;
-  });
-  VAC.forEach(function(r){
-    var s = doy(r[0][0], r[0][1]), e = doy(r[1][0], r[1][1]);
-    var sync = Math.round((e - s + 1) * 0.7);
-    for (var k = s; k < s + sync; k++) busy[k] = false;
-  });
-
-  // Owner adjustment: the birthday week (26 Mar, before spring break) comes
-  // out, and its clinic days move to the week of 26 Feb, which Jamie's rota
-  // had left empty. Same number of days, different placement.
-  var BWK = 12, TWK = 8;
-  var moved = [];
-  for (var q = 0; q < 5; q++) if (!busy[BWK * 7 + q]) moved.push(q);
-  for (var q2 = 0; q2 < 7; q2++) busy[BWK * 7 + q2] = true;
-  moved.forEach(function(q3){ busy[TWK * 7 + q3] = false; });
-
-  var EXCL = [12, 14, 25, 36, 41];    // weeks outside the contract, 0-indexed
-  // One label per faded block: off contract, with the trip where there is one
-  var LABELS = [
-    [[0,1],[0,13],'Off contract – New Year’s'],
-    [[2,26],[3,1],'Off contract – spring break'],
-    [[4,6],[4,19],'Off contract – Belize'],
-    [[5,25],[6,1],'Off contract'],
-    [[6,22],[7,11],'Off contract – summer break'],
-    [[8,10],[8,16],'Off contract'],
-    [[9,15],[9,21],'Off contract'],
-    [[10,18],[11,1],'Off contract – Thanksgiving'],
-    [[11,16],[11,31],'Off contract – Christmas']
-  ];
-  var CONTRACT = 35;                  // weeks: 8.05 months
-  var NEED = 30 * CONTRACT, HRS = 13, RATE = 50;
-  function excluded(n){ return EXCL.indexOf(Math.floor(n / 7)) >= 0; }
-
+  var DAYS = [["2029-01-01", "off"], ["2029-01-02", "off"], ["2029-01-03", "off"], ["2029-01-04", "off"], ["2029-01-05", "off"], ["2029-01-06", "off"], ["2029-01-07", "off"], ["2029-01-08", "off"], ["2029-01-09", "off"], ["2029-01-10", "off"], ["2029-01-11", "off"], ["2029-01-12", "off"], ["2029-01-13", "off"], ["2029-01-14", "off"], ["2029-01-15", "cl"], ["2029-01-16", "in"], ["2029-01-17", "in"], ["2029-01-18", "cl"], ["2029-01-19", "in"], ["2029-01-20", "off"], ["2029-01-21", "off"], ["2029-01-22", "in"], ["2029-01-23", "in"], ["2029-01-24", "in"], ["2029-01-25", "in"], ["2029-01-26", "cl"], ["2029-01-27", "off"], ["2029-01-28", "off"], ["2029-01-29", "in"], ["2029-01-30", "in"], ["2029-01-31", "cl"], ["2029-02-01", "in"], ["2029-02-02", "cl"], ["2029-02-03", "off"], ["2029-02-04", "off"], ["2029-02-05", "cl"], ["2029-02-06", "in"], ["2029-02-07", "in"], ["2029-02-08", "cl"], ["2029-02-09", "in"], ["2029-02-10", "off"], ["2029-02-11", "off"], ["2029-02-12", "in"], ["2029-02-13", "cl"], ["2029-02-14", "in"], ["2029-02-15", "in"], ["2029-02-16", "cl"], ["2029-02-17", "off"], ["2029-02-18", "off"], ["2029-02-19", "cl"], ["2029-02-20", "in"], ["2029-02-21", "cl"], ["2029-02-22", "in"], ["2029-02-23", "in"], ["2029-02-24", "off"], ["2029-02-25", "off"], ["2029-02-26", "off"], ["2029-02-27", "off"], ["2029-02-28", "off"], ["2029-03-01", "off"], ["2029-03-02", "off"], ["2029-03-03", "off"], ["2029-03-04", "off"], ["2029-03-05", "cl"], ["2029-03-06", "in"], ["2029-03-07", "in"], ["2029-03-08", "in"], ["2029-03-09", "in"], ["2029-03-10", "off"], ["2029-03-11", "off"], ["2029-03-12", "cl"], ["2029-03-13", "cl"], ["2029-03-14", "in"], ["2029-03-15", "in"], ["2029-03-16", "in"], ["2029-03-17", "off"], ["2029-03-18", "off"], ["2029-03-19", "in"], ["2029-03-20", "in"], ["2029-03-21", "in"], ["2029-03-22", "cl"], ["2029-03-23", "cl"], ["2029-03-24", "off"], ["2029-03-25", "off"], ["2029-03-26", "cl"], ["2029-03-27", "in"], ["2029-03-28", "in"], ["2029-03-29", "in"], ["2029-03-30", "cl"], ["2029-03-31", "off"], ["2029-04-01", "off"], ["2029-04-02", "off"], ["2029-04-03", "off"], ["2029-04-04", "off"], ["2029-04-05", "off"], ["2029-04-06", "off"], ["2029-04-07", "off"], ["2029-04-08", "off"], ["2029-04-09", "in"], ["2029-04-10", "cl"], ["2029-04-11", "cl"], ["2029-04-12", "in"], ["2029-04-13", "in"], ["2029-04-14", "off"], ["2029-04-15", "off"], ["2029-04-16", "off"], ["2029-04-17", "off"], ["2029-04-18", "off"], ["2029-04-19", "off"], ["2029-04-20", "off"], ["2029-04-21", "off"], ["2029-04-22", "off"], ["2029-04-23", "in"], ["2029-04-24", "in"], ["2029-04-25", "cl"], ["2029-04-26", "cl"], ["2029-04-27", "in"], ["2029-04-28", "off"], ["2029-04-29", "off"], ["2029-04-30", "in"], ["2029-05-01", "in"], ["2029-05-02", "cl"], ["2029-05-03", "in"], ["2029-05-04", "in"], ["2029-05-05", "off"], ["2029-05-06", "off"], ["2029-05-07", "off"], ["2029-05-08", "off"], ["2029-05-09", "off"], ["2029-05-10", "off"], ["2029-05-11", "off"], ["2029-05-12", "off"], ["2029-05-13", "off"], ["2029-05-14", "off"], ["2029-05-15", "off"], ["2029-05-16", "off"], ["2029-05-17", "off"], ["2029-05-18", "off"], ["2029-05-19", "off"], ["2029-05-20", "off"], ["2029-05-21", "in"], ["2029-05-22", "in"], ["2029-05-23", "cl"], ["2029-05-24", "in"], ["2029-05-25", "cl"], ["2029-05-26", "off"], ["2029-05-27", "off"], ["2029-05-28", "cl"], ["2029-05-29", "in"], ["2029-05-30", "in"], ["2029-05-31", "cl"], ["2029-06-01", "in"], ["2029-06-02", "off"], ["2029-06-03", "off"], ["2029-06-04", "in"], ["2029-06-05", "cl"], ["2029-06-06", "in"], ["2029-06-07", "in"], ["2029-06-08", "cl"], ["2029-06-09", "off"], ["2029-06-10", "off"], ["2029-06-11", "cl"], ["2029-06-12", "in"], ["2029-06-13", "in"], ["2029-06-14", "in"], ["2029-06-15", "in"], ["2029-06-16", "off"], ["2029-06-17", "off"], ["2029-06-18", "cl"], ["2029-06-19", "in"], ["2029-06-20", "in"], ["2029-06-21", "cl"], ["2029-06-22", "in"], ["2029-06-23", "off"], ["2029-06-24", "off"], ["2029-06-25", "in"], ["2029-06-26", "in"], ["2029-06-27", "in"], ["2029-06-28", "in"], ["2029-06-29", "cl"], ["2029-06-30", "off"], ["2029-07-01", "off"], ["2029-07-02", "cl"], ["2029-07-03", "in"], ["2029-07-04", "cl"], ["2029-07-05", "in"], ["2029-07-06", "in"], ["2029-07-07", "off"], ["2029-07-08", "off"], ["2029-07-09", "in"], ["2029-07-10", "in"], ["2029-07-11", "in"], ["2029-07-12", "cl"], ["2029-07-13", "cl"], ["2029-07-14", "off"], ["2029-07-15", "off"], ["2029-07-16", "cl"], ["2029-07-17", "in"], ["2029-07-18", "in"], ["2029-07-19", "in"], ["2029-07-20", "cl"], ["2029-07-21", "off"], ["2029-07-22", "off"], ["2029-07-23", "off"], ["2029-07-24", "off"], ["2029-07-25", "off"], ["2029-07-26", "off"], ["2029-07-27", "off"], ["2029-07-28", "off"], ["2029-07-29", "off"], ["2029-07-30", "off"], ["2029-07-31", "off"], ["2029-08-01", "off"], ["2029-08-02", "off"], ["2029-08-03", "off"], ["2029-08-04", "off"], ["2029-08-05", "off"], ["2029-08-06", "off"], ["2029-08-07", "off"], ["2029-08-08", "off"], ["2029-08-09", "off"], ["2029-08-10", "off"], ["2029-08-11", "off"], ["2029-08-12", "off"], ["2029-08-13", "cl"], ["2029-08-14", "cl"], ["2029-08-15", "in"], ["2029-08-16", "in"], ["2029-08-17", "in"], ["2029-08-18", "off"], ["2029-08-19", "off"], ["2029-08-20", "in"], ["2029-08-21", "cl"], ["2029-08-22", "cl"], ["2029-08-23", "in"], ["2029-08-24", "in"], ["2029-08-25", "off"], ["2029-08-26", "off"], ["2029-08-27", "cl"], ["2029-08-28", "cl"], ["2029-08-29", "in"], ["2029-08-30", "cl"], ["2029-08-31", "cl"], ["2029-09-01", "off"], ["2029-09-02", "off"], ["2029-09-03", "cl"], ["2029-09-04", "in"], ["2029-09-05", "in"], ["2029-09-06", "cl"], ["2029-09-07", "in"], ["2029-09-08", "off"], ["2029-09-09", "off"], ["2029-09-10", "in"], ["2029-09-11", "in"], ["2029-09-12", "cl"], ["2029-09-13", "in"], ["2029-09-14", "cl"], ["2029-09-15", "off"], ["2029-09-16", "off"], ["2029-09-17", "cl"], ["2029-09-18", "in"], ["2029-09-19", "in"], ["2029-09-20", "cl"], ["2029-09-21", "in"], ["2029-09-22", "off"], ["2029-09-23", "off"], ["2029-09-24", "in"], ["2029-09-25", "in"], ["2029-09-26", "cl"], ["2029-09-27", "cl"], ["2029-09-28", "in"], ["2029-09-29", "off"], ["2029-09-30", "off"], ["2029-10-01", "in"], ["2029-10-02", "in"], ["2029-10-03", "cl"], ["2029-10-04", "in"], ["2029-10-05", "in"], ["2029-10-06", "off"], ["2029-10-07", "off"], ["2029-10-08", "cl"], ["2029-10-09", "in"], ["2029-10-10", "in"], ["2029-10-11", "cl"], ["2029-10-12", "in"], ["2029-10-13", "off"], ["2029-10-14", "off"], ["2029-10-15", "in"], ["2029-10-16", "cl"], ["2029-10-17", "in"], ["2029-10-18", "in"], ["2029-10-19", "cl"], ["2029-10-20", "off"], ["2029-10-21", "off"], ["2029-10-22", "cl"], ["2029-10-23", "in"], ["2029-10-24", "cl"], ["2029-10-25", "in"], ["2029-10-26", "in"], ["2029-10-27", "off"], ["2029-10-28", "off"], ["2029-10-29", "in"], ["2029-10-30", "in"], ["2029-10-31", "in"], ["2029-11-01", "cl"], ["2029-11-02", "cl"], ["2029-11-03", "off"], ["2029-11-04", "off"], ["2029-11-05", "cl"], ["2029-11-06", "in"], ["2029-11-07", "in"], ["2029-11-08", "in"], ["2029-11-09", "cl"], ["2029-11-10", "off"], ["2029-11-11", "off"], ["2029-11-12", "off"], ["2029-11-13", "off"], ["2029-11-14", "off"], ["2029-11-15", "off"], ["2029-11-16", "off"], ["2029-11-17", "off"], ["2029-11-18", "off"], ["2029-11-19", "off"], ["2029-11-20", "off"], ["2029-11-21", "off"], ["2029-11-22", "off"], ["2029-11-23", "off"], ["2029-11-24", "off"], ["2029-11-25", "off"], ["2029-11-26", "off"], ["2029-11-27", "off"], ["2029-11-28", "off"], ["2029-11-29", "off"], ["2029-11-30", "off"], ["2029-12-01", "off"], ["2029-12-02", "off"], ["2029-12-03", "cl"], ["2029-12-04", "cl"], ["2029-12-05", "in"], ["2029-12-06", "in"], ["2029-12-07", "in"], ["2029-12-08", "off"], ["2029-12-09", "off"], ["2029-12-10", "in"], ["2029-12-11", "cl"], ["2029-12-12", "cl"], ["2029-12-13", "in"], ["2029-12-14", "in"], ["2029-12-15", "off"], ["2029-12-16", "off"], ["2029-12-17", "off"], ["2029-12-18", "off"], ["2029-12-19", "off"], ["2029-12-20", "off"], ["2029-12-21", "off"], ["2029-12-22", "off"], ["2029-12-23", "off"], ["2029-12-24", "off"], ["2029-12-25", "off"], ["2029-12-26", "off"], ["2029-12-27", "off"], ["2029-12-28", "off"], ["2029-12-29", "off"], ["2029-12-30", "off"], ["2029-12-31", "off"]];
   var MONTHS = ['January','February','March','April','May','June',
                 'July','August','September','October','November','December'];
   var DOW = ['S','M','T','W','T','F','S'];
-  var jDays = 0, mDays = 0, runLen = 0, bestRun = 0;
-  var html = '';
-
-  for (var m = 0; m < 12; m++) {
-    var offset = new Date(Date.UTC(2029, m, 1)).getUTCDay();
-    var len = new Date(Date.UTC(2029, m + 1, 0)).getUTCDate();
-    html += '<div class="mo"><h2>' + MONTHS[m] + '</h2><div class="dows">';
-    for (var k = 0; k < 7; k++) html += '<div>' + DOW[k] + '</div>';
-    html += '</div><div class="gridwrap"><div class="days">';
-    for (var o = 0; o < offset; o++) html += '<div class="cell blank"></div>';
-    for (var day = 1; day <= len; day++) {
-      var wd = new Date(Date.UTC(2029, m, day)).getUTCDay();
-      var n = doy(m, day), cls;
-      if (wd >= 1 && wd <= 5 && !off[n] && !busy[n] && !excluded(n)) {
-        cls = 'm'; mDays++; runLen = 0;
-      } else if (busy[n]) { cls = 'j'; jDays++; runLen = 0; }
-      else { cls = 'f'; runLen++; if (runLen > bestRun) bestRun = runLen; }
-      var dim = off[n] || wd === 0 || wd === 6;
-      var ex = excluded(n);
-      html += '<div class="cell ' + cls + (dim || ex ? ' vac' : '') + '">' + day + '</div>';
+  var LABELS = [
+    [[0,1],[0,13],'Off contract \u2013 New Year\u2019s'],
+    [[3,1],[3,7],'Off contract \u2013 spring break'],
+    [[4,6],[4,19],'Off contract \u2013 Belize'],
+    [[6,22],[7,11],'Off contract \u2013 summer break'],
+    [[10,18],[11,1],'Off contract \u2013 Thanksgiving'],
+    [[11,16],[11,31],'Off contract \u2013 Christmas']
+  ];
+  var WEEKS = 37, HRS = 15.86, RATE = 50;
+  function doy(m,d){return Math.round((Date.UTC(2029,m,d)-Date.UTC(2029,0,1))/86400000);}
+  var cls={}, nClinic=0, nIn=0;
+  DAYS.forEach(function(x){ cls[x[0]]=x[1];
+    if(x[1]==='cl') nClinic++; if(x[1]==='in') nIn++; });
+  var html='', runLen=0, bestRun=0;
+  for (var m=0;m<12;m++){
+    var offset=new Date(Date.UTC(2029,m,1)).getUTCDay();
+    var len=new Date(Date.UTC(2029,m+1,0)).getUTCDate();
+    html+='<div class="mo"><h2>'+MONTHS[m]+'</h2><div class="dows">';
+    for(var k=0;k<7;k++) html+='<div>'+DOW[k]+'</div>';
+    html+='</div><div class="gridwrap"><div class="days">';
+    for(var o=0;o<offset;o++) html+='<div class="cell blank"></div>';
+    for(var day=1;day<=len;day++){
+      var iso=new Date(Date.UTC(2029,m,day)).toISOString().slice(0,10);
+      var t=cls[iso]||'off';
+      var c = t==='cl' ? 'm' : (t==='in' ? 'j' : 'f');
+      if(t==='cl'){runLen=0;} else if(t==='off'){runLen++; if(runLen>bestRun)bestRun=runLen;} else {runLen=0;}
+      html+='<div class="cell '+c+(t!=='cl'&&t!=='in'?' vac':'')+'">'+day+'</div>';
     }
-    html += '</div><div class="overlay" style="grid-template-rows:repeat(' +
-            Math.ceil((offset + len) / 7) + ',1fr)">';
+    html+='</div><div class="overlay" style="grid-template-rows:repeat('+
+          Math.ceil((offset+len)/7)+',1fr)">';
     LABELS.forEach(function(r){
-      if (r[0][0] !== m) return;              // label only where the block starts
-      var s = doy(r[0][0], r[0][1]), e = doy(r[1][0], r[1][1]);
-      var first = 0;
-      for (var dd = 1; dd <= len && !first; dd++) {
-        var nn = doy(m, dd);
-        if (nn >= s && nn <= e) first = dd;
-      }
-      if (!first) return;
-      var ixx = offset + first - 1;
-      var row = Math.floor(ixx / 7) + 1, c1 = (ixx % 7) + 1;
-      var span = Math.min(8 - c1, e - doy(m, first) + 1);
-      if (c1 === 1) { c1 = 2; span -= 1; }
-      if (span < 1) return;
-      html += '<div class="triplab" style="grid-row:' + row + ';grid-column:' +
-              c1 + '/' + (c1 + span) + '">' + r[2] + '</div>';
+      if(r[0][0]!==m) return;
+      var s0=doy(r[0][0],r[0][1]), e0=doy(r[1][0],r[1][1]), first=0;
+      for(var dd=1;dd<=len&&!first;dd++){var nn=doy(m,dd); if(nn>=s0&&nn<=e0) first=dd;}
+      if(!first) return;
+      var ix=offset+first-1, row=Math.floor(ix/7)+1, c1=(ix%7)+1;
+      var span=Math.min(8-c1, e0-doy(m,first)+1);
+      if(c1===1){c1=2;span-=1;}
+      if(span<1) return;
+      html+='<div class="triplab" style="grid-row:'+row+';grid-column:'+
+            c1+'/'+(c1+span)+'">'+r[2]+'</div>';
     });
-    html += '</div></div></div>';
+    html+='</div></div></div>';
   }
-  document.getElementById('months').innerHTML = html;
-
-  var clinicH = mDays * HRS;
-  var fmt = function(x){ return x.toLocaleString(undefined,{maximumFractionDigits:1}); };
-  document.getElementById('stats').innerHTML =
-    '<div class="stat"><b>' + mDays + '</b><span>clinic days, all twelve months</span></div>' +
-    '<div class="stat"><b>' + HRS + '</b><span>clocked hours a day</span></div>' +
-    '<div class="stat"><b>' + fmt(clinicH) + '</b><span>hours worked</span></div>' +
-    '<div class="stat"><b>' + (clinicH / CONTRACT).toFixed(1) + '</b><span>hours per week over the contract</span></div>' +
-    '<div class="stat"><b>0</b><span>nanny days</span></div>' +
-    '<div class="stat"><b>' + CONTRACT + '</b><span>contract weeks (8.05 months)</span></div>' +
-    '<div class="stat"><b>12</b><span>weeks off, unchanged</span></div>' +
-    '<div class="stat"><b>$' + Math.round(clinicH * RATE).toLocaleString() + '</b><span>at $50 an hour</span></div>' +
-    '<div class="stat"><b>' + bestRun + '</b><span>longest stretch all together</span></div>';
+  document.getElementById('months').innerHTML=html;
+  var tot=nClinic*HRS;
+  document.getElementById('stats').innerHTML=
+    '<div class="stat"><b>'+nClinic+'</b><span>clinic days</span></div>'+
+    '<div class="stat"><b>'+HRS+'</b><span>clocked hours a day</span></div>'+
+    '<div class="stat"><b>'+tot.toLocaleString(undefined,{maximumFractionDigits:0})+'</b><span>hours worked</span></div>'+
+    '<div class="stat"><b>'+(tot/WEEKS).toFixed(1)+'</b><span>hours per week over the contract</span></div>'+
+    '<div class="stat"><b>0</b><span>nanny days</span></div>'+
+    '<div class="stat"><b>'+WEEKS+'</b><span>contract weeks (8.51 months)</span></div>'+
+    '<div class="stat"><b>12</b><span>weeks off, unchanged</span></div>'+
+    '<div class="stat"><b>$'+Math.round(tot*RATE).toLocaleString()+'</b><span>at $50 an hour</span></div>';
 })();
 </script>
 

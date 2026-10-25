@@ -3,7 +3,7 @@
 Owner, 2026-10-25:
   - usually 1 to 2 24s a week
   - on a one-24 week she usually has a 12 somewhere
-  - rarely works weekends, maybe one weekend a month, a 12 or a 24
+  - a 24 lands on a Saturday or Sunday only a few times a year
   - very rarely 3 24s in a week
   - about 2 weeks of backup a year
   - about 2 weeks of regular Monday-to-Friday daytime a year
@@ -28,10 +28,12 @@ def build(backup=2, regular=2, three=2, two=16, light=0, verbose=False):
     TYPE=[None]*52
     for slot,t in order: TYPE[slot]=t
     # one weekend 24 roughly once a month, the rest on weekdays
-    MED=[([0],[3]),([1],[4]),([2],[0]),([3],[1]),([5],[2]),  # Sat 24 1-in-5
-         ([0],[2]),([1],[3]),([3],[0]),([2],[4]),([6],[1])]  # Sun 24 1-in-10
-    TWO=[([0,3],[]),([1,4],[]),([0,2],[]),([1,3],[]),([2,4],[]),([3,5],[])]
-    THREE=[([0,2,4],[]),([1,3,5],[])]
+    # Owner: a 24 lands on a weekend only a few times a year.
+    # One weekend pattern in ten for MED, none in TWO or THREE.
+    MED=[([0],[3]),([1],[4]),([2],[0]),([3],[1]),([0],[2]),
+         ([1],[3]),([2],[4]),([3],[0]),([5],[2]),([1],[4])]
+    TWO=[([0,3],[]),([1,4],[]),([0,2],[]),([1,3],[]),([2,4],[]),([0,4],[])]
+    THREE=[([0,2,4],[]),([1,3,4],[])]
     LIGHT=[([2],[])]
     TBL={'med':MED,'two':TWO,'three':THREE,'light':LIGHT}
     busy=[False]*366; n={k:0 for k in TBL}; s24=s12=wknd=0
