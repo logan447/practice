@@ -1530,3 +1530,54 @@ and the first thing in this analysis that no model can settle.
 day, 160 clinic days, 30.77 worked hrs/week with no leave counted,
 dots on the 92 days needing paid care (77 if the four backup weeks
 move). https://claude.ai/artifact/QhKBckd3LTKdY3TLN94UAh
+
+## DEFINITION: Jamie's "backup weeks" (2026-10-25)
+
+This term is load-bearing in several sections above and was never
+defined here. From the owner: *"4-6 weeks out of the year she has back
+up or a regular m-f hour set up"* and *"we know her regular back up
+weeks and m-f weeks a year in advance and i would have to be on for
+all of those for child care."*
+
+**A backup week is a week Jamie is unavailable for the children all
+five weekdays** -- on backup call, or working regular M-F hours.
+Distinct from her usual pattern, where a 24-hour shift consumes that
+day plus post-call and a normal week still leaves 2-3 clear days. A
+backup week leaves none.
+
+Modelled 2029 gives her five. Four collide with clinic weeks (dates
+are the GENERATED schedule, illustrative only -- her real weeks will
+differ; the reliable figure is 4-5/yr at ~$1,400 each on Tue-Fri):
+
+| week of | clinic days hit | cost |
+|---------|-----------------|------|
+| Jan 22 | Tue 23 - Fri 26 | $1,400 |
+| Apr 9 | Tue 10 - Fri 13 | $1,400 |
+| Jun 25 | Tue 26 - Fri 29 | $1,400 |
+| Sep 10 | Tue 11 - Fri 14 | $1,400 |
+| Nov 26 | already inside the Thanksgiving block | $0 |
+| | **16 childcare days** | **$5,600** |
+
+"Moving" them = asking her scheduler to place backup weeks inside the
+12 weeks off instead of in clinic weeks:
+
+| moved | care days (of 160) | childcare |
+|-------|--------------------|-----------|
+| 0 | 92 | $32,200 |
+| 2 | 84 | $29,400 |
+| **4** | **76** | **$26,600** |
+
+Cheapest lever in the plan because these weeks are set **a year
+ahead**, unlike her ordinary shifts which arrive one month out. A
+planning request, not a scramble.
+
+### NOT free money -- the cost this analysis had been ignoring
+
+The 12 weeks off are the weeks the family is together. Putting her
+backup weeks there means she is tethered during family time. Workable
+for the winter block (4 wks) or Thanksgiving (2) or summer (3) when
+they are home. **Does NOT work for Belize** -- she cannot hold backup
+call internationally. So the four weeks must land in the HOME-based
+off-weeks, not the travel ones. There is room, but the real trade is
+$5,600 of childcare against her being on-call during four weeks she
+would otherwise be fully present.
