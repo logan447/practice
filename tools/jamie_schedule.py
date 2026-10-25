@@ -27,6 +27,9 @@ def build(backup=2, regular=2, three=2, two=16, light=0, verbose=False):
     for slot,t in zip(idx, types): order.append((slot,t))
     TYPE=[None]*52
     for slot,t in order: TYPE[slot]=t
+    # Owner preference: put the heavy week on the week of Valentine's Day
+    # (w/c 12 Feb 2029) rather than the arbitrary week of 26 Feb.
+    TYPE[6], TYPE[8] = TYPE[8], TYPE[6]
     # one weekend 24 roughly once a month, the rest on weekdays
     # Owner: a 24 lands on a weekend only a few times a year.
     # One weekend pattern in ten for MED, none in TWO or THREE.
