@@ -2586,3 +2586,57 @@ $26.60 is the same salary over 1,560 PAID hours, and exists only
 because the director's $66.97 is computed the same way ($139,293 /
 2,080). Use $500/day for his own thinking; use $26.60 only for the
 comparison against the director.
+
+## SETTLED PLAN (2026-10-25)
+
+Owner: "i think this is it and this should be the plan." Written up in
+`docs/fchc/the-plan.md`. The earlier draft moved to
+`docs/archive/fchc-why-this-works-SUPERSEDED-2026-10-25.md` per D-025;
+it carried the $62.25/hr, 141-day, 20-patient version.
+
+**The ask: salaried, 0.75 FTE, 30 hours per week annualized, $41,500,
+schedule quarterly.**
+
+| | |
+|---|---|
+| clinic days | ~83, the days Jamie is home |
+| day | 10 hours, 16 patients, 38-min slots |
+| clinic hours | 830 |
+| per clinic day | **$500** ($50/clinic hour) |
+| childcare | **$0** |
+| weeks off | 12, intact |
+| IBR payment | **$0** (below 150% FPL, $48,225) |
+| payments | 20 banked, 100 to go = 8 yr 4 mo |
+| forgiven | ~$490,000 tax free |
+| household saves | **$16,866** ($8,134 under the stated floor) |
+| FCHC loaded cost | $45,235 = $34.06/encounter |
+| FCHC share of collections | 38% @$90, 33% @$103 |
+| FCHC surplus from the role | $14,525 @$90, $23,137 @$103 |
+| owner's rate vs director | $26.60/hr vs $66.97/hr |
+
+Start Jan 2027 -> forgiveness May 2035. Each year of delay moves it a
+year.
+
+**The wording is the load-bearing part.** The form instruction says
+check Full-Time if the average is 30+ and that the figure should
+include vacation and leave. A contract reading "0.75 FTE, 30 hours per
+week annualized" gets 30 entered. A day rate or hourly rate gets ~16
+from a timesheet and fails. Same money, same work, opposite outcome.
+
+### Still open
+
+1. **FCHC's actual collection per encounter.** Everything assumes
+   $90-103. UNSET and never resolved across this whole file.
+2. **16 vs 20 patients a day.** 20 in the same ten hours would let
+   FCHC fund up to $54,826 and would clear the $25,000 floor; the
+   owner chose 16 (38-min slots).
+3. **Confirm the payment count with the servicer** before signing.
+
+### Closed during this work
+
+- FCHC is a 501(c)(3), EIN 54-2061482. Qualifying employer: yes.
+- Quarterly schedule: already how FCHC operates.
+- The "greater of 30 hours or the employer's definition" risk:
+  **retracted**, it came from an expired (Exp. 08/31/2023) form.
+- Paid leave counts toward the average: stated in the current form
+  instruction the certifying official reads.
