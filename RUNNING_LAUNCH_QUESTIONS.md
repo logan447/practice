@@ -2682,3 +2682,84 @@ moving 38 -> 30 minutes, both normal.
 
 Collections per encounter remains **UNSET**; everything above spans
 $90-103.
+
+## TELEHEALTH FROM THE WHARF: do it for the hours, not the money (2026-10-25)
+
+Owner's proposal: telehealth days from home on weekdays Jamie works,
+with a sitter in the house 7:30 to 5 while he takes appointments, plus
+a DC licence. Model: `tools/fchc_telehealth.py`.
+83 in-person days, **117 weekdays available**, telehealth day = 8 paid
+hours with a 9.5-hour sitter.
+
+### A telehealth day is worth about half an in-person day
+
+| | paid | sitter | kept | effective |
+|---|------|--------|------|-----------|
+| in-person | $500 (10 h) | 0 | 500 | **$50.00/hr** |
+| telehealth @ $18 sitter | $400 (8 h) | 171 | 229 | **$28.62/hr** |
+| @ $20 | 400 | 190 | 210 | $26.25/hr |
+| @ $24 | 400 | 228 | 172 | $21.50/hr |
+
+### After tax and the loan payment the marginal value collapses
+
+| adding | days | gain | per day | per hour |
+|--------|------|------|---------|----------|
+| 0->20 | 20 | 3,146 | 157 | **19.66** |
+| 20->40 | 20 | 1,341 | 67 | 8.38 |
+| 40->60 | 20 | 1,308 | 65 | 8.18 |
+| 60->80 | 20 | 608 | 30 | 3.80 |
+| 80->118 | 38 | 713 | 17 | **2.17** |
+
+**Cause: crossing 150% FPL starts the loan payments.**
+
+| | salary | tax | IBR | sitter | saved |
+|---|--------|-----|-----|--------|-------|
+| 0 d | 41,500 | 7,299 | **0** | 0 | 16,866 |
+| 40 d | 57,500 | 11,410 | 928 | 7,600 | 21,352 |
+| 80 d | 73,500 | 16,294 | 2,528 | 15,200 | 23,268 |
+| 118 d | 88,700 | 22,041 | 4,048 | 22,420 | 23,981 |
+
+**Working all 117 available weekdays raises savings by $7,115 for a
+year of extra work.**
+
+### THE REAL PRIZE IS THE HOURS
+
+**91 telehealth days puts worked hours at 1,558 = 30.0/week on time
+actually worked.** PSLF then stops depending on whether leave counts
+toward the average, which has been the fragile link in this whole
+file. That de-risks ~$490,000 and is worth far more than the $2/hour
+the last days pay.
+
+### The sitter rate decides whether it also clears the floor
+
+| sitter $/hr | 40 d | 80 d | 91 d | 118 d |
+|-------------|------|------|------|-------|
+| 16 | 22,872 | **26,308** | **26,970** | **28,465** |
+| **18** | 22,112 | 24,788 | **25,241** | **26,223** |
+| 20 | 21,352 | 23,268 | 23,512 | 23,981 |
+| 22 | 20,592 | 21,748 | 21,783 | 21,739 |
+
+**At $18/hr and 91 days: $25,241, clears the floor AND secures the
+hours.** Best combined outcome in this file. **NEEDS real quotes** --
+three children for 9.5 hours, and at $22 nothing works.
+
+### TWO COMPLIANCE GATES (from `docs/strategy/dc-license-brief.md`)
+
+1. **DC licence required.** VA BOM Guidance 90-64 (VERIFIED): a
+   practitioner must be licensed where the patient is **and where the
+   practitioner is**. Virginia's own board expects a DC licence for a
+   physician sitting in DC treating VA patients. The brief already
+   concluded "file now." The owner's instinct is correct.
+2. **MALPRACTICE MAY BLOCK IT.** The Core Specialty quote **excludes
+   DC-situs services including telemedicine**. As an FCHC employee he
+   would be on their policy, so the question is whether their carrier
+   covers telehealth delivered from the District. **Ask before
+   designing around this.** It is a yes-or-no on the whole idea.
+
+### Recommendation
+
+Not a money-maker. Past about one day a week the return is single
+digits an hour of his own time, and it costs the three-day-a-week
+life. **Do enough days to put worked hours at or above 1,560, treat
+the income as incidental, price the sitter first, and confirm the
+malpractice.**
