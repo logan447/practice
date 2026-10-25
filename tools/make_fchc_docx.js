@@ -38,7 +38,7 @@ const doc=new Document({
       new Paragraph({spacing:{line:240,lineRule:"auto",after:150},
         children:[run("Logan DuBose, MD",{size:22,color:GREY})]}),
 
-      body("Transition to a 35-week contract of 83 clinic days a year at 13 clocked hours and $50 per hour, beginning June 1, 2028, while maintaining the current hourly arrangement until then to demonstrate sufficient demand and financial viability.",{after:190}),
+      body("Transition to a contract of 35 to 38 weeks a year, two clinic days a week at 15 clocked hours and $40 per hour, beginning June 1, 2028, while maintaining the current hourly arrangement until then to demonstrate sufficient demand and financial viability. Schedule provided a quarter in advance.",{after:190}),
 
       img(merged,488),
 
