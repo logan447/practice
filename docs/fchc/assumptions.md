@@ -63,12 +63,16 @@ wrong, and most of them you can check or change.*
 
 ## About the money
 
-22. **$40 an hour.** $45,600 for the year. Chosen over $50 to put
-    the clinic's return at 32 percent rather than 6 percent at sixteen
-    patients a day. It costs $7,594 of savings.
+22. **$45 an hour.** $51,300 for the year. Between the $50 that
+    clears your floor and the $40 that gives the clinic the most room.
 23. **The clinic's marginal overhead is 40 percent of collections.**
-    Family medicine averages nearer 60, but rent and front desk do
-    not change because you are there. This is an estimate.
+    Built bottom-up in `tools/fchc_overhead_bottomup.py` and it lands
+    between 19 and 55 percent depending on one thing: whether you work
+    on days the clinic is already open and staffed. Published
+    benchmarks of 55 to 70 percent are *average* overhead, which
+    includes rent, management and the front desk. Those do not change
+    because you are there on a Tuesday, so they are the wrong number
+    for this decision.
 24. **The clinic collects $90 to $103 a visit.** UNSET. Nobody has
     told us the real number and it drives everything on their side.
 25. **Employer payroll burden is 9 percent.**
@@ -78,10 +82,8 @@ wrong, and most of them you can check or change.*
     payment moves with it.
 28. **Three children by 2029.**
 29. **Married filing separately**, so only your income counts for IBR.
-30. **Your savings floor is $25,000. This plan saves $20,135.**
-    It is the one constraint this version breaks, by $4,865. At $47 an
-    hour it would clear, but the clinic's return at sixteen patients
-    falls to 12 percent.
+30. **Your savings floor is $25,000. At $45 an hour this saves
+    $24,066**, short by $934. $47 clears it at $25,533.
 
 ## Where the opportunities are
 
