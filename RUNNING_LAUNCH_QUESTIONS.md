@@ -1238,3 +1238,154 @@ constraint.
 question answered in writing by the servicer. It is load-bearing
 again and free to ask. If the answer is no, this configuration yields
 23.1 hrs/week and NO forgiveness.
+
+## FULL COST STACK: the gap is the commute (2026-10-25)
+
+Model: `tools/fchc_full_cost.py`. Config: T/W/Th, 10-hr clinic days,
+120 days, 20 pts/day, all 12 weeks off, 2029, three kids, MFS, no
+paid admin, rate <= medical director's. Unpaid-leave-counts-as-hours
+treated as SETTLED per owner 2026-10-25.
+
+### Costs the earlier models omitted: $8,460/yr
+
+| line | amount |
+|------|--------|
+| I-95 tolls, EST $10/day (reverse commute, so modest) | 1,200 |
+| own-occupation disability insurance (NEEDS-BROKER) | 2,800 |
+| term life, parent of 3 with debt (NEEDS-BROKER) | 900 |
+| VA license + DEA + CME (UNSET: may be FCHC-covered) | 2,000 |
+| backup care when sitter is sick, EST 5 days | 600 |
+| meals and incidentals, EST $8 x 120 | 960 |
+
+Correctly zero, each NEEDS verifying: malpractice (FCHC employee; and
+federal if FTCA-deemed), health insurance (on Jamie's plan), FCHC
+parking. **$5,700 of the $8,460 is career cost payable in ANY path**
+(disability + life + license/DEA/CME) -- not FCHC's doing, but the
+"after everything" floor counts it.
+
+### SAVED, full costs, by rate x childcare (* clears $25,000)
+
+| rate | pay | 56d @$24 | 56d @$28 | 68d @$28 | 68d @$34 |
+|------|-----|----------|----------|----------|----------|
+| 60.00 | 72,000 | 19,690 | 16,890 | 12,690 | 7,590 |
+| 63.00 | 75,600 | 21,629 | 18,829 | 14,629 | 9,529 |
+| **66.97 (director)** | 80,361 | 24,107 | 21,307 | 17,107 | 12,007 |
+| 70.00 | 84,000 | **25,994\*** | 23,194 | 18,994 | 13,894 |
+| 75.00 | 90,000 | **29,105\*** | **26,305\*** | 22,105 | 17,005 |
+
+Rate required: 56d@$24 -> **$68.40** (+1.43 vs director); 56d@$28 ->
+$72.90; 68d@$28 -> $79.65; 68d@$34 -> $87.85.
+
+Childcare budget that would make $60 work: **$16.41/hr at 56 care
+days, $13.52 at 68.** Below any real DC option. **$60 does not close.**
+
+### THE FINDING: the shortfall IS the Fredericksburg commute
+
+At $60/hr, 56 care days @ $28:
+
+| | saved |
+|---|-------|
+| job in Fredericksburg (12.5 hrs away) | **16,890** |
+| same job in DC (10.5 hrs away) | **25,272** |
+| **the commute costs** | **8,382/yr** |
+
+Made of: gas/maintenance/commute depreciation $4,046 + I-95 tolls
+$1,200 + 2 extra hrs childcare x 56 days $3,136.
+
+**$60/hr at a DC clinic clears the floor by $272**; $63 -> $27,211;
+director's rate -> $29,691. The binding constraint was never FCHC's
+rate. It is that FCHC is 55 miles away, and those miles cost almost
+exactly the amount short.
+
+### Three options
+
+1. **FCHC at $68.40/hr**, all four backup weeks moved, in-home
+   daycare at $24. Only version that works at FCHC inside the
+   constraints; ~$0 margin. $1.43 over the director, defensible
+   because no benefits are taken (director costs $73-86/hr loaded).
+2. **A DC-based 501(c)(3) clinic instead.** Same 3 days, same 20
+   pts/day, same PSLF (any 501(c)(3) qualifies -- SETTLED), and $60
+   works. **Structurally the right answer**; should have been surfaced
+   before grinding the rate.
+3. **Reconsider paid admin** -- the cheapest fix, and it also removes
+   the unpaid-leave dependency.
+
+**Do not sign at $60 in Fredericksburg:** $16,890 against a $25,000
+floor, three children and $319,221 of debt, for eight years.
+
+## DECISIVE: FCHC pays 8 clocked hours/day. Wrong employer. (2026-10-25)
+
+OWNER-FACT: FCHC pays **only scheduled-patient hours, 8 per clinic
+day, $50/hr = $400/day.** No admin, no 10-hour day. Model:
+`tools/fchc_eight_hour_reality.py`.
+
+### Reason 1: 24.00 hrs/week, structurally, forever
+
+Leave counts at the contracted weekly rate, which is also 24. So
+W x 24 + (52-W) x 24 = **1,248 hrs for ANY number of weeks off**:
+
+| weeks off | average |
+|-----------|---------|
+| 0 / 6 / 12 / 20 | **24.00 every time** |
+
+**Vacation was never the lever.** 30/8 = 3.75 days/week; 3 gives 24,
+4 gives 32, nothing in between. No rate fixes an hours problem. This
+retires every earlier structure in this file that assumed a 10-hour
+paid clinic day.
+
+### Reason 2: the money is not there
+
+120 x $400 = **$48,000**. Take-home $325.28/clinic day against
+$294.00 of shared childcare = **$31.28 left on a care day.**
+**Saved for the year: $5,189**, and PSLF fails anyway.
+
+### Every FCHC option
+
+| option | PSLF | saved |
+|--------|------|-------|
+| 4 days/wk x 8 hrs, 40 wks (keeps 12 wks off) | 32.0 pass | **8,617** breaks 3-day rule |
+| same at $60/hr | pass | 15,745 |
+| same at $65/hr | pass | 19,064 |
+| 3 days + 6 hrs/wk 2nd nonprofit @$100 | 30.0 pass | 23,841 |
+| ditto @$120/hr | pass | **27,077 clears** |
+| 3 FCHC days + 4th day in DC @$100 | 30.0 pass | 18,255 |
+
+Only the $120/hr second job clears. **Useful form finding:** with two
+or more qualifying employers the employer's-own-definition clause
+drops out ("unless the qualifying employment is with two or more
+employers"), so **the Full-Time/Part-Time checkbox risk disappears.**
+Multi-employer is SAFER, not riskier.
+
+### THE ANSWER: same 3 days at a DC-based 501(c)(3)
+
+3 days x 10 paid hrs = 30 hr/wk. No 55-mile drive: 10.5 hrs away not
+12.5, no tolls, car $6,300 not $11,646.
+
+| $/hr | income | tax+IBR | care | car | other | SAVED |
+|------|--------|---------|------|-----|-------|-------|
+| 75 | 90,000 | 26,714 | 16,464 | 6,300 | 7,260 | **34,387** |
+| 85 | 102,000 | 32,492 | 16,464 | 6,300 | 7,260 | **40,609** |
+| 95 | 114,000 | 38,270 | 16,464 | 6,300 | 7,260 | **46,831** |
+| 100 | 120,000 | 41,159 | 16,464 | 6,300 | 7,260 | **49,942** |
+
+**Rate needed to clear the $25,000 floor: $60.04/hr** -- essentially
+the $60 asked for. DC FQHC physician pay EST $190-230K FTE =
+$91-111/hr, so 2-3x the floor. REFRESH-AT-RUNWAY; NEEDS real DC
+nonprofit comp data.
+
+### Why FCHC cannot carry this (none of it about willingness)
+
+1. **Structure** -- 8 clocked hrs x 3 days = 24.
+2. **Distance** -- the 55 miles cost ~$8,400/yr in car, tolls and two
+   extra childcare hours a day.
+3. **Size** -- $1.6M revenue, 1.3% margin. Cannot fund a six-figure
+   physician.
+
+Three DC days reach 30 hrs/week alone, so **any FCHC time becomes
+optional rather than load-bearing** -- the version that keeps the
+relationship without depending on it.
+
+**Supersedes:** every rate-negotiation section above (the $74.25,
+$83,200, $93,600 and $60-with-paid-admin asks). Those all assumed
+paid hours FCHC does not pay. Candidates for `docs/archive/` per
+D-025 once the DC path is confirmed.
