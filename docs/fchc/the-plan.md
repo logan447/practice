@@ -177,3 +177,54 @@ Content bottom 810 px against a 965 px page.
 - Whether riding in with Jamie is geographically possible. UNSET.
 
 **All assumptions:** `docs/fchc/assumptions.md`.
+
+## The 2027 pitch, as the owner framed it (2026-10-25)
+
+> "35 total weeks at 2 clinic days per week and clock 15 hours per
+> clinic shift, so that I meet 30 hours per week for 35 weeks. I can
+> adjust my rate down to $30 an hour to make it economical for the
+> clinic, as well as see anywhere from 12 to 16 patients a day."
+
+**The FCHC half holds, and $30 makes it an easy yes.** 1,050 hours at
+$30 is $31,500, loaded $34,335. Model: `tools/fchc_roi_2027.py`.
+
+| at $30/h | visits | my cost a visit | clinic keeps at 40% overhead, $100 |
+|---|---|---|---|
+| 12 a day | 840 | $40.88 | $16,065 (+47%) |
+| 14 a day | 980 | $35.04 | $24,465 (+71%) |
+| 16 a day | 1,120 | $30.66 | $32,865 (+96%) |
+
+At the worst overhead case, 55 percent dedicated staffing, twelve a day
+at $90 is $315 in the red. Everything else is positive. At $40 and
+twelve a day the same cell is $11,760 in the red, so the rate cut is
+what buys the low end of the patient range.
+
+Note the coincidence: $30 at 12 patients and $40 at 16 both cost the
+clinic **$40.88 a visit**, because 30/40 and 12/16 are the same ratio.
+
+**The Olera half does not hold as stated.** `tools/fchc_olera_hours.py`.
+0.75 FTE at 30 hours a week over 48 weeks is 1,440 hours. A contract
+week capped at 60 gives Olera 30 of them, so 35 contract weeks give
+1,050. Three catch-up weeks at 60 give 180. That is **1,230 against
+1,440, short 210 hours.**
+
+What closes it:
+
+| | |
+|---|---|
+| 6.5 catch-up weeks at 60 h | 10.5 of the 17 still fully off |
+| 9.8 catch-up weeks at 40 h | 7.2 still fully off |
+| 13 catch-up weeks at 30 h | 4 still fully off |
+| or 12-hour Olera days in contract weeks | 66-hour contract weeks |
+
+Three weeks was the number in the pitch; it needs about seven at 60
+hours, or thirteen at 30. The twelve-hour variant meets it exactly but
+puts the contract weeks at 66 hours.
+
+The weeks named in the pitch (2 April, 8 October, 12 February) are
+2029 dates. The 2027 off-contract weeks are 8 Feb, 5 Apr, 28 Jun,
+4 Oct and 11 Oct.
+
+`REFRESH-AT-RUNWAY` Confirm how Olera counts the 0.75 FTE: whether it
+is 1,440 worked hours, whether paid leave counts toward it, and whether
+the 48 weeks is a floor or an average window.

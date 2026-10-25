@@ -87,19 +87,27 @@ WEEKS=len(SERVICE); DAYS=len(clinic)
 HOURS=round(30*WEEKS/DAYS,2)
 RATE=40.
 
-days=[]
+days=[]        # the proposal calendar: clinic / in town / off
+rich=[]        # the artifact calendar, which also says who has the car
 d=YR0
 while d<=YR1:
+    inweek = week_mon(d) in SERVICE
+    free   = d.weekday()<5 and d not in off and d not in offc and inweek
     if   d in clinic:                     t='cl'
     elif d.weekday()>=5:                  t='off'
     elif d in off or d in offc:           t='off'
-    elif week_mon(d) in SERVICE:          t='in'
+    elif inweek:                          t='in'
     else:                                 t='off'
-    days.append([d.isoformat(),t]); d+=dt.timedelta(1)
+    if   d in clinic:  r='cl24' if state.get(d)=='start24' else 'cl'
+    elif free:         r='her'  if state.get(d) else 'both'
+    else:              r='off'
+    days.append([d.isoformat(),t]); rich.append([d.isoformat(),r])
+    d+=dt.timedelta(1)
 
 if __name__=='__main__':
-    json.dump({'days':days},open('/tmp/claude-0/-home-user-practice/'
-        'cb0efbd4-86a9-5914-b87a-ee6040c6100c/scratchpad/appx27.json','w'))
+    SP='/tmp/claude-0/-home-user-practice/cb0efbd4-86a9-5914-b87a-ee6040c6100c/scratchpad/'
+    json.dump({'days':days},open(SP+'appx27.json','w'))
+    json.dump(rich,open(SP+'art27.json','w'))
     print(f"clinic days      {DAYS}")
     print(f"Service Period   {WEEKS} weeks = {WEEKS/52.1786*12:.2f} months")
     print(f"clocked h/day    {HOURS} to average 30 h/week")
@@ -112,3 +120,4 @@ if __name__=='__main__':
     print(f"car away overnight       {car} of {DAYS}")
     print("  "+str(dict(Counter(state.get(x) or 'off' for x in clinic))))
     print(Counter(t for _,t in days))
+    print(Counter(t for _,t in rich))

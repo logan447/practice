@@ -1,0 +1,185 @@
+<title>2027 contract year</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* One year of the FCHC contract, month cards in a responsive grid.
+   Two hues: green is a clinic day, amber is Jamie on shift. */
+:root{
+  --bg:#f3f4f6; --ink:#15181d; --muted:#5f6874;
+  --base:#c9ced6; --base-ink:#434a55;
+  --jamie:#c47d20; --jamie-ink:#fff;
+  --mine:#1d7a5c; --mine-ink:#fff;
+  --free:#d7e8e0; --free-ink:#3c5a50;
+  --lab:rgba(26,32,40,.82);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#13161a; --ink:#eef1f4; --muted:#98a2ae;
+  --base:#333a44; --base-ink:#aab3bf;
+  --jamie:#e3a24e; --jamie-ink:#251602;
+  --mine:#3fb98f; --mine-ink:#051c15;
+  --free:#1d342c; --free-ink:#8fb8a9;
+  --lab:rgba(232,238,245,.85);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#13161a; --ink:#eef1f4; --muted:#98a2ae;
+  --base:#333a44; --base-ink:#aab3bf;
+  --jamie:#e3a24e; --jamie-ink:#251602;
+  --mine:#3fb98f; --mine-ink:#051c15;
+  --free:#1d342c; --free-ink:#8fb8a9;
+  --lab:rgba(232,238,245,.85);
+  color-scheme:dark}
+body{background:var(--bg);color:var(--ink);margin:0;
+  font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:1000px;margin:0 auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:32px 48px}
+h1{font-size:clamp(24px,4.5vw,32px);font-weight:650;margin:0 0 6px;
+  letter-spacing:-.01em;text-wrap:balance}
+.sub{color:var(--muted);margin:0 0 22px;max-width:66ch}
+.legend{background:var(--base);color:var(--base-ink);border-radius:10px;
+  padding:14px 16px;margin-bottom:24px}
+.legend .caption{font-size:12.5px;font-weight:600;margin-bottom:10px}
+.keys{display:flex;flex-wrap:wrap;gap:9px 20px;align-items:center}
+.key{display:flex;align-items:center;gap:8px;font-size:13px}
+.sw{width:20px;height:20px;border-radius:4px;flex:none;box-sizing:border-box}
+.sw.car{background:linear-gradient(var(--mine) 0 68%,var(--jamie) 68% 100%)}
+.sw.free{background:var(--free)}
+.sw.vac{background:var(--base-ink);opacity:.45}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:10px;margin-bottom:26px}
+.stat{background:var(--base);color:var(--base-ink);border-radius:10px;padding:13px 15px;
+  min-width:0}
+.stat b{display:block;font-size:26px;font-weight:650;font-variant-numeric:tabular-nums;
+  line-height:1.15;color:var(--ink)}
+.stat span{font-size:12.5px}
+.months{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:18px}
+.mo{background:var(--base);color:var(--base-ink);border-radius:10px;padding:12px;
+  position:relative;min-width:0}
+.mo h2{font-size:13px;font-weight:650;letter-spacing:.05em;text-transform:uppercase;
+  margin:0 0 8px}
+.triplab{align-self:start;height:52%;display:flex;align-items:center;
+  justify-content:flex-start;padding-left:5px;font-size:9.5px;font-weight:700;
+  line-height:1;letter-spacing:.07em;text-transform:uppercase;color:var(--lab);
+  overflow:visible;white-space:nowrap;z-index:2}
+.dows,.days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.gridwrap{position:relative}
+.overlay{position:absolute;inset:0;display:grid;grid-template-columns:repeat(7,1fr);
+  gap:5px;pointer-events:none}
+.dows div{font-size:10px;text-align:center;padding-bottom:3px;opacity:.7}
+.cell{aspect-ratio:1;max-width:100%;border-radius:4px;display:flex;align-items:center;
+  justify-content:center;font-size:11px;font-variant-numeric:tabular-nums;
+  box-sizing:border-box;position:relative;overflow:hidden}
+.cell.blank{background:none}
+.cell.m{background:var(--mine);color:var(--mine-ink);font-weight:600}
+.cell.m.car{background:linear-gradient(var(--mine) 0 70%,var(--jamie) 70% 100%)}
+.cell.j{background:var(--jamie);color:var(--jamie-ink)}
+.cell.b{background:var(--free);color:var(--free-ink)}
+.cell.vac{background:var(--base-ink);color:var(--base);opacity:.45;
+  align-items:flex-end;padding-bottom:3px}
+.note{margin-top:26px;color:var(--muted);font-size:13.5px;max-width:68ch}
+.note + .note{margin-top:10px}
+</style>
+
+<div class="wrap">
+  <h1>2027 contract year</h1>
+  <p class="sub">A 35-week contract at Fredericksburg Christian Health Center. Two clinic days every week, no more and no less, on the weekdays Jamie is already working. 70 days at 15 clocked hours is 1,050 hours, exactly 30.0 a week across the contract, at $40 an hour. Held back: seventeen weeks in all, the twelve off plus five outside the contract.</p>
+
+  <div class="legend">
+    <div class="caption">No children yet, so the days go the other way round from 2029. I go in when Jamie is already at work, which lines our off time up and leaves the car at home most clinic days.</div>
+    <div class="keys">
+      <span class="key"><span class="sw" style="background:var(--mine)"></span>I'm in clinic, car at home</span>
+      <span class="key"><span class="sw car"></span>I'm in clinic, Jamie has the car overnight</span>
+      <span class="key"><span class="sw" style="background:var(--jamie)"></span>Jamie's on shift, I'm not in clinic</span>
+      <span class="key"><span class="sw free"></span>Both of us free</span>
+      <span class="key"><span class="sw vac"></span>Faded: weekends, my twelve weeks off, and the five weeks outside the contract</span>
+    </div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+  <div class="months" id="months"></div>
+
+  <p class="note"><strong>How the hours get there.</strong> The forgiveness rule treats a borrower as full time who averages thirty hours a week across a contractual period of at least eight months. The contract here is 35 weeks, which is 8.05 months, so the bar is 1,050 hours. Two clinic days a week at fifteen clocked hours is exactly thirty, and 70 days at fifteen is exactly 1,050. Nothing is rounded. Fifteen is the number that makes two days reach thirty: at thirteen hours two days is twenty-six and the arrangement fails.</p>
+
+  <p class="note"><strong>Why these days.</strong> From 2029, with children, I book a clinic day only when Jamie is home, so childcare never enters the plan. In 2027 there are no children, so the preference flips: I go in when she is already at work, and the days we are both free land together. All 70 clinic days are days she is working, and that leaves about two weekdays a week with neither of us working, on top of the weekends. The contract itself does not change between the two years. Only the weekdays do.</p>
+
+  <p class="note"><strong>The car.</strong> A second car may not be needed. On a clinic day I can ride in with Jamie or take the car on a day she is already out and back. Her 24s are the exception: she drives in in the morning and keeps the car overnight, which is the amber foot on those days. 46 of the 70 clinic days leave the car at home, 24 do not. The 24 cannot be removed, because a week with two 24s has only one weekday that is both hers and car-free. Picking for the car is also why six of the 35 weeks end up with the two clinic days back to back. <em>This assumes riding in together is possible at all, which needs her hospital and the clinic to be a shared trip. Nobody has checked that yet.</em></p>
+
+  <p class="note"><strong>My weeks off:</strong> Jan 1&ndash;17, Mar 27&ndash;Apr 4 spring break, May 8&ndash;23 Belize, Jul 24&ndash;Aug 15 summer, Nov 20&ndash;Dec 5 Thanksgiving, Dec 18&ndash;31 holidays. <strong>Outside the contract:</strong> five weeks, the weeks of 8 February, 5 April, 28 June, 4 October and 11 October, each one pairing up with a block beside it. <strong>Quarters run 9, 9, 10 and 7</strong>, because Thanksgiving and Christmas both land in the fourth. The annual 35 is what has to hold, not the quarter. <strong>Jamie's pattern:</strong> one or two 24-hour shifts a week, plus a 12 in the weeks with only one 24. A 24 takes that day and the next, a 12 takes one day. Her rota is shaped here to leave exactly two free weekdays in every contract week, which is a request of it rather than a prediction of it. She aims about 70% of her own leave at my blocks. A representative year, not her real schedule.</p>
+</div>
+
+<script>
+(function(){
+  var DAYS = [["2027-01-01", "off"], ["2027-01-02", "off"], ["2027-01-03", "off"], ["2027-01-04", "off"], ["2027-01-05", "off"], ["2027-01-06", "off"], ["2027-01-07", "off"], ["2027-01-08", "off"], ["2027-01-09", "off"], ["2027-01-10", "off"], ["2027-01-11", "off"], ["2027-01-12", "off"], ["2027-01-13", "off"], ["2027-01-14", "off"], ["2027-01-15", "off"], ["2027-01-16", "off"], ["2027-01-17", "off"], ["2027-01-18", "both"], ["2027-01-19", "cl24"], ["2027-01-20", "her"], ["2027-01-21", "both"], ["2027-01-22", "cl24"], ["2027-01-23", "off"], ["2027-01-24", "off"], ["2027-01-25", "both"], ["2027-01-26", "her"], ["2027-01-27", "cl"], ["2027-01-28", "both"], ["2027-01-29", "cl"], ["2027-01-30", "off"], ["2027-01-31", "off"], ["2027-02-01", "both"], ["2027-02-02", "both"], ["2027-02-03", "cl24"], ["2027-02-04", "her"], ["2027-02-05", "cl24"], ["2027-02-06", "off"], ["2027-02-07", "off"], ["2027-02-08", "off"], ["2027-02-09", "off"], ["2027-02-10", "off"], ["2027-02-11", "off"], ["2027-02-12", "off"], ["2027-02-13", "off"], ["2027-02-14", "off"], ["2027-02-15", "cl"], ["2027-02-16", "her"], ["2027-02-17", "her"], ["2027-02-18", "her"], ["2027-02-19", "cl"], ["2027-02-20", "off"], ["2027-02-21", "off"], ["2027-02-22", "both"], ["2027-02-23", "cl24"], ["2027-02-24", "her"], ["2027-02-25", "both"], ["2027-02-26", "cl24"], ["2027-02-27", "off"], ["2027-02-28", "off"], ["2027-03-01", "both"], ["2027-03-02", "cl"], ["2027-03-03", "both"], ["2027-03-04", "her"], ["2027-03-05", "cl"], ["2027-03-06", "off"], ["2027-03-07", "off"], ["2027-03-08", "cl24"], ["2027-03-09", "her"], ["2027-03-10", "both"], ["2027-03-11", "both"], ["2027-03-12", "cl24"], ["2027-03-13", "off"], ["2027-03-14", "off"], ["2027-03-15", "her"], ["2027-03-16", "cl"], ["2027-03-17", "cl"], ["2027-03-18", "both"], ["2027-03-19", "both"], ["2027-03-20", "off"], ["2027-03-21", "off"], ["2027-03-22", "both"], ["2027-03-23", "both"], ["2027-03-24", "cl24"], ["2027-03-25", "her"], ["2027-03-26", "cl24"], ["2027-03-27", "off"], ["2027-03-28", "off"], ["2027-03-29", "off"], ["2027-03-30", "off"], ["2027-03-31", "off"], ["2027-04-01", "off"], ["2027-04-02", "off"], ["2027-04-03", "off"], ["2027-04-04", "off"], ["2027-04-05", "off"], ["2027-04-06", "off"], ["2027-04-07", "off"], ["2027-04-08", "off"], ["2027-04-09", "off"], ["2027-04-10", "off"], ["2027-04-11", "off"], ["2027-04-12", "cl24"], ["2027-04-13", "her"], ["2027-04-14", "both"], ["2027-04-15", "both"], ["2027-04-16", "cl24"], ["2027-04-17", "off"], ["2027-04-18", "off"], ["2027-04-19", "both"], ["2027-04-20", "both"], ["2027-04-21", "her"], ["2027-04-22", "cl"], ["2027-04-23", "cl"], ["2027-04-24", "off"], ["2027-04-25", "off"], ["2027-04-26", "both"], ["2027-04-27", "cl24"], ["2027-04-28", "her"], ["2027-04-29", "both"], ["2027-04-30", "cl24"], ["2027-05-01", "off"], ["2027-05-02", "off"], ["2027-05-03", "cl"], ["2027-05-04", "both"], ["2027-05-05", "both"], ["2027-05-06", "her"], ["2027-05-07", "cl"], ["2027-05-08", "off"], ["2027-05-09", "off"], ["2027-05-10", "off"], ["2027-05-11", "off"], ["2027-05-12", "off"], ["2027-05-13", "off"], ["2027-05-14", "off"], ["2027-05-15", "off"], ["2027-05-16", "off"], ["2027-05-17", "off"], ["2027-05-18", "off"], ["2027-05-19", "off"], ["2027-05-20", "off"], ["2027-05-21", "off"], ["2027-05-22", "off"], ["2027-05-23", "off"], ["2027-05-24", "both"], ["2027-05-25", "cl24"], ["2027-05-26", "her"], ["2027-05-27", "both"], ["2027-05-28", "cl24"], ["2027-05-29", "off"], ["2027-05-30", "off"], ["2027-05-31", "cl"], ["2027-06-01", "both"], ["2027-06-02", "her"], ["2027-06-03", "cl"], ["2027-06-04", "both"], ["2027-06-05", "off"], ["2027-06-06", "off"], ["2027-06-07", "cl24"], ["2027-06-08", "her"], ["2027-06-09", "both"], ["2027-06-10", "both"], ["2027-06-11", "cl24"], ["2027-06-12", "off"], ["2027-06-13", "off"], ["2027-06-14", "her"], ["2027-06-15", "cl"], ["2027-06-16", "both"], ["2027-06-17", "cl"], ["2027-06-18", "both"], ["2027-06-19", "off"], ["2027-06-20", "off"], ["2027-06-21", "both"], ["2027-06-22", "both"], ["2027-06-23", "cl24"], ["2027-06-24", "her"], ["2027-06-25", "cl24"], ["2027-06-26", "off"], ["2027-06-27", "off"], ["2027-06-28", "off"], ["2027-06-29", "off"], ["2027-06-30", "off"], ["2027-07-01", "off"], ["2027-07-02", "off"], ["2027-07-03", "off"], ["2027-07-04", "off"], ["2027-07-05", "both"], ["2027-07-06", "her"], ["2027-07-07", "cl"], ["2027-07-08", "both"], ["2027-07-09", "cl"], ["2027-07-10", "off"], ["2027-07-11", "off"], ["2027-07-12", "cl24"], ["2027-07-13", "her"], ["2027-07-14", "both"], ["2027-07-15", "both"], ["2027-07-16", "cl24"], ["2027-07-17", "off"], ["2027-07-18", "off"], ["2027-07-19", "cl"], ["2027-07-20", "both"], ["2027-07-21", "her"], ["2027-07-22", "cl"], ["2027-07-23", "both"], ["2027-07-24", "off"], ["2027-07-25", "off"], ["2027-07-26", "off"], ["2027-07-27", "off"], ["2027-07-28", "off"], ["2027-07-29", "off"], ["2027-07-30", "off"], ["2027-07-31", "off"], ["2027-08-01", "off"], ["2027-08-02", "off"], ["2027-08-03", "off"], ["2027-08-04", "off"], ["2027-08-05", "off"], ["2027-08-06", "off"], ["2027-08-07", "off"], ["2027-08-08", "off"], ["2027-08-09", "off"], ["2027-08-10", "off"], ["2027-08-11", "off"], ["2027-08-12", "off"], ["2027-08-13", "off"], ["2027-08-14", "off"], ["2027-08-15", "off"], ["2027-08-16", "her"], ["2027-08-17", "cl"], ["2027-08-18", "cl"], ["2027-08-19", "both"], ["2027-08-20", "both"], ["2027-08-21", "off"], ["2027-08-22", "off"], ["2027-08-23", "both"], ["2027-08-24", "cl24"], ["2027-08-25", "her"], ["2027-08-26", "both"], ["2027-08-27", "cl24"], ["2027-08-28", "off"], ["2027-08-29", "off"], ["2027-08-30", "both"], ["2027-08-31", "her"], ["2027-09-01", "cl"], ["2027-09-02", "cl"], ["2027-09-03", "both"], ["2027-09-04", "off"], ["2027-09-05", "off"], ["2027-09-06", "both"], ["2027-09-07", "both"], ["2027-09-08", "her"], ["2027-09-09", "cl"], ["2027-09-10", "cl"], ["2027-09-11", "off"], ["2027-09-12", "off"], ["2027-09-13", "cl"], ["2027-09-14", "both"], ["2027-09-15", "both"], ["2027-09-16", "her"], ["2027-09-17", "cl"], ["2027-09-18", "off"], ["2027-09-19", "off"], ["2027-09-20", "both"], ["2027-09-21", "her"], ["2027-09-22", "cl"], ["2027-09-23", "both"], ["2027-09-24", "cl"], ["2027-09-25", "off"], ["2027-09-26", "off"], ["2027-09-27", "cl"], ["2027-09-28", "both"], ["2027-09-29", "her"], ["2027-09-30", "cl"], ["2027-10-01", "both"], ["2027-10-02", "off"], ["2027-10-03", "off"], ["2027-10-04", "off"], ["2027-10-05", "off"], ["2027-10-06", "off"], ["2027-10-07", "off"], ["2027-10-08", "off"], ["2027-10-09", "off"], ["2027-10-10", "off"], ["2027-10-11", "off"], ["2027-10-12", "off"], ["2027-10-13", "off"], ["2027-10-14", "off"], ["2027-10-15", "off"], ["2027-10-16", "off"], ["2027-10-17", "off"], ["2027-10-18", "her"], ["2027-10-19", "cl"], ["2027-10-20", "both"], ["2027-10-21", "cl"], ["2027-10-22", "both"], ["2027-10-23", "off"], ["2027-10-24", "off"], ["2027-10-25", "both"], ["2027-10-26", "her"], ["2027-10-27", "cl"], ["2027-10-28", "both"], ["2027-10-29", "cl"], ["2027-10-30", "off"], ["2027-10-31", "off"], ["2027-11-01", "cl"], ["2027-11-02", "both"], ["2027-11-03", "her"], ["2027-11-04", "cl"], ["2027-11-05", "both"], ["2027-11-06", "off"], ["2027-11-07", "off"], ["2027-11-08", "both"], ["2027-11-09", "cl"], ["2027-11-10", "both"], ["2027-11-11", "her"], ["2027-11-12", "cl"], ["2027-11-13", "off"], ["2027-11-14", "off"], ["2027-11-15", "her"], ["2027-11-16", "cl"], ["2027-11-17", "cl"], ["2027-11-18", "both"], ["2027-11-19", "both"], ["2027-11-20", "off"], ["2027-11-21", "off"], ["2027-11-22", "off"], ["2027-11-23", "off"], ["2027-11-24", "off"], ["2027-11-25", "off"], ["2027-11-26", "off"], ["2027-11-27", "off"], ["2027-11-28", "off"], ["2027-11-29", "off"], ["2027-11-30", "off"], ["2027-12-01", "off"], ["2027-12-02", "off"], ["2027-12-03", "off"], ["2027-12-04", "off"], ["2027-12-05", "off"], ["2027-12-06", "cl"], ["2027-12-07", "both"], ["2027-12-08", "both"], ["2027-12-09", "her"], ["2027-12-10", "cl"], ["2027-12-11", "off"], ["2027-12-12", "off"], ["2027-12-13", "both"], ["2027-12-14", "her"], ["2027-12-15", "cl"], ["2027-12-16", "both"], ["2027-12-17", "cl"], ["2027-12-18", "off"], ["2027-12-19", "off"], ["2027-12-20", "off"], ["2027-12-21", "off"], ["2027-12-22", "off"], ["2027-12-23", "off"], ["2027-12-24", "off"], ["2027-12-25", "off"], ["2027-12-26", "off"], ["2027-12-27", "off"], ["2027-12-28", "off"], ["2027-12-29", "off"], ["2027-12-30", "off"], ["2027-12-31", "off"]];
+  var MONTHS = ['January','February','March','April','May','June',
+                'July','August','September','October','November','December'];
+  var DOW = ['S','M','T','W','T','F','S'];
+  var LABELS = [
+    [[0,3],[0,17],'Off contract \u2013 New Year\u2019s'],
+    [[1,8],[1,14],'Off contract \u2013 Valentine\u2019s'],
+    [[2,28],[3,4],'Off contract \u2013 Logan birthday'],
+    [[4,9],[4,23],'Off contract \u2013 Belize'],
+    [[5,28],[6,4],'Off contract \u2013 Jamie birthday'],
+    [[6,25],[7,15],'Off contract \u2013 summer break'],
+    [[9,4],[9,17],'Off contract \u2013 Fall break'],
+    [[10,21],[11,5],'Off contract \u2013 Thanksgiving'],
+    [[11,19],[11,31],'Off contract \u2013 Christmas']
+  ];
+
+  var WEEKS = 35, HRS = 15, RATE = 40, YEAR = 2027;
+  function doy(m,d){return Math.round((Date.UTC(YEAR,m,d)-Date.UTC(YEAR,0,1))/86400000);}
+  var cls={}, nClinic=0, nCar=0, nBoth=0;
+  DAYS.forEach(function(x){ cls[x[0]]=x[1];
+    if(x[1]==='cl'||x[1]==='cl24') nClinic++;
+    if(x[1]==='cl') nCar++;
+    if(x[1]==='both') nBoth++; });
+
+  var html='';
+  for (var m=0;m<12;m++){
+    var offset=new Date(Date.UTC(YEAR,m,1)).getUTCDay();
+    var len=new Date(Date.UTC(YEAR,m+1,0)).getUTCDate();
+    html+='<div class="mo"><h2>'+MONTHS[m]+'</h2><div class="dows">';
+    for(var k=0;k<7;k++) html+='<div>'+DOW[k]+'</div>';
+    html+='</div><div class="gridwrap"><div class="days">';
+    for(var o=0;o<offset;o++) html+='<div class="cell blank"></div>';
+    for(var day=1;day<=len;day++){
+      var iso=new Date(Date.UTC(YEAR,m,day)).toISOString().slice(0,10);
+      var t=cls[iso]||'off', c;
+      if(t==='cl')        c='m';
+      else if(t==='cl24') c='m car';
+      else if(t==='her')  c='j';
+      else if(t==='both') c='b';
+      else                c='vac';
+      html+='<div class="cell '+c+'">'+day+'</div>';
+    }
+    html+='</div><div class="overlay" style="grid-template-rows:repeat('+
+          Math.ceil((offset+len)/7)+',1fr)">';
+    LABELS.forEach(function(r){
+      if(r[0][0]!==m) return;
+      var s0=doy(r[0][0],r[0][1]), e0=doy(r[1][0],r[1][1]), first=0;
+      for(var dd=1;dd<=len&&!first;dd++){var nn=doy(m,dd); if(nn>=s0&&nn<=e0) first=dd;}
+      if(!first) return;
+      var ix=offset+first-1, row=Math.floor(ix/7)+1, c1=(ix%7)+1;
+      var span=Math.min(8-c1, e0-doy(m,first)+1);
+      if(c1===1){c1=2;span-=1;}
+      if(span<1) return;
+      html+='<div class="triplab" style="grid-row:'+row+';grid-column:'+
+            c1+'/'+(c1+span)+'">'+r[2]+'</div>';
+    });
+    html+='</div></div></div>';
+  }
+  document.getElementById('months').innerHTML=html;
+
+  var tot=nClinic*HRS;
+  document.getElementById('stats').innerHTML=
+    '<div class="stat"><b>'+nClinic+'</b><span>clinic days, two every contract week</span></div>'+
+    '<div class="stat"><b>'+HRS+'</b><span>clocked hours a day</span></div>'+
+    '<div class="stat"><b>'+tot.toLocaleString()+'</b><span>hours worked</span></div>'+
+    '<div class="stat"><b>'+(tot/WEEKS).toFixed(1)+'</b><span>hours per week over the contract</span></div>'+
+    '<div class="stat"><b>'+WEEKS+'</b><span>contract weeks (8.05 months)</span></div>'+
+    '<div class="stat"><b>17</b><span>weeks off (12 blocks + 5 off contract)</span></div>'+
+    '<div class="stat"><b>'+nCar+'</b><span>clinic days the car is at home</span></div>'+
+    '<div class="stat"><b>'+nBoth+'</b><span>weekdays we are both free</span></div>'+
+    '<div class="stat"><b>$'+Math.round(tot*RATE).toLocaleString()+'</b><span>at $'+RATE+' an hour</span></div>';
+})();
+</script>
