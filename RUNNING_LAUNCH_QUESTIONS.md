@@ -2220,3 +2220,75 @@ Nothing improper -- nonprofits pay below market and the hours are
 genuinely worked -- but a board may balk at putting a physician on
 that line. The role must look like what it is: a physician choosing a
 charity clinic, not a figure reverse-engineered from a payment formula.
+
+## ZERO-CHILDCARE VERSION, corrected (2026-10-25)
+
+Owner: "I only work the days that Jamie's schedule frees up,
+childcare-wise." Correct, and my $33,200 ledger wrongly carried 68
+childcare days. Model: `tools/fchc_zero_care.py`.
+
+83 Jamie-free weekdays outside the blocks. **Childcare = $0.**
+
+### The cost moves into PAID LEAVE WEEKS
+
+PSLF still needs 1,560 paid hours, so whatever is not worked must be
+granted as leave:
+
+| hrs/day | worked | leave hrs | **leave weeks needed** | away | days/wk |
+|---------|--------|-----------|------------------------|------|---------|
+| 10 | 830 | 730 | **24.3** | 12.5 | 3.0 |
+| 12 | 996 | 564 | **18.8** | 14.5 | 2.5 |
+| 13 | 1,079 | 481 | **16.0** | 15.5 | 2.3 |
+| **14.5** | 1,204 | 356 | **11.9** | 17.0 | 2.1 |
+
+**The owner's stated 12 weeks only works at 14.5-hour days.** Every
+hour the day shortens, more paid leave has to be granted: 19 weeks at
+12 hours, 24 weeks at 10.
+
+### Money with childcare at zero
+
+| salary | $/hr | tax | IBR | car | other | SAVED | vs floor |
+|--------|------|-----|-----|-----|-------|-------|----------|
+| 33,200 | 21.28 | 5,170 | **0** | 9,246 | 8,090 | **10,695** | -14,305 |
+| 45,000 | 28.85 | 8,196 | **0** | 9,246 | 8,090 | 19,468 | -5,532 |
+| **55,000** | 35.26 | 10,762 | 678 | 9,246 | 8,090 | **26,225** | **+1,225** |
+| 65,000 | 41.67 | 13,371 | 1,678 | 9,246 | 8,090 | **32,616** | +7,616 |
+
+**Floor-clearing salary with no childcare: $53,096 ($34.04/hr).**
+$33,200 is still $14,305 short -- the car ($9,246) and fixed household
+lines ($8,090) eat over half of it -- but far better than the -$9,751
+I had shown with childcare wrongly included.
+
+$0 IBR holds up to $48,225. Clearing the floor needs $53,096, where
+the payment is ~$730/yr. Not worth contorting the salary to stay under
+the threshold.
+
+### FCHC's side, 83 days
+
+| salary | pts/day | encounters | $/enc | % @$90 | @$103 |
+|--------|---------|-----------|-------|--------|-------|
+| 33,200 | 20 | 1,660 | 21.80 | 24% | 21% |
+| **55,000** | **20** | 1,660 | 36.11 | **40%** | 35% |
+| 55,000 | 24 | 1,992 | 30.10 | 33% | 29% |
+| 65,000 | 20 | 1,660 | 42.68 | 47% | 41% |
+
+### THE ASK
+
+**0.75 FTE, 30 hrs/wk averaged, work only the days Jamie is home,
+$55,000.** Clears the floor by $1,225 with zero childcare; FCHC pays
+40% of collections; $35.26/hr against the director's $66.97.
+
+**Decide before asking: 12-hour days with 19 weeks paid leave, or
+14.5-hour days with the stated 12 weeks.** Nineteen weeks of paid
+leave on a 0.75 FTE is an unusual contract term and a board may balk
+at the optics even though the hours are genuine. 14.5-hour days keep
+the leave normal but mean 5am to 10pm, twice a week.
+
+### The non-money cost, and it is the real one
+
+Jamie's calendar lands **one month out, not a year**, so FCHC gets the
+days a month ahead. Routine primary care often books 2-6 weeks out, so
+a month may genuinely work, but that is **their** judgement. It also
+means **six weeks a year with no clinic at all** and weeks swinging
+from zero to five clinic days. That is the part they have to absorb
+and the thing to put in front of them honestly.
