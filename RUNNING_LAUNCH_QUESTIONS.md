@@ -2424,3 +2424,49 @@ room to drop to 16 patients later without touching the salary.
 Money by salary, zero childcare: $45,000 -> $19,468; $50,000 ->
 $23,008; **$53,096 -> $25,000**; $55,000 -> $26,225; $60,000 ->
 $29,423; $78,000 -> $39,728.
+
+## Two meanings of 0.75 FTE, and why only one survives (2026-10-25)
+
+Owner's observation: 12/52 = 0.23, so 40 weeks worked = 0.77.
+
+**(a) Fewer hours, all year.** 30 hrs/wk x 52 = 1,560 paid hours. The
+12 weeks are paid leave, and leave must count toward the 30.
+
+**(b) Full weeks, fewer of them.** 40 hrs/wk x 40 wks = **1,600 WORKED
+hours = 30.77/wk.** Clears 30 on worked time alone, so nothing rests
+on how the form is read. **The cleaner structure, and impossible:**
+
+1,600 hrs / 83 clinic days = **19.3 hours per clinic day.** To make
+(b) work: 160 days at 10 hrs (**+77** beyond Jamie's 83), 133 at 12
+hrs (+50), 114 at 14 hrs (+31). **The 83-day ceiling kills it, and the
+only way to buy those days is childcare -- which the owner has ruled
+out.**
+
+### So (a) it is, and the day length sets the leave figure
+
+| clinic hrs/day | clinic hrs | admin for 12 wks leave | leave at real 2.5h admin |
+|----------------|-----------|------------------------|--------------------------|
+| **10** | 830 | **4.5/day** not credible | **17.4 weeks** |
+| 11 | 913 | 3.5/day | 14.7 weeks |
+| **12** | 996 | **2.5/day** credible | **11.9 weeks** |
+| 13 | 1,079 | 1.5/day | 9.1 weeks |
+
+**At the preferred 10-hour day the leave lands near 17 weeks, which is
+five MORE weeks of paid time off than twelve, not five fewer.** The
+twelve blocks are kept and the scattered weekdays Jamie is on shift
+are paid as well.
+
+### The choice, and the resolution
+
+- **10-hour days, ~17 weeks leave on paper.** Out 12.5 hrs, home 6:45.
+- **12-hour days, 12 weeks leave on paper.** Out 14.5 hrs, home 8:15.
+
+**Take the 10-hour day and solve the paper problem with wording:
+"0.75 FTE, 30 hours per week annualized, schedule provided
+quarterly."** No leave figure appears, nobody defends seventeen weeks,
+and certification is identical: an Authorized Official writes 30
+hrs/week because the contract says 30 hrs/week.
+
+**STANDING TARGET: $55,000, 0.75 FTE annualized, quarterly schedule,
+10-hour clinic days on Jamie-free days, 20 patients at 30-min slots,
+zero childcare, 12 real weeks off, $26,225 saved.**
