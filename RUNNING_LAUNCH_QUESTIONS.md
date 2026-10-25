@@ -1865,3 +1865,77 @@ UNSET.** At $90 the floor-clearing rate leaves them $12,093 (4.8%);
 at $110 it leaves $40,293 (13.0%). Same work, same rate, triple the
 surplus. **Get this number before negotiating** -- it decides whether
 the ask is "accept 5%" or "here is 13%."
+
+## NO-NANNY VERSION: dominated, but worth having tested (2026-10-25)
+
+Owner asked to test 3 days/week, 12 patients/day, $50/hr, 12 clocked
+hours, **working only days Jamie's schedule frees, no nanny at all.**
+Model: `tools/fchc_no_nanny.py`.
+
+### Jamie's schedule does not free three days a week
+
+| | |
+|---|---|
+| weekdays outside the 12 weeks off | 201 |
+| of those, Jamie free (no shift/post-call/backup) | **83** |
+| capped at 3/week | **76 clinic days** |
+| average per working week | **1.9**, not 3 |
+
+Distribution: 11 weeks with 3 days, 20 with 2, 3 with 1, **6 with
+none.** Unbookable as a clinic schedule, and her calendar lands one
+month out so FCHC would learn the days a month ahead.
+
+### PSLF fails by a wide margin
+
+76 x 12 = **912 worked hours = 17.54 hr/wk** against 30 required.
+Reaching 1,560 needs **130 clinic days** (or 20.5-hour days). Jamie
+frees 76. **The 54-day gap is exactly what the nanny was buying --
+she is the mechanism in this plan, not a convenience.**
+
+### FCHC cannot pay for 12 patients in 12 hours
+
+$654 loaded/day / 12 patients = **$54.50 per encounter = 53-61% of
+collections** against a 35-45% norm. At 50% overhead they would LOSE
+$2,750-8,664 on the role. The rate is not the problem:
+
+| patients in 12 hrs | slot | $/enc | % of collections |
+|--------------------|------|-------|------------------|
+| 12 | 60 min | 54.50 | 53-61% unaffordable |
+| 16 | 45 min | 40.88 | 40-45% top of band |
+| **20** | **36 min** | **32.70** | **32-36% fine** |
+| 24 | 30 min | 27.25 | 26-30% |
+
+**Keep $50 and 12 hours, book 20 patients.** The patient count was
+the problem.
+
+### The household side is the best of any version
+
+| | |
+|---|---|
+| 76 days x 12 hrs x $50 | 45,600 |
+| tax + FICA | -8,350 |
+| IBR | -0 |
+| **childcare** | **0** |
+| car, 8,360 mi | -9,094 |
+| tolls/disability/life/licence/meals | -8,020 |
+| **SAVED** | **20,135** |
+| vs floor | -4,865 |
+
+$490 take-home per clinic day, all of it kept. Jamie always home with
+the children on clinic days.
+
+### Verdict: dominated, not a compromise
+
+No nanny saves ~$28,000/yr, ~$224,000 over the window. Losing PSLF
+costs ~$576,000 ($589,396 on pre-2014 IBR with the tax bomb versus
+$13,420 under PSLF). Worse on the arithmetic AND on the goal.
+
+**And if PSLF is being given up, there is no reason to drive to
+Fredericksburg at all** -- the solo practice earns far more than
+$45,600 with no 110-mile round trip. That is the honest no-PSLF path.
+
+If the forgiveness is wanted: ~130 clinic days, which means buying
+care on about 54 of them. There is no version with both.
+
+Calendar: Version 38 shows this scenario -- two colours, **zero
+dots**, 76 green days averaging 1.9 a week with six empty weeks.
