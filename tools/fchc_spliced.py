@@ -39,3 +39,20 @@ print(f"  - {need/len(OPEN):.2f} clocked hours per day instead of {HRS} "
 print(f"  - {gap/active:.1f} h/week of paid admin across the {active} working weeks "
       f"({gap:,.0f} h/yr)")
 print(f"\nAt ${RATE:.0f}/h, {need:,.0f} paid hours = ${need*RATE:,.0f}")
+
+# ---- the denominator is the whole ballgame ----------------------------
+print("\n" + "="*66)
+print("A LONGER CONTRACT PERIOD RAISES THE BAR. It does not lower it.")
+print("="*66)
+TOT=len(OPEN)*12.5
+print(f"83 days at 12.5 clocked hours = {TOT:,.1f} hours.\n")
+for wks,lbl in [(34.32,"8 months, aggregated working weeks"),
+                (40,"9 months / 40 weeks"),
+                (52.18,"the whole year")]:
+    need=30*wks
+    print(f"  {lbl:<36} needs {need:>6,.0f} h -> {TOT/wks:>5.1f} h/wk "
+          f"{'OK' if TOT>=need else 'SHORT by %.0f h'%(need-TOT)}")
+print("\n  Eight months is a FLOOR on how long the period must be.")
+print("  It is not a divisor to choose. Whatever the contract says the")
+print("  period is, that is what the hours are averaged over, so the")
+print("  shortest period that still clears 8 months is the best one.")
