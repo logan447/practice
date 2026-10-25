@@ -1,6 +1,6 @@
 # The FCHC plan
 
-*Settled 2026-10-25. House Style applies. Every figure traces to a
+*Settled 2026-10-25, timeline added 2026-10-25. House Style applies. Every figure traces to a
 model in `tools/`. Items marked UNSET are not confirmed.*
 
 ---
@@ -46,27 +46,38 @@ move between the two cases.
 | share of collections at $90 | 38% | 30% |
 | share at $103 | 33% | 26% |
 
-Primary care normally runs physician pay at 35 to 45 percent of
-collections. Sixteen a day sits inside that. Twenty sits below it.
+I could not source a published band for physician pay as a share of
+collections. MGMA tracks the ratio but the percentiles are paywalled, so
+that comparison is out of the document until the clinic or I can buy the
+figure. What stands on its own is the direction: twenty a day costs the
+clinic a smaller share than sixteen, and my salary does not move.
 
 ## What the clinic keeps
 
-After overhead at half of collections, and after paying me:
+Overhead here is **marginal**, at 40 percent of collections, not the
+~60 percent family medicine averages (EST, derived from AAFP). Rent,
+records, management and the front desk do not change because I am there
+on a Tuesday. After that overhead and after paying me:
 
 | | at $90 a visit | at $103 a visit |
 |---|---|---|
-| 16 a day | $14,525 | $23,137 |
-| 20 a day | **$29,465** | **$40,230** |
+| 16 a day | $26,477 | $36,811 |
+| 20 a day | **$44,405** | **$57,323** |
 
-The clinic's whole surplus last year was $21,133.
+Stated as the return on what I cost, which is the number to carry into
+the conversation: **59 cents, 81 cents, 98 cents, $1.27** of retained
+margin per dollar of my loaded cost.
 
-Growing from sixteen to twenty adds about $15,000 to $17,000 of
+The clinic's whole surplus last year was $21,133 on $1,643,163 of
+revenue, a 1.3 percent margin (FACT, Form 990 FY2024, EIN 54-2061482).
+
+Growing from sixteen to twenty adds about $18,000 to $20,500 of
 surplus and costs the clinic nothing, because my salary is fixed. All
 of the upside from a fuller schedule stays with the clinic.
 
-If we do reach twenty, the clinic could fund a salary of about $54,826
-at 40 percent of collections and still keep its margin. That is a
-conversation for later, not a condition now.
+If we do reach twenty, there is room to revisit the salary and still
+leave the clinic ahead. That is a conversation for later, not a
+condition now.
 
 My rate works out to $26.60 an hour of paid time. The medical
 director's is $66.97.
@@ -81,8 +92,20 @@ income-driven payment is $0, and a $0 payment still counts. So I reach
 forgiveness having paid nothing, and about $490,000 is written off
 tax free.
 
-Starting the role in January 2027 puts forgiveness in May 2035. Each
-year I wait moves it a year out.
+**The start date is 1 June 2028, not January 2027.** The schedule above
+is built for the years when we expect young children at home, which
+begin in 2029, and starting a quarter early leaves room to find the
+problems before the schedule has to hold.
+
+That timing has a cost I should not hide from myself. The current hourly
+arrangement is about 16 hours a week, which is under the 30-hour test, so
+the months from January 2027 through May 2028 are unlikely to produce
+qualifying payments. Counting 100 payments from June 2028 puts
+forgiveness around **September 2036** rather than spring 2035 (EST,
+assumes no other qualifying employment in the interim and no break in
+payments). That is roughly sixteen months later. If that delay is not
+acceptable, the lever is to start the salaried role earlier, not to
+change anything else in this plan.
 
 After everything, our household saves about $16,866 a year. I wanted
 $25,000. I am choosing the forgiveness.
@@ -97,6 +120,20 @@ If my contract says 0.75 FTE at 30 hours a week, you enter 30 and I
 qualify. If it says a day rate or an hourly rate, a timesheet shows
 about 16 hours a week and I do not. Same money, same work, different
 outcome.
+
+## Between now and then
+
+| | |
+|---|---|
+| January 2027 | Current hourly arrangement continues. Tracking begins. |
+| October 2027 | First check. Are collections and volume where they need to be? |
+| January 2028 | Decide, and write the contract if the answer is yes. |
+| 1 June 2028 | Salaried position begins. |
+| August 2028 | Review the first quarter, then each August after. |
+
+The two things being tracked are the two UNSET inputs below. If October
+2027 says they do not hold, we do not do this and the hourly arrangement
+continues.
 
 ## Still open
 

@@ -357,3 +357,37 @@ appears in the hero, so the seen-the-number principle still holds).
 **Revisit triggers:** launch-city facts landing ([City], service
 area, licensure), counsel/TMB review outcomes, scheduler and portal
 vendor selection, first real conversion data.
+
+## D-036 — FCHC salaried role, start 1 June 2028 (2026-10-25)
+
+The ask to FCHC is a **salaried position at 0.75 FTE, 30 hours per week
+annualized, $41,500 a year**, schedule given quarterly, about 83 ten-hour
+clinic days placed only on the weekdays Jamie is already home. Sixteen
+patients a day base case, twenty as upside. Twelve weeks off. No paid
+childcare. Full model in `docs/fchc/the-plan.md`; the document that goes
+to the clinic is `docs/fchc/FCHC-proposal.docx`.
+
+**Start date is 1 June 2028, not January 2027.** The schedule is built
+for the years with young children at home, which begin in 2029, and a
+quarter of runway before that lets the problems surface first. January
+2027 through May 2028 continues the current hourly arrangement while two
+UNSET inputs get tracked: the clinic's actual collection per encounter,
+and whether demand supports sixteen patients in a ten-hour day.
+
+The wording of the contract is the part that carries the PSLF outcome. A
+day rate or an hourly rate puts about 16 hours a week on a timesheet and
+fails the 30-hour test. 0.75 FTE at 30 hours per week annualized reports
+30 directly, counting leave as the form instructs.
+
+**Known cost of the later start:** the interim hourly months are under
+30 hours a week and so are unlikely to produce qualifying payments, which
+moves forgiveness from roughly spring 2035 to roughly September 2036
+(EST). Accepted in exchange for a schedule that holds once the children
+are home.
+
+**Revisit triggers:** the October 2027 check on collections and volume;
+any FCHC counter on salary, FTE wording or schedule control; a change in
+Jamie's work pattern that moves the 83 free weekdays; confirmation of the
+payment count with the servicer; a sourced figure for physician pay as a
+share of collections, which is currently paywalled and therefore absent
+from the document.
