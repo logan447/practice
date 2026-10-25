@@ -178,54 +178,29 @@ outcome.
 
 ## What goes in the document
 
-**One page. Everything on it, including the example year.** 41 words,
-two figures, no footnotes, no page break.
+One page, 50 words, two figures. Title, one sentence, the timeline
+figure, then the example year.
 
-- The title, the byline, and one sentence, owner's wording: "Transition
-  to a 0.75 FTE salaried position at $41,500 annually beginning June 1,
-  2028, while maintaining the current hourly arrangement until then to
-  demonstrate sufficient demand and financial viability."
-- One combined figure (`docs/fchc/timeline-figure.html`): the timeline
-  across 2027 and 2028 with the three milestones, and directly beneath
-  it, tied to the same two bars, what the arrangement is now and what it
-  becomes on 1 June 2028. The old separate now/then table is folded into
-  this.
-- The example year calendar, under a plain heading.
+The sentence, owner's wording adapted to the contract shape:
+"Transition to a 35-week contract of 83 clinic days a year at 13
+clocked hours and $50 per hour, beginning June 1, 2028, while
+maintaining the current hourly arrangement until then to demonstrate
+sufficient demand and financial viability."
 
-**The vacation strip is gone.** It said the same thing as the grey weeks
-in the calendar. Redundant, so it came out.
+The timeline figure shows the current arrangement running to May 2028
+with the October 2027, January 2028 and August 2028 milestones, and
+the contract terms aligned under the bar that begins in June 2028.
+Source `docs/fchc/timeline-figure.html`.
 
-**The clinic economics are not in the document** (see iteration 10
-below). `tools/fchc_roi.py` holds the break-even work for the
-negotiating table.
+The example year is generated from `tools/fchc_schedule_2029.py`, the
+same model as the coverage artifact, so the two agree: 83 green days,
+1,079 hours, 30.83 a week. Its three keys are "In clinic", "In town"
+and "Weekends and time off". The five weeks outside the contract read
+as time off; the clinic does not need to know why.
 
-**The salary and the market comparison are not in the document either.**
-Owner deleted them 2026-10-25. The salary still appears once, in the
-opening sentence, as part of the ask.
-
-**The PSLF wording risk stands, and iteration 12 raised it.** Owner
-direction, 2026-10-25, put "$50 per hour" into the figure alongside
-"Salary, 0.75 FTE, 83 days per year, 10 hours per day". Two
-consequences:
-
-1. The document now states an hourly rate, which is the framing that
-   fails the 30-hour test if it reaches the contract. **A contract that
-   comes back phrased as a day rate or an hourly rate must be caught and
-   corrected**, most likely in January 2028.
-2. The arithmetic is now visible. 83 days at 10 hours is 830 clinic
-   hours, and $41,500 over 830 is exactly $50. But 0.75 FTE at 30 hours
-   a week is about 1,560 hours a year, which is $26.60 an hour. A
-   reader who multiplies may ask how 830 hours is 0.75 FTE. The answer
-   is the one the PSLF form already gives: leave counts at the
-   contracted weekly rate. We should have that answer ready rather than
-   be surprised by the question.
-
-The phrase "30 hours per week annualized" no longer appears in the
-figure, only "0.75 FTE". It is worth confirming that the contract still
-carries the full phrase.
-
-**The calendar legend reads "In clinic", "In town", "Weekends and time
-off".**
+**Not in the document:** the clinic's economics, PSLF, the salary
+total, and any market comparison. All removed on owner direction and
+recorded below.
 
 ## Between now and then
 

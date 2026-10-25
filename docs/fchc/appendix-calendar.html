@@ -1,83 +1,46 @@
 <!doctype html><meta charset="utf-8">
 <style>
 :root{--ink:#15181d;--muted:#5f6874;--base:#eef1f0;
-      --clin:#1d7a5c;--clin-ink:#fff;--home:#e0d2bb;--home-ink:#6b5c45;
-      --off:#e3e8e6;--off-ink:#8e9896}
+      --cl:#1d7a5c;--in:#e0d2bb;--in-ink:#6b5c45;--off:#e3e8e6;--off-ink:#8e9896}
 body{background:#fff;color:var(--ink);margin:0;
-     font:15px/1.5 system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+     font:15px/1.5 Arial,Helvetica,sans-serif}
 .wrap{width:1120px;padding:2px 0 6px}
-h1{font-size:25px;font-weight:650;margin:0 0 12px;letter-spacing:-.01em;color:var(--clin)}
 .keys{display:flex;gap:26px;align-items:center;margin-bottom:14px}
 .key{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--muted)}
 .sw{width:19px;height:19px;border-radius:4px;flex:none}
 .months{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 .mo{background:var(--base);border-radius:10px;padding:11px}
-.mo h2{font-size:12px;font-weight:650;letter-spacing:.06em;text-transform:uppercase;
+.mo h2{font-size:12px;font-weight:bold;letter-spacing:.06em;text-transform:uppercase;
        margin:0 0 7px;color:var(--muted)}
 .dows,.days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .dows div{font-size:9.5px;text-align:center;padding-bottom:3px;color:var(--muted)}
 .cell{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;
-      justify-content:center;font-size:10.5px;font-variant-numeric:tabular-nums}
+      justify-content:center;font-size:10.5px}
 .blank{background:none}
-.clin{background:var(--clin);color:var(--clin-ink);font-weight:650}
-.home{background:var(--home);color:var(--home-ink)}
+.cl{background:var(--cl);color:#fff;font-weight:bold}
+.in{background:var(--in);color:var(--in-ink)}
 .off{background:var(--off);color:var(--off-ink)}
 </style>
 <div class="wrap">
   <div class="keys">
-    <span class="key"><span class="sw" style="background:var(--clin)"></span>In clinic</span>
-    <span class="key"><span class="sw" style="background:var(--home)"></span>In town</span>
+    <span class="key"><span class="sw" style="background:var(--cl)"></span>In clinic</span>
+    <span class="key"><span class="sw" style="background:var(--in)"></span>In town</span>
     <span class="key"><span class="sw" style="background:var(--off)"></span>Weekends and time off</span>
   </div>
   <div class="months" id="months"></div>
 </div>
 <script>
-(function(){
-  var TYPE=[]; for(var i=0;i<52;i++) TYPE[i]='med';
-  [3,14,25,36,47].forEach(function(i){TYPE[i]='backup';});
-  [8,21,41].forEach(function(i){TYPE[i]='three';});
-  [1,5,10,16,19,24,29,33,38,44,49].forEach(function(i){TYPE[i]='two';});
-  [12,27].forEach(function(i){TYPE[i]='light';});
-  var MED=[{a:[5],b:[0]},{a:[1],b:[4]},{a:[6],b:[2]},{a:[3],b:[0]},{a:[0],b:[3]}],
-      TWO=[{a:[0,3],b:[]},{a:[1,4],b:[]},{a:[2,5],b:[]},{a:[0,4],b:[]}],
-      THREE=[{a:[0,2,4],b:[]},{a:[1,3,5],b:[]}], LIGHT=[{a:[2],b:[]}];
-  var busy=new Array(366).fill(false), nM=0,nT=0,nTh=0,nL=0;
-  for(var w=0;w<52;w++){
-    var t=TYPE[w],plan;
-    if(t==='backup'){for(var d=0;d<7;d++) busy[w*7+d]=true; continue;}
-    if(t==='med') plan=MED[nM++%MED.length];
-    if(t==='two') plan=TWO[nT++%TWO.length];
-    if(t==='three') plan=THREE[nTh++%THREE.length];
-    if(t==='light') plan=LIGHT[nL++%LIGHT.length];
-    plan.a.forEach(function(d){busy[w*7+d]=true; if(w*7+d+1<366) busy[w*7+d+1]=true;});
-    plan.b.forEach(function(d){busy[w*7+d]=true;});
-  }
-  var VAC=[[[0,1],[0,13]],[[3,1],[3,7]],[[4,6],[4,19]],
-           [[6,22],[7,11]],[[10,18],[11,1]],[[11,16],[11,31]]];
-  function doy(m,d){return Math.round((Date.UTC(2029,m,d)-Date.UTC(2029,0,1))/86400000);}
-  var off=new Array(366).fill(false);
-  VAC.forEach(function(r){for(var k=doy(r[0][0],r[0][1]);k<=doy(r[1][0],r[1][1]);k++) off[k]=true;});
-  VAC.forEach(function(r){var s=doy(r[0][0],r[0][1]),e=doy(r[1][0],r[1][1]);
-    var sync=Math.round((e-s+1)*0.7); for(var k=s;k<s+sync;k++) busy[k]=false;});
-  var MONTHS=['January','February','March','April','May','June','July','August',
-              'September','October','November','December'], DOW=['S','M','T','W','T','F','S'];
-  var html='';
-  for(var m=0;m<12;m++){
-    var offset=new Date(Date.UTC(2029,m,1)).getUTCDay(),
-        len=new Date(Date.UTC(2029,m+1,0)).getUTCDate();
-    html+='<div class="mo"><h2>'+MONTHS[m]+'</h2><div class="dows">';
-    for(var k=0;k<7;k++) html+='<div>'+DOW[k]+'</div>';
-    html+='</div><div class="days">';
-    for(var o=0;o<offset;o++) html+='<div class="cell blank"></div>';
-    for(var day=1;day<=len;day++){
-      var wd=new Date(Date.UTC(2029,m,day)).getUTCDay(), n=doy(m,day), cls;
-      if(wd>=1&&wd<=5&&!off[n]&&!busy[n]) cls='clin';
-      else if(wd>=1&&wd<=5&&!off[n])      cls='home';
-      else                                 cls='off';
-      html+='<div class="cell '+cls+'">'+day+'</div>';
-    }
-    html+='</div></div>';
-  }
-  document.getElementById('months').innerHTML=html;
-})();
+var D={"days": [["2029-01-01", "off"], ["2029-01-02", "off"], ["2029-01-03", "off"], ["2029-01-04", "off"], ["2029-01-05", "off"], ["2029-01-06", "off"], ["2029-01-07", "off"], ["2029-01-08", "off"], ["2029-01-09", "off"], ["2029-01-10", "off"], ["2029-01-11", "off"], ["2029-01-12", "off"], ["2029-01-13", "off"], ["2029-01-14", "off"], ["2029-01-15", "cl"], ["2029-01-16", "in"], ["2029-01-17", "in"], ["2029-01-18", "cl"], ["2029-01-19", "in"], ["2029-01-20", "off"], ["2029-01-21", "off"], ["2029-01-22", "in"], ["2029-01-23", "in"], ["2029-01-24", "in"], ["2029-01-25", "in"], ["2029-01-26", "in"], ["2029-01-27", "off"], ["2029-01-28", "off"], ["2029-01-29", "cl"], ["2029-01-30", "cl"], ["2029-01-31", "in"], ["2029-02-01", "cl"], ["2029-02-02", "cl"], ["2029-02-03", "off"], ["2029-02-04", "off"], ["2029-02-05", "in"], ["2029-02-06", "in"], ["2029-02-07", "in"], ["2029-02-08", "cl"], ["2029-02-09", "in"], ["2029-02-10", "off"], ["2029-02-11", "off"], ["2029-02-12", "in"], ["2029-02-13", "cl"], ["2029-02-14", "cl"], ["2029-02-15", "in"], ["2029-02-16", "in"], ["2029-02-17", "off"], ["2029-02-18", "off"], ["2029-02-19", "in"], ["2029-02-20", "in"], ["2029-02-21", "cl"], ["2029-02-22", "in"], ["2029-02-23", "cl"], ["2029-02-24", "off"], ["2029-02-25", "off"], ["2029-02-26", "cl"], ["2029-02-27", "cl"], ["2029-02-28", "in"], ["2029-03-01", "in"], ["2029-03-02", "cl"], ["2029-03-03", "off"], ["2029-03-04", "off"], ["2029-03-05", "in"], ["2029-03-06", "cl"], ["2029-03-07", "cl"], ["2029-03-08", "cl"], ["2029-03-09", "cl"], ["2029-03-10", "off"], ["2029-03-11", "off"], ["2029-03-12", "cl"], ["2029-03-13", "cl"], ["2029-03-14", "in"], ["2029-03-15", "in"], ["2029-03-16", "cl"], ["2029-03-17", "off"], ["2029-03-18", "off"], ["2029-03-19", "cl"], ["2029-03-20", "in"], ["2029-03-21", "in"], ["2029-03-22", "cl"], ["2029-03-23", "in"], ["2029-03-24", "off"], ["2029-03-25", "off"], ["2029-03-26", "off"], ["2029-03-27", "off"], ["2029-03-28", "off"], ["2029-03-29", "off"], ["2029-03-30", "off"], ["2029-03-31", "off"], ["2029-04-01", "off"], ["2029-04-02", "off"], ["2029-04-03", "off"], ["2029-04-04", "off"], ["2029-04-05", "off"], ["2029-04-06", "off"], ["2029-04-07", "off"], ["2029-04-08", "off"], ["2029-04-09", "off"], ["2029-04-10", "off"], ["2029-04-11", "off"], ["2029-04-12", "off"], ["2029-04-13", "off"], ["2029-04-14", "off"], ["2029-04-15", "off"], ["2029-04-16", "in"], ["2029-04-17", "cl"], ["2029-04-18", "cl"], ["2029-04-19", "in"], ["2029-04-20", "in"], ["2029-04-21", "off"], ["2029-04-22", "off"], ["2029-04-23", "in"], ["2029-04-24", "in"], ["2029-04-25", "cl"], ["2029-04-26", "cl"], ["2029-04-27", "in"], ["2029-04-28", "off"], ["2029-04-29", "off"], ["2029-04-30", "in"], ["2029-05-01", "in"], ["2029-05-02", "cl"], ["2029-05-03", "in"], ["2029-05-04", "cl"], ["2029-05-05", "off"], ["2029-05-06", "off"], ["2029-05-07", "off"], ["2029-05-08", "off"], ["2029-05-09", "off"], ["2029-05-10", "off"], ["2029-05-11", "off"], ["2029-05-12", "off"], ["2029-05-13", "off"], ["2029-05-14", "off"], ["2029-05-15", "off"], ["2029-05-16", "off"], ["2029-05-17", "off"], ["2029-05-18", "off"], ["2029-05-19", "off"], ["2029-05-20", "off"], ["2029-05-21", "cl"], ["2029-05-22", "in"], ["2029-05-23", "in"], ["2029-05-24", "cl"], ["2029-05-25", "in"], ["2029-05-26", "off"], ["2029-05-27", "off"], ["2029-05-28", "cl"], ["2029-05-29", "in"], ["2029-05-30", "in"], ["2029-05-31", "in"], ["2029-06-01", "in"], ["2029-06-02", "off"], ["2029-06-03", "off"], ["2029-06-04", "cl"], ["2029-06-05", "cl"], ["2029-06-06", "in"], ["2029-06-07", "cl"], ["2029-06-08", "cl"], ["2029-06-09", "off"], ["2029-06-10", "off"], ["2029-06-11", "in"], ["2029-06-12", "cl"], ["2029-06-13", "cl"], ["2029-06-14", "in"], ["2029-06-15", "in"], ["2029-06-16", "off"], ["2029-06-17", "off"], ["2029-06-18", "cl"], ["2029-06-19", "in"], ["2029-06-20", "in"], ["2029-06-21", "cl"], ["2029-06-22", "in"], ["2029-06-23", "off"], ["2029-06-24", "off"], ["2029-06-25", "off"], ["2029-06-26", "off"], ["2029-06-27", "off"], ["2029-06-28", "off"], ["2029-06-29", "off"], ["2029-06-30", "off"], ["2029-07-01", "off"], ["2029-07-02", "in"], ["2029-07-03", "in"], ["2029-07-04", "cl"], ["2029-07-05", "in"], ["2029-07-06", "cl"], ["2029-07-07", "off"], ["2029-07-08", "off"], ["2029-07-09", "cl"], ["2029-07-10", "cl"], ["2029-07-11", "in"], ["2029-07-12", "in"], ["2029-07-13", "cl"], ["2029-07-14", "off"], ["2029-07-15", "off"], ["2029-07-16", "in"], ["2029-07-17", "cl"], ["2029-07-18", "cl"], ["2029-07-19", "cl"], ["2029-07-20", "cl"], ["2029-07-21", "off"], ["2029-07-22", "off"], ["2029-07-23", "off"], ["2029-07-24", "off"], ["2029-07-25", "off"], ["2029-07-26", "off"], ["2029-07-27", "off"], ["2029-07-28", "off"], ["2029-07-29", "off"], ["2029-07-30", "off"], ["2029-07-31", "off"], ["2029-08-01", "off"], ["2029-08-02", "off"], ["2029-08-03", "off"], ["2029-08-04", "off"], ["2029-08-05", "off"], ["2029-08-06", "off"], ["2029-08-07", "off"], ["2029-08-08", "off"], ["2029-08-09", "off"], ["2029-08-10", "off"], ["2029-08-11", "off"], ["2029-08-12", "off"], ["2029-08-13", "in"], ["2029-08-14", "cl"], ["2029-08-15", "cl"], ["2029-08-16", "in"], ["2029-08-17", "in"], ["2029-08-18", "off"], ["2029-08-19", "off"], ["2029-08-20", "in"], ["2029-08-21", "in"], ["2029-08-22", "cl"], ["2029-08-23", "cl"], ["2029-08-24", "in"], ["2029-08-25", "off"], ["2029-08-26", "off"], ["2029-08-27", "in"], ["2029-08-28", "in"], ["2029-08-29", "cl"], ["2029-08-30", "in"], ["2029-08-31", "cl"], ["2029-09-01", "off"], ["2029-09-02", "off"], ["2029-09-03", "in"], ["2029-09-04", "cl"], ["2029-09-05", "cl"], ["2029-09-06", "cl"], ["2029-09-07", "cl"], ["2029-09-08", "off"], ["2029-09-09", "off"], ["2029-09-10", "off"], ["2029-09-11", "off"], ["2029-09-12", "off"], ["2029-09-13", "off"], ["2029-09-14", "off"], ["2029-09-15", "off"], ["2029-09-16", "off"], ["2029-09-17", "cl"], ["2029-09-18", "in"], ["2029-09-19", "in"], ["2029-09-20", "cl"], ["2029-09-21", "in"], ["2029-09-22", "off"], ["2029-09-23", "off"], ["2029-09-24", "in"], ["2029-09-25", "in"], ["2029-09-26", "cl"], ["2029-09-27", "in"], ["2029-09-28", "in"], ["2029-09-29", "off"], ["2029-09-30", "off"], ["2029-10-01", "cl"], ["2029-10-02", "cl"], ["2029-10-03", "in"], ["2029-10-04", "cl"], ["2029-10-05", "cl"], ["2029-10-06", "off"], ["2029-10-07", "off"], ["2029-10-08", "in"], ["2029-10-09", "cl"], ["2029-10-10", "cl"], ["2029-10-11", "in"], ["2029-10-12", "in"], ["2029-10-13", "off"], ["2029-10-14", "off"], ["2029-10-15", "off"], ["2029-10-16", "off"], ["2029-10-17", "off"], ["2029-10-18", "off"], ["2029-10-19", "off"], ["2029-10-20", "off"], ["2029-10-21", "off"], ["2029-10-22", "in"], ["2029-10-23", "in"], ["2029-10-24", "cl"], ["2029-10-25", "in"], ["2029-10-26", "cl"], ["2029-10-27", "off"], ["2029-10-28", "off"], ["2029-10-29", "in"], ["2029-10-30", "cl"], ["2029-10-31", "cl"], ["2029-11-01", "cl"], ["2029-11-02", "cl"], ["2029-11-03", "off"], ["2029-11-04", "off"], ["2029-11-05", "cl"], ["2029-11-06", "in"], ["2029-11-07", "in"], ["2029-11-08", "cl"], ["2029-11-09", "in"], ["2029-11-10", "off"], ["2029-11-11", "off"], ["2029-11-12", "cl"], ["2029-11-13", "in"], ["2029-11-14", "in"], ["2029-11-15", "cl"], ["2029-11-16", "in"], ["2029-11-17", "off"], ["2029-11-18", "off"], ["2029-11-19", "off"], ["2029-11-20", "off"], ["2029-11-21", "off"], ["2029-11-22", "off"], ["2029-11-23", "off"], ["2029-11-24", "off"], ["2029-11-25", "off"], ["2029-11-26", "off"], ["2029-11-27", "off"], ["2029-11-28", "off"], ["2029-11-29", "off"], ["2029-11-30", "off"], ["2029-12-01", "off"], ["2029-12-02", "off"], ["2029-12-03", "in"], ["2029-12-04", "cl"], ["2029-12-05", "cl"], ["2029-12-06", "in"], ["2029-12-07", "in"], ["2029-12-08", "off"], ["2029-12-09", "off"], ["2029-12-10", "cl"], ["2029-12-11", "cl"], ["2029-12-12", "in"], ["2029-12-13", "in"], ["2029-12-14", "cl"], ["2029-12-15", "off"], ["2029-12-16", "off"], ["2029-12-17", "off"], ["2029-12-18", "off"], ["2029-12-19", "off"], ["2029-12-20", "off"], ["2029-12-21", "off"], ["2029-12-22", "off"], ["2029-12-23", "off"], ["2029-12-24", "off"], ["2029-12-25", "off"], ["2029-12-26", "off"], ["2029-12-27", "off"], ["2029-12-28", "off"], ["2029-12-29", "off"], ["2029-12-30", "off"], ["2029-12-31", "off"]]}, byMonth={};
+D.days.forEach(function(x){var d=new Date(x[0]+'T00:00:00');
+  (byMonth[d.getUTCMonth()]=byMonth[d.getUTCMonth()]||[]).push([d,x[1]]);});
+var MN=['January','February','March','April','May','June','July','August',
+        'September','October','November','December'],html='';
+Object.keys(byMonth).forEach(function(k){
+  var arr=byMonth[k],first=arr[0][0];
+  html+='<div class="mo"><h2>'+MN[first.getUTCMonth()]+'</h2>'
+      +'<div class="dows"><div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div></div><div class="days">';
+  for(var i=0;i<first.getUTCDay();i++) html+='<div class="cell blank"></div>';
+  arr.forEach(function(p){html+='<div class="cell '+p[1]+'">'+p[0].getUTCDate()+'</div>';});
+  html+='</div></div>';});
+document.getElementById('months').innerHTML=html;
 </script>

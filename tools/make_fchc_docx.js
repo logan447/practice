@@ -34,11 +34,11 @@ const doc=new Document({
                 new TextRun({children:[PageNumber.TOTAL_PAGES],font:F,size:16,color:GREY})]})]})},
     children:[
       new Paragraph({spacing:{line:240,lineRule:"auto",after:40},
-        children:[run("Proposal for a part-time salaried position",{bold:true,size:34,color:GREEN})]}),
+        children:[run("Proposal for a part-time clinical contract",{bold:true,size:34,color:GREEN})]}),
       new Paragraph({spacing:{line:240,lineRule:"auto",after:150},
         children:[run("Logan DuBose, MD",{size:22,color:GREY})]}),
 
-      body("Transition to a 0.75 FTE salaried position at $41,500 annually beginning June 1, 2028, while maintaining the current hourly arrangement until then to demonstrate sufficient demand and financial viability.",{after:190}),
+      body("Transition to a 35-week contract of 83 clinic days a year at 13 clocked hours and $50 per hour, beginning June 1, 2028, while maintaining the current hourly arrangement until then to demonstrate sufficient demand and financial viability.",{after:190}),
 
       img(merged,488),
 
