@@ -609,38 +609,91 @@ Fixed Tuesday/Wednesday/Thursday, 40 clinic weeks, 12 weeks off.
 
 ### Household result, 2029, three kids, MFS
 
-Childcare is 71 bought days (59% of T/W/Th, the amber share) x 12 hrs
-x $34/hr (EST loaded rate, NEEDS real quotes).
+Childcare is **68 bought days** (57% of T/W/Th) x 12 hrs x $34/hr
+(EST loaded rate, NEEDS real quotes) = **$27,744**. The 68 is counted
+off the generated 2029 schedule in `tools/clinic_day_ledger.py`, not
+estimated from a share; an earlier 71 was the estimate.
 
-| salary | tax | IBR | care | car | FSA | SAVED |
-|--------|-----|-----|------|-----|-----|-------|
-| 65,000 | 13,371 | 1,678 | 28,968 | 3,652 | 1,125 | 18,457 |
-| 75,000 | 16,836 | 2,678 | 28,968 | 3,652 | 1,125 | 23,992 |
-| 80,000 | 18,722 | 3,178 | 28,968 | 3,652 | 1,125 | 26,606 |
-| 85,000 | 20,629 | 3,678 | 28,968 | 3,652 | 1,125 | 29,199 |
+**TWO CARS ARE A HOUSEHOLD FLOOR** (OWNER-FACT 2026-10-25): nobody
+can be home alone with three children and no vehicle. So the second
+car is a fixed cost in BOTH the FCHC and the solo-practice path:
+$1,750 depreciation + $4,200 parking + $1,500 insurance + $2,596 fuel
+and maintenance = **$10,046/yr**. For CHOOSING between the paths,
+only the commute share ($3,799) is marginal and the $6,247 of fixed
+cost cancels. For what actually lands in the account, charge the
+whole $10,046. The solo-practice figure of $65,348 predates this and
+needs re-running with two cars.
 
-**Ask $80,000, not $65,000.** $80K clears the $25K savings floor by
-$1,606 at today's 41% green share, with no cooperation from anyone.
-$65K only clears it if Jamie's scheduler pushes her coverage of
-T/W/Th to 55% (then $25,393). Do not make the floor depend on
-someone else's scheduling committee. The $65K figure predates three
-kids and $29K of bought childcare in the model; it is stale.
+With the whole second car charged to the household:
 
-Day rate check: $80,000 / 120 days = $667/day, ~$727 fully loaded
+| salary | net/clinic day | kept on a care day | SAVED/yr |
+|--------|---------------|--------------------|----------|
+| 80,000 | 484 |  76 | 21,436 |
+| 85,000 | 506 |  98 | 24,028 |
+| 90,000 | 527 | 119 | 26,621 |
+| 95,000 | 549 | 141 | 29,214 |
+
+**Ask $95,000.** $90K clears the $25,000 floor by only $1,621 and
+$80K misses it. On a care day the take-home is $549 and the sitter
+takes $408, leaving $141; on a Jamie-home day the whole $549 stays.
+The earlier $65K and $80K asks are both superseded: $65K predates
+three kids and $27,744 of bought childcare, $80K predates the
+two-car floor.
+
+Day rate check: $95,000 / 120 days = $792/day, ~$863 fully loaded
 (DERIVED, 9% EST employer tax). At an assumed $110/encounter x 14
-encounters that is 43% of collections, inside the normal 35-45%
-primary care band. **UNSET: FCHC collection per encounter.** This
-is the input that could move the whole thing.
+encounters that is **56% of collections, above the normal 35-45%
+primary care band**, so this is a real ask rather than a formality.
+**UNSET: FCHC collection per encounter** is now the binding unknown,
+not a nice-to-have.
 
-### What must be in writing (the load-bearing part)
+### Hourly vs salaried: CORRECTED 2026-10-25
 
-The PSLF form is certified by an FCHC Authorized Official from the
-contract and payroll, not by the physician. A contract reading "120
-clinic days per year" yields 23 hrs/week on division and the year
-does not count. Required terms:
+An earlier version of this section said hourly pay disqualifies.
+That was wrong. The operative text (FACT, sourced, 34 CFR
+685.219(b)(11)(i)(A)) is:
 
-1. Salaried exempt, stated as **0.8 FTE / 32 hours per week**. Not
-   hourly: hourly payroll reports clocked hours (1,200) and fails.
+> "A minimum average of 30 hours per week during the period being
+> certified"
+
+That is the whole test. The pre-2022 rule required the GREATER of 30
+hours or the employer's own definition of full-time; that comparison
+is **gone** from the current regulation. So FCHC does not have to
+call the role full-time, pay does not have to be salaried, and the
+word "leave" need not appear. Total paid hours divided by weeks in
+the period must be at least 30.
+
+Salary is therefore not a PSLF requirement. It is a way to be PAID
+for 1,560 hours while being PRESENT for 1,200. What hourly costs,
+at 1,560 hours with no paid leave (DERIVED):
+
+| days/wk | hrs/day | clinic days | wks worked | wks off | away/day |
+|---------|---------|-------------|-----------|---------|----------|
+| 3 | 10 | 156 | 52.0 | 0    | 12.5 h |
+| 3 | 11 | 142 | 47.3 | 4.7  | 13.5 h |
+| 3 | 12 | 130 | 43.3 | 8.7  | 14.5 h |
+| 3 | 13 | 120 | 40.0 | 12   | 15.5 h |
+| 4 | 10 | 156 | 39.0 | 13   | 12.5 h |
+
+Every hourly row breaks one of the seven constraints: 13-hr days
+recreate the 6am-9:30pm day already rejected, 12-hr days cost 3.3
+weeks of leave, and 4 days/week breaks the 3-day career rule.
+Priced at $80K: hourly 3x12 saves $23,765 with 8.7 weeks off;
+salaried 0.8 FTE saves $26,459 with 12. Salary buys 3.3 weeks,
+2.5 hrs/day and $2,694.
+
+Remaining argument for salary is administrative, not legal: hourly
+leaves the denominator in FCHC's hands. Cancelled clinics shrink
+the average and it shows up only at certification. A stated FTE
+fixes the number in advance.
+
+Still to confirm: the hours field on the current form itself.
+studentaid.gov returned 503 on 2026-10-25; the regulation is the
+operative standard and the owner has the field text by screenshot.
+
+### What should be in writing
+
+1. Salaried exempt, stated as **0.8 FTE / 32 hours per week**.
 2. Annual salary not reduced by the scheduled non-clinic weeks.
 
 Wording that carries both without announcing twelve weeks of PTO:
