@@ -1170,3 +1170,71 @@ nothing and runs a deficit.
 year you are currently turning away, worth roughly $200,000, and I
 cost $102,000." Demand generation -- the owner's own question from the
 ramp plan -- is now the only thing that decides this.
+
+## Clinic hours only, rate capped: childcare becomes the lever (2026-10-25)
+
+Owner (2026-10-25): **does NOT want admin hours paid.** Combined with
+the rate cap at the medical director's level, that fixes pay at
+rate x 1,200 clinic hours. Model: `tools/fchc_clinic_only_grid.py`.
+
+### SAVED by rate x childcare (* clears $25,000)
+
+| rate | pay | 68d @$34 | 62d @$34 | 56d @$34 | 68d @$28 | 68d @$24 | 56d @$28 |
+|------|-----|----------|----------|----------|----------|----------|----------|
+| **60.00** | 72,000 | 16,050 | 18,600 | 21,150 | 21,150 | 24,550 | **25,350\*** |
+| 63.00 | 75,600 | 17,989 | 20,539 | 23,089 | 23,089 | **26,489\*** | **27,289\*** |
+| 65.00 | 78,000 | 19,243 | 21,793 | 24,343 | 24,343 | **27,743\*** | **28,543\*** |
+| 66.97 | 80,361 | 20,467 | 23,017 | **25,567\*** | **25,567\*** | **28,967\*** | **29,767\*** |
+
+"56 days" = all four backup weeks moved into the off-blocks. "$28"/
+"$24" = shared nanny or licensed in-home daycare instead of a solo
+sitter -- a real change in arrangement, not just a price.
+
+**$60/hr works in exactly ONE configuration: all four backup weeks
+moved AND childcare at $28/hr = $25,350.** At $34/hr childcare, $60
+is $8,950 short and no scheduling change closes it.
+
+Childcare rate $60/hr would require: $23.47/hr at 68 care days,
+$25.74 at 62, $28.50 at 56. All plausible in DC for shared care.
+
+### There is more rate room than the cash comparison suggests
+
+Owner takes no benefits, so compare total cost per hour:
+
+| | all-in $/hr |
+|---|---|
+| owner at $60/hr + 9% employer tax, no benefits | **65.40** |
+| director, W-2 only + employer tax | 72.99 |
+| director +10% benefits | 79.69 |
+| director +20% benefits | 86.39 |
+
+**Even at $65-67 cash the owner costs FCHC less per hour than the
+director**, because the director's package carries benefits the owner
+would not take. UNSET: Part VII "other compensation" column not
+retrieved, so the benefit rows are illustrative, NOT sourced.
+
+### THE REAL COST OF DECLINING PAID ADMIN (not money)
+
+| structure | paid hrs alone | with the 12 weeks counted |
+|-----------|---------------|---------------------------|
+| paid admin (rejected) | 1,560 -> **30.0 PASS** | -- |
+| clinic hours only | 1,200 -> **23.1 FAIL** | 1,560 -> 30.0 pass |
+
+With admin unpaid, **paid hours average 23.1/week.** 30 is reached
+only if employer-granted UNPAID leave counts as hours worked. The form
+says "vacation or leave time provided by the employer ... is
+equivalent to hours worked" and never says paid -- but nobody has
+confirmed it. **Declining paid admin puts ~$500K of forgiveness back
+on an unconfirmed reading of one sentence, to save ~$4,000 of
+childcare.** That trade is worse than it looks.
+
+### Recommendation
+
+$60/hr, clinic hours only, PLUS (a) all four backup weeks moved and
+(b) shared childcare at ~$28/hr -> **$25,350**. Respects every stated
+constraint.
+
+**Do first, before negotiating anything:** get the unpaid-leave
+question answered in writing by the servicer. It is load-bearing
+again and free to ask. If the answer is no, this configuration yields
+23.1 hrs/week and NO forgiveness.
