@@ -1662,3 +1662,68 @@ children. And $65.85 is still $1.12 under the director.
 **Recommendation: if there is ANY room between $60 and $66, take the
 ten-hour day.** The 320 hours are being bought back out of money that
 was never going to be kept.
+
+## THE ASK: $55 was a guess, not FCHC's number (2026-10-25)
+
+OWNER-FACT: **"55 is my take of what they will take."** Not a figure
+FCHC stated. The only hard ceiling is the medical director's implied
+**$66.97/hr**, and the rate that clears the $25,000 floor at 4 x 10 is
+**$65.85 -- $1.12 under it.** So there is **$11.97/hr between the
+guess and the real constraint**, and the plan had been designed around
+the guess. Model: `tools/fchc_rate_ladder.py`.
+
+### 4 x 10 clocked hrs, Tue-Fri, 160 clinic days, 92 care days
+
+| rate | income | @$24 care | @$26 | @$28 | $/enc | % @$90 | % @$103 | vs dir |
+|------|--------|-----------|------|------|-------|--------|---------|--------|
+| 55.00 | 88,000 | 16,003 | 13,703 | 11,403 | 29.98 | 33% | 29% | -11.97 |
+| 58.00 | 92,800 | 18,491 | 16,191 | 13,891 | 31.61 | 35% | 31% | -8.97 |
+| 60.00 | 96,000 | 20,151 | 17,851 | 15,551 | 32.70 | 36% | 32% | -6.97 |
+| 62.00 | 99,200 | 21,810 | 19,510 | 17,210 | 33.79 | 38% | 33% | -4.97 |
+| **65.85** | **105,360** | **25,004\*** | 22,704 | 20,404 | **35.89** | **40%** | **35%** | **-1.12** |
+| 66.97 | 107,152 | 25,933\* | 23,633 | 21,333 | 36.50 | 41% | 35% | 0.00 |
+
+At $65.85 the physician share is **35-40% of collections -- inside the
+normal 35-45% band**, not above it.
+
+### The childcare rate decides whether the ask is even askable
+
+| if care is | rate needed | |
+|------------|-------------|-|
+| **$24/hr** | **$65.85** | under the director -- askable |
+| $25/hr | $67.23 | ABOVE the director |
+| $26/hr | $68.62 | ABOVE |
+| $28/hr | $71.39 | ABOVE |
+
+**Get the in-home daycare quote BEFORE negotiating.** At $26 the
+required rate passes the director and the ten-hour schedule fails on
+the owner's own rule. $24-25 care is load-bearing.
+
+### The ladder
+
+| | rate | income | saved |
+|---|------|--------|-------|
+| **anchor** | $66.00 | 105,600 | 25,128 |
+| **target** | $65.85 | 105,360 | 25,004 |
+| acceptable | $62.00 | 99,200 | 21,810 (-3,190) |
+| floor | $60.00 | 96,000 | 20,151 (-4,849) |
+| ~~guess~~ | $55.00 | 88,000 | 16,003 (-8,997) |
+
+### The evidence to bring
+
+| | loaded/day | $/encounter | % of collections |
+|---|-----------|-------------|------------------|
+| pay now, 8 hrs @ $50 | $436 | **$21.80** | 21-24% |
+| the ask, 10 hrs @ $65.85 | $718 | **$35.89** | 35-40% |
+
+**FCHC currently buys physician labour at roughly half the going
+rate.** That is the argument, and it rests on their own Form 990 plus
+standard comp benchmarks, not opinion. Supporting points: no benefits
+taken, while the director's package costs them $73-86/hr loaded; and
+the role adds 3,200 encounters against a ~10,000 baseline (EST).
+
+**CAUTION:** their margin was 1.3% and $105,360 is ~6.5% of their
+expense base, so the percentage argument alone will not fund it.
+**Fundable only if the 3,200 encounters are genuinely NEW**, not ones
+existing providers would have seen -- the same demand question raised
+at the very start of this file.
