@@ -91,18 +91,18 @@ h1{font-size:clamp(24px,4.5vw,32px);font-weight:650;margin:0 0 6px;letter-spacin
       <span class="key"><span class="sw" style="background:var(--mine)"></span><b>Jamie</b> has them, I'm in clinic</span>
       <span class="key"><span class="sw" style="background:var(--jamie)"></span><b>I</b> have them, Jamie's on shift</span>
       <span class="key"><span class="sw split"></span>Both of us have them</span>
-      <span class="key"><span class="sw vac"></span>Faded: weekends, my twelve weeks off, and the five weeks outside the contract</span>
+      <span class="key"><span class="sw vac"></span>Faded: weekends, my twelve weeks off, and the two weeks outside the contract</span>
     </div>
   </div>
 
   <div class="stats" id="stats"></div>
   <div class="months" id="months"></div>
 
-  <p class="note"><strong>How the hours get there.</strong> The forgiveness rule treats a borrower as full time who averages thirty hours a week across a contractual period of at least eight months. The contract here is 35 weeks, which is 8.05 months, so the bar is 1,050 hours. Eighty-three days at thirteen clocked hours is 1,079, which clears it with a little room. The floor is 12.65 hours a day, so thirteen leaves about a quarter of an hour of margin. Thirty-five weeks is the shortest whole-week period that still clears eight months: dropping the sixth empty week too would leave 34 weeks, a better average but only 7.82 months, which fails the minimum.</p>
+  <p class="note"><strong>How the hours get there.</strong> The forgiveness rule treats a borrower as full time who averages thirty hours a week across a contractual period of at least eight months. The contract here is 38 weeks, which is 8.74 months, so the bar is 1,140 hours. Two clinic days a week at fifteen clocked hours is exactly thirty, and 76 days at fifteen is exactly 1,140. Nothing is rounded. Fifteen is the number that makes two days reach thirty: at thirteen hours two days is twenty-six and the arrangement fails.</p>
 
-  <p class="note"><strong>Why no childcare.</strong> I book a clinic day only when Jamie\'s schedule leaves her home with the children, so childcare never enters the plan. That is also what caps the year at 83 days: she is home about two weekdays a week, and no rearrangement finds more. Count the green squares week by week and the unevenness shows itself, some weeks three or four and most weeks two. Thirty-four weeks of the year carry at least one clinic day, which is where eight months\' worth of working weeks comes from.</p>
+  <p class="note"><strong>Why no childcare.</strong> I book a clinic day only when Jamie is already home with the children, so childcare never enters the plan. Two a week is also what her rota comfortably gives: a 24 costs that day and the next, a 12 costs one, and what is left is two weekdays. Every week of the contract carries the same two days, so she is never asked for a heavy week and I am never away four days running.</p>
 
-  <p class="note"><strong>My weeks off:</strong> Jan 1&ndash;13, Apr 1&ndash;7 spring break, May 6&ndash;19 Belize, Jul 22&ndash;Aug 11 summer, Nov 18&ndash;Dec 1 Thanksgiving, Dec 16&ndash;31 holidays. <strong>Outside the contract:</strong> the weeks of 26 Mar, 9 Apr, 25 Jun, 10 Sep and 15 Oct. The week of 26 March is my birthday and the week before spring break, so it comes out by choice; its clinic days move to the week of 26 February. The others are weeks Jamie is on shift or backup throughout and there is no day I could take. The week of 22 January is the same but stays inside the contract, because dropping a sixth week would take the period under eight months. <strong>Jamie's pattern:</strong> a 24-hour shift takes that day and the next; a 12-hour day takes one; five backup weeks take the whole week. She aims about 70% of her leave at my blocks. A representative year, not her real schedule.</p>
+  <p class="note"><strong>My weeks off:</strong> Jan 1&ndash;13, Apr 1&ndash;7 spring break, May 6&ndash;19 Belize, Jul 22&ndash;Aug 11 summer, Nov 18&ndash;Dec 1 Thanksgiving, Dec 16&ndash;31 holidays. <strong>Outside the contract:</strong> the week of 12 February, her backup week, and the week of 9 April, her regular Monday-to-Friday week, which runs straight on from spring break. She is unavailable every weekday in both. <strong>Jamie&rsquo;s pattern:</strong> one or two 24-hour shifts a week, plus a 12 in the weeks with only one 24. A 24 takes that day and the next, a 12 takes one day. Her rota is shaped here to leave exactly two free weekdays in every contract week, which is a request of it rather than a prediction of it. She aims about 70% of her own leave at my blocks. A representative year, not her real schedule.</p>
 </div>
 
 <script>
@@ -117,7 +117,7 @@ h1{font-size:clamp(24px,4.5vw,32px);font-weight:650;margin:0 0 6px;letter-spacin
     [[3,1],[3,15],'Off contract \u2013 spring break'],
     [[4,6],[4,19],'Off contract \u2013 Belize'],
     [[6,22],[7,11],'Off contract \u2013 summer break'],
-    [[10,12],[11,1],'Off contract \u2013 Thanksgiving'],
+    [[10,18],[11,1],'Off contract \u2013 Thanksgiving'],
     [[11,16],[11,31],'Off contract \u2013 Christmas']
   ];
   var WEEKS = 38, HRS = 15, RATE = 50;
