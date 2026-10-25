@@ -30,6 +30,9 @@ def build(backup=2, regular=2, three=2, two=16, light=0, verbose=False):
     # Owner preference: put the heavy week on the week of Valentine's Day
     # (w/c 12 Feb 2029) rather than the arbitrary week of 26 Feb.
     TYPE[6], TYPE[8] = TYPE[8], TYPE[6]
+    # and put the backup week (w/c 16 Apr) immediately after spring break,
+    # w/c 9 Apr, so the two off-contract blocks sit together
+    TYPE[14], TYPE[15] = TYPE[15], TYPE[14]
     # one weekend 24 roughly once a month, the rest on weekdays
     # Owner: a 24 lands on a weekend only a few times a year.
     # One weekend pattern in ten for MED, none in TWO or THREE.
