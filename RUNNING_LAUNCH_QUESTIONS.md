@@ -586,3 +586,95 @@ two-settings architecture already does.
 - Cerbo preferred EMR; $1 signup, 50% × 3 mo → §11.2. Economics v2
   break-evens → §11.3.
 - Website/collateral baseline locked (D-035).
+
+## FCHC ask: the T/W/Th structure and what to say (2026-10-25)
+
+Supersedes the scattered-day "Option B" sketch (156 irregular days).
+That version is unschedulable: available days come from Jamie's call
+schedule, released one month out, and no clinic staffs rooms and
+appointments on 30 days' notice. Model: `tools/fchc_twth_model.py`.
+
+### The structure
+
+Fixed Tuesday/Wednesday/Thursday, 40 clinic weeks, 12 weeks off.
+
+- 120 clinic days x 10 hrs = 1,200 hrs worked (DERIVED)
+- plus 12 weeks paid at 32 hrs = 384 hrs
+- 1,584 paid hrs / 52 = **30.5 hrs/week** -> PSLF qualifies
+- 34 CFR 685.219(b)(11): full-time = "a minimum average of 30 hours
+  per week during the period being certified" (FACT, sourced)
+- Current PSLF form: "All hours for which you are paid should be
+  included"; "Vacation or leave time provided by the employer...
+  should be included" (FACT, studentaid.gov form text)
+
+### Household result, 2029, three kids, MFS
+
+Childcare is 71 bought days (59% of T/W/Th, the amber share) x 12 hrs
+x $34/hr (EST loaded rate, NEEDS real quotes).
+
+| salary | tax | IBR | care | car | FSA | SAVED |
+|--------|-----|-----|------|-----|-----|-------|
+| 65,000 | 13,371 | 1,678 | 28,968 | 3,652 | 1,125 | 18,457 |
+| 75,000 | 16,836 | 2,678 | 28,968 | 3,652 | 1,125 | 23,992 |
+| 80,000 | 18,722 | 3,178 | 28,968 | 3,652 | 1,125 | 26,606 |
+| 85,000 | 20,629 | 3,678 | 28,968 | 3,652 | 1,125 | 29,199 |
+
+**Ask $80,000, not $65,000.** $80K clears the $25K savings floor by
+$1,606 at today's 41% green share, with no cooperation from anyone.
+$65K only clears it if Jamie's scheduler pushes her coverage of
+T/W/Th to 55% (then $25,393). Do not make the floor depend on
+someone else's scheduling committee. The $65K figure predates three
+kids and $29K of bought childcare in the model; it is stale.
+
+Day rate check: $80,000 / 120 days = $667/day, ~$727 fully loaded
+(DERIVED, 9% EST employer tax). At an assumed $110/encounter x 14
+encounters that is 43% of collections, inside the normal 35-45%
+primary care band. **UNSET: FCHC collection per encounter.** This
+is the input that could move the whole thing.
+
+### What must be in writing (the load-bearing part)
+
+The PSLF form is certified by an FCHC Authorized Official from the
+contract and payroll, not by the physician. A contract reading "120
+clinic days per year" yields 23 hrs/week on division and the year
+does not count. Required terms:
+
+1. Salaried exempt, stated as **0.8 FTE / 32 hours per week**. Not
+   hourly: hourly payroll reports clocked hours (1,200) and fails.
+2. Annual salary not reduced by the scheduled non-clinic weeks.
+
+Wording that carries both without announcing twelve weeks of PTO:
+
+> "A 0.8 FTE salaried position, 32 hours per week, at $80,000
+> annually, with a clinical schedule of Tuesday through Thursday
+> across 40 clinic weeks."
+
+Say PSLF second, not first: lead with the clinical offer, then one
+line that the stated 32 hrs/week is what makes it qualifying. It
+costs FCHC nothing, so it is an easy yes; hiding it is the real
+risk, because then nobody there knows the FTE wording is
+load-bearing and an HR rewrite quietly kills it.
+
+### Clock
+
+22 qualifying payments made (OWNER-FACT, unverified against
+servicer). 120 - 22 = **98 left, 8 yrs 2 mo.**
+
+| start of 32 hr/wk role | forgiven |
+|------------------------|----------|
+| Jan 2027 | Mar 2035 |
+| Jul 2028 (six-stage ramp) | Sep 2036 |
+| Jan 2029 | Mar 2037 |
+
+At $80K the IBR payment is $3,178/yr, so the remaining 98 payments
+total ~$26,000 against ~$504,000 forgiven tax-free (DERIVED). That
+ratio is why this beats the solo practice even though the practice
+wins on annual cash ($65,348 vs $26,606).
+
+### Open, both free to close now
+
+- **Confirm FCHC is a 501(c)(3)** and get the EIN; run it through
+  the PSLF Help Tool employer search. If FCHC is organized another
+  way the plan changes, and 2026 is when to learn that, not 2028.
+- **Pull the official qualifying-payment count** from the servicer.
+  Every date above moves if the real number is not 22.
