@@ -1391,3 +1391,142 @@ relationship without depending on it.
 $83,200, $93,600 and $60-with-paid-admin asks). Those all assumed
 paid hours FCHC does not pay. Candidates for `docs/archive/` per
 D-025 once the DC path is confirmed.
+
+## SOLVED: 4 days x 10 clocked hours (2026-10-25)
+
+Owner ruled out counting leave hours at all. So the 30-hour average
+must come from WORKED hours only. Model:
+`tools/fchc_worked_hours_only.py`, `tools/fchc_four_day.py`.
+
+### What reaches 30 on worked hours alone
+
+| days/wk | hrs/day | clinic days | worked hrs | avg/wk | away | |
+|---------|---------|-------------|-----------|--------|------|-|
+| 3 | 10 | 120 | 1,200 | 23.08 | 12.5 | fails |
+| 3 | 13 | 120 | 1,560 | 30.00 | 15.5 | passes |
+| **4** | **10** | **160** | **1,600** | **30.77** | **12.5** | **passes** |
+| 4 | 9 | 160 | 1,440 | 27.69 | 11.5 | fails |
+| 5 | 8 | 200 | 1,600 | 30.77 | 10.5 | passes |
+
+**4 x 10 passes with the 12 weeks off intact (160/4 = 40 weeks) and
+needs NO leave hours.** That removes the unpaid-leave dependency
+entirely -- the biggest single risk carried through this whole file.
+
+### Counterintuitive: longer days are CHEAPER per year
+
+The 2.5-hr commute is paid once per trip, so fewer-longer days means
+fewer trips. Care = (care days) x (hrs away) x rate:
+
+| shape | clinic days | care days | care/day | care/yr | car |
+|-------|-------------|-----------|----------|---------|-----|
+| 3 x 13h | 120 | 68 | 434 | 29,512 | 10,046 |
+| **4 x 10h** | 160 | 93 | 350 | **32,550** | 10,911 |
+| 5 x 8h | 200 | 117 | 294 | 34,398 | 11,777 |
+
+8-hour days look cheapest per day and are dearest per year.
+
+### Rate needed at 4 x 10 -- all BELOW the director's $66.97
+
+| care $/hr | move 0 | move 2 | move 4 |
+|-----------|--------|--------|--------|
+| 28 | 71.81 | 68.44 | **65.06** |
+| 26 | 69.01 | **65.88** | **62.74** |
+| 24 | **66.21** | **63.31** | **60.42** |
+
+### THE CONFIGURATION
+
+**4 days, 10 clocked hours, 20 patients/day, $65/hr, 12 weeks off.**
+
+| | |
+|---|---|
+| income 160 x 10 x $65 | **$104,000** |
+| **SAVED** | **$24,949** |
+| vs director's rate | **-$1.97/hr** |
+| take-home/clinic day | $441 |
+| childcare on a care day | $350 |
+| **kept on a care day** | **$91** |
+| care days | 77 of 160 |
+| away from home | 12.5 hrs (~6:15am-6:45pm) |
+
+At $50/hr this is only $12,505, so the rate must move from $50 to
+~$65 -- but stays under the director. Two conditions: **all four of
+Jamie's backup weeks moved** into the off-blocks, and **shared
+childcare at $28/hr** (not a solo sitter at $34). Care at $24 drops
+the rate to $60.42.
+
+### FCHC's side: in band at both ends
+
+3,200 encounters. At $90/enc, $288,000 collections, physician loaded
+$113,360 = **39%**. At $102.97, $329,504, = **34%**. Normal primary
+care is 35-45%, so this is not a stretch for them.
+
+### What it costs, and the open operational question
+
+The three-day week. Mon-Thu, out 6:15am to 6:45pm, one weekday home.
+**OPEN: will FCHC schedule a 10-hour patient session?** 20 patients in
+10 hours is 30-min slots so the slots work; whether they will run the
+session is an operational question, not a pay question. Everything
+above depends on it.
+
+**Supersedes** all earlier configurations in this file, every one of
+which either assumed paid hours FCHC does not pay or leaned on leave
+hours being counted.
+
+### $55/hr ceiling (OWNER-FACT 2026-10-25): 4 x 10 does NOT clear
+
+Owner's maximum askable rate is **$55/hr**. 10 clocked hours per
+clinic day IS askable.
+
+4 x 10 at $55: income $88,000, 76 care days @ $28 (all four backup
+weeks moved), **saved $17,003, short $7,997.** Childcare would have to
+fall to **$19.58/hr ($245/day)** -- below any DC option for three
+children.
+
+What clears $25,000 at $55 (4 backup weeks moved; * clears):
+
+| shape | worked hrs | avg/wk | away | income | @$28 | @$26 | @$24 |
+|-------|-----------|--------|------|--------|------|------|------|
+| 3 x 13h | 1,560 | 30.00 | 15.5 | 85,800 | 19,423 | 21,159 | 22,895 |
+| **4 x 10h** | 1,600 | 30.77 | **12.5** | 88,000 | **17,003** | 18,903 | 20,803 |
+| 4 x 11h | 1,760 | 33.85 | 13.5 | 96,800 | 19,437 | 21,489 | 23,541 |
+| 4 x 12h | 1,920 | 36.92 | 14.5 | 105,600 | 21,872 | 24,076 | **26,280\*** |
+| 4 x 13h | 2,080 | 40.00 | 15.5 | 114,400 | 24,307 | **26,663\*** | **29,019\*** |
+| 5 x 12h | 2,400 | 46.15 | 14.5 | 132,000 | **25,769\*** | **28,582\*** | **31,395\*** |
+
+**Every configuration clearing the floor at $55 needs 12-13 hour
+clinic days** -- out roughly 5:45am to 8:15-9:15pm, four or five days
+a week, with three children under eight. Listed because they were
+asked for, NOT recommended: they buy ~$9,000/yr by spending the
+evenings that motivated this schedule.
+
+### The gap is $5.45/hr
+
+$7,997 / 1,600 hrs = $5.00/hr, ~$5.45 with the tax drag. Rate needed
+at 4 x 10: **$65.06** at $28 care, **$62.74** at $26, **$60.42** at
+$24. So **$60.42 with shared care at $24 is the cheapest humane
+version** -- $5.42 above the $55 ceiling, $6.55 below the director's
+$66.97.
+
+Worth testing before treating $55 as fixed: at 4 days x 20 patients
+that is 3,200 encounters and $288,000-330,000 of collections, so
+$60.42 costs FCHC ~36-41% of collections -- inside the normal 35-45%
+band, under the director's rate, and under his loaded cost since no
+benefits are taken.
+
+### If $55 is truly the ceiling
+
+Accept **$17,003 on the humane 4 x 10 schedule** rather than the
+12-13 hour versions. The shortfall is $7,997/yr for ~8.3 years =
+**~$66,000**, to collect **~$490,000-500,000 tax-free**. Arithmetically
+a good trade -- effectively borrowing $66,000 against half a million.
+
+**The open question is not arithmetic:** whether $17,003/yr of savings
+is livable for a family of five through 2037. That is the owner's call
+and the first thing in this analysis that no model can settle.
+
+### Calendar artifact
+
+`year2029.html` -> Version 35: Tuesday through Friday, ten hours a
+day, 160 clinic days, 30.77 worked hrs/week with no leave counted,
+dots on the 92 days needing paid care (77 if the four backup weeks
+move). https://claude.ai/artifact/QhKBckd3LTKdY3TLN94UAh
