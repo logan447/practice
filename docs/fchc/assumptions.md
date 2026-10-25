@@ -26,16 +26,18 @@ wrong, and most of them you can check or change.*
 
 ## About your schedule
 
-8. **Two clinic days a week, every week of the contract.** 76 days.
+8. **Two clinic days a week, every week of the contract.** 70 days.
 9. **Fifteen clocked hours a day.** That is the number that makes two
    days reach thirty hours. Not ten, not thirteen.
 10. **Clocked hours include documentation, inbox, results and
     overage**, and the clinic pays for all of it at $50 an hour.
 11. **You work only on days Jamie is already home.** No paid
     childcare anywhere in the year.
-12. **Twelve weeks off**: New Year's, spring break (w/c 26 Mar),
-    Belize, summer, Thanksgiving, Christmas. Plus two off-contract
-    weeks: Valentine's and the fall break w/c 1 Oct.
+12. **Seventeen weeks not working.** Twelve blocks: New Year's,
+    Logan's birthday (w/c 26 Mar), Belize, summer, Thanksgiving,
+    Christmas. Plus five off-contract weeks: Valentine's (w/c 12 Feb),
+    w/c 2 Apr, Jamie's birthday (w/c 25 Jun), fall break (w/c 1 Oct)
+    and w/c 8 Oct.
 13. **A 2.5-hour round-trip commute** on every clinic day, in the car
     costs but not in the clocked hours.
 14. **16 patients a day.** At 15 clocked hours that is 56 minutes
@@ -43,12 +45,12 @@ wrong, and most of them you can check or change.*
 
 ## About the contract and PSLF
 
-15. **35 is the floor, 38 is the plan.** 34.32 weeks is exactly eight
-    months, so 35 is the least that qualifies. 38 is simply what the
-    year leaves after twelve weeks off and the two weeks Jamie covers
-    nothing. Dropping to 35 would mean deliberately not working three
-    more weeks, which costs six clinic days and about $4,050, and
-    leaves only 0.2 weeks of margin above the floor instead of 3.2.
+15. **35 contract weeks, chosen deliberately.** 34.32 weeks is exactly
+    eight months, so 35 is the least that qualifies and leaves only
+    **0.2 weeks of margin**. A single quarter that comes in at 8 weeks
+    instead of 9 lands the year at 34, which is 7.82 months, and the
+    whole year's certification fails. Plan 9 to 10 weeks a quarter and
+    make up any shortfall in the next one.
 16. **The Service Period is counted, not chosen.** The average is
     hours divided by the weeks actually worked in, so working in 38
     weeks and calling the period 35 does not work.
@@ -72,8 +74,7 @@ wrong, and most of them you can check or change.*
 
 ## About the money
 
-24. **$45 an hour.** $51,300 for the year. Between the $50 that
-    clears your floor and the $40 that gives the clinic the most room.
+24. **$45 an hour.** $47,250 for the year, at 1,050 hours.
 25. **The clinic's marginal overhead is 40 percent of collections.**
     Built bottom-up in `tools/fchc_overhead_bottomup.py` and it lands
     between 19 and 55 percent depending on one thing: whether you work
@@ -91,8 +92,9 @@ wrong, and most of them you can check or change.*
     payment moves with it.
 30. **Three children by 2029.**
 31. **Married filing separately**, so only your income counts for IBR.
-32. **Your savings floor is $25,000. At $45 an hour this saves
-    $24,066**, short by $934. $47 clears it at $25,533.
+32. **Your savings floor is $25,000. This saves $21,552**, short by
+    $3,448. Three of the five off-contract weeks are a choice, and each
+    one costs about $900 of savings.
 
 ## Where the opportunities are
 

@@ -27,7 +27,7 @@ MED = [([0],[3]), ([1],[4]), ([2],[0]), ([3],[1]), ([0],[2]),
        ([1],[3]), ([2],[4]), ([3],[0]), ([1],[4]), ([2],[0])]
 TWO = [([0,4],[]), ([1,4],[]), ([2,4],[]), ([1,4],[]), ([0,4],[]), ([2,4],[])]
 
-def build(backup=1, regular=1, two=16, empty_weeks=(6,39), verbose=False):
+def build(backup=1, regular=1, two=16, empty_weeks=(6,13,25,39,40), verbose=False):
     """empty_weeks: the weeks with no coverage at all (backup / regular)."""
     TYPE=[None]*52
     for i,w in enumerate(empty_weeks):
