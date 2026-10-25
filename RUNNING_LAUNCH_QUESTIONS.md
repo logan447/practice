@@ -1939,3 +1939,73 @@ care on about 54 of them. There is no version with both.
 
 Calendar: Version 38 shows this scenario -- two colours, **zero
 dots**, 76 green days averaging 1.9 a week with six empty weeks.
+
+## PRACTICE RE-RUN, and TWO CORRECTIONS (2026-10-25)
+
+Model: `tools/practice_rerun_2029.py`.
+
+### CORRECTION 1: the old $65,348 was NOT overstated
+
+I warned it needed re-running with the two-car floor and would drop.
+The re-run gives **$64,026** -- the second car plus the $8,460 of
+missing lines took off **$1,322**, not the $6,000+ implied. Malpractice
+and licences/DEA/CME sit inside practice overhead here, so they are
+not double-charged in the household block.
+
+### The practice, 2029
+
+Average home visit $160.54 Medicare, **$153.11 blended** (25%
+Medicaid). Practice fixed overhead **$16,404/yr** (EMR 3,360,
+clearinghouse 1,500, malpractice 7,500 NEEDS-BROKER, comms 288,
+accounting 2,400, registration 156, licences/DEA/CME 1,200), plus
+$4/visit supplies and 15.6 mi/visit driving.
+
+| scenario | visits | collections | practice | SE+tax | IBR | care | SAVED |
+|----------|--------|-------------|----------|--------|-----|------|-------|
+| **A 83 green days, 8 visits** | 664 | 143,745 | 21,097 | 40,296 | 6,576 | **0** | **64,026** |
+| B 83 green days, 10 visits | 830 | 178,872 | 22,270 | 54,718 | 9,731 | 0 | 80,403 |
+| C 120 days, care on 37 | 960 | 198,777 | 23,189 | 62,782 | 11,496 | 10,878 | 79,807 |
+| D 141 days, care on 58 | 1,128 | 230,974 | 24,377 | 75,953 | 14,378 | 17,052 | 88,589 |
+
+**Scenario A is the no-nanny life**: 83 days on Jamie's rhythm, zero
+paid childcare, no 110-mile round trip, clears the floor by $39,026
+instead of missing it by $4,865 as the FCHC no-nanny version does.
+
+### CORRECTION 2: "PSLF is worth ~$576,000" was UNDISCOUNTED and misleading
+
+The FCHC benefit is one lump in 2037. The practice's cost spreads over
+25 years with the tax bomb around 2054. Discounted:
+
+| rate | FCHC loan edge | practice cash edge | winner |
+|------|---------------|--------------------|--------|
+| 0% | 576,508 | 312,208 | **FCHC by 264,300** |
+| 3% | 318,516 | 273,951 | FCHC by 44,566 |
+| **5%** | 222,899 | 252,233 | **PRACTICE by 29,334** |
+| 7% | 161,204 | 233,036 | PRACTICE by 71,832 |
+
+**At any realistic discount rate the two are a coin flip; past ~6% the
+practice wins.** Every earlier section of this file that says PSLF
+wins by half a million is overstating it.
+
+Outside both columns, both favouring the practice: a solo 401(k) opens
+~$70,000/yr of pre-tax space FCHC does not, and the practice's cash
+advantage **continues after 2037** while forgiveness happens once.
+
+### What actually decides it
+
+**Not the money.** On money it is close enough that the assumptions
+decide, and the assumptions are mine.
+
+- **FCHC's case is certainty.** $62.25/hr is a contract; forgiveness
+  is a statute. 2037 is knowable from 2029.
+- **The practice's case is $64,026 vs $25,000, no nanny, no commute,
+  and control of the calendar.**
+- **The practice's real risk is revenue, not the loan.** 664 home
+  visits built from nothing, needing 3-5% of DC's ~4,840 homebound
+  65+ (EST). Achievable on the earlier market work but a projection,
+  not a contract. Malpractice $7,500 is EST and NEEDS-BROKER. The
+  2054 tax bomb is a legislative coin flip both ways.
+
+**Standing summary: the practice is better on money and on life, worse
+on certainty. FCHC is the safe version of a worse outcome.** Owner's
+call, not the model's.
