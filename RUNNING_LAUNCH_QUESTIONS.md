@@ -2292,3 +2292,75 @@ a month may genuinely work, but that is **their** judgement. It also
 means **six weeks a year with no clinic at all** and weeks swinging
 from zero to five clinic days. That is the part they have to absorb
 and the thing to put in front of them honestly.
+
+## THREE MONTHS' NOTICE, and the leave figure corrected (2026-10-25)
+
+**OWNER-FACT:** Jamie's schedule is available a quarter at a time, so
+**FCHC can be given three months' notice**, not one. Model:
+`tools/fchc_salaried_admin.py`.
+
+### That removes the biggest non-money obstacle
+
+A quarter ahead sits inside the window routine primary care books in,
+so FCHC can place patients against the days AND can see the empty
+weeks coming rather than discovering them. The flexible-schedule
+objection recorded in earlier sections is now much smaller.
+
+### CORRECTION: "19 weeks of leave" is not a sacrifice
+
+Owner read it as giving up 7 weeks of vacation. It is the opposite --
+**19 weeks of leave is MORE paid time off than 12, not less.** The
+extra weeks are the **amber days**: the ~118 weekdays a year when
+Jamie is on shift and he has the children. In a salaried 0.75 FTE
+those are paid hours not spent in clinic, which the accounting calls
+leave. **The 12 blocks sit inside the 19, not in competition with
+it.** My "leave weeks" labelling caused the misreading.
+
+### CORRECTION: admin DOES count, because salaried
+
+"FCHC does not pay for admin" was true of the **hourly** arrangement,
+where only scheduled-patient time was clocked. A salaried 0.75 FTE
+buys 30 hours a week of a physician's work, and charting, inbox,
+results and calls ARE that work -- inside the FTE, not separately
+purchased. So worked hours are not just clinic hours:
+
+| clinic hrs/day | charting/clinic day | inbox/wk | worked | leave wks |
+|----------------|--------------------|----------|--------|-----------|
+| 12 | 0 | 0 | 996 | 18.8 |
+| 12 | 1.5 | 0 | 1,120 | 14.7 |
+| **12** | **1.5** | **2** | **1,200** | **12.0** |
+| 12 | 2.0 | 2 | 1,242 | 10.6 |
+| 12 | 2.5 | 2 | 1,284 | 9.2 |
+
+**12 clinic hours + 90 min charting per clinic day + 2 hrs inbox a
+week lands on exactly 12 weeks of leave.** Modest figures for
+1,660-1,992 encounters.
+
+What 12 weeks requires by day length: 10 hrs needs 4.5 hrs/day of
+paperwork (not credible); 11 needs 3.5; **12 needs 2.5 (plausible)**;
+13 needs 1.5.
+
+### THE ASK
+
+**0.75 FTE, 30 hrs/week annualized, schedule provided quarterly,
+12 clinic hours on the days Jamie is home, $55,000.**
+
+| | |
+|---|---|
+| SAVED | **$26,225** |
+| childcare | **$0** |
+| rate | $35.26/hr, ~half the director's |
+| FCHC cost | 40% of collections at 20 pts/day, 33% at 24 |
+| the 12 weeks | **intact** |
+
+Money by salary (zero childcare throughout): $45,000 -> $19,468;
+**$53,096 -> $25,000 exactly**; $55,000 -> $26,225; $60,000 ->
+$29,423; $65,000 -> $32,616.
+
+### WORDING THAT MATTERS MORE THAN IT SOUNDS
+
+**Do not let "nineteen weeks of paid leave" appear in the contract.**
+Write it as **"0.75 FTE, 30 hours per week annualized."** Same
+arrangement, hours and certification, but nobody on a board has to
+defend a leave figure and the paperwork hours stop needing a separate
+argument.
