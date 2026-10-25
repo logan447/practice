@@ -880,3 +880,92 @@ instead of 8.3** -- 2.5 extra years. Worse, months holding a partial
 leave block average under 30 and fail individually, so the blocks
 would have to be re-cut onto whole months. It does not help the
 savings floor either. Not recommended.
+
+## PSLF form, read directly. Two corrections. (2026-10-25)
+
+FCHC pays clinic hours only; charting, inbox and calls are unpaid
+(OWNER-FACT). Form text extracted from the current PDF (mirror:
+afscme.org/wp-content/uploads/2026/03/public-service-application-for-forgiveness.pdf).
+Model: `tools/clinic_hours_only.py`.
+
+### CORRECTION 1: the employer's-definition test is NOT gone
+
+It is gone from 34 CFR 685.219(b)(11). It is **still printed on the
+form** (FACT, verbatim):
+
+> "Full-time means working for one or more qualifying employers for
+> the greater of: (1) an annual average of at least 30 hours per week
+> or, for a contractual or employment period of at least 8 months, an
+> average of 30 hours per week; or (2) unless the qualifying
+> employment is with two or more employers, **the number of hours the
+> employer considers full time.**"
+
+And the instructions:
+
+> "You must be employed full-time by your employer. **Generally, you
+> must meet your employer's definition of full-time.** However, for
+> PSLF purposes, that definition must be at least an annual average of
+> 30 hours per week."
+
+An earlier section of this file said the comparison was removed and
+that FCHC "does not have to call the role full-time." Wrong as to the
+form. The regulation controls, but the form is what the certifying
+official reads.
+
+**Worse: item 7 is a checkbox, not a number** (FACT, verbatim):
+
+> "6. Employment End Date: OR Still Employed  **7. Employment Status:
+> Full-Time / Part-Time**  8. Hours Per Week (Average)"
+
+At 30 hrs against a 40-hr FTE, FCHC ticks Part-Time and no figure in
+box 8 repairs it. **This is now the top risk in the whole FCHC path.**
+
+### CORRECTION 2: a quote used earlier does not exist
+
+Earlier sections quoted *"All hours for which you are paid should be
+included."* That sentence is **not on the form**; a text search of the
+full PDF returns nothing. Retracted. The actual note beside box 8 is
+only: "Include vacation, leave time, or any leave taken under the
+Family Medical Leave Act of 1993."
+
+### The one favourable finding: leave need not be PAID
+
+> "**Vacation or leave time provided by the employer** or leave taken
+> for a condition that is a qualifying reason for leave under the
+> Family and Medical Leave Act of 1993, 29, U.S.C. 2612(a)(1) and (3)
+> **is equivalent to hours worked in qualifying employment.**"
+
+No "paid" anywhere. So 12 weeks of employer-GRANTED unpaid leave
+appears to count as hours. **NEEDS-COUNSEL / confirm with the servicer
+in writing** -- this reading is load-bearing and not certain.
+
+### Clinic hours only, with unpaid leave counted
+
+| clin/day | clinic hrs | leave hrs | total | avg/wk | PAY | care | SAVED | |
+|----------|-----------|-----------|-------|--------|-----|------|-------|-|
+| 8  |   960 | 288 | 1,248 | 24.00 | 48,000 | 24,276 |  5,837 | FAIL |
+| 9  | 1,080 | 324 | 1,404 | 27.00 | 54,000 | 26,588 |  7,408 | FAIL |
+| 10 | 1,200 | 360 | 1,560 | 30.00 | 60,000 | 28,900 |  8,938 | pass |
+| 11 | 1,320 | 396 | 1,716 | 33.00 | 66,000 | 31,212 | 10,457 | pass |
+| 12 | 1,440 | 432 | 1,872 | 36.00 | 72,000 | 33,524 | 11,426 | pass |
+
+**At 10-hour days: pay $60,000, saved $8,938, floor missed by
+$16,062. Take-home per clinic day $390 against $425 of childcare, so
+the kept amount on a care day is NEGATIVE $35 on 68 of 120 days.**
+
+**Rate needed to clear the floor: $74.25/hr** (DERIVED), 1.49x the
+current $50, = $89,103 for 1,200 clinic hours. Below most family
+medicine benchmarks for an 0.75 FTE panel owner, so this is the ask
+if the FCHC path continues.
+
+If the unpaid leave does NOT count: 1,200 hrs / 52 = 23.1 avg, fails,
+and reaching 1,560 needs 156 clinic days = 52 weeks of T/W/Th =
+**zero weeks off**.
+
+### Standing conclusion
+
+**The FCHC path does not work at $50/hr with charting unpaid.** Live
+options, in order: raise the rate to ~$74; get admin time paid; or
+drop PSLF for the solo practice (~$59,000 saved after the two-car
+correction, versus $8,938 here -- forgiveness is worth ~$500K but not
+at minus $35 a day).
