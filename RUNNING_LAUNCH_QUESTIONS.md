@@ -1727,3 +1727,63 @@ expense base, so the percentage argument alone will not fund it.
 **Fundable only if the 3,200 encounters are genuinely NEW**, not ones
 existing providers would have seen -- the same demand question raised
 at the very start of this file.
+
+## BEST SHAPE SO FAR: alternating 3/4 day weeks, 12 hrs (2026-10-25)
+
+Tue/Wed/Thu every week + Friday on alternate weeks. Model:
+`tools/fchc_alternating.py`. No backup weeks moved.
+
+| | |
+|---|---|
+| clinic days | **141** (Friday on even weeks; odd weeks gives 139) |
+| worked hours | 141 x 12 = **1,692** |
+| average | **32.54 hr/wk** -- passes by 2.54, no leave counted |
+| weeks off | **12** |
+| care days | **81** of 141 |
+| income at $60/hr | **$101,520** |
+| saved at care $24 | **$23,026 (-1,974)** |
+| saved at care $26 | $20,677 |
+| **rate needed at $24 care** | **$62.25 -- $4.72 UNDER the director** |
+| rate needed at $26 care | $64.93 -- also under |
+
+### Why this shape beats the others (all at $60/hr, care $24)
+
+| shape | days | worked hrs | avg/wk | income | SAVED |
+|-------|------|-----------|--------|--------|-------|
+| 3 days, 12h | 120 | 1,440 | 27.69 **FAILS** | 86,400 | 20,374 |
+| **alternating 3/4, 12h** | **141** | **1,692** | **32.54 pass** | **101,520** | **23,026** |
+| 4 days, 12h | 160 | 1,920 | 36.92 pass | 115,200 | 25,690 |
+| 4 days, 10h | 160 | 1,600 | 30.77 pass | 96,000 | 20,151 |
+
+**The alternating 12-hour week beats four 10-hour days by $2,875
+while working 19 FEWER days.** Twelve-hour days amortise the 2.5-hour
+commute over fewer trips, and that more than pays for the longer
+absence. It is also the only shape giving **two weekdays at home in
+half the working weeks** (Monday always, Friday on the 3-day weeks).
+
+### FCHC's side
+
+2,820 encounters, loaded cost $110,657. **44% of collections at
+$90/enc, 38% at $102.97** -- top of the normal 35-45% band, same as
+the straight 4-day version since cost scales with encounters. Per
+encounter $39.24 against the $21.80 paid today. $60/hr is $6.97 under
+the director; $101,520 against his $139,293.
+
+### The blocker is the SPAN, not the rate
+
+**14.5 hours away on clinic days, ~5:45am to 8:15pm.** DC in-home
+daycare closes around 6pm, so buying 14.5 hours of coverage is harder
+than buying it at $24/hr. **This is the obstacle in EVERY 12-hour
+configuration.** If no provider covers that span, the 12-hour day
+collapses and the fallback is 4 x 10 at $65.85.
+
+### Recommendation
+
+**Alternating 3/4 at 12 hrs, ask $62.25/hr.** More credible than the
+$65.85 ask, 19 fewer working days than the straight four-day week, and
+half the weeks have two weekdays at home. **Resolve the childcare span
+first** -- it decides whether this shape exists.
+
+Calendar: `year2029.html` Version 36 -- 141 clinic days, 81 dotted,
+1,692 hours, 32.54 worked hrs/week.
+https://claude.ai/artifact/QhKBckd3LTKdY3TLN94UAh
