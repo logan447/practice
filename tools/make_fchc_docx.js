@@ -43,11 +43,13 @@ const fig=fs.readFileSync('weeksfig.png'), cal=fs.readFileSync('appendix.png');
 const doc=new Document({
   footnotes:{
     1:{children:[new Paragraph({children:[
-        run("Overhead at 60 percent of collections. ",{size:16}),
-        link("AAFP, Family Practice Management (2010)","https://www.aafp.org/pubs/fpm/issues/2010/0300/p38.html"),
-        run(", citing MGMA survey data.",{size:16})]})]},
+        run("Marginal overhead at 40 percent of collections. Family medicine averages nearer 60 percent (",{size:16}),
+        link("AAFP, Family Practice Management","https://www.aafp.org/pubs/fpm/issues/2010/0300/p38.html"),
+        run("), but most of that is rent, records, management and front desk, which another session does not add to. Your own marginal figure would be better than my estimate.",{size:16})]})]},
     2:{children:[new Paragraph({children:[
-        run("",{size:16}),
+        link("MGMA Provider Compensation, 2024 report on 2023 data","https://mgmatraining.com/wp-content/uploads/2025/01/ProviderSpecialtyRollUps2024.pdf"),
+        run(". Primary care, all practices, 36,368 providers.",{size:16})]})]},
+    3:{children:[new Paragraph({children:[
         link("PSLF & TEPSLF Certification & Application","https://studentaid.gov/sites/default/files/public-service-application-for-forgiveness.pdf"),
         run(", U.S. Department of Education. Section 7 and the Section 3 instructions.",{size:16})]})]}},
   sections:[{
@@ -86,16 +88,21 @@ const doc=new Document({
 
       section("What the clinic keeps"),
       new Paragraph({spacing:{line:264,lineRule:"auto",after:80},
-        children:[run("After overhead"),new FootnoteReferenceRun(1),
+        children:[run("What matters is what another session adds, not what the practice averages. Rent, the records system, management and the front desk do not change because I am there on a Tuesday. After marginal overhead"),
+                  new FootnoteReferenceRun(1),
                   run(" and after paying me:")]}),
       table(["","At $90 a visit","At $103 a visit"],[
-        ["16 patients a day","$2,573","$9,463"],
-        ["20 patients a day","$14,525","$23,137"]]),
+        ["16 patients a day","$26,477","$36,811"],
+        ["20 patients a day","$44,405","$57,323"]]),
+      new Paragraph({spacing:{line:264,lineRule:"auto",before:110,after:0},
+        children:[run("For scale, median total compensation for a primary care physician is $312,427, and the lower quartile is $256,853"),
+                  new FootnoteReferenceRun(2),
+                  run(". This role is $41,500.")]}),
 
       section("One request about wording"),
       new Paragraph({spacing:{line:264,lineRule:"auto",after:0},
         children:[run("I am working toward Public Service Loan Forgiveness"),
-          new FootnoteReferenceRun(2),
+          new FootnoteReferenceRun(3),
           run(". The form asks the clinic for my average hours per week, counting vacation and leave. Writing the contract as 0.75 FTE, 30 hours per week annualized gives that figure directly.")]}),
 
       new Paragraph({children:[new PageBreak()]}),
