@@ -1033,3 +1033,71 @@ Not "$74.25/hr" (sounds like a 50% raise on an hourly rate). Instead:
 "T/W/Th panel, ~2,160 encounters/yr, ~$222,000 collections, all-in
 cost $97,119 = 44% of collections, no benefits, no paid time." Same
 money, framed as a productivity conversation.
+
+## Final FCHC configuration: 20 enc/day at $74.25/hr (2026-10-25)
+
+Model: `tools/fchc_min_rate.py`.
+
+**Structural point:** encounters do NOT enter the household math. Pay
+is rate x hours. Volume only changes what the CLINIC can afford. So
+"more patients for a lower rate" is two separate decisions, and the
+second is largely solved by the first.
+
+### 20 encounters fixes the clinic side without touching the rate
+
+20 x $102.97 = **$2,059/day, $247,128/yr**. Clinic contribution per
+day after physician AND overhead:
+
+| rate | loaded/day | % coll | OH 45% | OH 50% | OH 55% | OH 60% |
+|------|-----------|--------|--------|--------|--------|--------|
+| **74.25** | 809 | **39%** | +323 | +220 | +117 | **+14** |
+| 70.15 | 765 | 37% | +368 | +265 | +162 | +59 |
+| 66.06 | 720 | 35% | +413 | +310 | +207 | +104 |
+
+At 18 enc, $74.25 was 44% of collections and the clinic LOST money at
+60% overhead. At 20 enc it is 39% and stays positive even at 60%.
+**Volume fixed the clinic's side; the rate did not need to move.**
+
+### Volume is worth 4.6x more to FCHC than a rate cut
+
+| giving FCHC | worth to them |
+|-------------|---------------|
+| the 2 extra encounters (18->20) | **+$24,713/yr** |
+| cutting the rate $74.25 -> $70.15 | +$5,363/yr |
+
+### Why NOT to take the lower rate
+
+The only lever that lowers the rate is childcare, and the only cheap
+childcare lever is where Jamie's four backup weeks land. But **the
+rate is contracted once for eight years; the backup-week placement is
+renegotiated with her group every year.** Pricing the rate off a good
+scheduling year leaves no recovery in a bad one:
+
+| rate | saved in a year where NO backup weeks move |
+|------|-------------------------------------------|
+| 74.25 | $25,000 holds |
+| 70.15 | **$22,450** short $2,550 |
+| 66.06 | **$19,900** short $5,100 |
+
+**Decision: ask $74.25/hr, 20 enc/day, T/W/Th, 12 weeks off =
+$89,103.** Treat Jamie's backup weeks as buffer, not as a discount.
+Two moved = **$27,548**, the cushion against a childcare rate rise.
+
+### The unpaid-charting reality at 20/day
+
+30 min per encounter door to door (a normal pace, better than the 33
+min at 18 enc). But notes and inbox are unpaid, so:
+
+| notes+inbox | unpaid hrs/wk | EFFECTIVE rate | working week |
+|-------------|---------------|----------------|--------------|
+| 2.0 hr/day | 6.0 | $58.46/hr | 43.5 hrs |
+| 2.5 hr/day | 7.5 | $56.12/hr | 45.0 hrs |
+| 3.0 hr/day | 9.0 | $53.96/hr | 46.5 hrs |
+
+**The headline $74.25 is really $54-58, and the "three-day week" is
+43-47 hours.** It still clears the floor; it is not the job the
+headline rate describes. EST documentation load; NEEDS a real figure
+from FCHC's EMR and panel.
+
+PSLF unchanged in every row above: 1,200 clinic + 360 leave = 1,560 /
+52 = **30.00 hr/wk**, still conditional on the unpaid-leave reading.
