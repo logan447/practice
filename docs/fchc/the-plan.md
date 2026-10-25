@@ -7,56 +7,51 @@ model in `tools/`. Items marked UNSET are not confirmed.*
 
 ## CURRENT CONFIGURATION (2026-10-25, supersedes the section below)
 
-**Hourly, not salaried. 35-week contract, 83 clinic days, 13 clocked
-hours, $50 an hour.**
+**Hourly contract. 35 weeks, 70 clinic days, 15 clocked hours, $45 an
+hour.**
 
 | | |
 |---|---|
 | Contract period | 35 weeks = 8.05 months |
-| Clinic days | 83, only on weekdays Jamie is home |
-| Clocked hours a day | 13, including inbox, charting and overage |
-| Total hours | 1,079 |
-| Average | **30.8 h/week** across the contract |
-| Pay | $53,950 (loaded $58,806) |
+| Clinic days | 70, exactly two in every contract week |
+| Clocked hours a day | 15, including inbox, charting and overage |
+| Total hours | 1,050 |
+| Average | **30.0 h/week**, exact |
+| Pay | $47,250 (loaded $51,503) |
+| Patients a day | 16, so 32 a week |
 | Paid childcare | **none** |
-| Weeks off | 12, unchanged |
-| Weeks outside the contract | 5: 26 Mar, 9 Apr, 25 Jun, 10 Sep, 15 Oct |
-| **Household saves** | **$25,550** (FACT from `tools/fchc_worked_hours_only.py`) |
+| Weeks not working | 17: twelve blocks plus five off contract |
+| **Household saves** | **$21,552** against a $25,000 floor |
 
-This is the first configuration in the whole exercise that clears the
-$25,000 floor, keeps all twelve weeks off, needs no childcare, and
-reaches 30 hours a week. It clears the floor by **$550**.
+**Schedule given a quarter in advance**, targeting nine to ten weeks a
+quarter.
 
-**It no longer depends on the deleted paid-leave clause.** Every hour
-counted is an hour worked. That removes the largest regulatory risk
-carried by the salaried versions.
+**The margin on the eight-month floor is 0.2 weeks.** 34.32 weeks is
+exactly eight months. One quarter at eight weeks instead of nine lands
+the year at 34, which is 7.82 months, and the whole year's
+certification fails. Make up any shortfall in the next quarter.
 
-**The IBR payment is no longer $0.** At $53,950 against a 150% FPL of
-$48,225 (EST) the payment is about $572 a year. PSLF still works; the
-"reaches forgiveness having paid nothing" line does not.
+**Clinic economics**, 1,120 encounters, $112,000 collected at a $100
+blended rate, against a $51,503 loaded cost:
 
-**What it now depends on instead** (all `NEEDS-COUNSEL`):
+| Marginal overhead | Clinic keeps | Return |
+|---|---|---|
+| 19% (already staffed those days) | $39,217 | 76% |
+| 40% (central estimate) | $15,697 | 30% |
+| 55% (dedicated staffing) | -$1,103 | -2% |
 
-1. 34 CFR 685.219(b)(11)(i)(B) reaching a clinic rather than only
-   schools. Textually not excluded, no authority applying it.
-2. The contract period being the 35 weeks of aggregated working time.
-   The regulation says "a period", singular, and "throughout" it.
-   Written as an elapsed span the average drops to about 22.
-3. FCHC certifying roughly five hours a day of non-patient time as
-   clocked hours, in writing.
-4. Being on IBR rather than RAP before 1 July 2028.
-5. Collection per encounter, still UNSET.
+Break-even overhead 54 percent; cost $45.98 an encounter. The question
+that decides which column applies is not "what is your overhead" but
+"will I be working on days you are already open and staffed".
 
-**Clinic economics at this shape** (`tools/fchc_roi_35wk.py`,
-`tools/fchc_thirteen.py`): at 16 patients a day the clinic keeps
-$12,906, a 22% return on $58,806. At 20 it keeps $30,834, a 52%
-return. Sixteen is the version they will argue with. Twenty is the
-version that defends itself.
+**Still unresolved and needing counsel:** whether the 8-month provision
+reaches a clinic, whether a Service Period may be non-continuous,
+whether an average suffices where the regulation says "throughout",
+and whether FCHC will certify hours against the Service Period rather
+than the employment dates. See `docs/fchc/pslf-fulltime-research.md`
+and `docs/fchc/contract-language-draft.md`.
 
-**Fragility to state plainly:** the 83 days and the five empty weeks
-come from a *representative* year of Jamie's schedule, not her real
-one. The configuration is tuned to about one clinic day of slack. The
-real calendar will move it.
+**All thirty-two assumptions:** `docs/fchc/assumptions.md`.
 
 ## What I am asking for
 
