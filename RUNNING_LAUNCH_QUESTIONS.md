@@ -657,17 +657,17 @@ load-bearing and an HR rewrite quietly kills it.
 
 ### Clock
 
-22 qualifying payments made (OWNER-FACT, unverified against
-servicer). 120 - 22 = **98 left, 8 yrs 2 mo.**
+20 qualifying payments made (OWNER-FACT 2026-10-25, corrected from
+22, unverified against servicer). 120 - 20 = **100 left, 8 yrs 4 mo.**
 
 | start of 32 hr/wk role | forgiven |
 |------------------------|----------|
-| Jan 2027 | Mar 2035 |
-| Jul 2028 (six-stage ramp) | Sep 2036 |
-| Jan 2029 | Mar 2037 |
+| Jan 2027 | May 2035 |
+| Jul 2028 (six-stage ramp) | Nov 2036 |
+| Jan 2029 | May 2037 |
 
-At $80K the IBR payment is $3,178/yr, so the remaining 98 payments
-total ~$26,000 against ~$504,000 forgiven tax-free (DERIVED). That
+At $80K the IBR payment is $3,178/yr, so the remaining 100 payments
+total ~$26,500 against ~$504,000 forgiven tax-free (DERIVED). That
 ratio is why this beats the solo practice even though the practice
 wins on annual cash ($65,348 vs $26,606).
 
