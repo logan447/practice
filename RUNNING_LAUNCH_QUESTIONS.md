@@ -969,3 +969,67 @@ options, in order: raise the rate to ~$74; get admin time paid; or
 drop PSLF for the solo practice (~$59,000 saved after the two-car
 correction, versus $8,938 here -- forgiveness is worth ~$500K but not
 at minus $35 a day).
+
+## Can FCHC justify $74.25/hr? Volume, not rate. (2026-10-25)
+
+Model: `tools/fchc_clinic_economics.py`. This is the CLINIC's ledger.
+
+**Cost to FCHC:** $74.25 x 10 hrs = $742.50/day, +9% employer tax
+(EST) = **$809.33/day**, x 120 days = **$97,119/yr** ($89,100 wages).
+They buy 120 days of physician time and nothing else: no benefits, no
+paid leave, no paid admin. Worth saying aloud, because $97,119 all-in
+for a three-day physician undercuts most 0.75 FTE packages.
+
+**Revenue per encounter** (CY2026 CF $33.40 VERIFIED; total RVUs EST,
+REFRESH-AT-RUNWAY). EST mix 35/50/10/5 across 99213/14/15/12 with
+G2211 on each: **$110.72 gross, $102.97 net** of denials and
+uncollected patient share (NET_COLL 0.93 EST).
+
+**Physician cost as % of collections** (normal primary care 35-45%):
+
+| enc/day | $70 | $90 | $110 | $130 | $150 | $190 |
+|---------|-----|-----|------|------|------|------|
+| 12 | 96% | 75% | 61% | 52% | 45% | 35% |
+| 14 | 83% | 64% | 53% | 44% | 39% | 30% |
+| 16 | 72% | 56% | 46% | 39% | 34% | 27% |
+| 18 | 64% | 50% | 41% | 35% | 30% | 24% |
+| 20 | 58% | 45% | 37% | 31% | 27% | 21% |
+
+**$74.25/hr justifies itself at ~17-18 encounters per 10-hour day**
+(a 33-35 min average slot). Full stack with clinic overhead at 50% of
+collections (EST):
+
+| | 16 enc x $103 | 18 enc x $110 |
+|---|---|---|
+| collections/day | 1,648 | 1,980 |
+| physician | -809 (49%) | -809 (41%) |
+| overhead @50% | -824 | -990 |
+| CLINIC MARGIN | **+15** | **+181/day** |
+
+16 encounters is break-even; 18 gives FCHC ~$21,700/yr of
+contribution. At 55% overhead the break-even moves to 18 and margin
+needs 20.
+
+**Annual at 18 enc/day: 2,160 encounters, ~$222,000 collections,
+physician cost 44% of it.**
+
+### The decisive UNSET: is FCHC an FQHC or look-alike?
+
+| | collections, 16 enc/day | physician cost |
+|---|---|---|
+| FQHC PPS ~$185/visit (EST) | 2,960 | **27%** easy yes |
+| Medicare/commercial FFS $103 | 1,648 | 49% a stretch |
+| sliding-scale charity ~$70 | 1,120 | 72% impossible |
+
+If FQHC, $74.25 is affordable and more could be asked. If a
+donor-funded free clinic collecting $60-80/visit, **no achievable
+volume works** and the conversation becomes grant-funded salary
+support, not clinic economics. FQHC PPS ranges are EST and move by
+year and state; NEEDS the real figure.
+
+### How to frame the ask
+
+Not "$74.25/hr" (sounds like a 50% raise on an hourly rate). Instead:
+"T/W/Th panel, ~2,160 encounters/yr, ~$222,000 collections, all-in
+cost $97,119 = 44% of collections, no benefits, no paid time." Same
+money, framed as a productivity conversation.
