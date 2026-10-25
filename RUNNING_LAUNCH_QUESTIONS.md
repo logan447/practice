@@ -2470,3 +2470,61 @@ hrs/week because the contract says 30 hrs/week.
 **STANDING TARGET: $55,000, 0.75 FTE annualized, quarterly schedule,
 10-hour clinic days on Jamie-free days, 20 patients at 30-min slots,
 zero childcare, 12 real weeks off, $26,225 saved.**
+
+## OWNER'S CHOICE: $41,500 at 0.75 FTE (2026-10-25)
+
+Owner selected the $50 x 830-clinic-hour figure. **It only works as a
+SALARY, never as an hourly rate.**
+
+| framing | paid hours | average | |
+|---------|-----------|---------|-|
+| $50/hr for 830 clinic hours | 830 | **15.96/wk** | **PSLF FAILS** |
+| **$41,500 salaried, 0.75 FTE** | 1,560 | **30.00/wk** | **passes** |
+
+Same money. Hourly pays only clocked patient time, so no leave hours
+exist to count and nothing rescues it. **$41,500 paid hourly buys the
+commute and no forgiveness.** Written as "0.75 FTE, 30 hours per week
+annualized, $41,500" the certification reads 30.00.
+**This is the single most important line in the contract.**
+
+### A feature the bigger salaries lack: $0 loan payments
+
+$41,500 is below 150% FPL for a family of four ($48,225 EST), so the
+IBR payment is **$0**, and a $0 payment still counts. Forgiveness
+would be reached having paid **nothing** across all 100 remaining
+payments.
+
+### The year
+
+| | |
+|---|---|
+| salary, 0.75 FTE annualized | 41,500 |
+| federal MFS + DC + FICA | -7,299 |
+| student loan, IBR | **-0** |
+| childcare | **0** |
+| second car, 9,130 mi | -9,246 |
+| disability, life, licence, tolls, meals | -8,090 |
+| **SAVED** | **16,866** |
+| vs the $25,000 floor | **-8,134** |
+
+Rate: **$26.60/hr on the FTE, $50.00/hr of clinic time.** Both far
+under the director's $66.97.
+
+### FCHC's side, 16 patients, 38-min slots
+
+1,328 encounters, loaded $45,235 = **$34.06/encounter = 38% of
+collections @$90, 33% @$103.** In band. Their surplus from the role:
+**$14,525 @$90, $23,137 @$103** against a whole-organisation FY2024
+surplus of $21,133.
+
+### The trade being accepted
+
+**$8,134/yr under the floor, $67,759 across the window**, for
+~$490,000 forgiven and **$0 paid**. Not a deficit: he still SAVES
+$16,866/yr, with zero childcare, twelve real weeks off and 10-hour
+days. Whether $16,866 works for the household through 2037 is the
+owner's judgement, not the model's.
+
+**If the floor is wanted back, the lever is patients, not pay:** at 20
+patients/day on the same 83 days FCHC could fund **$54,826** at the
+same $50-per-clinic-hour logic. 30-minute slots instead of 38.
