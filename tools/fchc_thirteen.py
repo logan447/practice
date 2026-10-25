@@ -39,3 +39,19 @@ print(f"  Going from {FLOOR:.2f} h (the PSLF floor) to {H} h costs them "
 print(f"\nLABOUR COST PER VISIT at {H} clocked hours:")
 for pts in (16,20):
     print(f"  {pts} a day: ${LOADED/(DAYS*pts):,.2f} a visit")
+
+# ---- what the PSLF form reports depends on the period certified -------
+print("\n" + "="*66)
+print("THE FORM IS NOT SELF-EXECUTING: the period certified decides it")
+print("="*66)
+TOTH = 83*13
+for wks,lbl in [(35,"the 35 contract weeks"),
+                (45,"1 Feb to 14 Dec, elapsed calendar"),
+                (52.18,"the full calendar year")]:
+    a=TOTH/wks
+    print(f"  {lbl:<34} {a:>5.1f} h/week   "
+          f"{'FULL TIME' if a>=30 else 'NOT full time'}")
+print("\n  Same 1,079 hours in every row. Only the denominator moves.")
+print("  An HR office filling the form in for the calendar year writes")
+print("  20.7 and the certification fails. The contract has to define")
+print("  the period, and the certifier has to use it.")
