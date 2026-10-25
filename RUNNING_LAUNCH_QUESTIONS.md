@@ -1581,3 +1581,84 @@ call internationally. So the four weeks must land in the HOME-based
 off-weeks, not the travel ones. There is room, but the real trade is
 $5,600 of childcare against her being on-call during four weeks she
 would otherwise be fully present.
+
+## OWNER DECLINED moving the backup weeks (2026-10-25)
+
+Owner: "no i dont want that." The $5,600 of childcare is not worth
+Jamie being tethered during the 12 weeks the family is together.
+**So every figure above that assumed 76 care days is wrong for
+planning: the real count is 92 of 160 at Tue-Fri.**
+
+### $55/hr recomputed at 92 care days -- no solution
+
+| care $/hr | | saved | vs floor |
+|-----------|-|-------|----------|
+| 34 | solo sitter | 4,503 | -20,497 |
+| 28 | shared nanny | 11,403 | -13,597 |
+| 26 | shared nanny | 13,703 | -11,297 |
+| **24** | **in-home daycare** | **16,003** | **-8,997** |
+
+Care would need **$16.18/hr ($202/day)** -- does not exist in DC for
+three children. Shapes that do clear at $55 (4x13h, 5x12h, 5x13h) all
+need 15.5 hrs away or five days, and most need care at $22. Not real.
+
+**The binding constraint is the self-set $55, not the director.** Rate
+needed at 4x10, 92 care days: $71.39 at $28 care, $68.62 at $26,
+**$65.85 at $24 -- which is $1.12 BELOW the director's $66.97.** So
+"don't out-earn him" is satisfiable; $55 is not. OPEN QUESTION for the
+owner: is $55 a figure FCHC stated, or an estimate of what they would
+accept?
+
+## $60/hr x 12 clocked hours, 20 patients, Tue-Fri: CLEARS
+
+| | |
+|---|---|
+| worked hours | 160 x 12 = **1,920** |
+| average | **36.92 hr/wk** -- passes by ~7, no leave counted |
+| slots | 20 patients in 12 hrs = **36 min each** |
+| income | **$115,200** |
+| saved at care $24 | **$25,690 (+690)** |
+| saved at care $26 | $23,022 |
+| care rate needed | **$24.52/hr** |
+| take-home/clinic day | $477, care $377, kept $100 |
+| vs director | -$6.97/hr; $115,200 vs $139,293 |
+
+### FCHC's side: cost per encounter nearly doubles
+
+| config | $/day | $/encounter | % coll @$90 | @$103 |
+|--------|-------|-------------|-------------|-------|
+| now: 8 hrs @ $50 | 436 | **21.80** | 24% | 21% |
+| 10 hrs @ $55 | 600 | 29.98 | 33% | 29% |
+| **12 hrs @ $60** | **785** | **39.24** | **44%** | **38%** |
+
+44% at the low collection estimate is the TOP of the normal 35-45%
+band. The argument for it: FCHC currently buys physician labour at
+**21-24% of collections, about half the normal share**, so this is
+normalising, not a premium. And 36-min slots for complex underserved
+patients is a care-quality argument, not only a pay one.
+
+### Two problems, the second bigger than the money
+
+1. **14.5 hours of COVERAGE is harder to buy than $24/hr.** Licensed
+   DC in-home daycare closes ~6pm; this needs 5:45am-8:15pm. Needs a
+   nanny on a 14.5-hr day, or two providers. The span, not the rate,
+   is the obstacle. (Minor: the four backup weeks hit 58 hrs/wk so
+   FLSA overtime applies, ~$864/yr. Other weeks average 33 hrs.)
+2. **Gone for the children's entire waking day, 4 of 7 days.** At
+   home: Mondays, weekends, the 12 weeks.
+
+### THE DECISIVE COMPARISON
+
+| | income | away/day | SAVED |
+|---|--------|----------|-------|
+| 4 x 12h at $60 | 115,200 | **14.5 hrs** | 25,690 |
+| 4 x 10h at $65.85 | 105,360 | **12.5 hrs** | 25,000 |
+
+**Same money.** The 12-hour version earns $9,840 more and keeps none
+of it -- childcare and tax take all of it. It costs 2 hrs x 160 days =
+**320 hours a year**, eight working weeks of waking time with the
+children. And $65.85 is still $1.12 under the director.
+
+**Recommendation: if there is ANY room between $60 and $66, take the
+ten-hour day.** The 320 hours are being bought back out of money that
+was never going to be kept.
