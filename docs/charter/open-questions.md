@@ -23,6 +23,15 @@ item.** This remains the most important patient-facing design artifact
 after the price itself — it protects both the panel math (unit economics
 §3) and the promise of simplicity.
 
+### Q-24 — Lifestyle Medicine program structure `YOU` + me
+Design review v1: `docs/care-model/lifestyle-medicine-program-review.md`.
+A one-year, three-phase program collides with D-014's "no pre-designed
+program" wording and with the ~5.6 hr/patient budget (year one ≈ 12–18 h
+as proposed, ≈ 8.5–10 h lean). Needs owner decisions U1–U12 there,
+starting with how the program sits inside the $100 membership (U1), the
+pre-enrollment depth (U3), and the concurrent cap (U4). Then log it as a
+decision and write the patient and referral descriptions.
+
 ### Q-20 — Panel-mix instrumentation `YOU` + me
 The flat rate stands or falls on mix (heavy users ≈ 1 in 8–10). Needs: a
 simple per-patient utilization measure the EHR/tooling must support
