@@ -31,6 +31,11 @@ as proposed, ≈ 8.5–10 h lean). Needs owner decisions U1–U12 there,
 starting with how the program sits inside the $100 membership (U1), the
 pre-enrollment depth (U3), and the concurrent cap (U4). Then log it as a
 decision and write the patient and referral descriptions.
+Solo capacity first pass: `docs/care-model/lifestyle-medicine-capacity-first-pass.md`
+(~100 active works only if most are in maintenance; ~30–40 new starts a
+year is the real limit). The 2026-11-09 deck makes the program a separately
+priced product with a defined scope, which conflicts with D-029/D-014:
+replace, run alongside, or sit inside the membership is now the first call.
 
 ### Q-20 — Panel-mix instrumentation `YOU` + me
 The flat rate stands or falls on mix (heavy users ≈ 1 in 8–10). Needs: a
