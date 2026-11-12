@@ -74,7 +74,11 @@ p+p{{margin-top:7pt}}
 
 /* panel 2 - recognition (flap) */
 .recog{{background:var(--band-warm)}}
-.recog .last{{font-weight:600}}
+.recog p{{font-size:10.2pt;line-height:1.62}}
+.recog p+p{{margin-top:9pt}}
+/* the payoff line sits at the foot of the flap, as the closing blocks do
+   on panels 3-4, so a short panel reads as composed rather than unfilled. */
+.recog .last{{font-weight:600;margin-top:auto;padding-top:12pt}}
 
 /* panels 3-4 */
 .list{{list-style:none;padding:0;margin:8pt 0}}
@@ -85,7 +89,9 @@ p+p{{margin-top:7pt}}
   border-left:1.6pt solid var(--accent);border-bottom:1.6pt solid var(--accent);
   transform:rotate(-45deg)}}
 .lead{{font-weight:600;font-size:9.4pt;margin-top:9pt}}
-.closing{{margin-top:9pt;padding-top:8pt;border-top:1px solid var(--hair)}}
+/* the closing block sits at the panel foot: it anchors the panel and
+   takes up the slack left by panels that run short. */
+.closing{{margin-top:auto;padding-top:10pt;border-top:1px solid var(--hair)}}
 
 /* panel 5 - price */
 .price{{background:var(--band-tint)}}
@@ -120,83 +126,99 @@ p+p{{margin-top:7pt}}
 
 P1_COVER = f"""
 <section class="panel wide cover">
-  <div class="wordmark">DuBose, M.D.<small>Direct primary care</small></div>
-  <h1>Unhurried primary care from a doctor who knows you.</h1>
+  <div class="wordmark">Direct Lifestyle Medicine<small>Logan DuBose, M.D.</small></div>
+  <h1>Prevention first, with medical care when you need it.</h1>
   <div class="pricing">
-    <b>Adult primary care &middot; $100 a month &middot; Cancel anytime</b>
-    <span>Works alongside your insurance.</span>
+    <b>Adults &middot; $99 a month &middot; Cancel anytime</b>
+    <span>Reduced and free memberships available.</span>
   </div>
   <div class="photo-frame"><img src="{PHOTO}" alt=""></div>
 </section>"""
 
 P2_RECOG = """
 <section class="panel narrow recog">
-  <h2>If your health has started to feel like too much</h2>
+  <h2>Where most people start</h2>
   <hr class="rule">
-  <p>Maybe it&rsquo;s several things at once &mdash; blood pressure creeping up, sleep
-  that never feels like rest, results nobody fully explained, medications you&rsquo;re
-  not sure you still need. Maybe you&rsquo;ve seen good specialists, and each one
-  checked their part &mdash; but no one is looking at the whole of it, with you.</p>
-  <p>Or maybe nothing is wrong yet. You&rsquo;d just like a doctor who knows you
-  before something is.</p>
-  <p>The problem usually isn&rsquo;t a lack of healthcare. It&rsquo;s that nobody has
-  time to think it through with you.</p>
+  <p>Maybe it&rsquo;s several things at once. Blood pressure creeping up. Sleep
+  that never feels like rest. Weight that will not move. Results you&rsquo;d like
+  to understand better. Medicines you have questions about.</p>
+  <p>Or maybe nothing is wrong yet. You just want to keep it that way, and you
+  want a doctor who knows you.</p>
+  <p>Either way, we start the same. A full look at your health and the way you
+  live, then a plan you can actually follow.</p>
   <p class="last">That is what this practice is for.</p>
 </section>"""
 
-P3_WORK = """
+P3_SERVICES = """
 <section class="panel wide">
-  <h2>Medicine, given room to work</h2>
+  <h2>Three parts of one practice</h2>
   <hr class="rule">
-  <p>My job is to listen carefully, understand your whole situation &mdash; medical,
-  and the life around it &mdash; figure out what&rsquo;s urgent, what matters most, and
-  what can wait, and then work the plan with you over time.</p>
+  <p>Not three plans. Every member gets the first. The other two come in as
+  your health calls for them.</p>
+  <p class="lead">Prevention and lifestyle medicine</p>
+  <p>The foundation, for every member. Screenings on time, and a written plan
+  with goals we check against. We work on:</p>
+  <ul class="list">
+    <li>Food and metabolic health</li>
+    <li>Movement</li>
+    <li>Sleep</li>
+    <li>Stress and emotional health</li>
+    <li>The people around you</li>
+    <li>Alcohol, tobacco, and other habits</li>
+  </ul>
+  <p class="lead">Medical care and treatment</p>
+  <p>I examine, diagnose, order labs and imaging, prescribe, and follow up on
+  results. Starting with lifestyle is not a rule against using medicine.</p>
+  <p class="lead">Care coordination</p>
+  <p>I work with your other doctors, make referrals, and track what comes back.
+  If I am your only doctor, I help you set up whatever else you need.</p>
+  <p class="closing"><b>You do not need another doctor to join.</b> If you have
+  one, I work alongside them. You are never asked to choose.</p>
+</section>"""
+
+P4_CARE = """
+<section class="panel wide">
+  <h2>How care happens</h2>
+  <hr class="rule">
+  <p>Most care happens by video and secure messaging. When an exam needs it, I
+  come to you at home. When clinic space is better, I use space I keep for
+  exactly that. There is no required visit schedule. Care follows what your
+  health needs.</p>
   <p class="lead">Included, with no per-visit charges:</p>
   <ul class="list">
+    <li>A full first assessment of your health and habits</li>
+    <li>A written plan, reviewed as you go</li>
     <li>Visits as your care needs them, as long as they need to be</li>
     <li>Direct messaging with me between visits</li>
     <li>Every result reviewed and explained</li>
-    <li>Prescriptions managed; refills handled without games</li>
-    <li>Referrals and coordination across your other doctors</li>
+    <li>Medicines managed within my scope</li>
+    <li>Referrals and coordination with your other doctors</li>
     <li>Forms and paperwork handled</li>
-    <li>An unhurried annual review of everything</li>
   </ul>
-  <p class="closing">This isn&rsquo;t alternative medicine or a wellness program.
-  It&rsquo;s evidence-based primary care with enough time to work.</p>
-</section>"""
-
-P4_FITS = """
-<section class="panel wide">
-  <h2>Care that fits you</h2>
-  <hr class="rule">
-  <p>Most care happens by video and secure messaging, at the speed of your
-  life. When an exam truly needs it, I come to you at home; when clinic space
-  is better, we use space I keep for exactly that. There is no required visit
-  schedule &mdash; care follows what your health actually needs.</p>
-  <p>Between visits, message me: I answer within 1&ndash;2 business days, usually
-  faster. I keep business hours, and I take real time away each year &mdash; always
-  with a clear plan for how your care works while I&rsquo;m gone. Away means
-  slower &mdash; never unaware.</p>
+  <p class="closing">Between visits, message me. I answer within 1&ndash;2 business
+  days, usually faster. I keep business hours and take real time away each year,
+  always with a clear plan for your care while I&rsquo;m gone. Away means slower,
+  never unaware.</p>
 </section>"""
 
 P5_PRICE = """
 <section class="panel narrow price">
   <h2>The price, plainly</h2>
   <div class="card">
-    <div class="amt">$100 <span>a month</span></div>
+    <div class="amt">$99 <span>a month</span></div>
     <div class="per">per adult &middot; flat and published &middot; no enrollment fee &middot;
     no contract &middot; cancel anytime</div>
-    <p><b>What it doesn&rsquo;t cover:</b> labs, imaging, medications, specialists,
-    urgent care, ER, and hospital care. Your insurance keeps paying for those
-    exactly as it does today &mdash; the membership works alongside insurance, not
-    instead of it. On Medicare or Medicaid? You can still join; one extra form
-    handles it.</p>
+    <p><b>If $99 is a barrier,</b> say so when we talk. I offer a reduced monthly
+    fee based on your finances, and a small number of free memberships. The
+    medical care is the same at every level. No application, just a
+    conversation.</p>
+    <p><b>What it doesn&rsquo;t cover:</b> labs, imaging, medicines, specialists,
+    urgent care, ER, and hospital care. Your insurance keeps paying for those as
+    it does today. On Medicare or Medicaid? Ask me. How a membership works with
+    those programs is still being settled.</p>
     <p><b>What&rsquo;s the catch?</b> I keep business hours and am not an emergency
-    service. I take real time away each year. And when my panel is full, it is
-    full. That is the whole catch.</p>
-    <p>If $100 a month would genuinely prevent care, say so when we talk. I
-    keep a limited number of reduced-rate memberships &mdash; no application, just
-    a conversation.</p>
+    service. I treat within my scope and refer when something is outside it. And
+    when my panel is full, it is full. That is the whole catch.</p>
   </div>
 </section>"""
 
@@ -205,22 +227,22 @@ P6_BACK = """
   <div class="main">
     <h2>Start with a conversation. That&rsquo;s all.</h2>
     <hr class="rule">
-    <p>Thirty minutes, by video, free. Tell me what&rsquo;s going on; I&rsquo;ll tell you
-    honestly whether I can help &mdash; and if I&rsquo;m not the right fit, I&rsquo;ll say so
-    and point you toward someone good.</p>
+    <p>Thirty minutes, by video, free. Tell me what&rsquo;s going on. I&rsquo;ll tell you
+    honestly whether I can help, and if I&rsquo;m not the right fit, I&rsquo;ll say so and
+    point you toward someone good.</p>
     <div class="qr-row"><div class="qr"><b>QR</b></div>
       <div class="lbl"><b>Book a free conversation</b><span>[site]/book</span></div></div>
     <div class="qr-row"><div class="qr"><b>QR</b></div>
       <div class="lbl"><b>Everything else, answered</b><span>[site]</span></div></div>
     <div class="contact">
-      <b>DuBose, M.D.</b><br>[City], Texas<br>[phone] &middot; [email]<br>
-      I care for adults only.
+      <b>Direct Lifestyle Medicine</b><br>Logan DuBose, M.D. &middot; [City], Texas<br>
+      [phone] &middot; [email]<br>I care for adults only.
     </div>
   </div>
   <div class="strip">
     <div class="em">If this is an emergency, call 911 or go to the nearest ER.</div>
-    <div class="legal">This practice is a direct primary care medical service
-    agreement under Texas law; it is not health insurance.</div>
+    <div class="legal">This practice is a direct medical service agreement
+    under Texas law; it is not health insurance.</div>
   </div>
 </section>"""
 
@@ -239,7 +261,7 @@ def proof():
             "@page{size:11in 8.5in;margin:0}body{background:#fff}"
             ".pg{page-break-after:always}</style>"
             f"<div class='sheet pg'>{P2_RECOG}{P6_BACK}{P1_COVER}</div>"
-            f"<div class='sheet'>{P3_WORK}{P4_FITS}{P5_PRICE}</div>")
+            f"<div class='sheet'>{P3_SERVICES}{P4_CARE}{P5_PRICE}</div>")
 
 
 PAGES = {
@@ -248,11 +270,11 @@ PAGES = {
                     [P2_RECOG, P6_BACK, P1_COVER],
                     [(NARROW, "fold"), (NARROW + WIDE, "fold")]),
     "inside": page("Inside face", "draft preview &middot; panels 3 | 4 | 5",
-                   [P3_WORK, P4_FITS, P5_PRICE],
+                   [P3_SERVICES, P4_CARE, P5_PRICE],
                    [(WIDE, "fold"), (WIDE * 2, "fold")]),
     "closed": page("Front cover", "as handed to someone", [P1_COVER], []),
     "firstopen": page("First open", "inside of cover + flap: panel 3 | panel 2",
-                      [P3_WORK, P2_RECOG], [(WIDE, "fold")]),
+                      [P3_SERVICES, P2_RECOG], [(WIDE, "fold")]),
 }
 
 SIZES = {"outside": 11.0, "inside": 11.0, "closed": WIDE, "firstopen": WIDE + NARROW}
@@ -263,7 +285,15 @@ def main():
     # this build; Playwright sets the viewport reliably.
     from playwright.sync_api import sync_playwright
 
-    chrome = glob.glob("/opt/pw-browsers/chromium-*/chrome-linux/chrome")[0]
+    # The bundled browser has moved between chrome-linux/ and chrome-linux64/
+    # across Playwright versions; the stable symlink is tried first.
+    cands = ["/opt/pw-browsers/chromium"]
+    for pat in ("/opt/pw-browsers/chromium-*/chrome-linux*/chrome",
+                "/opt/pw-browsers/chromium_headless_shell-*/chrome-linux*/headless_shell"):
+        cands += sorted(glob.glob(pat))
+    chrome = next((c for c in cands if pathlib.Path(c).exists()), None)
+    if chrome is None:
+        raise SystemExit("no bundled Chromium found under /opt/pw-browsers")
     with sync_playwright() as pw:
         browser = pw.chromium.launch(executable_path=chrome)
         pg = browser.new_page(device_scale_factor=2, viewport={"width": 1056, "height": 900})

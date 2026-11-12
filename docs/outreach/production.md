@@ -142,8 +142,10 @@ Mailed packet — letter · one-pager · insert · 2 brochures · 1 card ·
 | **Total** | **≈ $3.25–4.00** |
 
 **Acquisition math:** at ~$3.50/packet, one enrolled patient
-($100/month, researched ~2+ year average DPC tenure) pays for ~28
-packets in the first month alone. Print cost is negligible in the
+($99/month at the standard fee, researched ~2+ year average
+direct-pay tenure) pays for ~28 packets in the first month alone.
+Sliding-scale and pro bono members (D-039) pay for fewer or none, so
+the mix matters at scale; it does not change the conclusion here. Print cost is negligible in the
 acquisition economics; the binding cost is physician time per drop-off
 and follow-up. Optimize the packet for conversion and credibility, not
 for saving fifty cents.

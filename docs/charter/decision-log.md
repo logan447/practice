@@ -571,3 +571,51 @@ the alternation.
 $100 direct-primary-care model. The duplication rule is currently
 broken between site and print. **Revisit trigger:** before any print
 run or outreach packet goes out.
+
+### D-039 addendum — print and outreach brought into line (2026-11-12)
+
+The brochure (`docs/outreach/pieces/01-patient-brochure.md` and
+`print/brochure/build.py`), the one-pager
+(`docs/outreach/pieces/02-practice-one-pager.md`), the packet
+architecture and the production economics now carry the same model as
+the site. The duplication rule is closed between site and print.
+
+**The brochure's §5 debt is paid at the root.** Open item 3 on the
+brochure, queued 2026-08-21, held three debts: em dashes, reading
+level, and a physician-respect problem on panel 2. Panel 2 carried
+"results nobody fully explained," "no one is looking at the whole of
+it, with you," and "The problem usually isn't a lack of healthcare.
+It's that nobody has time to think it through with you." Those are
+banned patterns in House Style §5, in the one piece designed to be
+handed to a patient **by their own physician**. They are deleted, not
+softened. The panel now describes what this practice does and says
+nothing about what anyone else fails to do. Em dashes are gone from
+every panel; the register is short plain sentences.
+
+**Insert D lost two lines for the same reason.** "A doctor with time to
+listen" is a time-contrast pattern aimed at organizations whose people
+already have doctors. "For seniors: you keep Medicare" is an assurance
+the practice cannot currently give.
+
+**Panel 3 is now the three services** and states "You do not need
+another doctor to join" in bold, because the brochure travels inside
+clinician packets and that sentence is what stops the piece reading as
+a bid for their patients.
+
+**Nothing in print states how Medicare or Medicaid work with a
+membership.** Print says the fee is not billed to them and invites the
+question. Guardrail 4b in the packet architecture now forbids more
+until counsel settles it. `NEEDS-COUNSEL`
+
+**Build note.** `print/brochure/build.py` could not run: its Chromium
+glob expected `chrome-linux/`, and the bundled browser is now at
+`chrome-linux64/`. The lookup tries the stable `/opt/pw-browsers/chromium`
+symlink first and falls back across both layouts. Panels 2, 3 and 4
+gained foot-anchored closing blocks (`margin-top:auto`) so short panels
+read as composed rather than unfilled, and the flap is set a shade
+more open. Proof renders: 2 pages, exact 11 x 8.5 in trim.
+
+**Still not reconciled:** `docs/acquisition/`, `docs/agreements/`, and
+most of `docs/charter/` carry the $100 direct-primary-care model.
+`docs/agreements/medicare-medicaid-membership.md` is the one to read
+first, since D-039 unsettles its conclusions.

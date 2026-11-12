@@ -9,7 +9,9 @@ standing rules). Drafting now is preparation, like the website.*
 
 Anchors: **`docs/style/README.md` (House Style — binds all copy in this
 packet, §5 physician-respect especially)** · D-022 (grassroots +
-employer growth) · D-029/D-030 ($100/month, adults only) · D-031/D-033
+employer growth) · **D-039 (Direct Lifestyle Medicine, $99/month,
+sliding scale and pro bono, three integrated services, no PCP
+required)** · D-029/D-030 (adults only) · D-031/D-033
 (insurance never required; members keep their coverage and clinicians) ·
 D-016 (onboarding as capacity gate; "let me refer you well") · D-017
 (bounded availability) · R-13 (no claims that outrun evidence) ·
@@ -48,7 +50,7 @@ source of truth:
 | Candidate item | Verdict | Reason |
 |---|---|---|
 | Separate "practice model explainer" | **Cut — merged** | This *is* the one-pager. A flyer + an overview + a model explainer are three names for one job. |
-| Standalone pricing / "how $100/month works" sheet | **Cut — merged** | Price belongs on the one-pager and brochure in two sentences. The full coverage-interaction detail (Medicare private contract, Medicaid acknowledgment, QMB exclusion) stays **website-only**: it is counsel-sensitive, easy to get subtly wrong in print, and will drift. Print states the price and links to the pricing page. |
+| Standalone pricing / "how $99/month works" sheet | **Cut — merged** | Price belongs on the one-pager and brochure in two sentences. Coverage-interaction detail stays **off print entirely**: as of D-039 the Medicare and Medicaid arrangements are not settled, so print has nothing settled to state. Print gives the price, names the sliding-scale and pro bono options, and routes Medicare and Medicaid questions to the free conversation. |
 | Telemedicine / home-visit mechanics sheet | **Cut — merged** | A "how visits work" panel of the brochure; depth lives on the How-it-works page. |
 | **CV / credentials document** | **Cut from default packet** | Three reasons. (a) The full CV and research background already live at `/cv` — every print piece can point there. (b) The credential guardrails (internship at GW; no residency or board certification; IBLM in progress) mean a bare CV in a folder invites the residency question with nobody present to frame it honestly; the accurate one-sentence credential line, *in context* on the clinician insert, serves trust better than a document that raises questions it can't answer. (c) It reads as self-promotion in exactly the packets meant to feel modest. **Posture: printed CV available on request; clinician-facing inserts carry the exact credential sentence + the `/cv` link.** Owner to confirm. |
 | Research background document | **Cut** | One line on the clinician insert + `/cv` link. |
@@ -74,7 +76,7 @@ source of truth:
 
 | Attribute | Detail |
 |---|---|
-| What | "DuBose, M.D. — at a glance." One sheet, front side: what the practice is, who it serves, what's included, the price, the honest limits; back side: short bio with the accurate credential line, photo, contact, QR block. |
+| What | "Direct Lifestyle Medicine — at a glance." One sheet, front side: the three services, who it serves, what's included and how care happens, the price including the sliding scale, the honest limits; back side: short bio with the accurate credential line, photo, contact, QR block. |
 | Recipient | The professional/gatekeeper — **not** patient-voiced. Written so they can judge relevance for the people they serve. |
 | Job | The 60-second understanding. Also the piece that survives on file after brochures are given away. |
 | Core or specific | **Core.** Identical in every packet. |
@@ -86,7 +88,7 @@ source of truth:
 
 | Attribute | Detail |
 |---|---|
-| What | One tri-fold, patient-voiced brochure. Panels: the situation it serves (the untangling story, per the messaging pillars) · what membership includes · how visits work (video / home when clinically appropriate / clinic space when needed) · $100/month and what it doesn't cover, in two honest sentences · the limits ("business hours; not an emergency service") · the free conversation + QR/URL. |
+| What | One tri-fold, patient-voiced brochure. Panels: the situation it serves · the three services, with "you do not need another doctor to join" stated plainly · how visits work (video / home when clinically appropriate / clinic space when needed) and what membership includes · $99/month, the sliding scale and pro bono memberships, and what it doesn't cover · the limits ("business hours; not an emergency service; I treat within my scope") · the free conversation + QR/URL. |
 | Recipient | The person the organization hands it to — the prospective patient. The org is the distributor, not the audience. |
 | Job | The *only* piece designed to leave the building. Everything else supports the moment someone says "you should talk to this doctor" and hands this over. |
 | Core or specific | **Core.** One brochure for all audiences. Resist audience-variant brochures: inventory pain, drift risk, and the patient-facing story is the same story. |
@@ -98,7 +100,7 @@ source of truth:
 
 | Attribute | Detail |
 |---|---|
-| What | Standard card: name, "physician — adult primary care," phone, email, site URL, small QR to the booking page. Credential-accurate title only. |
+| What | Standard card: name, "Direct Lifestyle Medicine" and "physician · prevention and lifestyle medicine," phone, email, site URL, small QR to the booking page. Credential-accurate title only. |
 | Recipient | Anyone; passed person-to-person. |
 | Job | Smallest unit of referral; survives wallets. |
 | Core or specific | **Core.** |
@@ -208,15 +210,20 @@ clients' care — including medication — and collaborate with me?*
 - **Distinct question answered:** *can the people I serve actually
   afford and reach this — and is it safe to recommend?*
 - Content, plain community register (website copy filter applies):
-  a doctor with time to listen · $100/month, everything about my care
-  included, cancel anytime · you keep your insurance and your other
-  doctors · **for seniors: you keep Medicare** — one reassurance
-  sentence, details deferred to the pricing page and the free
-  conversation (the private-contract mechanics stay off print) · **the
-  access rate, in the website's exact framing:** a limited number of
-  reduced-rate memberships when the standard price would genuinely
-  prevent care — no application, just a conversation · the free
-  conversation as the zero-risk first step.
+  prevention and lifestyle medicine with medical care when it is needed
+  · $99/month, everything about my care included, cancel anytime · you
+  keep your insurance and your other doctors, and **you do not need a
+  doctor already to join** · **cost should not decide it:** a reduced
+  monthly fee based on finances, and a small number of free
+  memberships, with the same medical care at every level, no
+  application, just a conversation · the free conversation as the
+  zero-risk first step.
+- **Removed 2026-11-12 (D-039):** "a doctor with time to listen" (a §5
+  time-contrast pattern, and this insert goes to organizations whose
+  people already have doctors) and "for seniors: you keep Medicare"
+  (an assurance the practice cannot currently give; `NEEDS-COUNSEL`).
+  Seniors asking about Medicare are routed to the free conversation,
+  the same as everyone else, until counsel settles it.
 - Explicitly *not* sales-voiced: no urgency, no scarcity framing beyond
   the honest panel limit.
 - Serves churches, community organizations, senior centers, and
@@ -263,10 +270,10 @@ sees **5 pieces**.
 ## 6. Duplication rules (what print must never fork)
 
 The website is the deep source; print summarizes and routes. Never
-reproduced in print: the coverage-interaction table (Medicare/
-Medicaid/QMB mechanics), the membership agreement, the FAQ, the CV, the
-access-rate criteria. Print states each in ≤2 sentences and points to
-the page. Canonical phrases are reused verbatim wherever they appear.
+reproduced in print: Medicare and Medicaid mechanics (unsettled as of
+D-039, so print routes them to a conversation rather than summarizing
+them), the membership agreement, the FAQ, the CV, the sliding-scale
+criteria. Print states each in ≤2 sentences and points to the page. Canonical phrases are reused verbatim wherever they appear.
 Any figure that appears in print gets `REFRESH-AT-RUNWAY`.
 
 ## 7. Standing guardrails (bind every piece)
@@ -285,9 +292,18 @@ Any figure that appears in print gets `REFRESH-AT-RUNWAY`.
 3. Bounded availability stated, not hidden: business hours, not an
    emergency service, real time away (D-017). No concierge or 24/7
    implication anywhere.
-4. $100/month, adults only, cancel anytime (D-029/D-030/D-027) —
-   identical everywhere. No legacy $5,000/year or luxury-concierge
-   framing (archived; stays archived).
+4. $99/month, adults only, cancel anytime (D-039/D-029/D-030/D-027) —
+   identical everywhere, always with the sliding-scale and pro bono
+   memberships named alongside it so the price never reads as a gate.
+   No legacy $5,000/year or luxury-concierge framing (archived; stays
+   archived).
+4a. Scope stated, not implied (D-039): the practice treats within scope
+   and refers outside it. No piece may suggest it guarantees
+   comprehensive primary care, and none may suggest a member must have
+   another physician. Both directions are wrong.
+4b. Medicare and Medicaid: no print piece states how a membership works
+   with them until counsel settles it. Print may say I do not bill
+   them, and may invite the question. `NEEDS-COUNSEL`
 5. No PHI mechanics in v1: referral = patient books, or clinician
    introduces with permission.
 6. Website standing rules apply to print: no emojis, copy filter,

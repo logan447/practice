@@ -1,8 +1,9 @@
 # Patient Brochure — Draft Copy
 
 *Piece 1 of the outreach packet (architecture §3.3). Status: **draft for
-review.** Patient-voiced, first person, per the website register. Copy
-here condenses approved website copy — where a sentence exists on the
+review.** Rewritten 2026-11-12 for D-039 (Direct Lifestyle Medicine,
+$99/month). Patient-voiced, first person, per the website register.
+Copy here condenses approved website copy — where a sentence exists on the
 site, the brochure reuses it verbatim or trims it, never rewrites it
 (duplication rule §6). All standing rules bind: no emojis, copy filter,
 credential accuracy, one CTA, canonical phrases verbatim, R-13. Print
@@ -26,8 +27,8 @@ spread, left to right → back cover.
 |---|---|
 | Front cover | 1 — The promise and the price |
 | First seen on opening | 2 — Recognition |
-| Inside spread, left | 3 — Medicine, given room to work |
-| Inside spread, middle | 4 — Care that fits you |
+| Inside spread, left | 3 — Three parts of one practice |
+| Inside spread, middle | 4 — How care happens |
 | Inside spread, right | 5 — The price, plainly |
 | Back cover | 6 — Start with a conversation |
 
@@ -35,13 +36,13 @@ spread, left to right → back cover.
 
 ## Panel 1 · Front cover
 
-> **DuBose, M.D.**
-> direct primary care
+> **Direct Lifestyle Medicine**
+> Logan DuBose, M.D.
 >
-> # A doctor with time to actually figure it out with you.
+> # Prevention first, with medical care when you need it.
 >
-> Adult primary care · **$100 a month** · Cancel anytime
-> Works alongside your insurance.
+> Adults · **$99 a month** · Cancel anytime
+> Reduced and free memberships available.
 
 *Type-led cover; at most one warm candid photo of Dr. DuBose (listening,
 seated — never white-coat-with-crossed-arms), or no photo. The price is
@@ -50,100 +51,101 @@ number is a dark pattern.*
 
 ## Panel 2 · Recognition
 
-> ## If your health has started to feel like too much
+> ## Where most people start
 >
-> Maybe it's several things at once — blood pressure creeping up, sleep
-> that never feels like rest, results nobody fully explained,
-> medications you're not sure you still need. Maybe you've seen good
-> specialists, and each one checked their part — but no one is looking
-> at the whole of it, with you.
+> Maybe it's several things at once. Blood pressure creeping up. Sleep
+> that never feels like rest. Weight that will not move. Results you'd
+> like to understand better. Medicines you have questions about.
 >
-> Or maybe nothing is wrong yet. You'd just like a doctor who knows you
-> before something is.
+> Or maybe nothing is wrong yet. You just want to keep it that way, and
+> you want a doctor who knows you.
 >
-> The problem usually isn't a lack of healthcare. It's that nobody has
-> time to think it through with you.
+> Either way, we start the same. A full look at your health and the way
+> you live, then a plan you can actually follow.
 >
 > **That is what this practice is for.**
 
 ## Panel 3 · Inside left
 
-> ## Medicine, given room to work
+> ## Three parts of one practice
 >
-> My job is to listen carefully, understand your whole situation —
-> medical, and the life around it — figure out what's urgent, what
-> matters most, and what can wait, and then work the plan with you over
-> time.
+> **Prevention and lifestyle medicine.** The foundation, for every
+> member. Food, activity, sleep, stress, alcohol and tobacco, and the
+> people around you. Screenings on time. A written plan with goals we
+> check against.
 >
-> **Included, with no per-visit charges:**
-> - Visits as your care needs them, as long as they need to be
-> - Direct messaging with me between visits
-> - Every result reviewed and explained
-> - Prescriptions managed; refills handled without games
-> - Referrals and coordination across your other doctors
-> - Forms and paperwork handled
-> - An unhurried annual review of everything
+> **Medical care and treatment.** I examine, diagnose, order labs and
+> imaging, prescribe, and follow up on results. Starting with lifestyle
+> is not a rule against using medicine.
 >
-> This isn't alternative medicine or a wellness program. It's
-> evidence-based primary care with enough time to work.
+> **Care coordination.** I work with your other doctors, make
+> referrals, and track what comes back. If I am your only doctor, I
+> help you set up whatever else you need.
+>
+> **You do not need another doctor to join.** If you have one, I work
+> alongside them. You are never asked to choose.
 
 ## Panel 4 · Inside middle
 
-> ## Care that fits you
+> ## How care happens
 >
-> Most care happens by video and secure messaging, at the speed of your
-> life. When an exam truly needs it, I come to you at home; when clinic
-> space is better, we use space I keep for exactly that. There is no
-> required visit schedule — care follows what your health actually
-> needs.
+> Most care happens by video and secure messaging. When an exam needs
+> it, I come to you at home. When clinic space is better, I use space I
+> keep for exactly that. There is no required visit schedule. Care
+> follows what your health needs.
 >
-> Between visits, message me: I answer within 1–2 business days,
+> **Included, with no per-visit charges:** a full first assessment,
+> a written plan, visits as your care needs them, direct messaging,
+> every result explained, medicines managed within my scope, referrals
+> and coordination, and forms and paperwork.
+>
+> Between visits, message me. I answer within 1 to 2 business days,
 > usually faster. I keep business hours, and I take real time away each
-> year — always with a clear plan for how your care works while I'm
-> gone. Away means slower — never unaware.
+> year, always with a clear plan for how your care works while I'm
+> gone. Away means slower, never unaware.
 
 ## Panel 5 · Inside right
 
 > ## The price, plainly
 >
-> **$100 a month, per adult.** Flat and published. No enrollment fee,
-> no contract — cancel anytime.
+> **$99 a month, per adult.** Flat and published. No enrollment fee,
+> no contract. Cancel anytime.
 >
-> **What it doesn't cover:** labs, imaging, medications, specialists,
+> **If $99 is a barrier,** say so when we talk. I offer a reduced
+> monthly fee based on your finances, and a small number of free
+> memberships. The medical care is the same at every level. There is no
+> application, just a conversation.
+>
+> **What it doesn't cover:** labs, imaging, medicines, specialists,
 > urgent care, ER, and hospital care. Your insurance keeps paying for
-> those exactly as it does today — the membership works alongside
-> insurance, not instead of it. On Medicare or Medicaid? You can still
-> join; one extra form handles it.
+> those as it does today. On Medicare or Medicaid? Ask me. How a
+> membership works with those programs is still being settled.
 >
 > **What's the catch?** I keep business hours and am not an emergency
-> service. I take real time away each year. And when my panel is full,
-> it is full. That is the whole catch.
->
-> If $100 a month would genuinely prevent care, say so when we talk. I
-> keep a limited number of reduced-rate memberships — no application,
-> just a conversation.
+> service. I treat within my scope and refer when something is outside
+> it. And when my panel is full, it is full. That is the whole catch.
 
 ## Panel 6 · Back cover
 
 > ## Start with a conversation. That's all.
 >
-> Thirty minutes, by video, free. Tell me what's going on; I'll tell
-> you honestly whether I can help — and if I'm not the right fit, I'll
+> Thirty minutes, by video, free. Tell me what's going on. I'll tell
+> you honestly whether I can help, and if I'm not the right fit, I'll
 > say so and point you toward someone good.
 >
 > `[QR]` **Book a free conversation** — [site]/book
 > `[QR]` Everything else, answered — [site]
 >
-> **DuBose, M.D.** · [City], Texas
-> [phone] · [email]
+> **Direct Lifestyle Medicine** · Logan DuBose, M.D.
+> [City], Texas · [phone] · [email]
 > I care for adults only.
 >
 > If this is an emergency, call 911 or go to the nearest ER.
 
 *Small print, bottom edge:*
 
-> This practice is a direct primary care medical service agreement
-> under Texas law; it is not health insurance.
+> This practice is a direct medical service agreement under Texas law;
+> it is not health insurance.
 
 ---
 
@@ -177,11 +179,11 @@ tokens (Source Serif 4 / Source Sans 3, ivory/ink/juniper).
 | Panel | Source |
 |---|---|
 | 1 | Homepage hero, condensed; price-in-hero decision carried over |
-| 2 | Homepage §2 verbatim, last line new (print needs a landing) |
-| 3 | Homepage §3 + pricing §2 included-list, trimmed |
-| 4 | Homepage §4 card 3 + How-it-works availability; canonical "away means slower — never unaware" |
-| 5 | Pricing §2/§4/§5/§7 + access rate §3, radically condensed; canonical "when my panel is full, it is full" · "that is the whole catch" |
-| 6 | Homepage §9 + global footer; canonical fit-phrase + emergency short form + DPC-not-insurance line |
+| 2 | Homepage §2 "Where most people start", trimmed; last line new (print needs a landing) |
+| 3 | Homepage §3 three-service cards + `/help` section heads, condensed |
+| 4 | How-it-works "Where we meet" and availability + pricing card included-list; canonical "Away means slower, never unaware" |
+| 5 | Pricing §2 card, the three memberships, §3 not-covered rows, §4 Medicare line and §5 the catch, radically condensed; canonical "when my panel is full, it is full" · "that is the whole catch" |
+| 6 | Homepage §9 + global footer; canonical fit-phrase + emergency short form + not-insurance line |
 
 Nothing in this brochure exists only here: every claim has a deeper
 home on the site, which is where both QR codes lead.
@@ -189,11 +191,20 @@ home on the site, which is where both QR codes lead.
 ## Decisions of record
 
 Price on the cover, not inside · recognition before explanation
-(homepage order preserved) · the catch lives on the money panel · the
-Medicare/Medicaid answer is two sentences, details routed to the
-pricing page · adults-only stated twice (panel 5 "per adult," back
-cover plainly) · one CTA, appearing twice (cover implies it, back cover
-makes it) · access-rate offer kept, in the website's exact posture.
+(homepage order preserved) · the catch lives on the money panel ·
+adults-only stated twice (panel 5 "per adult," back cover plainly) ·
+one CTA, appearing twice (cover implies it, back cover makes it).
+
+**Added 2026-11-12 (D-039):** the three services are panel 3, because
+they are the practice's shape and a reader who sees only the inside
+spread must get them · "You do not need another doctor to join" is
+bolded on panel 3, since it is the single largest message change and
+the brochure travels inside clinician packets · the sliding-scale and
+pro bono offer is promoted to the cover, because accessibility is now
+part of the model rather than a quiet exception · the Medicare and
+Medicaid answer shrinks to one honest sentence that routes to a
+conversation, because the arrangements are unsettled and print is the
+worst place to be provisional at length (`NEEDS-COUNSEL`).
 
 ## Open items for review
 
@@ -202,17 +213,23 @@ makes it) · access-rate offer kept, in the website's exact posture.
 2. Panel 2's added closing line ("That is what this practice is for.")
    — new copy, needs approval since it may migrate back to the site.
 
-3. **House Style review (added 2026-08-21, after this draft):**
-   `docs/style/README.md` now governs all copy. Because panels 2–5
-   condense approved site copy, they inherit the site's style debts,
-   which House Style §8 queues for one owner-approved pass rather than
-   piecemeal edits: em dashes throughout; reading level vs. the
-   5th-grade target; and the §5 physician-respect review of the
-   time-contrast lines (panel 2: "no one is looking at the whole of
-   it, with you" and "nobody has time to think it through with you").
-   Decide the site copy first; the brochure follows it verbatim.
-   This brochure travels inside clinician packets, so the §5 read
-   matters here even though the piece is patient-voiced.
+3. ~~**House Style review (added 2026-08-21, after this draft)**~~
+   **Closed 2026-11-12 by the D-039 rewrite.** The three debts this
+   item queued are all paid: em dashes are gone from every panel; the
+   register is plain short sentences at the 5th-grade target; and the
+   §5 physician-respect problem is resolved at the root rather than
+   softened. Panel 2's "results nobody fully explained," "no one is
+   looking at the whole of it, with you," and "nobody has time to think
+   it through with you" were banned patterns in a piece that travels
+   inside clinician packets. They are deleted, not reworded. The panel
+   now describes what this practice does and never what anyone else
+   fails to do.
+
+4. **New:** the brochure cannot say what Medicare and Medicaid patients
+   should do, because that is unsettled. Panel 5 asks them to raise it
+   in the conversation. If counsel settles the question before the
+   first print run, panel 5 gains a sentence and this item closes.
+   Until then, do not print a number of copies you would regret.
 
 *(Checked, not open: "1–2 business days, usually faster" matches all
 three site surfaces that state it — pricing, how-it-works, emergency

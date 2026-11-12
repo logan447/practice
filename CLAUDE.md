@@ -7,10 +7,14 @@ Standard membership $99/month, with sliding-scale and pro bono
 memberships (D-039, 2026-11-12). Start with `README.md` and
 `docs/charter/working-model.md`.
 
-The repositioning is implemented in `site/` only. Most of `docs/` and
-all of `print/` still carry the earlier "direct primary care,
+The repositioning is implemented in `site/`, `print/brochure/` and
+`docs/outreach/`. `docs/acquisition/`, `docs/agreements/` and most of
+`docs/charter/` still carry the earlier "direct primary care,
 $100/month" model and have NOT been reconciled. Check the site before
 trusting an older document on positioning or price.
+
+No print piece may state how Medicare or Medicaid work with a
+membership until counsel settles it (D-039 guardrail 4b).
 
 ## Writing standard
 
