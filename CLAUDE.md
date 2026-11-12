@@ -1,8 +1,16 @@
 # Project instructions
 
-This is a preparation project for a solo, direct-pay, adult primary
-care practice ($100/month flat). Start with `README.md` and
+This is a preparation project for Direct Lifestyle Medicine: a solo,
+direct-pay, membership-based adult practice combining prevention and
+lifestyle medicine with medical treatment and care coordination.
+Standard membership $99/month, with sliding-scale and pro bono
+memberships (D-039, 2026-11-12). Start with `README.md` and
 `docs/charter/working-model.md`.
+
+The repositioning is implemented in `site/` only. Most of `docs/` and
+all of `print/` still carry the earlier "direct primary care,
+$100/month" model and have NOT been reconciled. Check the site before
+trusting an older document on positioning or price.
 
 ## Writing standard
 

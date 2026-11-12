@@ -497,3 +497,77 @@ geographically possible at all, which nobody has checked. If Jamie's
 hospital and the clinic are not a shared trip, only her days off give a
 free car and both the day picks and the floor change. Revisit again
 from 2029, when three children and car seats are in the picture.
+
+---
+
+## D-039 — Reposition as Direct Lifestyle Medicine, $99/month
+
+**Decided 2026-11-12, owner direction.** Supersedes D-035's copy lock
+for the site, which was locked against *discretionary* change; this is
+a requested repositioning.
+
+**The practice is now Direct Lifestyle Medicine**: a physician-led,
+membership-based practice combining prevention and lifestyle medicine,
+medical treatment, and care coordination. Not "DuBose, M.D. · direct
+primary care."
+
+**Three integrated services, not tiers:** prevention and lifestyle
+medicine (the foundation, every member), medical care and treatment
+within scope, and care coordination. The site states in several places
+that lifestyle medicine is the clinical approach, not a restriction
+against prescribing, testing, or treating.
+
+**Patients do not need an existing primary care physician.** This was
+the single largest message change. The old site assumed one and
+positioned the practice as an added layer. The new site says both
+arrangements work and that nobody is asked to choose.
+
+**Price $100 to $99**, plus two new membership levels: sliding scale
+(reduced fee by financial circumstance) and pro bono (a limited number,
+free). The site states at every mention that the clinical care is
+identical at every fee level.
+
+**Two claims were walked back, not just reworded:**
+
+1. *"I have formally opted out of Medicare."* This appeared on
+   /questions and in the membership agreement as settled fact. Owner
+   direction is that the legal and billing arrangements are **not
+   finalized**. All Medicare and Medicaid copy is now provisional and
+   says so plainly, and the agreement carries a bracketed note that the
+   clause is unfinished and under counsel review. The QMB exclusion,
+   the Medicare private contract, the Medicare Advantage HMO
+   discussion, and the Texas Medicaid private-pay form all came out,
+   because each asserted an arrangement that does not yet exist.
+   `NEEDS-COUNSEL`
+2. *HSA and FSA eligibility*, which was argued from direct-primary-care
+   status. Now provisional, because the final structure is unsettled.
+   `NEEDS-CPA`
+
+**Scope language tightened.** "Membership covers the full range of
+adult primary care" and "full-scope adult primary care" are gone. The
+site now says the practice treats within scope and refers when
+something is outside it, and /help carries an explicit "this membership
+is not a promise to manage every medical condition you have."
+
+**Voice kept in first person.** The brief's core description is written
+in "we." Writing House Style rule 10 binds the site to "I" for a solo
+physician, and the brief's own tone section asks for "a thoughtful
+physician explaining." The site stays in "I."
+
+**"Direct primary care" as a term is gone from patient-facing copy**,
+but the membership agreement still cites Texas Occupations Code ch.
+162, subch. F. Whether that statute still governs once the practice is
+not positioned as DPC is a question for counsel, not for the copy.
+`NEEDS-COUNSEL`
+
+**Design untouched.** No new components, dependencies, pages, or
+routes. Navigation, URLs, forms, the booking mock, and the visual
+language are as they were. Band rhythm preserved; one paper section was
+added to /how-it-works and the section after it moved to tint to keep
+the alternation.
+
+**Not reconciled:** `print/`, `docs/outreach/`, `docs/acquisition/`,
+`docs/agreements/`, and most of `docs/charter/` still carry the
+$100 direct-primary-care model. The duplication rule is currently
+broken between site and print. **Revisit trigger:** before any print
+run or outreach packet goes out.

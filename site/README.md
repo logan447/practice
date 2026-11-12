@@ -1,7 +1,15 @@
 # DuBose, M.D. — website prototype
 
-**BASELINE LOCKED (D-035, 2026-08-21).** This is the approved version.
-No discretionary redesign or copy changes; future changes come from
+**REPOSITIONED (D-039, 2026-11-12).** The practice is Direct Lifestyle
+Medicine: prevention and lifestyle medicine, medical treatment within
+scope, and care coordination, at $99/month with sliding-scale and pro
+bono memberships. Patients do not need an existing primary care
+physician. All Medicare, Medicaid, HSA and FSA copy is deliberately
+provisional and awaits counsel (`NEEDS-COUNSEL`). See the decision log.
+
+**BASELINE OTHERWISE LOCKED (D-035, 2026-08-21).** The design, layout,
+components, navigation and URLs are the approved version. No
+discretionary redesign or copy changes; future changes come from
 actual use, feedback, analytics, or launch needs. Before touching any
 copy or layout, read `../docs/website/writing-house-style.md` and
 `../docs/website/design-house-style.md` — they are binding and encode
