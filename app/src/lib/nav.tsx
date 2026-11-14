@@ -1,0 +1,45 @@
+/**
+ * Navigation as state.
+ *
+ * Deliberately not a router: the prototype runs in contexts where path
+ * and hash routing are unreliable. Every screen reads the route from
+ * this hook and nothing else, so dropping in react-router later is a
+ * change to this file alone.
+ */
+import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
+
+export type Route =
+  | { name: 'today' }
+  | { name: 'patients' }
+  | { name: 'chart'; patientId: string; tab?: ChartTab }
+  | { name: 'encounter'; encounterId: string };
+
+export type ChartTab = 'summary' | 'plan' | 'meds' | 'results' | 'prevention' | 'notes';
+
+interface Nav {
+  route: Route;
+  go: (r: Route) => void;
+  back: () => void;
+  canBack: boolean;
+}
+
+const Ctx = createContext<Nav | null>(null);
+
+export function NavProvider({ children }: { children: ReactNode }) {
+  const [stack, setStack] = useState<Route[]>([{ name: 'today' }]);
+
+  const value = useMemo<Nav>(() => ({
+    route: stack[stack.length - 1],
+    go: (r) => setStack((s) => [...s, r]),
+    back: () => setStack((s) => (s.length > 1 ? s.slice(0, -1) : s)),
+    canBack: stack.length > 1,
+  }), [stack]);
+
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+}
+
+export function useNav(): Nav {
+  const v = useContext(Ctx);
+  if (!v) throw new Error('useNav outside NavProvider');
+  return v;
+}
