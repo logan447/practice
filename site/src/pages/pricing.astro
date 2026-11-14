@@ -1,204 +1,96 @@
 ---
 import Base from '../layouts/Base.astro';
 ---
-<Base title="Pricing & insurance · Direct Lifestyle Medicine" active="pricing" bookbar={true}>
+<Base title="Pricing · Direct Lifestyle Medicine" active="pricing" bookbar={true}>
 
   <!-- 1 · Intro -->
   <section class="page-title">
     <div class="container">
       <h1>Pricing</h1>
-      <p class="lede">What $99 covers, what it doesn&rsquo;t, and what to
-      do if $99 is out of reach.</p>
     </div>
   </section>
 
-  <!-- 2 · The price card + the three memberships -->
+  <!-- 2 · Price and fee levels -->
   <section class="section band-tint">
     <div class="container">
       <div class="split even" style="align-items:start">
         <div class="price-card">
           <div class="amt">$99 <span>per month</span></div>
-          <div class="per">per adult patient &middot; no per-visit charges</div>
+          <div class="per">per adult &middot; no per-visit charges</div>
           <ul class="check-list">
-            <li>An ongoing relationship with one doctor</li>
-            <li>A full first assessment of your health, history,
-            medicines, and habits</li>
-            <li>An individual written plan, reviewed as you go</li>
-            <li>Visits as your care needs them: by video, at home when
-            needed, or in a clinic</li>
-            <li>Direct messaging, answered in 1&ndash;2 business days</li>
-            <li>Every result reviewed and explained</li>
-            <li>Medical care and treatment within my scope, including
-            prescriptions I write</li>
-            <li>Referrals and coordination with your other doctors</li>
-            <li>Forms and paperwork included: disability, FMLA, letters,
-            prior authorizations</li>
+            <li>Assessment and written plan</li>
+            <li>Visits by video, at home, or in a clinic</li>
+            <li>Messages, answered in 1&ndash;2 business days</li>
+            <li>Results explained</li>
+            <li>Treatment and prescriptions within my scope</li>
+            <li>Referrals and coordination</li>
+            <li>Forms and paperwork</li>
           </ul>
           <p class="small" style="margin-bottom:20px;color:var(--soft)">
-            No enrollment fee. No contract. Cancel anytime, effective at
-            the end of your billing month. Pay monthly by card or bank
-            account.
+            No enrollment fee or contract. Cancel anytime, effective at
+            the end of the month.
           </p>
           <a class="btn" href="/book">Book a free conversation</a>
-          <p class="small" style="margin-top:16px"><a class="quiet" style="font-size:14.5px" href="/agreement">Read the membership agreement &rarr;</a></p>
         </div>
         <div>
           <h2>Three fee levels, the same care</h2>
-          <p class="lede">
-            Every member gets the same assessment, plan, access to me,
-            and treatment within my scope, whatever they pay.
-          </p>
           <div class="rows" style="margin-top:clamp(24px,3vw,34px)">
-            <div class="row">
-              <b>Standard</b>
-              <p>$99 a month per adult. Each adult enrolls individually,
-              so a couple is $198. I care for adults only.</p>
-            </div>
-            <div class="row">
-              <b>Sliding scale</b>
-              <p>A reduced monthly fee based on your finances. There is
-              no application form. We talk about it, and I use simple
-              written criteria so it stays fair.</p>
-            </div>
-            <div class="row">
-              <b>Pro bono</b>
-              <p>A small number of free memberships, for people who could
-              not otherwise afford this care. How many I can offer depends
-              on how full the practice is.</p>
-            </div>
+            <div class="row"><b>Standard</b><p>$99 a month per adult.</p></div>
+            <div class="row"><b>Sliding scale</b><p>A reduced fee based on your finances. No application.</p></div>
+            <div class="row"><b>Pro bono</b><p>Free. A limited number.</p></div>
           </div>
-          <p class="small soft" style="margin-top:22px">
-            If cost is the problem, say so when we talk. You do not need
-            to prove anything to ask.
-          </p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 3 · What the fee does not cover -->
+  <!-- 3 · Not included -->
   <section class="section">
     <div class="container">
       <div class="split">
         <div>
-          <h2>What the fee does not cover</h2>
-          <p class="lede">
-            My fee covers my work as your doctor. Care from others is
-            billed by them, usually through your insurance.
-          </p>
+          <h2>Not included</h2>
+          <p class="lede">Keep your health insurance for these.</p>
         </div>
-        <div>
         <div class="rows" style="margin-top:0">
-        <div class="row">
-          <b>Labs</b>
-          <p>Through your insurance. Where I can get discounted direct
-          pricing, I pass it to you at my cost and tell you the number
-          before anything is drawn.</p>
-        </div>
-        <div class="row">
-          <b>Imaging</b>
-          <p>Through your insurance. I order what is needed and explain
-          the results.</p>
-        </div>
-        <div class="row">
-          <b>Medicines</b>
-          <p>Your pharmacy and insurance, as now. I help you find fair
-          prices. Texas law does not allow doctors to sell medicines.</p>
-        </div>
-        <div class="row">
-          <b>Specialists</b>
-          <p>Through your insurance. I refer you and stay involved.</p>
-        </div>
-        <div class="row">
-          <b>Urgent care, ER, hospital</b>
-          <p>Through your insurance, as today. My fee never replaces
-          coverage for these.</p>
-        </div>
-      </div>
-        <p class="prose" style="margin-top:28px">
-          So I recommend every member keep health coverage. The
-          membership works alongside insurance, not instead of it. It
-          is also not a promise to manage every medical condition you
-          have.
-        </p>
+          <div class="row"><b>Labs</b><p>Insurance, or a discounted cash price passed through at my cost.</p></div>
+          <div class="row"><b>Medicines</b><p>Your pharmacy.</p></div>
+          <div class="row"><b>Imaging, specialists, urgent care, ER, hospital</b><p>Insurance.</p></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 4 · How your coverage fits -->
+  <!-- 4 · Coverage -->
   <section class="section band-warm" id="bookbar-after">
     <div class="container">
       <div class="split">
         <div>
-          <h2>How your coverage fits</h2>
-          <p class="lede">
-            I do not bill insurance, Medicare, or Medicaid. You pay me
-            directly, and your coverage keeps working for everything
-            else.
-          </p>
+          <h2>Insurance</h2>
+          <p class="lede">I do not bill insurance, Medicare, or Medicaid.</p>
         </div>
-        <div>
         <div class="rows" style="margin-top:0">
-        <div class="row">
-          <b>Private insurance, or none</b>
-          <p>Sign up. That is all. Your plan is not involved in our
-          agreement, and your insurance status does not change the price
-          or the care.</p>
-        </div>
-        <div class="row">
-          <b>Medicare or Medicaid</b>
-          <p>I want to be able to serve you. How a direct membership
-          works with these programs is still being settled with my
-          lawyer. Ask me in the free conversation and I will tell you
-          where it stands.</p>
-        </div>
-        <div class="row">
-          <b>HSA and FSA funds</b>
-          <p>Possibly. Whether these funds can pay a membership like this
-          one depends on how the practice is finally structured. Confirm
-          with your tax advisor, and ask me what I know at the time.</p>
-        </div>
-      </div>
+          <div class="row"><b>Medicare or Medicaid</b><p>Not settled yet. Ask me.</p></div>
+          <div class="row"><b>HSA and FSA</b><p>Not settled yet. Ask your tax advisor.</p></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 5 · Why $99, and the limits -->
+  <!-- 5 · Limits -->
   <section class="section">
     <div class="container">
       <div class="split">
         <div>
-          <h2>Why $99, and what&rsquo;s the catch</h2>
+          <h2>Limits</h2>
         </div>
         <div class="prose">
           <p>
-            I can charge $99 because the practice is small: no office
-            building, no billing department, no staff, and a limited
-            number of patients I know. The low price is also what makes
-            the sliding scale and the free memberships possible.
+            Business hours only. Not an emergency service. I take time
+            away each year. When my panel is full, it is full.
           </p>
-          <p>
-            The limits: I keep business hours. I am not an emergency
-            service. I treat within my scope and
-            refer when something is outside it. I take real time away
-            each year. And when my panel is full, it is full.
-          </p>
-          <p>
-            <a class="quiet" href="/agreement">Read the full membership agreement &rarr;</a>
-          </p>
+          <p><a class="quiet" href="/agreement">Membership agreement &rarr;</a></p>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 6 · CTA -->
-  <section class="section cta-band">
-    <div class="container">
-      <div class="inner">
-        <h2>Questions about your situation?</h2>
-        <a class="btn btn-inverse" href="/book">Book a free conversation</a>
       </div>
     </div>
   </section>

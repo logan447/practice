@@ -33,43 +33,21 @@ const slots = ['9:00 am', '9:40 am', '10:20 am', '11:00 am', '1:00 pm', '1:40 pm
     <div class="container">
       <div class="book-grid" style="margin-top:clamp(16px,2vw,28px)">
         <div class="prose">
-          <h3>What to expect</h3>
-          <p style="margin-top:12px">
-            Thirty minutes, by video. You tell me what&rsquo;s going on.
-            I&rsquo;ll ask some questions, answer yours, and tell you if
-            I can help.
-          </p>
-          <p style="margin-top:16px">Good to know:</p>
-          <ul class="book-list">
-            <li>It&rsquo;s free, and you don&rsquo;t have to join.</li>
-            <li>If I&rsquo;m not the right fit, I&rsquo;ll say so and
-            point you toward someone good.</li>
-            <li>You don&rsquo;t need to prepare anything.</li>
-            <li>This conversation is not medical care.</li>
-          </ul>
-          <p style="margin-top:20px">
-            Want the exact terms before we talk?
-            <a class="quiet" href="/agreement">Read the membership agreement &rarr;</a>
-          </p>
-          <p style="margin-top:10px">
-            Just have a question?
-            <a class="quiet" href="/contact">Contact me &rarr;</a>
+          <p>
+            30 minutes by video. Free. Not medical care. If I&rsquo;m not
+            the right fit, I&rsquo;ll say so and point you toward someone
+            good.
           </p>
           <div class="note-em" style="margin-top:32px">
-            <span class="tag">Before you book</span>
-            <p>
-              If you are having an emergency, like chest pain, stroke
-              signs, severe trouble breathing, or thoughts of self-harm,
-              call 911 or go to the nearest ER now. Do not book a
-              conversation.
-            </p>
+            <span class="tag">Emergency</span>
+            <p>Call 911 or go to the nearest ER.</p>
           </div>
         </div>
 
         <div class="sched" id="sched">
           <div class="sched-form">
             <h3>Choose a time</h3>
-            <p class="tz">All times Central &middot; 30 minutes, by video</p>
+            <p class="tz">Central time</p>
 
             <div class="grp">
               <span class="lbl">Day</span>
@@ -92,11 +70,11 @@ const slots = ['9:00 am', '9:40 am', '10:20 am', '11:00 am', '1:00 pm', '1:40 pm
             </div>
 
             <div class="grp">
-              <span class="lbl">Your details</span>
+              <span class="lbl">Details</span>
               <div class="fields">
                 <input type="text" id="f-name" placeholder="Name" aria-label="Name" autocomplete="name" />
                 <input type="email" id="f-email" placeholder="Email" aria-label="Email" autocomplete="email" />
-                <input type="tel" id="f-phone" placeholder="Phone (only used for this conversation)" aria-label="Phone" autocomplete="tel" />
+                <input type="tel" id="f-phone" placeholder="Phone" aria-label="Phone" autocomplete="tel" />
                 <select id="f-ref" aria-label="How did you hear about me?">
                   <option value="">How did you hear about me? (optional)</option>
                   <option>A friend or family member</option>
@@ -107,30 +85,16 @@ const slots = ['9:00 am', '9:40 am', '10:20 am', '11:00 am', '1:00 pm', '1:40 pm
               </div>
             </div>
 
-            <button class="btn" type="button" id="confirm">Confirm booking</button>
-            <p class="err" id="err">Please pick a time and add your name and email.</p>
-            <p class="fine">
-              Don&rsquo;t include medical details here. We can talk about
-              them in the conversation.
-            </p>
+            <button class="btn" type="button" id="confirm">Book</button>
+            <p class="err" id="err">Pick a time and enter your name and email.</p>
+            <p class="fine">No medical details.</p>
           </div>
 
           <div class="sched-confirm">
-            <h3>You&rsquo;re booked.</h3>
+            <h3>Booked.</h3>
             <p class="when" id="c-when"></p>
-            <p>
-              A confirmation with your video link is on its way to
-              <span id="c-email"></span>. A reminder will come the day
-              before. To change the time, use the link in either
-              email.
-            </p>
-            <p>
-              More to read:
-              <a href="/how-it-works">How it works</a> &middot;
-              <a href="/pricing">Pricing</a> &middot;
-              <a href="/agreement">The membership agreement</a>
-            </p>
-            <p class="sig">Dr. DuBose</p>
+            <p>The video link was sent to <span id="c-email"></span>. Use
+            it to change the time.</p>
           </div>
         </div>
       </div>
@@ -163,7 +127,7 @@ const slots = ['9:00 am', '9:40 am', '10:20 am', '11:00 am', '1:00 pm', '1:40 pm
         }
         err.classList.remove('show');
         document.getElementById('c-when').textContent =
-          day.dataset.full + ' at ' + slot.textContent + ' Central. 30 minutes, by video.';
+          day.dataset.full + ', ' + slot.textContent + ' Central.';
         document.getElementById('c-email').textContent = email;
         var s = document.getElementById('sched');
         s.classList.add('done');
