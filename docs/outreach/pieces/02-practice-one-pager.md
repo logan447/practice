@@ -41,8 +41,8 @@ what the fee covers; the block count is unchanged.
 > and lifestyle medicine, with medical treatment when it is needed.
 > Members pay one flat price: $99 a month. It covers all of my work as
 > their doctor. Reduced-fee and no-fee memberships are available where
-> cost is the barrier. I keep the practice small so every visit has
-> enough time.
+> cost is the barrier. I keep the practice small so visits can last
+> as long as they need to.
 >
 > Members do not need to have a primary care doctor. If they have one,
 > I work alongside them.
@@ -126,11 +126,10 @@ what the fee covers; the block count is unchanged.
 >
 > I earned my medical degree at the Texas A&M College of Medicine and
 > completed an internal medicine internship at George Washington
-> University. For years I have practiced primary care part-time while
-> leading NIH-funded research on aging, caregiving, and access to
-> care. Lifestyle medicine board certification is expected January
-> 2027. I built this practice to do medicine the way it works best:
-> one doctor, a small panel, and enough time.
+> University. I practice primary care at a community health center
+> and lead NIH-funded research on aging, caregiving, and access to
+> care. Lifestyle medicine board certification is in progress. This
+> practice is one doctor with a small number of patients.
 >
 > My full CV, licensure, and research background: **[site]/cv**
 
@@ -168,8 +167,8 @@ Read aloud: explains, does not sell · no em dashes (canonical phrases
 used here contain none) · claims are all model facts (D-029, D-030,
 D-017, D-033, D-039); no outcomes claims · credential lines match the
 About credentials table exactly; no residency or board-certification
-implication; lifestyle medicine certification stated as **expected
-January 2027**, matching the site · limits stated (block 5), including
+implication; lifestyle medicine certification stated as **in
+progress**, matching the site · limits stated (block 5), including
 the scope limit · price visible in the first paragraph · one CTA ·
 respect check: describes what I do, nothing about what others fail to
 do, and block 1 states plainly that I work alongside a member's
