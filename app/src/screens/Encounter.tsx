@@ -30,6 +30,8 @@ import {
 import {
   ambientScript, wasCaught, ERROR_LABEL, type InjectedError,
 } from '../lib/ambient';
+import { check } from '../lib/interactions';
+import { Interactions } from '../components/Interactions';
 
 /** Which sections were filled by something other than the physician. */
 type Mark = 'chart' | 'ambient';
@@ -58,6 +60,10 @@ export function Encounter({ encounterId }: { encounterId: string }) {
   const encounters = st.encountersFor(p?.id ?? '');
   const orders = st.ordersFor(encounterId);
   const unack = st.reportsFor(p?.id ?? '').filter((r) => !r.acknowledged);
+  const allergies = st.allergiesFor(p?.id ?? '');
+
+  /** The list as it stands, so a change made here is checked here. */
+  const ixAlerts = check({ medications: meds, allergies, conditions, series: allSeries });
 
   /** The chart, assembled. Computed once per visit, not on every keystroke. */
   const pulled = useMemo<VisitNote>(() => {
@@ -435,9 +441,26 @@ export function Encounter({ encounterId }: { encounterId: string }) {
           <Priorities encounterId={encounterId} />
 
           <Panel title="Medicines" right={
-            <button className="btn quiet sm"
-              onClick={() => nav.go({ name: 'chart', patientId: p.id, tab: 'meds' })}>Manage</button>
+            <div className="row" style={{ gap: 7 }}>
+              {ixAlerts.length > 0 && (
+                <Chip tone={ixAlerts.some((a) => a.severity !== 'monitor') ? 'crit' : 'warn'}>
+                  {ixAlerts.length}
+                </Chip>
+              )}
+              <button className="btn quiet sm"
+                onClick={() => nav.go({ name: 'chart', patientId: p.id, tab: 'meds' })}>Manage</button>
+            </div>
           }>
+            {ixAlerts.length > 0 && (
+              <div style={{ marginBottom: 11 }}>
+                <Interactions alerts={ixAlerts} title="Interactions on this list" />
+              </div>
+            )}
+            {allergies.length > 0 && (
+              <div className="small" style={{ marginBottom: 9, color: 'var(--crit)' }}>
+                <b>Allergies:</b> {allergies.map((a) => a.substance).join(', ')}
+              </div>
+            )}
             <div className="stack-sm">
               {meds.length === 0 && <span className="small muted">None recorded.</span>}
               {meds.map((m) => (

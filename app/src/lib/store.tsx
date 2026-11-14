@@ -9,7 +9,7 @@
  * write to a clinical record is an event, and events are the thing an
  * audit trail is made of.
  */
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import * as fixtures from '../data/patients';
 import { load, save, wipe, newId } from './persist';
 import { ORIGIN, now as clockNow, setNow, addDays } from './clock';
@@ -20,6 +20,9 @@ import type {
   ResultSeries, Specialist, Task, VisitNote, Allergy, ChartDocument,
 } from '../domain/types';
 import { generatePanel } from '../data/generate';
+import { resolveDrug } from '../domain/terminology';
+import { recordDiff, type Snapshot } from './audit';
+import { actor as currentActor } from './session';
 import { measureByKey, patientSeriesId, isAlerting } from '../domain/measures';
 
 const ME = 'L. DuBose, MD';
@@ -170,7 +173,10 @@ interface Store extends State {
   // creating
   addPatient: (d: PatientDraft) => string;
   addCondition: (patientId: string, name: string, code: string, note?: string) => void;
-  addMedication: (patientId: string, name: string, dose: string, sig: string, indication?: string) => void;
+  addMedication: (
+    patientId: string, name: string, dose: string, sig: string,
+    indication?: string, rxcui?: string,
+  ) => void;
   createPlan: (patientId: string, summary: string) => string;
 
   // the patient's own hand
@@ -224,6 +230,23 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   /** False once a write has failed, which the header then says out loud. */
   const [persisted, setPersisted] = useState(true);
   useEffect(() => { setPersisted(save(s)); }, [s]);
+
+  /**
+   * Every change, logged, by comparing the record with the record as
+   * it was. Done here rather than inside each action so that an action
+   * nobody remembered to instrument is still in the log.
+   */
+  const prev = useRef<State | null>(null);
+  useEffect(() => {
+    if (prev.current && prev.current !== s) {
+      recordDiff(
+        prev.current as unknown as Snapshot,
+        s as unknown as Snapshot,
+        currentActor(), s.now ?? ORIGIN,
+      );
+    }
+    prev.current = s;
+  }, [s]);
 
   const value = useMemo<Store>(() => {
     const by = <T extends { patientId: string }>(xs: T[], id: string) =>
@@ -377,9 +400,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           // "Lisinopril 10 mg — one tablet each morning" and looser forms.
           const [left, right] = line.split(/\s+[—–-]\s+/, 2);
           const m = left.match(/^(.*?)\s+([\d.]+\s*\S+)$/);
+          const drugName = (m ? m[1] : left).trim();
           return {
             id: newId('md'), patientId: id,
-            name: (m ? m[1] : left).trim(),
+            name: drugName,
+            // Resolved, not rewritten. The name stays what they said;
+            // the concept id is what lets the checker see it at all.
+            rxcui: resolveDrug(drugName)?.rxcui,
             dose: (m ? m[2] : '').trim(),
             sig: (right ?? '').trim(),
             started: clockNow(), status: 'active' as const,
@@ -412,11 +439,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           }],
         })),
 
-      addMedication: (patientId, name, dose, sig, indication) =>
+      addMedication: (patientId, name, dose, sig, indication, rxcui) =>
         setS((p) => ({
           ...p,
           medications: [...p.medications, {
-            id: newId('md'), patientId, name, dose, sig, indication,
+            id: newId('md'), patientId, name, rxcui, dose, sig, indication,
             started: clockNow(), status: 'active',
             provenance: { author: 'clinician', by: ME, recorded: clockNow() },
           }],

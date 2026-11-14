@@ -11,7 +11,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.goto(U,{waitUntil:'networkidle'}); await p.waitForTimeout(300);
   await p.click('button:has-text("Load 3 examples")'); await p.waitForTimeout(500);
   await p.click('text=Marcus Reyes'); await p.waitForTimeout(400);
-  await p.click('button:has-text("Their view")'); await p.waitForTimeout(400);
+  await p.click('button:has-text("Sign in as them")'); await p.waitForTimeout(500);
   await p.click('button[role="tab"]:has-text("Track")'); await p.waitForTimeout(350);
   ok('Track tab opens', await p.locator('text=What are you recording?').isVisible());
   await p.screenshot({path:'t-1-track.png', fullPage:true});
@@ -57,7 +57,9 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.screenshot({path:'t-3-alert.png', fullPage:true});
 
   // physician side
-  await p.click('button:has-text("Back to the chart")'); await p.waitForTimeout(400);
+  await p.click('.whoami'); await p.waitForTimeout(250);
+  await p.click('.srow:has-text("L. DuBose")'); await p.waitForTimeout(500);
+  await p.click('text=Marcus Reyes'); await p.waitForTimeout(450);
   await p.click('button[role="tab"]:has-text("Results")'); await p.waitForTimeout(350);
   ok('results keeps patient data separate', await p.locator('text=Patient-measured, not clinic-measured').isVisible());
   await p.screenshot({path:'t-5-results.png', fullPage:true});

@@ -31,6 +31,12 @@ import { SpecialistsTab } from './chart/SpecialistsTab';
 import { RecordsTab } from './chart/RecordsTab';
 import { QualityStrip } from '../components/Quality';
 import { findIssues } from '../lib/dataQuality';
+import { CodePicker } from '../components/CodePicker';
+import { searchConditions } from '../domain/terminology';
+import { HistoryTab } from './chart/HistoryTab';
+import { useActor, signInAs, ROLE_LABEL } from '../lib/session';
+import { can } from '../lib/permissions';
+import { recordRead, record } from '../lib/audit';
 
 const SEX_SHORT: Record<string, string> = { female: 'F', male: 'M' };
 
@@ -40,12 +46,40 @@ export function Chart({ patientId, initialTab }: { patientId: string; initialTab
   const [tab, setTab] = useState<ChartTab>(initialTab ?? 'plan');
   const [showNote, setShowNote] = useState(false);
   const [picking, setPicking] = useState(false);
+  const [addProblem, setAddProblem] = useState(false);
+  const [problem, setProblem] = useState({ name: '', code: '' });
+
+  const me = useActor();
 
   // Time here is chart review, and it is what the assembled note should shrink.
   useEffect(() => { markChartOpen(); }, [patientId]);
 
   const p = st.patient(patientId);
+
+  // Opening someone else's chart is the event an access audit is for.
+  useEffect(() => {
+    if (p) recordRead(me, st.now, p.id, p.preferredName ?? p.name.split(' ')[0]);
+  }, [p?.id, me.id]);
+
   if (!p) return <div className="wrap"><p>Patient not found.</p></div>;
+
+  const readChart = can(me, 'read-chart', { patientId: p.id, now: st.now });
+  if (!readChart.allowed) {
+    return (
+      <div className="wrap" style={{ maxWidth: 560, marginTop: 60 }}>
+        <h1 style={{ fontSize: 24 }}>Not open to you</h1>
+        <p className="sub" style={{ marginTop: 10 }}>{readChart.why}</p>
+        <p className="small muted" style={{ marginTop: 14 }}>
+          Signed in as {me.name}, {ROLE_LABEL[me.role].toLowerCase()}. This attempt is in the log.
+        </p>
+        <button className="btn" style={{ marginTop: 16 }}
+          onClick={() => nav.reset(me.patientId
+            ? { name: 'portal', patientId: me.patientId } : { name: 'patients' })}>
+          Go back
+        </button>
+      </div>
+    );
+  }
 
   const conditions = st.conditionsFor(p.id);
   const active = conditions.filter((c) => c.status === 'active');
@@ -71,8 +105,9 @@ export function Chart({ patientId, initialTab }: { patientId: string; initialTab
     { id: 'results', label: 'Results', badge: unack },
     { id: 'notes', label: 'Notes' },
     ...(specialists.length ? [{ id: 'specialists' as ChartTab, label: 'Specialists' }] : []),
-    ...(allergies.length || documents.length
+    ...(allergies.length || documents.length || st.entriesFor(p.id).length
       ? [{ id: 'records' as ChartTab, label: 'Records' }] : []),
+    { id: 'history', label: 'History' },
   ];
 
   /** Allergies belong in the header. They are read at every decision. */
@@ -123,9 +158,41 @@ export function Chart({ patientId, initialTab }: { patientId: string; initialTab
             {active.length === 0
               ? <span className="small muted">No active problems recorded.</span>
               : active.map((c) => (
-                <span key={c.id} className="chip" title={c.note ?? undefined}>{c.name}</span>
+                <span key={c.id} className="chip" title={c.code ? `${c.code}${c.note ? ` \u00b7 ${c.note}` : ''}` : 'No code, so nothing checks against it'}>
+                  {c.name}
+                  {!c.code && <span className="uncoded" aria-label="uncoded">?</span>}
+                </span>
               ))}
+            {!addProblem && (
+              <button className="btn quiet sm" onClick={() => setAddProblem(true)}>+ Problem</button>
+            )}
           </div>
+
+          {addProblem && (
+            <div style={{ maxWidth: 420, marginTop: 10 }}>
+              <CodePicker
+                label="Add a problem" value={problem.name} autoFocus
+                placeholder="Type a diagnosis"
+                hint={`ICD-10-CM. Press escape to close.`}
+                onText={(v) => setProblem({ name: v, code: '' })}
+                search={(q) => searchConditions(q).map((c) => ({
+                  id: c.code, primary: c.name, code: c.code,
+                }))}
+                onPick={(r) => setProblem({ name: r.primary, code: r.code })}
+              />
+              <div className="row" style={{ marginTop: 9 }}>
+                <button className="btn sm" disabled={!problem.name.trim()}
+                  onClick={() => {
+                    st.addCondition(p.id, problem.name.trim(), problem.code);
+                    setProblem({ name: '', code: '' });
+                    setAddProblem(false);
+                  }}>
+                  Add{problem.code ? ` ${problem.code}` : ' without a code'}
+                </button>
+                <button className="btn ghost sm" onClick={() => setAddProblem(false)}>Cancel</button>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="acts">
@@ -133,9 +200,20 @@ export function Chart({ patientId, initialTab }: { patientId: string; initialTab
             {MEMBERSHIP_LABEL[p.membership]} &middot; {monthsSince(p.memberSince)} mo
           </Chip>
           {unack > 0 && <Chip tone="crit">{unack} result{unack > 1 ? 's' : ''}</Chip>}
-          <button className="btn ghost" onClick={() => nav.go({ name: 'portal', patientId: p.id })}>
-            Their view
+          {me.role === 'physician' && (
+          <button className="btn ghost" title="Sign in as this patient, with their permissions"
+            onClick={() => {
+              const next = { id: `pt-${p.id}`, name: p.name, role: 'patient' as const, patientId: p.id };
+              record(next, st.now, {
+                action: 'sign-in', resource: 'Session', resourceId: next.id, patientId: p.id,
+                summary: `Signed in as ${p.name} (patient)`,
+              });
+              signInAs(next);
+              nav.reset({ name: 'portal', patientId: p.id });
+            }}>
+            Sign in as them
           </button>
+          )}
           {nextVisit ? (
             <button className="btn" onClick={() => nav.go({ name: 'encounter', encounterId: nextVisit.id })}>
               Open visit
@@ -187,6 +265,7 @@ export function Chart({ patientId, initialTab }: { patientId: string; initialTab
       {tab === 'notes' && <NotesTab patientId={p.id} />}
       {tab === 'specialists' && <SpecialistsTab patientId={p.id} />}
       {tab === 'records' && <RecordsTab patientId={p.id} />}
+      {tab === 'history' && <HistoryTab patientId={p.id} />}
     </div>
   );
 }

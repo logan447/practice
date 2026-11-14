@@ -53,7 +53,8 @@ export interface Condition {
   id: string;
   patientId: string;
   name: string;
-  code: string; // ICD-10-CM
+  /** ICD-10-CM. Empty when the problem was typed rather than coded. */
+  code: string;
   status: ConditionStatus;
   onset: string;
   resolved?: string;
@@ -71,6 +72,13 @@ export interface Medication {
   id: string;
   patientId: string;
   name: string;
+  /**
+   * RxNorm ingredient concept, when the drug was picked from the
+   * terminology rather than typed. Optional on purpose: most of what
+   * arrives from outside is free text, and checking has to work on
+   * that too (see lib/terminology.resolveDrug).
+   */
+  rxcui?: string;
   dose: string;
   sig: string;
   started: string;

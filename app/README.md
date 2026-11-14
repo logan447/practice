@@ -305,3 +305,130 @@ from a real one. That is the argument the screen exists to make: the
 reading before signature carries the whole safety burden, and the
 measured catch rate is the only evidence about whether it is carrying
 it.
+
+## Real codes, and a real check
+
+### Where the terminology comes from
+
+`scripts/build-terminology.mjs` fetches a subset from US National
+Library of Medicine services and writes
+`src/domain/terminology.generated.ts`, which is committed:
+
+| System | Count | Source |
+|---|---|---|
+| ICD-10-CM | 560 of ~74,000 | Clinical Table Search Service |
+| RxNorm | 160 ingredient concepts, with brand names and ATC classes | RxNav + RxClass |
+| LOINC | 115 of ~100,000 | Clinical Table Search Service |
+
+Nothing in that file was typed from memory. If a code is in it, an NLM
+service returned it for a query in the script. Re-run the script to
+refresh it.
+
+It is bundled rather than looked up live for a reason that is itself a
+design point: a search box in a clinical record is clinical. What you
+are typing is a question about the patient in front of you, and
+sending every keystroke to a third party is a disclosure decision
+nobody made. A real deployment runs a terminology server inside its own
+boundary; the bundled subset is the prototype's version of that.
+
+The picker searches generic names, brand names and the code together,
+so "Lipitor" finds atorvastatin and "Motrin" finds ibuprofen. Free
+text is always still allowed, and what it produces is marked uncoded
+rather than quietly coded to the nearest thing. An uncoded problem now
+shows up in the data-quality strip, because it reads fine and matches
+nothing.
+
+### The check
+
+`src/lib/interactions.ts` runs four checks against 43 hand-written
+rules: drug-drug (23 pairs), drug-allergy (5), drug-condition (7) and
+duplicate therapy (8 classes). Classes come from ATC via RxClass, so a
+rule written for "ACE inhibitor" matches every ACE inhibitor rather
+than a list of names.
+
+Three things it does on purpose:
+
+- **Every alert carries its basis.** FDA's non-device clinical decision
+  support carve-out turns partly on whether the clinician can
+  independently review the reasoning. An alert that says "severe" and
+  nothing else fails that test, and also the practical one: an alert
+  you cannot evaluate is an alert you learn to dismiss.
+- **It checks before saving, not after.** Checking a prescription once
+  it is in the chart is checking after the decision.
+- **It collapses repeats.** Three NSAIDs against one ACE inhibitor is
+  one clinical fact, not three.
+
+The sulfa rule deliberately does *not* fire on furosemide,
+hydrochlorothiazide or celecoxib, which are non-antibiotic
+sulfonamides and do not cross-react. A checker that flagged those
+would be training you to ignore it.
+
+This is a demonstration set, stated as such on screen, not a drug
+knowledge base. Production records license one (First Databank,
+Medi-Span, Lexicomp) and that is a real line item. `NEEDS-COUNSEL` on
+redistribution terms before any licensed content is bundled.
+
+The generated panel was also widened, because a panel that produces no
+interactions is a tidy one rather than a realistic one: it now carries
+over-the-counter painkillers, supplements, brand names from outside
+pharmacies and courses nobody stopped. 61 of 122 charts have at least
+one alert on them.
+
+## Three identities, and a log
+
+### Signing in as somebody
+
+"Their view" was a fiction: it showed the patient's screen while still
+being the physician, which hides every question worth asking. There
+are now three real identities, switched from the bar:
+
+- **Physician** — the panel is theirs, so everything is open.
+- **Covering clinician** — bounded by a date. Can read, write and sign
+  a note, prescribe, and acknowledge results. Cannot sign a care plan,
+  change membership or move the clock. Every chart they open is logged.
+- **Patient** — the portal, and nothing else. No route to the chart,
+  no practice-wide log, and no way back except signing in as someone
+  else.
+
+`src/lib/permissions.ts` is one file on purpose, for the same reason
+`portalScope.ts` is: a rule about who may see what has to be readable
+in full, and rules scattered across twenty components are readable by
+nobody. Three of its answers are genuinely arguable and are marked as
+such in the code. The most interesting:
+
+- **Signing the care plan stays with the patient's own physician.** The
+  plan is an agreement built over years. A clinician covering for a
+  week can change it and write what they think; signing it is not
+  theirs.
+- **Journal entries the patient did not flag are not part of cover.**
+  What someone writes to their own physician is not automatically
+  what a covering clinician needs. The screen says how many were
+  withheld and why.
+
+`NEEDS-COUNSEL` before any of this governs a real record: whether a
+covering arrangement is a business associate or a workforce member
+under HIPAA determines the paperwork, not this file.
+
+### Who did what
+
+`src/lib/audit.ts` derives the log by comparing the record with the
+record as it was, rather than by calling a logger at each action. A
+log that depends on every author remembering to write to it has holes,
+and the holes are always in the code someone added in a hurry. This
+way an action nobody instrumented is in the log, correctly, the first
+time it runs. Clinically meaningful transitions get named sentences
+("Signed the care plan, which released it to the patient"); everything
+else is recorded as the change it is, with the field-level diff behind
+a toggle.
+
+Reads are logged only for people who are not the responsible
+physician. Logging every chart the owner opens buries the one entry
+that matters.
+
+Per-patient history is a chart tab; the practice-wide view is under
+**Log**, with a per-person summary and a filter for everyone who is
+not the physician.
+
+The log lives in the same browser storage as everything else, which
+the screen says out loud. A real record keeps it server-side and
+append-only, where the person being audited cannot reach it.

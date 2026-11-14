@@ -44,6 +44,8 @@ interface Spec {
   code: string;
   /** Rough share of an adult panel. */
   p: number;
+  /** Only in one sex, where that is how the condition works. */
+  sex?: 'female' | 'male';
   /** Raises the chance of these, because conditions travel together. */
   pulls?: string[];
   meds?: { name: string; dose: string; sig: string }[];
@@ -66,9 +68,11 @@ const SPECS: Spec[] = [
     meds: [{ name: 'Metformin', dose: '1000 mg', sig: 'One tablet twice daily with food' }],
     series: ['Hemoglobin A1c'] },
   { name: 'Generalized anxiety disorder', code: 'F41.1', p: 0.16,
-    meds: [{ name: 'Sertraline', dose: '50 mg', sig: 'One tablet each morning' }] },
+    meds: [{ name: 'Sertraline', dose: '50 mg', sig: 'One tablet each morning' },
+      { name: 'Alprazolam', dose: '0.5 mg', sig: 'One tablet as needed' }] },
   { name: 'Major depressive disorder', code: 'F33.1', p: 0.12, pulls: ['Generalized anxiety disorder'],
-    meds: [{ name: 'Escitalopram', dose: '10 mg', sig: 'One tablet each morning' }] },
+    meds: [{ name: 'Escitalopram', dose: '10 mg', sig: 'One tablet each morning' },
+      { name: 'Venlafaxine', dose: '75 mg', sig: 'One capsule each morning' }] },
   { name: 'Obstructive sleep apnea', code: 'G47.33', p: 0.10, pulls: ['Obesity'] },
   { name: 'Hypothyroidism', code: 'E03.9', p: 0.08,
     meds: [{ name: 'Levothyroxine', dose: '75 mcg', sig: 'One tablet on an empty stomach' }] },
@@ -76,11 +80,30 @@ const SPECS: Spec[] = [
     meds: [{ name: 'Albuterol', dose: '90 mcg', sig: 'Two puffs as needed' }] },
   { name: 'Gastro-oesophageal reflux', code: 'K21.9', p: 0.11,
     meds: [{ name: 'Omeprazole', dose: '20 mg', sig: 'One capsule each morning' }] },
-  { name: 'Osteoarthritis', code: 'M19.90', p: 0.14, pulls: ['Obesity'] },
+  { name: 'Osteoarthritis', code: 'M19.90', p: 0.14, pulls: ['Obesity'],
+    meds: [{ name: 'Naproxen', dose: '500 mg', sig: 'One tablet twice daily with food' },
+      { name: 'Meloxicam', dose: '15 mg', sig: 'One tablet daily' }] },
+  { name: 'Chronic low back pain', code: 'M54.50', p: 0.13, pulls: ['Osteoarthritis', 'Obesity'],
+    meds: [{ name: 'Ibuprofen', dose: '600 mg', sig: 'One tablet three times daily as needed' },
+      { name: 'Gabapentin', dose: '300 mg', sig: 'One capsule at night' },
+      { name: 'Tramadol', dose: '50 mg', sig: 'One tablet every six hours as needed' }] },
+  { name: 'Heart failure with preserved ejection fraction', code: 'I50.32', p: 0.05,
+    pulls: ['Essential hypertension', 'Atrial fibrillation', 'Chronic kidney disease, stage 3a'],
+    meds: [{ name: 'Furosemide', dose: '40 mg', sig: 'One tablet each morning' },
+      { name: 'Spironolactone', dose: '25 mg', sig: 'One tablet each morning' }],
+    series: ['Potassium'] },
+  { name: 'Coronary artery disease', code: 'I25.10', p: 0.07,
+    pulls: ['Essential hypertension', 'Mixed hyperlipidemia', 'Type 2 diabetes mellitus'],
+    meds: [{ name: 'Aspirin', dose: '81 mg', sig: 'One tablet daily' },
+      { name: 'Clopidogrel', dose: '75 mg', sig: 'One tablet daily' },
+      { name: 'Metoprolol succinate', dose: '50 mg', sig: 'One tablet each morning' }] },
+  { name: 'Benign prostatic hyperplasia', code: 'N40.0', p: 0.22, sex: 'male',
+    meds: [{ name: 'Tamsulosin', dose: '0.4 mg', sig: 'One capsule at night' }] },
   { name: 'Chronic kidney disease, stage 3a', code: 'N18.31', p: 0.05,
-    pulls: ['Type 2 diabetes mellitus', 'Essential hypertension'], series: ['eGFR'] },
+    pulls: ['Type 2 diabetes mellitus', 'Essential hypertension'], series: ['eGFR', 'Potassium'] },
   { name: 'Atrial fibrillation', code: 'I48.91', p: 0.04, pulls: ['Essential hypertension'],
-    meds: [{ name: 'Apixaban', dose: '5 mg', sig: 'One tablet twice daily' }] },
+    meds: [{ name: 'Eliquis', dose: '5 mg', sig: 'One tablet twice daily' },
+      { name: 'Warfarin', dose: '5 mg', sig: 'One tablet daily, dose by INR' }] },
   { name: 'Vitamin D deficiency', code: 'E55.9', p: 0.18,
     meds: [{ name: 'Vitamin D3', dose: '2000 IU', sig: 'One capsule daily' }] },
 ];
@@ -93,9 +116,40 @@ const SERIES: Record<string, SeriesSpec> = {
   'Triglycerides': { unit: 'mg/dL', code: '2571-8', lo: 70, hi: 320, refHigh: 150, dp: 0 },
   'Systolic blood pressure': { unit: 'mmHg', code: '8480-6', lo: 108, hi: 168, refHigh: 130, dp: 0 },
   Weight: { unit: 'lb', code: '29463-7', lo: 128, hi: 288, dp: 0 },
-  eGFR: { unit: 'mL/min/1.73m²', code: '98979-8', lo: 32, hi: 88, refLow: 60, dp: 0 },
+  eGFR: { unit: 'mL/min/1.73m²', code: '98979-8', lo: 21, hi: 88, refLow: 60, dp: 0 },
   'Potassium': { unit: 'mmol/L', code: '2823-3', lo: 3.3, hi: 5.6, refLow: 3.5, refHigh: 5.1, dp: 1 },
 };
+
+/**
+ * What else people are taking.
+ *
+ * Nothing in a real medicine list follows only from the problem list.
+ * Over-the-counter painkillers, supplements somebody started years
+ * ago, a short course that was never stopped, and brand names from an
+ * outside pharmacy record. This pool is where most of the interaction
+ * risk in an inherited chart actually comes from, because none of it
+ * was prescribed by the person now responsible for it.
+ */
+const ALSO_TAKING: { name: string; dose: string; sig: string; p: number }[] = [
+  { name: 'Advil', dose: '200 mg', sig: 'Two tablets as needed for knees', p: 0.14 },
+  { name: 'Ibuprofen', dose: '400 mg', sig: 'As needed', p: 0.10 },
+  { name: 'Aleve', dose: '220 mg', sig: 'One tablet twice daily as needed', p: 0.08 },
+  { name: 'Aspirin', dose: '81 mg', sig: 'One tablet daily', p: 0.13 },
+  { name: 'Omeprazole', dose: '20 mg', sig: 'One capsule each morning', p: 0.12 },
+  { name: 'Calcium carbonate', dose: '600 mg', sig: 'One tablet twice daily', p: 0.11 },
+  { name: 'Ferrous sulfate', dose: '325 mg', sig: 'One tablet daily', p: 0.07 },
+  { name: 'Magnesium oxide', dose: '400 mg', sig: 'One tablet at night', p: 0.06 },
+  { name: 'Benadryl', dose: '25 mg', sig: 'At night for sleep', p: 0.07 },
+  { name: 'Oxybutynin', dose: '5 mg', sig: 'One tablet twice daily', p: 0.04 },
+  { name: 'Potassium chloride', dose: '20 mEq', sig: 'One tablet daily', p: 0.05 },
+  { name: 'Prednisone', dose: '10 mg', sig: 'Course for a flare, not yet stopped', p: 0.04 },
+  { name: 'Cyclobenzaprine', dose: '10 mg', sig: 'At night as needed', p: 0.05 },
+  { name: 'Gemfibrozil', dose: '600 mg', sig: 'One tablet twice daily', p: 0.02 },
+  { name: 'Simvastatin', dose: '40 mg', sig: 'One tablet at night', p: 0.04 },
+  { name: 'Sumatriptan', dose: '50 mg', sig: 'At onset of a migraine', p: 0.05 },
+  { name: 'Zolpidem', dose: '5 mg', sig: 'At night as needed', p: 0.05 },
+  { name: 'Lithium', dose: '300 mg', sig: 'One tablet twice daily', p: 0.02 },
+];
 
 const ALLERGY_POOL = [
   { substance: 'Penicillin', reaction: 'Rash', severity: 'moderate' as const },
@@ -238,6 +292,7 @@ export function generatePanel(n = 120, seed = 20261114): Panel {
     // --- conditions, with clustering
     const have = new Set<string>();
     for (const spec of SPECS) {
+      if (spec.sex && spec.sex !== sex) continue;
       const ageLift = yearsOld > 60 ? 1.5 : yearsOld > 45 ? 1.15 : 0.6;
       const pull = spec.pulls?.some((x) => have.has(x)) ? 2.4 : 1;
       if (chance(Math.min(spec.p * ageLift * pull, 0.9))) have.add(spec.name);
@@ -256,17 +311,42 @@ export function generatePanel(n = 120, seed = 20261114): Panel {
       });
       for (const m of spec.meds ?? []) {
         if (!chance(0.72)) continue;
+        const stopped = chance(0.12);
+        const started = addDays(onset, Math.floor(between(0, 120)));
         out.medications.push({
           id: id('md'), patientId: pid, name: m.name, dose: m.dose, sig: m.sig,
-          started: addDays(onset, Math.floor(between(0, 120))),
-          status: chance(0.12) ? 'stopped' : 'active',
+          started,
+          stopped: stopped ? addDays(started, Math.floor(between(60, 900))) : undefined,
+          status: stopped ? 'stopped' : 'active',
           indication: spec.name,
-          changeNote: chance(0.12) ? 'Stopped for side effects.' : undefined,
+          // The reason only exists where there was a change to explain.
+          changeNote: stopped
+            ? pick([
+              'Stopped for side effects.',
+              'Stopped: no benefit after three months.',
+              'Stopped when the problem resolved.',
+              'Stopped at the patient\u2019s request.',
+            ])
+            : undefined,
           provenance: { author: 'clinician', by: 'L. DuBose, MD', recorded: onset },
         });
       }
       for (const sn of spec.series ?? []) seriesNames.add(sn);
     }
+    // --- and what else they are taking, which nobody here started
+    for (const t of ALSO_TAKING) {
+      if (!chance(t.p)) continue;
+      const started = addDays(ORIGIN, -Math.floor(between(60, 2200)));
+      const fromOutside = chance(0.55);
+      out.medications.push({
+        id: id('md'), patientId: pid, name: t.name, dose: t.dose, sig: t.sig,
+        started, status: 'active',
+        provenance: fromOutside
+          ? { author: 'source', by: pick(OUTSIDE), recorded: started }
+          : { author: 'patient', by: name, recorded: started },
+      });
+    }
+
     if (seriesNames.size === 0 && chance(0.6)) seriesNames.add('Weight');
 
     // --- lab history

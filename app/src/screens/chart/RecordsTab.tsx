@@ -14,9 +14,11 @@
  * review, or the assistant.
  */
 import { useStore } from '../../lib/store';
-import { Chip, Panel, Empty } from '../../components/ui';
+import { Chip, Panel, Empty, Prov } from '../../components/ui';
 import { fmtDate } from '../../lib/format';
 import type { Allergy, ChartDocument } from '../../domain/types';
+import { useActor, ROLE_LABEL } from '../../lib/session';
+import { can } from '../../lib/permissions';
 
 const SEV_TONE: Record<string, 'crit' | 'warn' | undefined> = {
   severe: 'crit', moderate: 'warn', mild: undefined, unknown: 'warn',
@@ -30,8 +32,23 @@ const STATUS: Record<ChartDocument['status'], { label: string; tone?: 'crit' | '
 
 export function RecordsTab({ patientId }: { patientId: string }) {
   const st = useStore();
+  const me = useActor();
   const allergies = st.allergiesFor(patientId);
   const docs = st.documentsFor(patientId);
+
+  /**
+   * What the patient wrote, filtered by who is reading.
+   *
+   * This is where the covering rule has teeth. A journal is the
+   * patient writing to their own physician over months; a clinician
+   * covering for a week gets what was flagged for attention and not
+   * the rest. Arguable either way, which is exactly why the rule is in
+   * one file and the screen says what it did.
+   */
+  const entries = st.entriesFor(patientId).filter((e) => e.kind === 'journal');
+  const readable = entries.filter((e) =>
+    can(me, 'read-journal', { patientId, now: st.now, flagged: e.flagged }).allowed);
+  const withheld = entries.length - readable.length;
 
   /** Substances recorded more than once, loosely matched. */
   const key = (a: Allergy) => a.substance.toLowerCase().replace(/[^a-z]/g, '');
@@ -61,6 +78,39 @@ export function RecordsTab({ patientId }: { patientId: string }) {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+      </Panel>
+
+      <Panel title="In the patient's own words" eyebrow={`${entries.length} entries`}>
+        {entries.length === 0 ? <Empty>Nothing written.</Empty> : (
+          <div className="stack">
+            {readable.map((e) => (
+              <div key={e.id} className="listrow">
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div className="row" style={{ gap: 8 }}>
+                    <strong>{e.label}</strong>
+                    {e.flagged && <Chip tone="warn">Asked you to look</Chip>}
+                    <span className="small muted">{fmtDate(e.date)}</span>
+                  </div>
+                  <p className="small" style={{ marginTop: 5 }}>{e.body}</p>
+                  <div style={{ marginTop: 5 }}>
+                    <Prov author={e.provenance.author} by={e.provenance.by} />
+                  </div>
+                </div>
+              </div>
+            ))}
+            {withheld > 0 && (
+              <div className="listrow">
+                <p className="small muted" style={{ margin: 0 }}>
+                  {withheld} further entr{withheld > 1 ? 'ies are' : 'y is'} not shown.
+                  Signed in as {ROLE_LABEL[me.role].toLowerCase()}, you see what the
+                  patient flagged for attention. The rest is between them and their own
+                  physician, and asking for it is a decision somebody should have to make
+                  rather than a scroll.
+                </p>
+              </div>
+            )}
           </div>
         )}
       </Panel>

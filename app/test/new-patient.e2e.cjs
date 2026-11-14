@@ -55,7 +55,12 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   // add one
   await p.click('button:has-text("+ Add a medicine")');
   await p.waitForTimeout(200);
-  await p.fill('input[placeholder="Lisinopril"]','Atorvastatin');
+  // picked from RxNorm rather than typed, which is what the picker is for
+  await p.fill('input[placeholder="Lisinopril, or Zestril"]','Lipitor');
+  await p.waitForTimeout(400);
+  ok('brand name finds the generic', (await p.locator('.picker .prow').first().textContent()).includes('atorvastatin'));
+  await p.locator('.picker .prow').first().click();
+  await p.waitForTimeout(200);
   await p.fill('input[placeholder="10 mg"]','20 mg');
   await p.fill('input[placeholder="One tablet by mouth each morning"]','One tablet at night');
   await p.click('button:has-text("Save")');
@@ -82,7 +87,7 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   await p.screenshot({path:'e2e-4-plan.png', fullPage:true});
 
   // 6 — portal BEFORE signing: plan must be invisible
-  await p.click('button:has-text("Their view")');
+  await p.click('button:has-text("Sign in as them")');
   await p.waitForTimeout(350);
   ok('portal opens', await p.locator('text=Patient view').isVisible());
   const hidden = await p.locator('text=Your plan is being written').first().isVisible();
@@ -92,7 +97,9 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   await p.screenshot({path:'e2e-5-portal-before.png', fullPage:true});
 
   // 7 — sign it
-  await p.click('button:has-text("Back to the chart")');
+  await p.click('.whoami'); await p.waitForTimeout(250);
+  await p.click('.srow:has-text("L. DuBose")'); await p.waitForTimeout(500);
+  await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(450);
   await p.waitForTimeout(400);
   await p.click('button[role="tab"]:has-text("Care plan")');
   await p.waitForTimeout(300);
@@ -101,7 +108,7 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   ok('plan signed', await p.locator('text=visible to patient').isVisible());
 
   // 8 — portal AFTER signing
-  await p.click('button:has-text("Their view")');
+  await p.click('button:has-text("Sign in as them")');
   await p.waitForTimeout(400);
   ok('signed plan now visible to patient', await p.locator('text=Walk 20 minutes before her mother wakes').first().isVisible());
   ok('patient greeted by name', await p.locator('h1:has-text("Hello, Rosa")').isVisible());
@@ -112,7 +119,9 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   await p.screenshot({path:'e2e-7-portal-ask.png', fullPage:true});
 
   // 9 — document the visit
-  await p.click('button:has-text("Back to the chart")');
+  await p.click('.whoami'); await p.waitForTimeout(250);
+  await p.click('.srow:has-text("L. DuBose")'); await p.waitForTimeout(500);
+  await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(450);
   await p.waitForTimeout(300);
   await p.click('button:has-text("Open visit")');
   await p.waitForTimeout(400);

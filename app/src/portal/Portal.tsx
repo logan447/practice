@@ -15,6 +15,7 @@
  */
 import { useState } from 'react';
 import { useStore } from '../lib/store';
+import { useActor } from '../lib/session';
 import { useNav, type PortalTab } from '../lib/nav';
 import { Avatar, Chip, Panel, Trend, Empty } from '../components/ui';
 import { AiMark } from '../components/AiPanel';
@@ -39,6 +40,7 @@ const TABS: { id: PortalTab; label: string }[] = [
 ];
 
 export function Portal({ patientId, initialTab }: { patientId: string; initialTab?: PortalTab }) {
+  const me = useActor();
   const st = useStore();
   const nav = useNav();
   const [tab, setTab] = useState<PortalTab>(initialTab ?? 'home');
@@ -61,16 +63,24 @@ export function Portal({ patientId, initialTab }: { patientId: string; initialTa
 
   return (
     <div className="wrap" style={{ maxWidth: 940 }}>
+      {/*
+        * Signed in as the patient there is no way back to the chart,
+        * because for them there is no chart. The only exit is the
+        * sign-in control in the bar, which is the honest shape of it.
+        */}
       <div className="row" style={{ marginBottom: 14 }}>
         <Chip tone="info">Patient view</Chip>
         <span className="small muted">
-          Exactly what {p.preferredName ?? p.name} sees. Anything you record under
-          Track is saved as theirs.
+          {me.role === 'patient'
+            ? `Signed in as ${p.preferredName ?? p.name}. This is the whole of what they can reach.`
+            : `Exactly what ${p.preferredName ?? p.name} sees. Anything you record under Track is saved as theirs.`}
         </span>
         <span className="spacer" />
-        <button className="btn ghost sm" onClick={() => nav.go({ name: 'chart', patientId })}>
-          Back to the chart
-        </button>
+        {me.role !== 'patient' && (
+          <button className="btn ghost sm" onClick={() => nav.go({ name: 'chart', patientId })}>
+            Back to the chart
+          </button>
+        )}
       </div>
 
       <div className="phead" style={{ marginBottom: 4 }}>

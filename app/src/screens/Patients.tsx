@@ -11,10 +11,15 @@ import { useNav } from '../lib/nav';
 import { Avatar, Chip, Panel } from '../components/ui';
 import { age, MEMBERSHIP_LABEL, monthsSince, relative } from '../lib/format';
 import { findIssues } from '../lib/dataQuality';
+import { useActor } from '../lib/session';
+import { can } from '../lib/permissions';
+import { Blocked } from '../components/SignIn';
 
 export function Patients() {
   const st = useStore();
   const nav = useNav();
+  const me = useActor();
+  const addPatient = can(me, 'add-patient', { now: st.now });
   const [q, setQ] = useState('');
   const [onlyDirty, setOnlyDirty] = useState(false);
   const [sel, setSel] = useState(0);
@@ -85,7 +90,9 @@ export function Patients() {
             <span className="muted"> Press <kbd>/</kbd> to search, <kbd>j</kbd><kbd>k</kbd> to move, <kbd>&#8984;K</kbd> for anything.</span>
           </div>
         </div>
-        <button className="btn" onClick={() => nav.go({ name: 'new-patient' })}>New patient</button>
+        {addPatient.allowed
+          ? <button className="btn" onClick={() => nav.go({ name: 'new-patient' })}>New patient</button>
+          : <Blocked why={addPatient.why ?? 'Not yours to add.'} />}
       </div>
 
       <div className="row" style={{ marginBottom: 16, gap: 10 }}>

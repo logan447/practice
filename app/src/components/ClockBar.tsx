@@ -9,11 +9,14 @@
  */
 import { useEffect, useState } from 'react';
 import { useStore } from '../lib/store';
+import { useActor } from '../lib/session';
+import { can } from '../lib/permissions';
 import { fmtDate } from '../lib/format';
 import { ORIGIN } from '../lib/clock';
 
 export function ClockBar() {
   const st = useStore();
+  const me = useActor();
   const [flash, setFlash] = useState<string[] | null>(null);
 
   useEffect(() => {
@@ -28,11 +31,15 @@ export function ClockBar() {
   return (
     <div className="clockbar">
       <span className="date num" title="The clinic's today">{fmtDate(st.now)}</span>
-      <button className="btn quiet sm" onClick={() => st.advanceTime(1)} title="Advance one day (.)">+1d</button>
-      <button className="btn quiet sm" onClick={() => st.advanceTime(7)}>+1w</button>
-      <button className="btn quiet sm" onClick={() => st.advanceTime(30)}>+1m</button>
-      {moved && (
-        <button className="btn quiet sm" onClick={st.resetTime} title="Back to the start">reset</button>
+      {can(me, 'move-clock', { now: st.now }).allowed && (
+        <>
+          <button className="btn quiet sm" onClick={() => st.advanceTime(1)} title="Advance one day (.)">+1d</button>
+          <button className="btn quiet sm" onClick={() => st.advanceTime(7)}>+1w</button>
+          <button className="btn quiet sm" onClick={() => st.advanceTime(30)}>+1m</button>
+          {moved && (
+            <button className="btn quiet sm" onClick={st.resetTime} title="Back to the start">reset</button>
+          )}
+        </>
       )}
       {flash && flash.length > 0 && (
         <span className="clockflash">

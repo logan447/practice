@@ -8,6 +8,10 @@ import { FirstRun } from './screens/FirstRun';
 import { NewPatient } from './screens/NewPatient';
 import { Portal } from './portal/Portal';
 import { Metrics } from './screens/Metrics';
+import { Audit } from './screens/Audit';
+import { ActorControl } from './components/SignIn';
+import { useActor } from './lib/session';
+import { can } from './lib/permissions';
 import { CommandPalette, Shortcuts } from './components/CommandPalette';
 import { ClockBar } from './components/ClockBar';
 import { countClick, countKey } from './lib/metrics';
@@ -22,15 +26,21 @@ import { countClick, countKey } from './lib/metrics';
 function TopBar() {
   const nav = useNav();
   const st = useStore();
+  const me = useActor();
+  const clinician = me.role !== 'patient';
   return (
     <header className="topbar">
-      <button className="mark" onClick={() => nav.reset({ name: 'patients' })}>
-        Direct Lifestyle Medicine<small>Clinical record</small>
+      <button className="mark" onClick={() => nav.reset(clinician
+        ? { name: 'patients' }
+        : { name: 'portal', patientId: me.patientId ?? '' })}>
+        Direct Lifestyle Medicine
+        <small>{clinician ? 'Clinical record' : 'Your health record'}</small>
       </button>
-      {st.hasData && <ClockBar />}
+      {st.hasData && clinician && <ClockBar />}
       <span className="spacer" />
-      {st.hasData && (
+      {st.hasData && clinician && (
         <>
+          <button className="btn quiet sm" onClick={() => nav.go({ name: 'audit' })}>Log</button>
           <button className="btn quiet sm" onClick={() => nav.go({ name: 'metrics' })}>Usage</button>
           <button className="btn quiet sm" title="Command palette"
             onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}>
@@ -44,6 +54,7 @@ function TopBar() {
         </span>
       )}
       <ThemeToggle />
+      <ActorControl />
       <ResetControl />
     </header>
   );
@@ -64,8 +75,11 @@ function ThemeToggle() {
 function ResetControl() {
   const st = useStore();
   const nav = useNav();
+  const me = useActor();
   const [armed, setArmed] = useState(false);
   if (!st.hasData) return null;
+  // Clearing the practice is not a clinical act, so cover does not have it.
+  if (!can(me, 'load-data', { now: st.now }).allowed) return null;
   return armed ? (
     <button className="btn quiet sm" style={{ color: 'var(--crit)' }}
       onClick={() => { st.clearAll(); setArmed(false); nav.reset({ name: 'patients' }); }}>
@@ -79,14 +93,23 @@ function ResetControl() {
 function Screen() {
   const { route } = useNav();
   const st = useStore();
+  const me = useActor();
 
   // An empty record is the normal state on day one, not an error.
   if (!st.hasData && route.name !== 'new-patient') return <FirstRun />;
+
+  // Signed in as a patient, there is one destination. Not a filtered
+  // version of the clinical screens: a different document.
+  if (me.role === 'patient' && me.patientId) {
+    if (route.name === 'portal') return <Portal patientId={route.patientId} initialTab={route.tab} />;
+    return <Portal patientId={me.patientId} />;
+  }
 
   switch (route.name) {
     case 'patients': return <Patients />;
     case 'new-patient': return <NewPatient />;
     case 'metrics': return <Metrics />;
+    case 'audit': return <Audit />;
     case 'chart': return <Chart patientId={route.patientId} initialTab={route.tab} />;
     case 'encounter': return <Encounter encounterId={route.encounterId} />;
     case 'portal': return <Portal patientId={route.patientId} initialTab={route.tab} />;

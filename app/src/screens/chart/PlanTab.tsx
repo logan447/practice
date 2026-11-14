@@ -18,6 +18,9 @@ import { Chip, Panel, Trend, Prov } from '../../components/ui';
 import { InlineAdd, Field } from '../../components/InlineAdd';
 import { fmtDate } from '../../lib/format';
 import type { GoalStatus, CarePlanGoal } from '../../domain/types';
+import { useActor } from '../../lib/session';
+import { can } from '../../lib/permissions';
+import { Blocked } from '../../components/SignIn';
 
 const STATUS: Record<GoalStatus, { label: string; tone?: string }> = {
   'on-track': { label: 'On track', tone: 'ok' },
@@ -35,8 +38,15 @@ const DOMAIN: Record<string, string> = {
 };
 
 export function PlanTab({ patientId }: { patientId: string }) {
+  const me = useActor();
   const st = useStore();
   const nav = useNav();
+
+  /**
+   * Signing a plan is the one clinical act cover does not carry. The
+   * reasoning is in lib/permissions.ts, next to every other rule.
+   */
+  const signPlan = can(me, 'sign-plan', { patientId, now: st.now });
   const plan = st.planFor(patientId);
 
   const [summary, setSummary] = useState('');
@@ -85,12 +95,14 @@ export function PlanTab({ patientId }: { patientId: string }) {
                   See their view
                 </button>
               )
-              : (
-                <button className="btn sm" disabled={plan.goals.length === 0}
-                  onClick={() => st.signPlan(plan.id)}>
-                  Sign and share
-                </button>
-              )}
+              : signPlan.allowed
+                ? (
+                  <button className="btn sm" disabled={plan.goals.length === 0}
+                    onClick={() => st.signPlan(plan.id)}>
+                    Sign and share
+                  </button>
+                )
+                : <Blocked why={signPlan.why ?? 'Not yours to sign.'} />}
           </div>
         }>
         <p>{plan.summary}</p>

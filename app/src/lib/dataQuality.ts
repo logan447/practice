@@ -13,6 +13,7 @@
 import type {
   Allergy, ChartDocument, Condition, Medication, Patient, ResultSeries,
 } from '../domain/types';
+import { resolveDrug } from '../domain/terminology';
 
 export type IssueLevel = 'warn' | 'crit';
 
@@ -42,10 +43,16 @@ export function findIssues(input: {
   const out: Issue[] = [];
 
   // --- the same medicine twice
+  //
+  // Matched on the resolved RxNorm concept where there is one, so
+  // "Advil", "ibuprofen" and "Ibuprofen 400mg" count as one drug. Loose
+  // string matching alone misses exactly the duplicates that matter,
+  // because the two entries came from two systems that named it
+  // differently.
   const active = medications.filter((m) => m.status !== 'stopped');
   const byName = new Map<string, Medication[]>();
   for (const m of active) {
-    const k = normalise(m.name);
+    const k = resolveDrug(m.name, m.rxcui)?.rxcui ?? normalise(m.name);
     byName.set(k, [...(byName.get(k) ?? []), m]);
   }
   for (const [, group] of byName) {
@@ -113,6 +120,16 @@ export function findIssues(input: {
         detail: `Started ${m.started}, but ${c.name} was first recorded ${c.onset}. One of the two dates is wrong.`,
       });
     }
+  }
+
+  // --- a problem nobody coded
+  const uncoded = conditions.filter((c) => c.status === 'active' && !c.code.trim());
+  if (uncoded.length > 0) {
+    out.push({
+      id: 'uncoded', level: 'warn',
+      title: `${uncoded.length} problem${uncoded.length > 1 ? 's have' : ' has'} no code`,
+      detail: `${uncoded.map((c) => c.name).join(', ')}. Recorded as words, which reads fine and matches nothing: no interaction check, no recall list, no quality measure sees these.`,
+    });
   }
 
   // --- a document nobody could read
