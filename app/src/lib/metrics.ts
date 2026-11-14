@@ -30,6 +30,12 @@ export interface VisitMetric {
   aiSections: number;
   /** Of those, how many the physician then changed. */
   aiEdited: number;
+  /** Deliberate errors the drafting put in this note. */
+  errorsIntroduced?: number;
+  /** How many of those the physician removed before signing. */
+  errorsCaught?: number;
+  /** Of the ones missed, how many would have reached someone. */
+  errorsMissedConsequential?: number;
 }
 
 interface Store {
@@ -103,6 +109,20 @@ export const countKey = (): void => bump((v) => { v.keystrokes += 1; });
 export const countAiSection = (n: number): void => bump((v) => { v.aiSections += n; });
 export const countAiEdit = (): void => bump((v) => { v.aiEdited += 1; });
 
+/** Recorded at signature, when the draft can be compared with the truth. */
+export function recordErrors(
+  encounterId: string, introduced: number, caught: number, missedConsequential: number,
+): void {
+  const s = read();
+  const v = s.visits.find((x) => x.encounterId === encounterId);
+  if (!v) return;
+  v.errorsIntroduced = introduced;
+  v.errorsCaught = caught;
+  v.errorsMissedConsequential = missedConsequential;
+  write(s);
+  notify();
+}
+
 export function signVisit(encounterId: string): void {
   const s = read();
   const v = s.visits.find((x) => x.encounterId === encounterId && !x.signedAt);
@@ -123,6 +143,10 @@ export interface Summary {
   medianClicks: number;
   medianChartSeconds: number;
   aiKeptPct: number | null;
+  /** Across visits where the draft was known to be wrong. */
+  errorsIntroduced: number;
+  errorsCaught: number;
+  errorsMissedConsequential: number;
 }
 
 const median = (xs: number[]): number => {
@@ -139,12 +163,16 @@ export function summarise(visits: VisitMetric[]): Summary {
   const kept = ai.length
     ? ai.reduce((acc, v) => acc + (v.aiSections - v.aiEdited) / v.aiSections, 0) / ai.length
     : null;
+  const sum = (f: (v: VisitMetric) => number): number => done.reduce((a, v) => a + f(v), 0);
   return {
     n: done.length,
     medianMinutes: Math.round(median(mins) * 10) / 10,
     medianClicks: Math.round(median(done.map((v) => v.clicks))),
     medianChartSeconds: Math.round(median(done.map((v) => v.chartSecondsBefore))),
     aiKeptPct: kept === null ? null : Math.round(kept * 100),
+    errorsIntroduced: sum((v) => v.errorsIntroduced ?? 0),
+    errorsCaught: sum((v) => v.errorsCaught ?? 0),
+    errorsMissedConsequential: sum((v) => v.errorsMissedConsequential ?? 0),
   };
 }
 

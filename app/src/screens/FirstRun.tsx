@@ -21,11 +21,11 @@ export function FirstRun() {
         <h1 style={{ fontSize: 30 }}>No patients yet.</h1>
         <div className="sub" style={{ fontSize: 15, maxWidth: '52ch' }}>
           This record is empty, which is where a practice starts. Add your
-          first patient, or load three example patients to look around.
+          first patient, or load example data to look around.
         </div>
       </div>
 
-      <div className="grid g2" style={{ marginTop: 26 }}>
+      <div className="grid g3" style={{ marginTop: 26 }}>
         <section className="panel">
           <div className="body">
             <h2 style={{ fontSize: 17 }}>Add your first patient</h2>
@@ -49,6 +49,20 @@ export function FirstRun() {
             </p>
             <button className="btn ghost" onClick={() => { st.loadDemo(); nav.reset({ name: 'patients' }); }}>
               Load 3 examples
+            </button>
+          </div>
+        </section>
+
+        <section className="panel">
+          <div className="body">
+            <h2 style={{ fontSize: 17 }}>Load a full panel</h2>
+            <p className="small muted" style={{ margin: '8px 0 16px' }}>
+              About 120 fictional adults with years of history, and the mess a
+              real panel carries: the same drug listed twice, allergies two
+              sources disagree about, outside records that would not read.
+            </p>
+            <button className="btn ghost" onClick={() => { st.loadPanel(); nav.reset({ name: 'patients' }); }}>
+              Load 120 patients
             </button>
           </div>
         </section>

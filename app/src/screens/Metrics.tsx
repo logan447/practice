@@ -107,6 +107,34 @@ export function Metrics() {
             </Panel>
           )}
 
+          {s.errorsIntroduced > 0 && (
+            <Panel title="Drafting errors caught" right={
+              <span className="small muted">where the draft was known to be wrong</span>
+            }>
+              <div className="row" style={{ alignItems: 'baseline', gap: 10 }}>
+                <span className="num" style={{ font: '600 30px/1 var(--serif)' }}>
+                  {s.errorsCaught} / {s.errorsIntroduced}
+                </span>
+                <span className="small muted">
+                  removed before signature
+                  {s.errorsMissedConsequential > 0 && (
+                    <>, and <b style={{ color: 'var(--crit)' }}>
+                      {s.errorsMissedConsequential}
+                    </b> that would have reached someone did not get caught</>
+                  )}
+                </span>
+              </div>
+              <p className="small muted" style={{ marginTop: 10, maxWidth: '62ch' }}>
+                This number exists only because the simulated capture writes its
+                mistakes on purpose and keeps the truth beside them. Real capture
+                has no answer key, so this is the closest thing to evidence about
+                how much the review before signature is actually catching. If it
+                sits low, the answer is not a better model. It is a review step
+                that costs more time, or less drafting.
+              </p>
+            </Panel>
+          )}
+
           <Panel title="Every visit" flush style={{ marginTop: 16 }}>
             <table className="rows">
               <thead>
@@ -118,6 +146,7 @@ export function Metrics() {
                   <th style={{ width: 110 }}>Keystrokes</th>
                   <th style={{ width: 130 }}>Chart before</th>
                   <th style={{ width: 130 }}>AI edited</th>
+                  <th style={{ width: 130 }}>Errors caught</th>
                 </tr>
               </thead>
               <tbody>
@@ -133,6 +162,18 @@ export function Metrics() {
                       {v.aiSections === 0
                         ? <span className="muted">not used</span>
                         : `${v.aiEdited} of ${v.aiSections}`}
+                    </td>
+                    <td className="small">
+                      {!v.errorsIntroduced
+                        ? <span className="muted">clean draft</span>
+                        : (
+                          <span style={{
+                            color: v.errorsCaught === v.errorsIntroduced
+                              ? 'var(--ok)' : 'var(--crit)',
+                          }}>
+                            {v.errorsCaught} of {v.errorsIntroduced}
+                          </span>
+                        )}
                     </td>
                   </tr>
                 ))}

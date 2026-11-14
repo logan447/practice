@@ -23,7 +23,13 @@ import {
 } from '../lib/clinical';
 import { ORDER_KINDS, type ExamTemplate, type OrderKind, type VisitNote } from '../domain/types';
 import { newId } from '../lib/persist';
-import { startVisit as metricStart, signVisit as metricSign, endVisit, countAiSection, countAiEdit } from '../lib/metrics';
+import {
+  startVisit as metricStart, signVisit as metricSign, endVisit,
+  countAiSection, countAiEdit, recordErrors,
+} from '../lib/metrics';
+import {
+  ambientScript, wasCaught, ERROR_LABEL, type InjectedError,
+} from '../lib/ambient';
 
 /** Which sections were filled by something other than the physician. */
 type Mark = 'chart' | 'ambient';
@@ -93,6 +99,18 @@ export function Encounter({ encounterId }: { encounterId: string }) {
   const [listening, setListening] = useState(false);
   const [elapsed, setElapsed] = useState(0);
 
+  /**
+   * What the drafting got wrong, and whether we are letting it.
+   *
+   * The prototype knows the truth because it wrote both versions. Real
+   * capture does not, which is the whole point: the only thing standing
+   * between a mistranscribed dose and a signed order is someone reading
+   * the draft against what they remember of the room.
+   */
+  const [faulty, setFaulty] = useState(true);
+  const [injected, setInjected] = useState<InjectedError[]>([]);
+  const [checked, setChecked] = useState(false);
+
   // The clock on this visit starts when it opens and stops at signature.
   useEffect(() => {
     if (!p || !enc || enc.status === 'signed') return;
@@ -130,38 +148,37 @@ export function Encounter({ encounterId }: { encounterId: string }) {
     if (!p) return;
     setListening(true);
     setElapsed(0);
+    setChecked(false);
     const first = p.preferredName ?? p.name.split(' ')[0];
-    const steps: [number, () => void][] = [
-      [3000, () => {
-        patch('subjective', 'additional',
-          `${first} reports the walks have held up, five days most weeks. Knee aches after the longer ones and settles by morning, no swelling, no locking or giving way. CPAP every night. Has been reading about statins and wants to understand the reasoning rather than stop it.`,
-          'ambient');
-      }],
-      [6500, () => {
-        patch('objective', 'vitals', 'BP 124/76 seated after five minutes, repeated 122/78. Weight 198 lb. BMI 28.6.', 'ambient');
-      }],
-      [9500, () => {
-        patch('assessment', 'overall',
-          'Prediabetes remains in the normal range off metformin. Blood pressure consistently under 130 at home and in clinic, with weight stable three months, so a supervised lisinopril taper is reasonable now. Knee discomfort sounds mechanical and load-related rather than inflammatory. Statin is secondary prevention and the case for continuing it is strong.',
-          'ambient');
-      }],
-      [12500, () => {
+    /**
+     * Only count an error the draft actually writes.
+     *
+     * The plan step lands on a named problem. If this patient has no
+     * such problem, that part of the consultation never happens, and
+     * counting its errors as caught would flatter the review step with
+     * mistakes it was never shown.
+     */
+    const steps = ambientScript(first, faulty).filter((step) =>
+      step.kind === 'text'
+      || note.plan.problems.some((pr) => pr.problem.toLowerCase().includes(step.match)));
+    setInjected(steps.flatMap((x) => x.errors));
+    timers.current = steps.map((step) => window.setTimeout(() => {
+      if (step.kind === 'text') {
+        patch(step.section, step.key, step.text, 'ambient');
+      } else {
         setNote((n) => ({
           ...n,
           plan: {
             ...n.plan,
             problems: n.plan.problems.map((pr) =>
-              pr.problem.toLowerCase().includes('hypertension')
-                ? { ...pr, assessment: 'Controlled.', treatment: 'Halve lisinopril to 5 mg for four weeks.', orders: 'Home BP twice weekly.', followUp: 'Six weeks.' }
-                : pr),
+              pr.problem.toLowerCase().includes(step.match) ? { ...pr, ...step.fields } : pr),
           },
         }));
         setMarks((m) => ({ ...m, 'plan.problems': 'ambient' }));
         countAiSection(1);
-        setListening(false);
-      }],
-    ];
-    timers.current = steps.map(([ms, fn]) => window.setTimeout(fn, ms));
+      }
+      if (step === steps[steps.length - 1]) setListening(false);
+    }, step.at));
   };
 
   const stopListening = () => {
@@ -173,10 +190,30 @@ export function Encounter({ encounterId }: { encounterId: string }) {
 
   const signed = enc.status === 'signed';
 
+  /** The text as it now stands, for the field an error landed in. */
+  const fieldText = (id: string): string => {
+    if (id === 'plan.problems') {
+      return note.plan.problems
+        .map((pr) => [pr.assessment, pr.treatment, pr.orders, pr.followUp].join(' '))
+        .join(' ');
+    }
+    const [sec, key] = id.split('.');
+    const block = note[sec as keyof VisitNote] as Record<string, unknown>;
+    return String(block?.[key] ?? '');
+  };
+
+  const audit = injected.map((e) => ({ err: e, caught: wasCaught(e, fieldText(e.field)) }));
+  const missed = audit.filter((a) => !a.caught);
+  const missedBad = missed.filter((a) => a.err.consequential).length;
+
   const doSign = () => {
     st.saveNote(enc.id, note);
     st.signEncounter(enc.id);
     metricSign(enc.id);
+    if (injected.length > 0) {
+      recordErrors(enc.id, injected.length, audit.length - missed.length, missedBad);
+      setChecked(true);
+    }
   };
 
   function patch<S extends keyof VisitNote>(
@@ -235,6 +272,15 @@ export function Encounter({ encounterId }: { encounterId: string }) {
               ) : (
                 <button className="btn ghost" onClick={startListening}>Start listening</button>
               )}
+              {injected.length > 0 && !listening && (
+                <button className="btn ghost" onClick={() => setChecked(true)}>Check the draft</button>
+              )}
+              {injected.length === 0 && !listening && (
+                <button className="btn quiet sm" title="Whether the simulated capture makes mistakes"
+                  onClick={() => setFaulty((f) => !f)}>
+                  Capture: {faulty ? 'fallible' : 'clean'}
+                </button>
+              )}
               <button className="btn ghost" onClick={() => st.saveNote(enc.id, note)}>Save</button>
               <button className="btn" onClick={doSign}>Sign note</button>
             </>
@@ -246,6 +292,9 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       <div className="visit">
         {/* ------------------------------------------------------- note */}
         <div className="stack">
+          {checked && injected.length > 0 && (
+            <DraftCheck audit={audit} signed={signed} onClose={() => setChecked(false)} />
+          )}
           <Panel title="Subjective">
             <div className="stack">
               <NoteField label="One-liner" value={note.subjective.oneLiner}
@@ -578,5 +627,75 @@ function Orders({
         </div>
       )}
     </Panel>
+  );
+}
+
+/**
+ * What the drafting got wrong.
+ *
+ * This comparison is only possible because the prototype wrote both
+ * versions of the consultation and kept the answer key. Real capture
+ * has no answer key, which is the argument this screen exists to make:
+ * if a draft can be wrong in these ways and nothing downstream can
+ * tell, then the reading before signature is not optional and cannot
+ * be made quick.
+ */
+function DraftCheck({ audit, signed, onClose }: {
+  audit: { err: InjectedError; caught: boolean }[];
+  signed: boolean;
+  onClose: () => void;
+}) {
+  const caught = audit.filter((a) => a.caught);
+  const missed = audit.filter((a) => !a.caught);
+  const bad = missed.filter((a) => a.err.consequential).length;
+
+  return (
+    <div className={`draftcheck ${missed.length ? 'bad' : 'ok'}`}>
+      <div className="row">
+        <h2>{signed ? 'What went into the record' : 'What the draft got wrong'}</h2>
+        <span className="spacer" />
+        <button className="btn quiet sm" onClick={onClose}>Hide</button>
+      </div>
+
+      <p className="score">
+        <strong>{caught.length} of {audit.length}</strong> caught.
+        {missed.length > 0 && (
+          <> {missed.length} still in the note
+            {bad > 0 && (
+              <>, {bad === missed.length ? 'all' : bad} of which would reach someone</>
+            )}.
+          </>
+        )}
+      </p>
+
+      {missed.map(({ err }) => (
+        <div key={err.id} className="dcrow miss">
+          <div className="row">
+            <Chip tone="crit">{signed ? 'Signed' : 'Still there'}</Chip>
+            <span className="eyebrow">{ERROR_LABEL[err.kind]} &middot; {err.where}</span>
+          </div>
+          <p className="wrongtext">&ldquo;{err.wrong}&rdquo;</p>
+          <p className="righttext">Should read: {err.right}</p>
+          <p className="why">{err.why}</p>
+        </div>
+      ))}
+
+      {caught.map(({ err }) => (
+        <div key={err.id} className="dcrow hit">
+          <div className="row">
+            <Chip tone="ok">Removed</Chip>
+            <span className="eyebrow">{ERROR_LABEL[err.kind]} &middot; {err.where}</span>
+          </div>
+          <p className="why">Drafted as &ldquo;{err.wrong}&rdquo;. No longer in the note.</p>
+        </div>
+      ))}
+
+      <p className="footnote">
+        The prototype can show this because it wrote the errors on purpose and kept
+        the truth beside them. Capture in use cannot. Nothing downstream of a signed
+        note can tell a mistranscribed dose from a real one, which is why the reading
+        before signature carries the whole safety burden.
+      </p>
+    </div>
   );
 }

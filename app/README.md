@@ -242,3 +242,66 @@ arriving on the physician's chart, results and inbox. 15 assertions.
 Patient portal, scheduling, orders, messaging, prescribing (bought, not
 built), search across the chart, and any form of persistence — state
 resets on reload.
+
+## Real volume, and an AI that is wrong
+
+Two additions that change what the prototype can tell you.
+
+### A generated panel, then deliberately dirtied
+
+`src/data/generate.ts` builds about 120 adults with clustered
+conditions, medication regimens that follow from them, lab series with
+history, years of signed notes and care plans. It is seeded, so the
+same panel comes back every time.
+
+Then `dirty()` damages it on purpose, because no chart you inherit is
+clean and a design that only works on tidy data does not work:
+
+- the same medicine listed twice, from two sources, spelled differently
+- an allergy recorded twice with two severities that disagree
+- a medicine with no dose, because the sending system had none
+- outside results with no reference range, so nothing flags
+- a medicine started before the problem it treats was recorded
+- two charts that may be the same person
+
+`src/lib/dataQuality.ts` finds all six and says what to do about each.
+The result shows on the patient list as a column, as a filter, and on
+the chart as a strip that is silent when there is nothing to say.
+About 40% of the generated panel carries at least one issue.
+
+Allergies and outside records live on a Records tab. Documents arrive
+in three states of repair: read, images only, and would not parse. The
+last two say plainly that nothing in them reaches search, the chart
+review or the assistant.
+
+The whole panel is roughly 740 KB in `localStorage`. `save()` now
+reports failure and the header says "Not saved" when a write is
+refused, because silently losing a write is the wrong failure.
+
+### Capture that makes mistakes
+
+`src/lib/ambient.ts` holds two versions of the same consultation. The
+fallible one introduces seven errors of the kinds ambient scribes
+actually produce:
+
+| Kind | In the draft | Should read |
+|---|---|---|
+| Left and right swapped | Left knee aches | Right knee aches |
+| A negative nobody took | Denies chest pain, shortness of breath and palpitations | Never discussed |
+| Digits transposed | Weight 189 lb | Weight 198 lb |
+| The wrong drug | a supervised losartan taper | a supervised lisinopril taper |
+| Attributed to the wrong person | Patient feels the knee is nothing to worry about | The physician judged it mechanical |
+| The wrong dose | Halve lisinopril to 2.5 mg | Halve lisinopril to 5 mg |
+| A plan item nobody said | Refer to orthopaedics for the left knee | No referral was discussed |
+
+"Check the draft" compares the note as it stands against the truth and
+says which errors are still in it. At signature it does the same and
+records the score, which the Usage screen carries across visits.
+
+This comparison is only possible because the prototype wrote the
+errors and kept the answer key. Real capture has no answer key, and
+nothing downstream of a signed note can tell a mistranscribed dose
+from a real one. That is the argument the screen exists to make: the
+reading before signature carries the whole safety burden, and the
+measured catch rate is the only evidence about whether it is carrying
+it.

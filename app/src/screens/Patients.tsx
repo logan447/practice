@@ -10,11 +10,13 @@ import { useStore } from '../lib/store';
 import { useNav } from '../lib/nav';
 import { Avatar, Chip, Panel } from '../components/ui';
 import { age, MEMBERSHIP_LABEL, monthsSince, relative } from '../lib/format';
+import { findIssues } from '../lib/dataQuality';
 
 export function Patients() {
   const st = useStore();
   const nav = useNav();
   const [q, setQ] = useState('');
+  const [onlyDirty, setOnlyDirty] = useState(false);
   const [sel, setSel] = useState(0);
   const search = useRef<HTMLInputElement>(null);
 
@@ -25,17 +27,34 @@ export function Patients() {
         const open = st.tasksFor(p.id);
         const conds = st.conditionsFor(p.id).filter((c) => c.status === 'active');
         const next = st.encountersFor(p.id).find((e) => e.status === 'scheduled');
-        return { p, open, conds, next, urgent: open.some((t) => t.urgent) };
+        // Panel-wide, because which charts need reconciling is a
+        // property of the panel, not something you find one at a time.
+        const issues = findIssues({
+          patient: p, allPatients: st.patients, medications: st.medsFor(p.id),
+          allergies: st.allergiesFor(p.id), conditions: st.conditionsFor(p.id),
+          series: st.seriesFor(p.id), documents: st.documentsFor(p.id),
+        });
+        return {
+          p, open, conds, next, issues,
+          crit: issues.filter((i) => i.level === 'crit').length,
+          urgent: open.some((t) => t.urgent),
+        };
       })
-      .filter(({ p, conds }) =>
-        !needle
-        || p.name.toLowerCase().includes(needle)
-        || conds.some((c) => c.name.toLowerCase().includes(needle)))
+      .filter(({ p, conds, issues }) =>
+        (!onlyDirty || issues.length > 0)
+        && (!needle
+          || p.name.toLowerCase().includes(needle)
+          || conds.some((c) => c.name.toLowerCase().includes(needle))))
       .sort((a, b) =>
         Number(b.urgent) - Number(a.urgent)
         || b.open.length - a.open.length
         || a.p.name.localeCompare(b.p.name));
-  }, [st, q]);
+  }, [st, q, onlyDirty]);
+
+  const dirty = useMemo(
+    () => rows.filter((r) => r.issues.length > 0).length,
+    [rows],
+  );
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -69,9 +88,17 @@ export function Patients() {
         <button className="btn" onClick={() => nav.go({ name: 'new-patient' })}>New patient</button>
       </div>
 
-      <div style={{ marginBottom: 16, maxWidth: 420 }}>
-        <input className="search" placeholder="Search by name or condition"
-          value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search patients" />
+      <div className="row" style={{ marginBottom: 16, gap: 10 }}>
+        <div style={{ maxWidth: 420, flex: 1 }}>
+          <input className="search" placeholder="Search by name or condition"
+            value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search patients" />
+        </div>
+        {(dirty > 0 || onlyDirty) && (
+          <button className={`btn sm ${onlyDirty ? '' : 'ghost'}`}
+            onClick={() => setOnlyDirty((v) => !v)}>
+            Needs reconciling{onlyDirty ? '' : ` (${dirty})`}
+          </button>
+        )}
       </div>
 
       <Panel flush>
@@ -83,10 +110,11 @@ export function Patients() {
               <th style={{ width: 130 }}>Membership</th>
               <th style={{ width: 130 }}>Next visit</th>
               <th style={{ width: 90 }}>Open</th>
+              <th style={{ width: 110 }}>Record</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map(({ p, open, conds, next, urgent }, i) => (
+            {rows.map(({ p, open, conds, next, urgent, issues, crit }, i) => (
               <tr key={p.id} className={`click${i === sel ? ' sel' : ''}`}
                 onMouseEnter={() => setSel(i)}
                 onClick={() => nav.go({ name: 'chart', patientId: p.id })}>
@@ -94,7 +122,8 @@ export function Patients() {
                 <td>
                   <div style={{ fontWeight: 600 }}>{p.name}</div>
                   <div className="small muted">
-                    {age(p.dob)}, {p.pronouns} &middot; member {monthsSince(p.memberSince)} months
+                    {age(p.dob)}, {p.pronouns} &middot; member {monthsSince(p.memberSince)}
+                    {monthsSince(p.memberSince) === 1 ? ' month' : ' months'}
                   </div>
                 </td>
                 <td className="small">
@@ -111,6 +140,13 @@ export function Patients() {
                 <td>
                   {open.length > 0 && (
                     <Chip tone={urgent ? 'crit' : undefined}>{open.length}</Chip>
+                  )}
+                </td>
+                <td>
+                  {issues.length > 0 && (
+                    <Chip tone={crit > 0 ? 'crit' : 'warn'}>
+                      {issues.length} to fix
+                    </Chip>
                   )}
                 </td>
               </tr>

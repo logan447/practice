@@ -8,7 +8,8 @@
  */
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 
-export type ChartTab = 'plan' | 'meds' | 'prevention' | 'results' | 'notes' | 'specialists';
+export type ChartTab =
+  | 'plan' | 'meds' | 'prevention' | 'results' | 'notes' | 'specialists' | 'records';
 export type PortalTab = 'home' | 'plan' | 'previsit' | 'track' | 'results' | 'meds' | 'visits' | 'ask';
 
 export type Route =

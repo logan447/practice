@@ -17,8 +17,9 @@ import { tick } from './tick';
 import type {
   AiDraft, CarePlan, CarePlanGoal, Condition, Encounter, Medication, Order,
   OrderKind, Patient, PatientEntry, PreVisit, PreventionItem, ResultReport,
-  ResultSeries, Specialist, Task, VisitNote,
+  ResultSeries, Specialist, Task, VisitNote, Allergy, ChartDocument,
 } from '../domain/types';
+import { generatePanel } from '../data/generate';
 import { measureByKey, patientSeriesId, isAlerting } from '../domain/measures';
 
 const ME = 'L. DuBose, MD';
@@ -27,6 +28,9 @@ interface State {
   patients: Patient[];
   conditions: Condition[];
   medications: Medication[];
+  allergies: Allergy[];
+  /** Outside records, including the ones that could not be read. */
+  documents: ChartDocument[];
   resultSeries: ResultSeries[];
   resultReports: ResultReport[];
   carePlans: CarePlan[];
@@ -45,7 +49,8 @@ interface State {
 }
 
 const EMPTY: State = {
-  patients: [], conditions: [], medications: [], resultSeries: [], resultReports: [],
+  patients: [], conditions: [], medications: [], allergies: [], documents: [],
+  resultSeries: [], resultReports: [],
   carePlans: [], encounters: [], prevention: [], patientEntries: [], aiDrafts: [], tasks: [],
   specialists: [], preVisits: [], orders: [],
   now: ORIGIN, lastEvents: [],
@@ -89,6 +94,8 @@ function demoState(): State {
     patients: fixtures.patients.filter((p) => DEMO_IDS.includes(p.id)),
     conditions: keep(fixtures.conditions),
     medications: keep(fixtures.medications),
+    allergies: [],
+    documents: [],
     resultSeries: keep(fixtures.resultSeries),
     resultReports: keep(fixtures.resultReports),
     carePlans: keep(fixtures.carePlans),
@@ -132,10 +139,14 @@ export const BLANK_PATIENT: PatientDraft = {
 
 interface Store extends State {
   hasData: boolean;
+  /** False when the browser refused the last write: memory only. */
+  persisted: boolean;
 
   patient: (id: string) => Patient | undefined;
   conditionsFor: (id: string) => Condition[];
   medsFor: (id: string) => Medication[];
+  allergiesFor: (id: string) => Allergy[];
+  documentsFor: (id: string) => ChartDocument[];
   seriesFor: (id: string) => ResultSeries[];
   series: (id: string) => ResultSeries | undefined;
   reportsFor: (id: string) => ResultReport[];
@@ -153,6 +164,7 @@ interface Store extends State {
 
   // dataset
   loadDemo: () => void;
+  loadPanel: () => number;
   clearAll: () => void;
 
   // creating
@@ -193,6 +205,7 @@ interface Store extends State {
   signEncounter: (encounterId: string) => void;
   setMedStatus: (medId: string, status: Medication['status'], changeNote?: string) => void;
   removePatient: (patientId: string) => void;
+  markDocumentReviewed: (docId: string) => void;
 }
 
 const Ctx = createContext<Store | null>(null);
@@ -208,7 +221,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   // by the time a screen formats a date.
   setNow(s.now ?? ORIGIN);
 
-  useEffect(() => { save(s); }, [s]);
+  /** False once a write has failed, which the header then says out loud. */
+  const [persisted, setPersisted] = useState(true);
+  useEffect(() => { setPersisted(save(s)); }, [s]);
 
   const value = useMemo<Store>(() => {
     const by = <T extends { patientId: string }>(xs: T[], id: string) =>
@@ -220,10 +235,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return {
       ...s,
       hasData: s.patients.length > 0,
+      persisted,
 
       patient: (id) => s.patients.find((p) => p.id === id),
       conditionsFor: (id) => by(s.conditions, id),
       medsFor: (id) => by(s.medications, id),
+      allergiesFor: (id) => by(s.allergies, id),
+      documentsFor: (id) => [...by(s.documents, id)].sort((a, b) => b.date.localeCompare(a.date)),
       seriesFor: (id) => by(s.resultSeries, id),
       clinicalSeriesFor: (id) => by(s.resultSeries, id).filter((x) => x.source !== 'patient'),
       patientSeriesFor: (id) => by(s.resultSeries, id).filter((x) => x.source === 'patient'),
@@ -300,6 +318,36 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       resetTime: () => setS((p) => ({ ...p, now: ORIGIN, lastEvents: [] })),
 
       loadDemo: () => setS(demoState()),
+
+      /**
+       * A whole panel, generated and then deliberately dirtied.
+       *
+       * Three tidy patients is the biggest tell that a clinical
+       * prototype is a demo. Judgements about navigation, search and
+       * safety only hold at the volume and messiness they will meet.
+       */
+      loadPanel: () => {
+        const g = generatePanel();
+        setS({
+          ...EMPTY,
+          patients: g.patients,
+          conditions: g.conditions,
+          medications: g.medications,
+          allergies: g.allergies,
+          documents: g.documents,
+          resultSeries: g.resultSeries,
+          resultReports: g.resultReports,
+          encounters: g.encounters,
+          prevention: g.prevention,
+          specialists: g.specialists,
+          carePlans: g.carePlans,
+          tasks: g.tasks,
+          now: ORIGIN,
+          lastEvents: [],
+        });
+        return g.patients.length;
+      },
+
       clearAll: () => { wipe(); setS(EMPTY); },
 
       addPatient: (d) => {
@@ -561,6 +609,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
               : m),
         })),
 
+      markDocumentReviewed: (docId) =>
+        setS((p) => ({
+          ...p,
+          documents: p.documents.map((d) => (d.id === docId ? { ...d, reviewed: true } : d)),
+        })),
+
       removePatient: (patientId) =>
         setS((p) => {
           const drop = <T extends { patientId: string }>(xs: T[]) =>
@@ -568,6 +622,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           return {
             patients: p.patients.filter((x) => x.id !== patientId),
             conditions: drop(p.conditions), medications: drop(p.medications),
+            allergies: drop(p.allergies), documents: drop(p.documents),
             resultSeries: drop(p.resultSeries), resultReports: drop(p.resultReports),
             carePlans: drop(p.carePlans), encounters: drop(p.encounters),
             prevention: drop(p.prevention), patientEntries: drop(p.patientEntries),
@@ -578,7 +633,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           };
         }),
     };
-  }, [s]);
+  }, [s, persisted]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

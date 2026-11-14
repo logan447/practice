@@ -106,6 +106,12 @@ export interface ResultSeries {
    * clinically a different measurement (see domain/measures.ts).
    */
   source?: 'clinical' | 'patient';
+  /**
+   * The sending lab, when the result came from outside. Set means an
+   * outside result, which is the case where a missing reference range
+   * is a problem rather than simply how the measure works.
+   */
+  from?: string;
   refLow?: number;
   refHigh?: number;
   /** Where we have agreed to get to, if anywhere. */
@@ -269,6 +275,39 @@ export interface Order {
   goalId?: string;
   status: 'draft' | 'placed';
   created: string;
+}
+
+// ------------------------------------------------------------- allergies
+
+/** FHIR: AllergyIntolerance */
+export interface Allergy {
+  id: string;
+  patientId: string;
+  substance: string;
+  reaction?: string;
+  severity?: 'mild' | 'moderate' | 'severe' | 'unknown';
+  recorded: string;
+  provenance: Provenance;
+}
+
+// ------------------------------------------------------------- documents
+
+/**
+ * An outside record. Some arrive as clean text, some as a scan nobody
+ * has read, and some fail to parse at all. A chart that only models
+ * the first case is not modelling reality.
+ */
+export interface ChartDocument {
+  id: string;
+  patientId: string;
+  title: string;
+  date: string;
+  from: string;
+  kind: 'referral' | 'discharge' | 'consult' | 'imaging' | 'lab' | 'other';
+  status: 'parsed' | 'scanned' | 'failed';
+  /** Present when parsed. A scan has none, and a failure has garbage. */
+  text?: string;
+  reviewed: boolean;
 }
 
 // ----------------------------------------------------------- specialists

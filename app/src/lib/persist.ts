@@ -17,11 +17,20 @@ export function load<T>(): T | null {
   }
 }
 
-export function save(value: unknown): void {
+/**
+ * Returns false when the write did not happen.
+ *
+ * Silently losing a write is the wrong failure. At panel volume this
+ * is a real case, not a theoretical one: a full browser store, private
+ * browsing, or blocked site data all look the same from here, and the
+ * person needs to know their work is only in memory.
+ */
+export function save(value: unknown): boolean {
   try {
     localStorage.setItem(KEY, JSON.stringify(value));
+    return true;
   } catch {
-    /* full, blocked, or private browsing: carry on in memory */
+    return false;
   }
 }
 

@@ -28,6 +28,9 @@ import { ResultsTab } from './chart/ResultsTab';
 import { PreventionTab } from './chart/PreventionTab';
 import { NotesTab } from './chart/NotesTab';
 import { SpecialistsTab } from './chart/SpecialistsTab';
+import { RecordsTab } from './chart/RecordsTab';
+import { QualityStrip } from '../components/Quality';
+import { findIssues } from '../lib/dataQuality';
 
 const SEX_SHORT: Record<string, string> = { female: 'F', male: 'M' };
 
@@ -49,6 +52,17 @@ export function Chart({ patientId, initialTab }: { patientId: string; initialTab
   const specialists = st.specialistsFor(p.id);
   const nextVisit = st.encountersFor(p.id).find((e) => e.status !== 'signed');
   const unack = st.reportsFor(p.id).filter((r) => !r.acknowledged).length;
+  const allergies = st.allergiesFor(p.id);
+  const documents = st.documentsFor(p.id);
+
+  /**
+   * What is wrong with this record, computed rather than curated. On a
+   * clean chart it is empty and costs a line of nothing.
+   */
+  const issues = findIssues({
+    patient: p, allPatients: st.patients, medications: st.medsFor(p.id),
+    allergies, conditions, series: st.seriesFor(p.id), documents,
+  });
 
   const tabs: { id: ChartTab; label: string; badge?: number }[] = [
     { id: 'plan', label: 'Care plan' },
@@ -57,7 +71,12 @@ export function Chart({ patientId, initialTab }: { patientId: string; initialTab
     { id: 'results', label: 'Results', badge: unack },
     { id: 'notes', label: 'Notes' },
     ...(specialists.length ? [{ id: 'specialists' as ChartTab, label: 'Specialists' }] : []),
+    ...(allergies.length || documents.length
+      ? [{ id: 'records' as ChartTab, label: 'Records' }] : []),
   ];
+
+  /** Allergies belong in the header. They are read at every decision. */
+  const worst = allergies.find((a) => a.severity === 'severe') ?? allergies[0];
 
   return (
     <div className="wrap">
@@ -88,6 +107,15 @@ export function Chart({ patientId, initialTab }: { patientId: string; initialTab
             {age(p.dob)} &middot; {SEX_SHORT[p.sex] ?? p.sex} ({p.pronouns}) &middot; born {fmtDate(p.dob)}
           </div>
           <div className="meta">{p.phone} &middot; {p.email}</div>
+          <div className="meta allergy">
+            {allergies.length === 0 ? 'No allergies recorded' : (
+              <>
+                <b>Allergies:</b>{' '}
+                {allergies.map((a) => `${a.substance} (${a.severity ?? 'unknown'})`).join(', ')}
+                {worst?.severity === 'severe' && <Chip tone="crit">Severe</Chip>}
+              </>
+            )}
+          </div>
 
           <p className="oneliner">{oneLiner(p, conditions)}</p>
 
@@ -140,6 +168,8 @@ export function Chart({ patientId, initialTab }: { patientId: string; initialTab
         )}
       </div>
 
+      <QualityStrip issues={issues} onGo={(t) => setTab(t)} />
+
       <div className="tabs" role="tablist">
         {tabs.map((t) => (
           <button key={t.id} role="tab" aria-selected={tab === t.id}
@@ -156,6 +186,7 @@ export function Chart({ patientId, initialTab }: { patientId: string; initialTab
       {tab === 'results' && <ResultsTab patientId={p.id} />}
       {tab === 'notes' && <NotesTab patientId={p.id} />}
       {tab === 'specialists' && <SpecialistsTab patientId={p.id} />}
+      {tab === 'records' && <RecordsTab patientId={p.id} />}
     </div>
   );
 }

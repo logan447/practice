@@ -80,6 +80,10 @@ export function CommandPalette() {
       { id: 'c-new', label: 'New patient', group: 'Actions', run: () => nav.go({ name: 'new-patient' }) },
       { id: 'c-list', label: 'All patients', group: 'Actions', run: () => nav.reset({ name: 'patients' }) },
       { id: 'c-metrics', label: 'Usage and timing', group: 'Actions', run: () => nav.go({ name: 'metrics' }) },
+      {
+        id: 'c-panel', label: 'Load a full panel of 120 patients', group: 'Actions',
+        run: () => { st.loadPanel(); nav.reset({ name: 'patients' }); },
+      },
       { id: 'c-day', label: 'Advance one day', group: 'Clock', run: () => st.advanceTime(1) },
       { id: 'c-week', label: 'Advance one week', group: 'Clock', run: () => st.advanceTime(7) },
       { id: 'c-month', label: 'Advance one month', group: 'Clock', run: () => st.advanceTime(30) },

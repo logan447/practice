@@ -38,6 +38,11 @@ function TopBar() {
           </button>
         </>
       )}
+      {!st.persisted && (
+        <span className="chip crit" title="The browser refused the last write">
+          Not saved
+        </span>
+      )}
       <ThemeToggle />
       <ResetControl />
     </header>
