@@ -54,6 +54,46 @@ most in a record system.
 is usually the most useful thing on the screen and almost every EMR
 throws it away.
 
+## Starting from nothing
+
+The record opens empty, because that is where a practice starts and it
+stays that way for a while. The first screen offers two paths: add a
+real patient, or load three fictional examples to look around with.
+`Clear all data` in the rail returns to empty.
+
+State persists in `localStorage` per browser, wrapped so a private
+window or blocked storage degrades to "nothing saved" rather than a
+white screen. Nothing clinical should ever live there; it is so that a
+prototype you are evaluating survives a reload.
+
+## The patient portal
+
+Same record, different reader, reached from any chart as **See their
+view** — which is a real thing a physician needs, not a demo toggle.
+
+The portal reads through `src/lib/portalScope.ts` and nothing else.
+That file is deliberately small and self-contained, because it decides
+whether a person meets an unreleased result or a half-written
+assessment about themselves. The rule in one sentence: the patient sees
+what the physician has finished, plus everything they contributed.
+
+So a **draft care plan is invisible** until it is signed, and an
+**unacknowledged result is invisible** until it is reviewed. The
+end-to-end test asserts both.
+
+## Tests
+
+```
+npm run build
+cd dist && python3 -m http.server 4600
+node test/new-patient.e2e.js    # needs playwright on NODE_PATH
+```
+
+`test/new-patient.e2e.js` walks the whole path: empty start, intake,
+free-text medicine parsing, adding a problem and a medicine, writing
+and signing a care plan, documenting and signing a visit, and the
+portal before and after signing. 24 assertions.
+
 ## Not built yet
 
 Patient portal, scheduling, orders, messaging, prescribing (bought, not

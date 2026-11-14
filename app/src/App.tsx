@@ -5,6 +5,9 @@ import { Today } from './screens/Today';
 import { Patients } from './screens/Patients';
 import { Chart } from './screens/Chart';
 import { Encounter } from './screens/Encounter';
+import { FirstRun } from './screens/FirstRun';
+import { NewPatient } from './screens/NewPatient';
+import { Portal } from './portal/Portal';
 
 function Rail() {
   const nav = useNav();
@@ -28,10 +31,15 @@ function Rail() {
       <nav>
         {item('today', 'Today', urgent)}
         {item('patients', 'Patients')}
+        <button className={r.name === 'new-patient' ? 'on' : ''}
+          onClick={() => nav.go({ name: 'new-patient' })}>
+          <span className="label">New patient</span>
+        </button>
       </nav>
       <div className="foot">
         <span>L. DuBose, MD</span>
         <ThemeToggle />
+        <ResetControl />
       </div>
     </aside>
   );
@@ -48,13 +56,36 @@ function ThemeToggle() {
   return <button onClick={next} title="Appearance">Appearance: {theme}</button>;
 }
 
+/** Prototype housekeeping: start over without opening devtools. */
+function ResetControl() {
+  const st = useStore();
+  const nav = useNav();
+  const [armed, setArmed] = useState(false);
+  if (!st.hasData) return null;
+  return armed ? (
+    <button style={{ color: 'var(--crit)' }}
+      onClick={() => { st.clearAll(); setArmed(false); nav.reset({ name: 'today' }); }}>
+      Really clear everything?
+    </button>
+  ) : (
+    <button onClick={() => setArmed(true)}>Clear all data</button>
+  );
+}
+
 function Screen() {
   const { route } = useNav();
+  const st = useStore();
+
+  // An empty record is the normal state on day one, not an error.
+  if (!st.hasData && route.name !== 'new-patient') return <FirstRun />;
+
   switch (route.name) {
     case 'today': return <Today />;
     case 'patients': return <Patients />;
+    case 'new-patient': return <NewPatient />;
     case 'chart': return <Chart patientId={route.patientId} initialTab={route.tab} />;
     case 'encounter': return <Encounter encounterId={route.encounterId} />;
+    case 'portal': return <Portal patientId={route.patientId} initialTab={route.tab} />;
   }
 }
 

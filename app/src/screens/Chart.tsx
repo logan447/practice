@@ -62,9 +62,19 @@ export function Chart({ patientId, initialTab }: { patientId: string; initialTab
             {MEMBERSHIP_LABEL[p.membership]} &middot; {monthsSince(p.memberSince)} mo
           </Chip>
           {unack > 0 && <Chip tone="crit">{unack} result{unack > 1 ? 's' : ''} to review</Chip>}
-          {nextVisit && (
+          <button className="btn ghost" onClick={() => nav.go({ name: 'portal', patientId: p.id })}>
+            See their view
+          </button>
+          {nextVisit ? (
             <button className="btn" onClick={() => nav.go({ name: 'encounter', encounterId: nextVisit.id })}>
               Open visit
+            </button>
+          ) : (
+            <button className="btn" onClick={() => {
+              const id = st.startVisit(p.id, 'follow-up', 'Follow-up', 30);
+              nav.go({ name: 'encounter', encounterId: id });
+            }}>
+              Start a visit
             </button>
           )}
         </div>

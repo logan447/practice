@@ -8,19 +8,24 @@
  */
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 
+export type ChartTab = 'summary' | 'plan' | 'meds' | 'results' | 'prevention' | 'notes';
+export type PortalTab = 'home' | 'plan' | 'results' | 'meds' | 'visits' | 'ask';
+
 export type Route =
   | { name: 'today' }
   | { name: 'patients' }
+  | { name: 'new-patient' }
   | { name: 'chart'; patientId: string; tab?: ChartTab }
-  | { name: 'encounter'; encounterId: string };
-
-export type ChartTab = 'summary' | 'plan' | 'meds' | 'results' | 'prevention' | 'notes';
+  | { name: 'encounter'; encounterId: string }
+  | { name: 'portal'; patientId: string; tab?: PortalTab };
 
 interface Nav {
   route: Route;
   go: (r: Route) => void;
+  replace: (r: Route) => void;
   back: () => void;
   canBack: boolean;
+  reset: (r: Route) => void;
 }
 
 const Ctx = createContext<Nav | null>(null);
@@ -31,8 +36,10 @@ export function NavProvider({ children }: { children: ReactNode }) {
   const value = useMemo<Nav>(() => ({
     route: stack[stack.length - 1],
     go: (r) => setStack((s) => [...s, r]),
+    replace: (r) => setStack((s) => [...s.slice(0, -1), r]),
     back: () => setStack((s) => (s.length > 1 ? s.slice(0, -1) : s)),
     canBack: stack.length > 1,
+    reset: (r) => setStack([r]),
   }), [stack]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

@@ -6,14 +6,18 @@
  * interval summary sits at the top because it is the fastest route into
  * the chart, and it is visibly not part of the chart.
  */
+import { useState } from 'react';
 import { useStore } from '../../lib/store';
 import type { ChartTab } from '../../lib/nav';
 import { Chip, Panel, Trend, Metric, Prov, Empty } from '../../components/ui';
+import { InlineAdd, Field } from '../../components/InlineAdd';
 import { AiPanel } from '../../components/AiPanel';
 import { fmtDate, relative } from '../../lib/format';
 
 export function Summary({ patientId, onTab }: { patientId: string; onTab: (t: ChartTab) => void }) {
   const st = useStore();
+  const [addingCond, setAddingCond] = useState(false);
+  const [c, setC] = useState({ name: '', code: '', note: '' });
   const conditions = st.conditionsFor(patientId);
   const active = conditions.filter((c) => c.status === 'active');
   const resolved = conditions.filter((c) => c.status !== 'active');
@@ -30,8 +34,15 @@ export function Summary({ patientId, onTab }: { patientId: string; onTab: (t: Ch
         {draft && <AiPanel draft={draft} onAccept={() => st.acceptDraft(draft.id)} />}
 
         <Panel title="Tracked measures" right={
-          <button className="btn quiet" onClick={() => onTab('results')}>All results &rarr;</button>
+          tracked.length > 0
+            ? <button className="btn quiet" onClick={() => onTab('results')}>All results &rarr;</button>
+            : null
         }>
+          {tracked.length === 0 && (
+            <Empty>
+              Nothing tracked yet. Measures appear here once results come in.
+            </Empty>
+          )}
           <div className="grid g2">
             {tracked.map((s) => {
               const last = s.points[s.points.length - 1];
@@ -70,6 +81,7 @@ export function Summary({ patientId, onTab }: { patientId: string; onTab: (t: Ch
         <Panel title="Problems" flush right={
           <span className="small muted">{active.length} active</span>
         }>
+          {conditions.length === 0 && <Empty>No problems recorded.</Empty>}
           <table className="rows">
             <tbody>
               {active.map((c) => (
@@ -97,10 +109,37 @@ export function Summary({ patientId, onTab }: { patientId: string; onTab: (t: Ch
               ))}
             </tbody>
           </table>
+          <div style={{ padding: '12px 16px', borderTop: '1px solid var(--line-2)' }}>
+            <InlineAdd
+              label="Add a problem" open={addingCond} setOpen={setAddingCond}
+              canSave={!!c.name.trim()}
+              onSave={() => {
+                st.addCondition(patientId, c.name.trim(), c.code.trim(), c.note.trim() || undefined);
+                setC({ name: '', code: '', note: '' });
+              }}>
+              <div className="grid g2">
+                <Field label="Problem" value={c.name} onChange={(v) => setC((p) => ({ ...p, name: v }))}
+                  placeholder="Prediabetes" />
+                <Field label="ICD-10" value={c.code} onChange={(v) => setC((p) => ({ ...p, code: v }))}
+                  placeholder="R73.03" />
+              </div>
+              <Field label="How you are framing it" value={c.note} textarea
+                onChange={(v) => setC((p) => ({ ...p, note: v }))}
+                placeholder="A1c 6.4 at intake. Target is reversal, not management." />
+            </InlineAdd>
+          </div>
         </Panel>
       </div>
 
       <div className="stack">
+        {!plan && (
+          <Panel title="No care plan yet">
+            <p className="small muted" style={{ marginBottom: 12 }}>
+              The plan is what this practice is for. Start it at the first visit.
+            </p>
+            <button className="btn sm" onClick={() => onTab('plan')}>Start the plan</button>
+          </Panel>
+        )}
         {plan && (
           <Panel title="What we are working on" eyebrow={`Care plan v${plan.version}`} right={
             <button className="btn quiet" onClick={() => onTab('plan')}>Open &rarr;</button>
