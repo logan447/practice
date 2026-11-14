@@ -10,6 +10,8 @@ import { useStore } from '../lib/store';
 import { useNav } from '../lib/nav';
 import { Avatar, Chip, Panel } from '../components/ui';
 import { age, MEMBERSHIP_LABEL, monthsSince, relative } from '../lib/format';
+import { TimeMeter } from '../components/Time';
+import { capacity, fmtMin, patientTime } from '../lib/time';
 
 export function Patients() {
   const st = useStore();
@@ -20,12 +22,14 @@ export function Patients() {
 
   const rows = useMemo(() => {
     const needle = q.trim().toLowerCase();
+    const alloc = capacity(st.capacity, st.patients.length).perPatientMin;
     return st.patients
       .map((p) => {
+        const time = patientTime(p, st.timeFor(p.id), alloc, st.now);
         const open = st.tasksFor(p.id);
         const conds = st.conditionsFor(p.id).filter((c) => c.status === 'active');
         const next = st.encountersFor(p.id).find((e) => e.status === 'scheduled');
-        return { p, open, conds, next, urgent: open.some((t) => t.urgent) };
+        return { p, open, conds, next, time, urgent: open.some((t) => t.urgent) };
       })
       .filter(({ p, conds }) =>
         !needle
@@ -82,11 +86,12 @@ export function Patients() {
               <th>Active problems</th>
               <th style={{ width: 130 }}>Membership</th>
               <th style={{ width: 130 }}>Next visit</th>
+              <th style={{ width: 130 }} title="Physician time this year against allocation. Internal.">Time this year</th>
               <th style={{ width: 90 }}>Open</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map(({ p, open, conds, next, urgent }, i) => (
+            {rows.map(({ p, open, conds, next, time, urgent }, i) => (
               <tr key={p.id} className={`click${i === sel ? ' sel' : ''}`}
                 onMouseEnter={() => setSel(i)}
                 onClick={() => nav.go({ name: 'chart', patientId: p.id })}>
@@ -108,6 +113,10 @@ export function Patients() {
                   </Chip>
                 </td>
                 <td className="small muted">{next ? relative(next.date) : 'Not booked'}</td>
+                <td title={`${fmtMin(time.usedMin)} of ${fmtMin(time.allocationMin)} min`}>
+                  <TimeMeter slim visit={time.visitMin} chart={time.chartMin} allocation={time.allocationMin} expected={time.expectedMin} />
+                  <div className="small muted num" style={{ marginTop: 3 }}>{Math.round(time.pctUsed)}%</div>
+                </td>
                 <td>
                   {open.length > 0 && (
                     <Chip tone={urgent ? 'crit' : undefined}>{open.length}</Chip>

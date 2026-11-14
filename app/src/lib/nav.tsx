@@ -15,6 +15,7 @@ export type Route =
   | { name: 'patients' }
   | { name: 'new-patient' }
   | { name: 'metrics' }
+  | { name: 'capacity' }
   | { name: 'chart'; patientId: string; tab?: ChartTab }
   | { name: 'encounter'; encounterId: string }
   | { name: 'portal'; patientId: string; tab?: PortalTab };

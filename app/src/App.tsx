@@ -8,6 +8,8 @@ import { FirstRun } from './screens/FirstRun';
 import { NewPatient } from './screens/NewPatient';
 import { Portal } from './portal/Portal';
 import { Metrics } from './screens/Metrics';
+import { Capacity } from './screens/Capacity';
+import { RunningClock } from './components/Time';
 import { CommandPalette, Shortcuts } from './components/CommandPalette';
 import { ClockBar } from './components/ClockBar';
 import { countClick, countKey } from './lib/metrics';
@@ -29,8 +31,10 @@ function TopBar() {
       </button>
       {st.hasData && <ClockBar />}
       <span className="spacer" />
+      {st.hasData && <RunningClock />}
       {st.hasData && (
         <>
+          <button className="btn quiet sm" onClick={() => nav.go({ name: 'capacity' })}>Panel time</button>
           <button className="btn quiet sm" onClick={() => nav.go({ name: 'metrics' })}>Usage</button>
           <button className="btn quiet sm" title="Command palette"
             onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}>
@@ -82,6 +86,7 @@ function Screen() {
     case 'patients': return <Patients />;
     case 'new-patient': return <NewPatient />;
     case 'metrics': return <Metrics />;
+    case 'capacity': return <Capacity />;
     case 'chart': return <Chart patientId={route.patientId} initialTab={route.tab} />;
     case 'encounter': return <Encounter encounterId={route.encounterId} />;
     case 'portal': return <Portal patientId={route.patientId} initialTab={route.tab} />;

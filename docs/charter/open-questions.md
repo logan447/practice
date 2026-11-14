@@ -29,6 +29,13 @@ simple per-patient utilization measure the EHR/tooling must support
 (feeds X-03 requirements), the onboarding capacity-check questions
 (D-016), and the renewal-conversation script for sustained outliers.
 Descends from the old R-08 estimate-vs-actual discipline.
+**Prototype (2026-11-14):** per-patient and practice-level time tracking
+is built in the EMR prototype (`app/`, "Physician time" in its README):
+an annual allocation per patient from hours × weeks × care share ÷
+panel, visit and chart clocks, and a panel dashboard with a
+sustainable-panel estimate. Still open: the onboarding questions, the
+renewal script, and whether the care share is 60% or the ~67% the
+unit-economics weekly rhythm implies. `ASSUMPTION`
 
 ### Q-07 — Availability policy and triage taxonomy, written for a 140-patient panel `YOU` + me
 Unchanged in content (D-017), upgraded in load: emergency → ED; urgent →

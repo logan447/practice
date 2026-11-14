@@ -80,6 +80,7 @@ export function CommandPalette() {
       { id: 'c-new', label: 'New patient', group: 'Actions', run: () => nav.go({ name: 'new-patient' }) },
       { id: 'c-list', label: 'All patients', group: 'Actions', run: () => nav.reset({ name: 'patients' }) },
       { id: 'c-metrics', label: 'Usage and timing', group: 'Actions', run: () => nav.go({ name: 'metrics' }) },
+      { id: 'c-capacity', label: 'Panel time', group: 'Actions', run: () => nav.go({ name: 'capacity' }) },
       { id: 'c-day', label: 'Advance one day', group: 'Clock', run: () => st.advanceTime(1) },
       { id: 'c-week', label: 'Advance one week', group: 'Clock', run: () => st.advanceTime(7) },
       { id: 'c-month', label: 'Advance one month', group: 'Clock', run: () => st.advanceTime(30) },
@@ -96,6 +97,11 @@ export function CommandPalette() {
           run: () => nav.go({ name: 'chart', patientId: currentPatient, tab }),
         });
       }
+      const clock = st.timerFor(currentPatient);
+      out.push(clock
+        ? { id: 't-clock', label: 'Stop the clock', group: 'This patient', run: () => st.stopTimer(clock.id) }
+        : { id: 't-clock', label: 'Start chart time', group: 'This patient',
+          run: () => { st.startTimer({ patientId: currentPatient, kind: 'chart', activity: 'review', source: 'timer' }); } });
       out.push({
         id: 't-portal', label: 'See their view', group: 'This patient',
         run: () => nav.go({ name: 'portal', patientId: currentPatient }),

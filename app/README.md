@@ -215,6 +215,83 @@ and the fact that a reading taken on a kitchen table and one taken in
 clinic are not the same measurement and are judged against different
 targets. Averaging them would be wrong.
 
+## Physician time
+
+How much time the panel can have, how it is spread, and how much each
+person actually gets. It answers Q-20 (panel-mix instrumentation) and
+the unit-economics rule that utilization is tracked from patient one.
+
+**Internal only.** The portal never imports it and the end-to-end test
+asserts the patient's view shows none of it. **The allocation is a
+planning benchmark, never a limit on care**, and every surface that
+shows it says so. A patient past their allocation is still seen on
+clinical need; the dashboard lists them so heavy phases are planned
+for, not rationed.
+
+**The arithmetic** (`src/lib/time.ts`, pure functions, one source for
+every number): hours a week × weeks a year × share for patient care and
+chart work = care hours; ÷ active patients = minutes per patient a year.
+Defaults are 30 h × 39 wk (the D-018 base case), 60% (the owner's
+worked example: 700 h, 140 patients, 300 min each) and a 140 panel.
+`ASSUMPTION`: the unit-economics weekly rhythm (about 20 of 30 hours on
+visits, messages, results and per-patient admin) implies nearer 67%,
+which gives 336 min. The settings sit on the dashboard so either can be
+tried in a second. The year is the calendar year of the clinic date;
+mid-year joiners are measured against the months they have been members.
+
+**Two clocks, one running at a time.**
+
+- *Visit time* starts when ambient listening starts (or by hand, for a
+  call without it), keeps running after listening stops, and ends at
+  signature or on Stop. After signing, the minutes can be adjusted in
+  place.
+- *Chart time* is a one-click Start on the chart, beside the time strip.
+  Its activity (reviewing, documenting, results, coordinating, messages,
+  other) is guessed from the tab you started on and can be changed.
+- *No double counting, by construction.* Only one clock runs across the
+  whole practice; starting one pauses the other and the paused one
+  resumes when the new one stops. A visit starting takes over the same
+  patient's chart clock (banking what it had), and chart time cannot be
+  started while that patient's visit clock is running, because that time
+  is already visit time.
+- The running clock sits in the top bar so it can be paused or stopped
+  from any screen. Clocks under five seconds are treated as stray clicks
+  and not logged.
+
+**Where it shows.** No new tab. The chart header carries one strip:
+minutes used of the allocation, a two-segment bar (visit, chart) with a
+tick where an even pace would be by today, and the chart clock.
+*Details* opens the breakdown and the full history in place, where any
+entry can be retimed, reclassified, removed, or added by hand. A
+corrected entry keeps what the clock measured ("was 14"). The patient
+list gets a slim bar per person.
+
+**Panel time** (top bar, or `⌘K`) is the roll-up: care hours available,
+allocated, used, remaining, average per patient, projected year, a
+plain-language verdict on how many patients the hours cover at the
+last twelve weeks' pace, hours by week against the planned week, where
+the panel sits against allocation, and who is far above or below.
+Pace uses the recent window because the panel grows; a one-off initial
+visit is counted once rather than extrapolated; under two months of
+membership is reported as too new to project.
+
+**Load a full panel** on the first screen gives the three example
+charts inside 140 fictional members with a year of time
+(`src/data/panel.ts`, deterministic). Their intensity is drawn from the
+archetype priors in unit-economics §3 (55% light ~3.5 h, 36% moderate
+~6, 6% heavy ~14, 3% very heavy ~20), split about 55/45 visit and chart,
+with 13 weeks away. Those priors are estimates, not observations; the
+data exists to exercise the dashboard, not to forecast the practice.
+
+Colours: visit and chart time have their own two tokens
+(`--t-visit`, `--t-chart`), checked as a pair for colour-vision
+separation in light and dark. The brand teal and the info blue were
+too close to tell apart.
+
+Not built yet: idle detection (a chart clock left running over lunch is
+corrected by hand for now), and per-membership-year rather than
+calendar-year views for renewal conversations.
+
 ## Tests
 
 ```
@@ -222,7 +299,14 @@ npm run build
 cd dist && python3 -m http.server 4600
 EMR_URL=http://localhost:4600/ node test/new-patient.e2e.cjs
 EMR_URL=http://localhost:4600/ node test/patient-logging.e2e.cjs
+EMR_URL=http://localhost:4600/ node test/time-tracking.e2e.cjs
 ```
+
+`test/time-tracking.e2e.cjs` walks physician time: the chart clock,
+correcting and adding entries, ambient listening starting the visit
+clock and taking over the chart clock, signing stopping it, adjusting
+it afterwards, the portal showing none of it, the dashboard and its
+settings, reload, dark mode, and phone width. 29 assertions.
 
 `test/new-patient.e2e.cjs` walks the whole path: empty start, intake,
 free-text medicine parsing, adding a problem and a medicine, writing

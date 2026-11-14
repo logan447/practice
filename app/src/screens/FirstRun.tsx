@@ -44,12 +44,18 @@ export function FirstRun() {
             <h2 style={{ fontSize: 17 }}>Load examples</h2>
             <p className="small muted" style={{ margin: '8px 0 16px' }}>
               Three fictional patients with a year of history, results,
-              care plans and open work. Nothing real. You can clear them
-              at any time.
+              care plans and open work. Or the same three inside a full
+              panel of 140, to see physician time roll up. Nothing real.
+              You can clear them at any time.
             </p>
-            <button className="btn ghost" onClick={() => { st.loadDemo(); nav.reset({ name: 'patients' }); }}>
-              Load 3 examples
-            </button>
+            <div className="row wrap" style={{ gap: 8 }}>
+              <button className="btn ghost" onClick={() => { st.loadDemo(); nav.reset({ name: 'patients' }); }}>
+                Load 3 examples
+              </button>
+              <button className="btn ghost" onClick={() => { st.loadPanel(); nav.reset({ name: 'patients' }); }}>
+                Load a full panel
+              </button>
+            </div>
           </div>
         </section>
       </div>

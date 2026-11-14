@@ -49,6 +49,10 @@
   --ai-soft: #f0edf7;
   --ai-line: #d4cbe8;
 
+  /* physician time: validated as a pair for colour-vision separation */
+  --t-visit: #0b8a5f;
+  --t-chart: #2a78d6;
+
   --serif: 'Source Serif 4', Georgia, serif;
   --sans: 'Source Sans 3', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --mono: ui-monospace, 'SF Mono', Menlo, monospace;
@@ -87,6 +91,8 @@
     --ai: #a492d8;
     --ai-soft: #221e30;
     --ai-line: #3a3352;
+    --t-visit: #1fa77a;
+    --t-chart: #3987e5;
     --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 2px 8px rgb(0 0 0 / 0.2);
     color-scheme: dark;
   }
@@ -119,6 +125,8 @@
   --ai: #a492d8;
   --ai-soft: #221e30;
   --ai-line: #3a3352;
+  --t-visit: #1fa77a;
+  --t-chart: #3987e5;
   --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 2px 8px rgb(0 0 0 / 0.2);
   color-scheme: dark;
 }
@@ -523,3 +531,100 @@ kbd {
 }
 
 .rows tr.sel td { background: var(--accent-soft); }
+
+/* ------------------------------------------------------ physician time */
+
+.kdot { display: inline-block; width: 9px; height: 9px; border-radius: 2px; vertical-align: -1px; flex: none; }
+.kdot.visit { background: var(--t-visit); }
+.kdot.chart { background: var(--t-chart); }
+
+.tmeter { position: relative; height: 9px; min-width: 80px; }
+.tmeter.slim { height: 6px; }
+.tmeter .track { position: absolute; inset: 0 auto 0 0; background: var(--line-2); border-radius: 4px; }
+.tmeter .fill { position: absolute; inset: 0; display: flex; gap: 2px; }
+.tmeter .seg { height: 100%; border-radius: 4px; min-width: 3px; }
+.tmeter .seg.visit { background: var(--t-visit); }
+.tmeter .seg.chart { background: var(--t-chart); }
+.tmeter .seg.ahead { background: transparent; border: 1.5px dashed var(--ink-3); }
+.tmeter .pace {
+  position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px;
+  background: var(--ink); border-radius: 1px; box-shadow: 0 0 0 1.5px var(--panel);
+}
+
+.timestrip {
+  margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line-2);
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+.timestrip .tl { display: flex; flex-direction: column; gap: 4px; }
+.timestrip .tfig { font-size: 13.5px; }
+.timestrip .tm { flex: 1 1 200px; max-width: 320px; }
+.timestrip .tsplit { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+.clockctl {
+  display: inline-flex; align-items: center; gap: 7px; padding: 3px 4px 3px 9px;
+  border: 1px solid var(--line); border-radius: var(--r); background: var(--panel-2);
+}
+.clockctl.on.visit { border-color: var(--t-visit); }
+.clockctl.on.chart { border-color: var(--t-chart); }
+.clockctl .clock { font-weight: 700; font-size: 13.5px; min-width: 3.2em; }
+.clockctl .btn.quiet { padding: 3px 5px; }
+
+.runclock {
+  display: flex; align-items: center; gap: 7px; padding: 4px 6px 4px 10px;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--panel-2); font-size: 13px;
+}
+.runclock.on { border-color: var(--accent-line); }
+.runclock .who { background: none; border: 0; padding: 0; cursor: pointer; font-weight: 600; color: var(--ink); }
+.runclock .who:hover { text-decoration: underline; }
+.runclock .clock { font-weight: 700; min-width: 3.2em; }
+.runclock .btn.quiet { padding: 2px 4px; }
+
+.timedetail { margin-top: 14px; }
+.timedetail > header { flex-wrap: wrap; }
+.tlog td { vertical-align: middle; }
+.minput {
+  width: 72px; border: 1px solid var(--line); border-radius: var(--r);
+  background: var(--panel); padding: 5px 8px; font-size: 13.5px;
+}
+.minput:focus, .sel:focus { outline: 2px solid var(--accent-line); outline-offset: -1px; }
+.sel {
+  border: 1px solid var(--line); border-radius: var(--r); background: var(--panel);
+  padding: 5px 8px; font-size: 13px;
+}
+.sel.bare { border-color: transparent; background: transparent; padding: 2px 4px; margin-left: -4px; }
+.sel.bare:hover { border-color: var(--line); }
+.addtime { padding: 4px 16px 14px; gap: 8px; }
+
+/* panel time */
+.settings { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.settings > label { display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--ink-2); }
+.derive { margin-top: 14px; font-size: 13.5px; color: var(--ink-2); }
+.kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+.kpi { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 13px 14px; box-shadow: var(--shadow); }
+.verdict { font: 400 16px/1.55 var(--serif); max-width: 72ch; }
+.wchart { position: relative; }
+.wchart .axis { font: 500 10.5px var(--sans); fill: var(--ink-3); }
+.wtip {
+  position: absolute; top: 4px; transform: translateX(-50%); pointer-events: none;
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--r);
+  box-shadow: var(--shadow); padding: 8px 10px; font-size: 12.5px; white-space: nowrap;
+}
+.plannedkey { display: inline-block; width: 16px; border-top: 1.5px dashed var(--ink-3); vertical-align: 3px; }
+.dist { display: grid; gap: 9px; }
+.drow { display: grid; grid-template-columns: 120px 1fr 34px; gap: 10px; align-items: center; }
+.dbar { height: 12px; }
+.dbar span { display: block; height: 100%; background: var(--ink-3); border-radius: 0 4px 4px 0; min-width: 2px; }
+
+@media (max-width: 1100px) { .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 760px) {
+  .kpis, .settings { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .runclock .small { display: none; }
+}
+
+/* The top bar holds more than a phone is wide. It scrolls on its own
+   rather than pushing the whole page sideways. */
+@media (max-width: 900px) {
+  .topbar { overflow-x: auto; scrollbar-width: none; }
+  .topbar > * { flex: none; }
+  .topbar .mark small { display: none; }
+}

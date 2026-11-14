@@ -348,3 +348,81 @@ export interface Task {
   urgent: boolean;
   done: boolean;
 }
+
+// ----------------------------------------------------------- physician time
+
+/**
+ * Physician time, for practice management only.
+ *
+ * Internal. Never read by the portal, never shown to the patient, and
+ * never a limit on care: the allocation is a planning benchmark that
+ * tells the physician whether the panel is sustainable. Care follows
+ * clinical need regardless of where a patient sits against it.
+ *
+ * Not a FHIR clinical resource. Closest analogue is a practice-side
+ * timesheet keyed to Patient and, for visits, Encounter.
+ */
+export type TimeKind = 'visit' | 'chart';
+
+/** What chart time was spent on. Visit time does not need one. */
+export type ChartActivity = 'review' | 'documentation' | 'results' | 'coordination' | 'messages' | 'other';
+
+export const CHART_ACTIVITIES: { id: ChartActivity; label: string }[] = [
+  { id: 'review', label: 'Reviewing records' },
+  { id: 'documentation', label: 'Documenting' },
+  { id: 'results', label: 'Results' },
+  { id: 'coordination', label: 'Coordinating care' },
+  { id: 'messages', label: 'Messages and calls' },
+  { id: 'other', label: 'Other' },
+];
+
+/** How the time got into the log. */
+export type TimeSource = 'ambient' | 'timer' | 'manual';
+
+export interface TimeEntry {
+  id: string;
+  patientId: string;
+  /** Clinic date the time was spent. */
+  date: string;
+  kind: TimeKind;
+  /** Chart time only. */
+  activity?: ChartActivity;
+  /** Visit time: the kind of visit, for the history list. */
+  label?: string;
+  encounterId?: string;
+  seconds: number;
+  source: TimeSource;
+  note?: string;
+  /** Set when a measured entry is corrected by hand. The original is kept. */
+  corrected?: { originalSeconds: number; on: string };
+}
+
+/**
+ * A clock that is running or paused. At most one runs at a time across
+ * the whole practice, which is what makes double counting impossible
+ * by construction: one physician cannot be in two places at once.
+ */
+export interface RunningTimer {
+  id: string;
+  patientId: string;
+  kind: TimeKind;
+  activity?: ChartActivity;
+  label?: string;
+  encounterId?: string;
+  source: Exclude<TimeSource, 'manual'>;
+  /** Real epoch ms the current running stretch began; null while paused. */
+  runningSince: number | null;
+  /** Real milliseconds banked from earlier stretches. */
+  bankedMs: number;
+  /** Paused automatically because this other clock started. Resumes when it stops. */
+  pausedBy?: string;
+}
+
+export interface CapacitySettings {
+  hoursPerWeek: number;
+  weeksPerYear: number;
+  /** Share of working hours for direct patient care and chart work, 0 to 100. */
+  carePercent: number;
+  /** Active patients to divide by: a planning number, or the count in the record. */
+  panelSize: number | 'record';
+}

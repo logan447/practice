@@ -28,6 +28,7 @@ import { ResultsTab } from './chart/ResultsTab';
 import { PreventionTab } from './chart/PreventionTab';
 import { NotesTab } from './chart/NotesTab';
 import { SpecialistsTab } from './chart/SpecialistsTab';
+import { ChartTimeStrip } from '../components/Time';
 
 const SEX_SHORT: Record<string, string> = { female: 'F', male: 'M' };
 
@@ -129,6 +130,10 @@ export function Chart({ patientId, initialTab }: { patientId: string; initialTab
             ))}
           </div>
         )}
+
+        <div style={{ flexBasis: '100%' }}>
+          <ChartTimeStrip patientId={p.id} tab={tab} />
+        </div>
 
         {showNote && p.pinned && (
           <div className="pinned" style={{ flexBasis: '100%' }}>

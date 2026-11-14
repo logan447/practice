@@ -14,10 +14,12 @@ import * as fixtures from '../data/patients';
 import { load, save, wipe, newId } from './persist';
 import { ORIGIN, now as clockNow, setNow, addDays } from './clock';
 import { tick } from './tick';
+import { DEFAULT_CAPACITY, MIN_SECONDS, elapsedMs } from './time';
+import { exampleTime, generatePanel } from '../data/panel';
 import type {
-  AiDraft, CarePlan, CarePlanGoal, Condition, Encounter, Medication, Order,
-  OrderKind, Patient, PatientEntry, PreVisit, PreventionItem, ResultReport,
-  ResultSeries, Specialist, Task, VisitNote,
+  AiDraft, CapacitySettings, CarePlan, CarePlanGoal, ChartActivity, Condition, Encounter,
+  Medication, Order, OrderKind, Patient, PatientEntry, PreVisit, PreventionItem, ResultReport,
+  ResultSeries, RunningTimer, Specialist, Task, TimeEntry, TimeKind, VisitNote,
 } from '../domain/types';
 import { measureByKey, patientSeriesId, isAlerting } from '../domain/measures';
 
@@ -38,6 +40,10 @@ interface State {
   specialists: Specialist[];
   preVisits: PreVisit[];
   orders: Order[];
+  /** Physician time. Internal; the portal never reads it. */
+  timeEntries: TimeEntry[];
+  timers: RunningTimer[];
+  capacity: CapacitySettings;
   /** The clinic's today. Movable, because care is longitudinal. */
   now: string;
   /** What changed the last time the clock moved. */
@@ -48,6 +54,7 @@ const EMPTY: State = {
   patients: [], conditions: [], medications: [], resultSeries: [], resultReports: [],
   carePlans: [], encounters: [], prevention: [], patientEntries: [], aiDrafts: [], tasks: [],
   specialists: [], preVisits: [], orders: [],
+  timeEntries: [], timers: [], capacity: DEFAULT_CAPACITY,
   now: ORIGIN, lastEvents: [],
 };
 
@@ -100,10 +107,39 @@ function demoState(): State {
     specialists: keep(fixtures.specialists),
     preVisits: keep(fixtures.preVisits),
     orders: keep(fixtures.orders),
+    timeEntries: exampleTime,
+    timers: [],
+    // Three patients is not a panel. Allocate against the planned 140.
+    capacity: DEFAULT_CAPACITY,
     now: ORIGIN,
     lastEvents: [],
   };
 }
+
+/** The three examples plus enough generated members to make a full panel. */
+const PANEL_SIZE = 140;
+function panelState(): State {
+  const base = demoState();
+  const g = generatePanel(PANEL_SIZE - base.patients.length, ORIGIN);
+  return {
+    ...base,
+    patients: [...base.patients, ...g.patients],
+    conditions: [...base.conditions, ...g.conditions],
+    timeEntries: [...base.timeEntries, ...g.timeEntries],
+    capacity: { ...DEFAULT_CAPACITY, panelSize: 'record' },
+  };
+}
+
+export interface StartTimer {
+  patientId: string;
+  kind: TimeKind;
+  activity?: ChartActivity;
+  label?: string;
+  encounterId?: string;
+  source: RunningTimer['source'];
+}
+
+export type TimeEntryDraft = Omit<TimeEntry, 'id' | 'source' | 'corrected'>;
 
 // ----------------------------------------------------------------- drafts
 
@@ -151,8 +187,25 @@ interface Store extends State {
   advanceTime: (days: number) => void;
   resetTime: () => void;
 
+  // physician time
+  timeFor: (patientId: string) => TimeEntry[];
+  timerFor: (patientId: string, kind?: TimeKind, encounterId?: string) => RunningTimer | undefined;
+  runningTimer: () => RunningTimer | undefined;
+  /** Returns the clock's id, or null when the visit clock already owns this time. */
+  startTimer: (t: StartTimer) => string | null;
+  pauseTimer: (id: string) => void;
+  resumeTimer: (id: string) => void;
+  stopTimer: (id: string) => void;
+  discardTimer: (id: string) => void;
+  setTimerActivity: (id: string, activity: ChartActivity) => void;
+  addTimeEntry: (d: TimeEntryDraft) => void;
+  updateTimeEntry: (id: string, patch: Partial<Pick<TimeEntry, 'seconds' | 'date' | 'activity' | 'note' | 'kind'>>) => void;
+  deleteTimeEntry: (id: string) => void;
+  setCapacity: (c: Partial<CapacitySettings>) => void;
+
   // dataset
   loadDemo: () => void;
+  loadPanel: () => void;
   clearAll: () => void;
 
   // creating
@@ -213,6 +266,45 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const value = useMemo<Store>(() => {
     const by = <T extends { patientId: string }>(xs: T[], id: string) =>
       xs.filter((x) => x.patientId === id);
+
+    const timeIndex = new Map<string, TimeEntry[]>();
+    for (const e of s.timeEntries) {
+      const xs = timeIndex.get(e.patientId);
+      if (xs) xs.push(e); else timeIndex.set(e.patientId, [e]);
+    }
+
+    /**
+     * Stop a clock inside an updater: bank it as an entry, then wake
+     * whatever it paused. Pure on `p` so it composes with other changes.
+     */
+    const stopIn = (p: State, id: string, keep: boolean): State => {
+      const t = p.timers.find((x) => x.id === id);
+      if (!t) return p;
+      const secs = Math.round(elapsedMs(t) / 1000);
+      const entries = keep && secs >= MIN_SECONDS ? [...p.timeEntries, {
+        id: newId('te'), patientId: t.patientId, date: p.now, kind: t.kind,
+        activity: t.activity, label: t.label, encounterId: t.encounterId,
+        seconds: secs, source: t.source,
+      }] : p.timeEntries;
+      const rest = p.timers.filter((x) => x.id !== id);
+      const anyRunning = rest.some((x) => x.runningSince !== null);
+      const now = Date.now();
+      return {
+        ...p,
+        timeEntries: entries,
+        timers: rest.map((x) => x.pausedBy === id
+          ? { ...x, pausedBy: undefined, runningSince: anyRunning ? null : now }
+          : x),
+      };
+    };
+
+    /** Pause every running clock on behalf of `by`. */
+    const pauseAllFor = (timers: RunningTimer[], by: string): RunningTimer[] => {
+      const now = Date.now();
+      return timers.map((x) => x.runningSince === null ? x : {
+        ...x, bankedMs: elapsedMs(x, now), runningSince: null, pausedBy: by,
+      });
+    };
 
     /** Split a textarea into trimmed lines. */
     const lines = (t: string) => t.split('\n').map((l) => l.trim()).filter(Boolean);
@@ -299,7 +391,80 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
       resetTime: () => setS((p) => ({ ...p, now: ORIGIN, lastEvents: [] })),
 
+      timeFor: (id) => timeIndex.get(id) ?? [],
+      timerFor: (id, kind, encounterId) => s.timers.find((t) =>
+        t.patientId === id && (!kind || t.kind === kind)
+        && (encounterId === undefined || t.encounterId === encounterId)),
+      runningTimer: () => s.timers.find((t) => t.runningSince !== null),
+
+      startTimer: (t) => {
+        // Chart work during a timed visit is already counted, as visit time.
+        const visit = s.timers.find((x) => x.patientId === t.patientId && x.kind === 'visit');
+        if (t.kind === 'chart' && visit) return null;
+        const same = s.timers.find((x) => x.patientId === t.patientId && x.kind === t.kind
+          && x.encounterId === t.encounterId);
+        const id = same?.id ?? newId('tm');
+        setS((p) => {
+          const timers = pauseAllFor(p.timers.filter((x) => x.id !== id), id);
+          const existing = p.timers.find((x) => x.id === id);
+          const mine: RunningTimer = existing
+            ? { ...existing, runningSince: Date.now(), pausedBy: undefined }
+            : { id, ...t, runningSince: Date.now(), bankedMs: 0 };
+          // A visit starting takes over the same patient's chart clock: that
+          // time is now visit time, so bank the chart clock and close it.
+          let next: State = { ...p, timers: [...timers, mine] };
+          if (t.kind === 'visit') {
+            for (const c of next.timers.filter((x) => x.patientId === t.patientId && x.kind === 'chart')) {
+              next = stopIn(next, c.id, true);
+            }
+          }
+          return next;
+        });
+        return id;
+      },
+
+      pauseTimer: (id) => setS((p) => ({
+        ...p,
+        timers: p.timers.map((x) => x.id !== id || x.runningSince === null ? x
+          : { ...x, bankedMs: elapsedMs(x), runningSince: null, pausedBy: undefined }),
+      })),
+
+      resumeTimer: (id) => setS((p) => ({
+        ...p,
+        timers: pauseAllFor(p.timers.filter((x) => x.id !== id), id).concat(
+          p.timers.filter((x) => x.id === id).map((x) => ({ ...x, runningSince: Date.now(), pausedBy: undefined }))),
+      })),
+
+      stopTimer: (id) => setS((p) => stopIn(p, id, true)),
+      discardTimer: (id) => setS((p) => stopIn(p, id, false)),
+
+      setTimerActivity: (id, activity) => setS((p) => ({
+        ...p, timers: p.timers.map((x) => (x.id === id ? { ...x, activity } : x)),
+      })),
+
+      addTimeEntry: (d) => setS((p) => ({
+        ...p, timeEntries: [...p.timeEntries, { ...d, id: newId('te'), source: 'manual' }],
+      })),
+
+      updateTimeEntry: (id, patch) => setS((p) => ({
+        ...p,
+        timeEntries: p.timeEntries.map((e) => {
+          if (e.id !== id) return e;
+          const next = { ...e, ...patch };
+          // Keep what the clock measured the first time it is corrected.
+          if (patch.seconds !== undefined && patch.seconds !== e.seconds && e.source !== 'manual' && !e.corrected) {
+            next.corrected = { originalSeconds: e.seconds, on: p.now };
+          }
+          return next;
+        }),
+      })),
+
+      deleteTimeEntry: (id) => setS((p) => ({ ...p, timeEntries: p.timeEntries.filter((e) => e.id !== id) })),
+
+      setCapacity: (c) => setS((p) => ({ ...p, capacity: { ...p.capacity, ...c } })),
+
       loadDemo: () => setS(demoState()),
+      loadPanel: () => setS(panelState()),
       clearAll: () => { wipe(); setS(EMPTY); },
 
       addPatient: (d) => {
@@ -542,12 +707,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
               : e),
         })),
 
+      // Signing ends the encounter, so it stops the visit clock.
       signEncounter: (encounterId) =>
-        setS((p) => ({
-          ...p,
-          encounters: p.encounters.map((e) =>
-            e.id === encounterId ? { ...e, status: 'signed', signedAt: clockNow() } : e),
-        })),
+        setS((p) => {
+          const signed: State = {
+            ...p,
+            encounters: p.encounters.map((e) =>
+              e.id === encounterId ? { ...e, status: 'signed', signedAt: clockNow() } : e),
+          };
+          const t = p.timers.find((x) => x.kind === 'visit' && x.encounterId === encounterId);
+          return t ? stopIn(signed, t.id, true) : signed;
+        }),
 
       setMedStatus: (medId, status, changeNote) =>
         setS((p) => ({
@@ -574,6 +744,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             aiDrafts: drop(p.aiDrafts), tasks: drop(p.tasks),
             specialists: drop(p.specialists), preVisits: drop(p.preVisits),
             orders: drop(p.orders),
+            timeEntries: drop(p.timeEntries), timers: drop(p.timers), capacity: p.capacity,
             now: p.now, lastEvents: p.lastEvents,
           };
         }),

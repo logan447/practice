@@ -23,6 +23,7 @@ import {
 } from '../lib/clinical';
 import { ORDER_KINDS, type ExamTemplate, type OrderKind, type VisitNote } from '../domain/types';
 import { newId } from '../lib/persist';
+import { VisitClock } from '../components/Time';
 import { startVisit as metricStart, signVisit as metricSign, endVisit, countAiSection, countAiEdit } from '../lib/metrics';
 
 /** Which sections were filled by something other than the physician. */
@@ -127,7 +128,12 @@ export function Encounter({ encounterId }: { encounterId: string }) {
   }, []);
 
   const startListening = () => {
-    if (!p) return;
+    if (!p || !enc) return;
+    // Ambient listening means the visit has begun, so the visit clock starts too.
+    // It keeps running after listening stops and ends at signature.
+    if (!st.timerFor(p.id, 'visit', enc.id)) {
+      st.startTimer({ patientId: p.id, kind: 'visit', encounterId: enc.id, label: kindLabel(enc.kind), source: 'ambient' });
+    }
     setListening(true);
     setElapsed(0);
     const first = p.preferredName ?? p.name.split(' ')[0];
@@ -226,6 +232,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
           <p className="oneliner" style={{ marginTop: 8 }}>{note.subjective.oneLiner || oneLiner(p, conditions)}</p>
         </div>
         <div className="acts">
+          <VisitClock enc={enc} patient={p} />
           {signed ? <Chip tone="ok">Signed {enc.signedAt && fmtDate(enc.signedAt)}</Chip> : (
             <>
               {listening ? (
