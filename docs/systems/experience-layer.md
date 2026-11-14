@@ -1,5 +1,13 @@
 # The Experience Layer — Custom Software Exploration
 
+> **Still current (2026-11-14).** `ai-layer-and-hda.md` assesses the HDA
+> connector and an LLM intelligence layer against this document. It
+> changes three things here (care-plan authoring cost, a provenance
+> requirement, and the model provider as a BAA question) and leaves the
+> architecture hypothesis, the four rules, the staging table and the
+> Stage-2 HIPAA gate intact. It also covers the insurance-based FCHC
+> model, which this document does not address.
+
 *2026-08-17. Decision-support exploration, not a build commitment (per
 instruction: nothing implemented, no stack chosen, website MVP
 unchanged). The question: if custom software could materially improve
