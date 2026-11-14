@@ -7,6 +7,10 @@ import { Encounter } from './screens/Encounter';
 import { FirstRun } from './screens/FirstRun';
 import { NewPatient } from './screens/NewPatient';
 import { Portal } from './portal/Portal';
+import { Metrics } from './screens/Metrics';
+import { CommandPalette, Shortcuts } from './components/CommandPalette';
+import { ClockBar } from './components/ClockBar';
+import { countClick, countKey } from './lib/metrics';
 
 /**
  * One slim bar, no navigation rail.
@@ -23,9 +27,16 @@ function TopBar() {
       <button className="mark" onClick={() => nav.reset({ name: 'patients' })}>
         Direct Lifestyle Medicine<small>Clinical record</small>
       </button>
+      {st.hasData && <ClockBar />}
       <span className="spacer" />
       {st.hasData && (
-        <span className="small muted" style={{ marginRight: 4 }}>L. DuBose, MD</span>
+        <>
+          <button className="btn quiet sm" onClick={() => nav.go({ name: 'metrics' })}>Usage</button>
+          <button className="btn quiet sm" title="Command palette"
+            onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}>
+            <kbd>&#8984;K</kbd>
+          </button>
+        </>
       )}
       <ThemeToggle />
       <ResetControl />
@@ -70,10 +81,40 @@ function Screen() {
   switch (route.name) {
     case 'patients': return <Patients />;
     case 'new-patient': return <NewPatient />;
+    case 'metrics': return <Metrics />;
     case 'chart': return <Chart patientId={route.patientId} initialTab={route.tab} />;
     case 'encounter': return <Encounter encounterId={route.encounterId} />;
     case 'portal': return <Portal patientId={route.patientId} initialTab={route.tab} />;
   }
+}
+
+/**
+ * Global keys that are not tied to one screen, plus the click and
+ * keystroke counters that feed the usage measurements.
+ */
+function GlobalKeys() {
+  const nav = useNav();
+  const st = useStore();
+
+  useEffect(() => {
+    const onClick = () => countClick();
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement;
+      const typing = /input|textarea|select/i.test(t?.tagName ?? '');
+      if (typing) { countKey(); return; }
+
+      if (e.key === 'Escape') { nav.back(); return; }
+      if (e.key === '.') { e.preventDefault(); st.advanceTime(1); return; }
+    };
+    window.addEventListener('click', onClick);
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('click', onClick);
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [nav, st]);
+
+  return null;
 }
 
 export default function App() {
@@ -84,6 +125,9 @@ export default function App() {
           <TopBar />
           <main className="main"><Screen /></main>
         </div>
+        <GlobalKeys />
+        <CommandPalette />
+        <Shortcuts />
       </NavProvider>
     </StoreProvider>
   );

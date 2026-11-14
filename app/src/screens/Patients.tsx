@@ -5,7 +5,7 @@
  * whole list, sorted so the people who need something are at the top,
  * and a search box that works.
  */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '../lib/store';
 import { useNav } from '../lib/nav';
 import { Avatar, Chip, Panel } from '../components/ui';
@@ -15,6 +15,8 @@ export function Patients() {
   const st = useStore();
   const nav = useNav();
   const [q, setQ] = useState('');
+  const [sel, setSel] = useState(0);
+  const search = useRef<HTMLInputElement>(null);
 
   const rows = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -35,12 +37,34 @@ export function Patients() {
         || a.p.name.localeCompare(b.p.name));
   }, [st, q]);
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement;
+      const typing = /input|textarea|select/i.test(t?.tagName ?? '');
+      if (e.key === '/' && !typing) { e.preventDefault(); search.current?.focus(); return; }
+      if (typing) return;
+      if (e.key === 'j') { e.preventDefault(); setSel((i) => Math.min(i + 1, rows.length - 1)); }
+      if (e.key === 'k') { e.preventDefault(); setSel((i) => Math.max(i - 1, 0)); }
+      if (e.key === 'Enter' && rows[sel]) {
+        e.preventDefault();
+        nav.go({ name: 'chart', patientId: rows[sel].p.id });
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [rows, sel, nav]);
+
+  useEffect(() => { setSel(0); }, [q]);
+
   return (
     <div className="wrap">
       <div className="page-head row" style={{ alignItems: 'flex-end' }}>
         <div style={{ flex: 1 }}>
           <h1>Patients</h1>
-          <div className="sub">{st.patients.length} members. Sorted by what is open.</div>
+            <div className="sub">
+            {st.patients.length} members, sorted by what is open.
+            <span className="muted"> Press <kbd>/</kbd> to search, <kbd>j</kbd><kbd>k</kbd> to move, <kbd>&#8984;K</kbd> for anything.</span>
+          </div>
         </div>
         <button className="btn" onClick={() => nav.go({ name: 'new-patient' })}>New patient</button>
       </div>
@@ -62,8 +86,10 @@ export function Patients() {
             </tr>
           </thead>
           <tbody>
-            {rows.map(({ p, open, conds, next, urgent }) => (
-              <tr key={p.id} className="click" onClick={() => nav.go({ name: 'chart', patientId: p.id })}>
+            {rows.map(({ p, open, conds, next, urgent }, i) => (
+              <tr key={p.id} className={`click${i === sel ? ' sel' : ''}`}
+                onMouseEnter={() => setSel(i)}
+                onClick={() => nav.go({ name: 'chart', patientId: p.id })}>
                 <td style={{ width: 44 }}><Avatar patient={p} /></td>
                 <td>
                   <div style={{ fontWeight: 600 }}>{p.name}</div>

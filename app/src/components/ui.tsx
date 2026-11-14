@@ -1,5 +1,5 @@
 /** Shared presentational pieces. No clinical logic lives here. */
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import type { Patient, ResultFlag, ResultSeries, Author } from '../domain/types';
 import { Portrait } from './Portrait';
 
@@ -8,10 +8,13 @@ export function Avatar({ patient, lg }: { patient: Patient; lg?: boolean }) {
 }
 
 export function Panel({
-  title, right, children, flush, eyebrow,
-}: { title?: string; right?: ReactNode; children: ReactNode; flush?: boolean; eyebrow?: string }) {
+  title, right, children, flush, eyebrow, style,
+}: {
+  title?: string; right?: ReactNode; children: ReactNode;
+  flush?: boolean; eyebrow?: string; style?: CSSProperties;
+}) {
   return (
-    <section className="panel">
+    <section className="panel" style={style}>
       {title && (
         <header>
           <div>

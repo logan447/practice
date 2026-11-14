@@ -1,11 +1,10 @@
 /** Display helpers. Clinical dates are unambiguous by default. */
+import { now, asDate, daysBetween } from './clock';
 
-const TODAY = new Date('2026-11-14T09:00:00');
-
-export const today = () => TODAY;
+export const today = () => asDate(now());
 
 /** The clinic's "today" as yyyy-mm-dd, for date inputs and new records. */
-export const todayIso = (): string => '2026-11-14';
+export const todayIso = (): string => now();
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -22,16 +21,16 @@ export function fmtDateShort(iso: string): string {
 }
 
 export function age(dob: string): number {
-  const d = new Date(dob + 'T12:00:00');
-  let a = TODAY.getFullYear() - d.getFullYear();
-  const m = TODAY.getMonth() - d.getMonth();
-  if (m < 0 || (m === 0 && TODAY.getDate() < d.getDate())) a--;
+  const t = asDate(now());
+  const d = asDate(dob);
+  let a = t.getFullYear() - d.getFullYear();
+  const m = t.getMonth() - d.getMonth();
+  if (m < 0 || (m === 0 && t.getDate() < d.getDate())) a--;
   return a;
 }
 
 export function daysFrom(iso: string): number {
-  const d = new Date(iso + 'T12:00:00');
-  return Math.round((d.getTime() - TODAY.getTime()) / 86400000);
+  return daysBetween(now(), iso);
 }
 
 /** "today", "3 days ago", "in 2 weeks" — relative where it helps, absolute where it does not. */
@@ -51,8 +50,9 @@ export function initials(name: string): string {
 
 /** Months between two dates, for membership tenure. */
 export function monthsSince(iso: string): number {
-  const d = new Date(iso + 'T12:00:00');
-  return Math.max(0, (TODAY.getFullYear() - d.getFullYear()) * 12 + TODAY.getMonth() - d.getMonth());
+  const t = asDate(now());
+  const d = asDate(iso);
+  return Math.max(0, (t.getFullYear() - d.getFullYear()) * 12 + t.getMonth() - d.getMonth());
 }
 
 export const MEMBERSHIP_LABEL: Record<string, string> = {

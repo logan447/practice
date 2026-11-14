@@ -14,13 +14,14 @@
  * Tabs follow how the work actually goes: set the plan, manage the
  * medicines, cover prevention, read the results, write the note.
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useStore } from '../lib/store';
 import { useNav, type ChartTab } from '../lib/nav';
 import { Avatar, Chip } from '../components/ui';
 import { ENCOUNTER_KINDS, type EncounterKind } from '../domain/types';
 import { age, fmtDate, MEMBERSHIP_LABEL, monthsSince } from '../lib/format';
 import { oneLiner } from '../lib/clinical';
+import { markChartOpen } from '../lib/metrics';
 import { PlanTab } from './chart/PlanTab';
 import { MedsTab } from './chart/MedsTab';
 import { ResultsTab } from './chart/ResultsTab';
@@ -36,6 +37,9 @@ export function Chart({ patientId, initialTab }: { patientId: string; initialTab
   const [tab, setTab] = useState<ChartTab>(initialTab ?? 'plan');
   const [showNote, setShowNote] = useState(false);
   const [picking, setPicking] = useState(false);
+
+  // Time here is chart review, and it is what the assembled note should shrink.
+  useEffect(() => { markChartOpen(); }, [patientId]);
 
   const p = st.patient(patientId);
   if (!p) return <div className="wrap"><p>Patient not found.</p></div>;

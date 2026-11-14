@@ -12,6 +12,8 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import * as fixtures from '../data/patients';
 import { load, save, wipe, newId } from './persist';
+import { ORIGIN, now as clockNow, setNow, addDays } from './clock';
+import { tick } from './tick';
 import type {
   AiDraft, CarePlan, CarePlanGoal, Condition, Encounter, Medication, Order,
   OrderKind, Patient, PatientEntry, PreVisit, PreventionItem, ResultReport,
@@ -19,7 +21,6 @@ import type {
 } from '../domain/types';
 import { measureByKey, patientSeriesId, isAlerting } from '../domain/measures';
 
-const TODAY = '2026-11-14';
 const ME = 'L. DuBose, MD';
 
 interface State {
@@ -37,12 +38,17 @@ interface State {
   specialists: Specialist[];
   preVisits: PreVisit[];
   orders: Order[];
+  /** The clinic's today. Movable, because care is longitudinal. */
+  now: string;
+  /** What changed the last time the clock moved. */
+  lastEvents: string[];
 }
 
 const EMPTY: State = {
   patients: [], conditions: [], medications: [], resultSeries: [], resultReports: [],
   carePlans: [], encounters: [], prevention: [], patientEntries: [], aiDrafts: [], tasks: [],
   specialists: [], preVisits: [], orders: [],
+  now: ORIGIN, lastEvents: [],
 };
 
 /**
@@ -94,6 +100,8 @@ function demoState(): State {
     specialists: keep(fixtures.specialists),
     preVisits: keep(fixtures.preVisits),
     orders: keep(fixtures.orders),
+    now: ORIGIN,
+    lastEvents: [],
   };
 }
 
@@ -138,6 +146,10 @@ interface Store extends State {
   draftsFor: (id: string) => AiDraft[];
   tasksFor: (id: string) => Task[];
   openTasks: () => Task[];
+
+  // the clock
+  advanceTime: (days: number) => void;
+  resetTime: () => void;
 
   // dataset
   loadDemo: () => void;
@@ -186,7 +198,15 @@ interface Store extends State {
 const Ctx = createContext<Store | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [s, setS] = useState<State>(() => migrate(load<State>()) ?? EMPTY);
+  const [s, setS] = useState<State>(() => {
+    const loaded = migrate(load<State>()) ?? EMPTY;
+    setNow(loaded.now ?? ORIGIN);
+    return loaded;
+  });
+
+  // The provider renders before any child, so the module clock is correct
+  // by the time a screen formats a date.
+  setNow(s.now ?? ORIGIN);
 
   useEffect(() => { save(s); }, [s]);
 
@@ -233,7 +253,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           preVisits: [
             ...p.preVisits.filter((x) => x.encounterId !== encounterId),
             {
-              id: newId('pv'), patientId, encounterId, submitted: TODAY, narrative,
+              id: newId('pv'), patientId, encounterId, submitted: clockNow(), narrative,
               concerns: concerns.map((text) => ({ id: newId('pc'), text, addressed: false })),
             },
           ],
@@ -254,12 +274,30 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           ...p,
           orders: [...p.orders, {
             id: newId('or'), patientId, encounterId, kind, text, goalId,
-            status: 'draft', created: TODAY,
+            status: 'draft', created: clockNow(),
           }],
         })),
 
       removeOrder: (orderId) =>
         setS((p) => ({ ...p, orders: p.orders.filter((o) => o.id !== orderId) })),
+
+      advanceTime: (days) =>
+        setS((p) => {
+          const to = addDays(p.now, days);
+          const r = tick({
+            from: p.now, to, orders: p.orders, resultSeries: p.resultSeries,
+            resultReports: p.resultReports, prevention: p.prevention,
+            carePlans: p.carePlans, patientEntries: p.patientEntries, tasks: p.tasks,
+          });
+          return {
+            ...p, now: to,
+            resultSeries: r.resultSeries, resultReports: r.resultReports,
+            prevention: r.prevention, patientEntries: r.patientEntries,
+            tasks: r.tasks, orders: r.orders, lastEvents: r.events,
+          };
+        }),
+
+      resetTime: () => setS((p) => ({ ...p, now: ORIGIN, lastEvents: [] })),
 
       loadDemo: () => setS(demoState()),
       clearAll: () => { wipe(); setS(EMPTY); },
@@ -274,7 +312,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           sex: d.sex,
           pronouns: d.pronouns,
           membership: d.membership,
-          memberSince: TODAY,
+          memberSince: clockNow(),
           photoTone: Math.abs(d.name.length * 7) % 6,
           phone: d.phone,
           email: d.email,
@@ -283,8 +321,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
         const conditions: Condition[] = lines(d.conditions).map((name) => ({
           id: newId('cd'), patientId: id, name, code: '', status: 'active',
-          onset: TODAY,
-          provenance: { author: 'patient', by: 'Reported at intake', recorded: TODAY },
+          onset: clockNow(),
+          provenance: { author: 'patient', by: 'Reported at intake', recorded: clockNow() },
         }));
 
         const medications: Medication[] = lines(d.medicines).map((line) => {
@@ -296,13 +334,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             name: (m ? m[1] : left).trim(),
             dose: (m ? m[2] : '').trim(),
             sig: (right ?? '').trim(),
-            started: TODAY, status: 'active' as const,
-            provenance: { author: 'patient', by: 'Reported at intake', recorded: TODAY },
+            started: clockNow(), status: 'active' as const,
+            provenance: { author: 'patient', by: 'Reported at intake', recorded: clockNow() },
           };
         });
 
         const encounters: Encounter[] = d.bookIntake ? [{
-          id: newId('en'), patientId: id, date: TODAY, kind: 'initial',
+          id: newId('en'), patientId: id, date: clockNow(), kind: 'initial',
           reason: 'First full visit. History, medicines, habits, and what they want to work on.',
           status: 'scheduled', duration: 90,
         }] : [];
@@ -321,8 +359,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setS((p) => ({
           ...p,
           conditions: [...p.conditions, {
-            id: newId('cd'), patientId, name, code, status: 'active', onset: TODAY, note,
-            provenance: { author: 'clinician', by: ME, recorded: TODAY },
+            id: newId('cd'), patientId, name, code, status: 'active', onset: clockNow(), note,
+            provenance: { author: 'clinician', by: ME, recorded: clockNow() },
           }],
         })),
 
@@ -331,8 +369,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           ...p,
           medications: [...p.medications, {
             id: newId('md'), patientId, name, dose, sig, indication,
-            started: TODAY, status: 'active',
-            provenance: { author: 'clinician', by: ME, recorded: TODAY },
+            started: clockNow(), status: 'active',
+            provenance: { author: 'clinician', by: ME, recorded: clockNow() },
           }],
         })),
 
@@ -341,8 +379,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setS((p) => ({
           ...p,
           carePlans: [...p.carePlans, {
-            id, patientId, version: 1, updated: TODAY, signed: false, summary, goals: [],
-            provenance: { author: 'clinician', by: ME, recorded: TODAY },
+            id, patientId, version: 1, updated: clockNow(), signed: false, summary, goals: [],
+            provenance: { author: 'clinician', by: ME, recorded: clockNow() },
           }],
         }));
         return id;
@@ -353,7 +391,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           ...p,
           carePlans: p.carePlans.map((cp) => cp.id !== planId ? cp : {
             ...cp,
-            updated: TODAY,
+            updated: clockNow(),
             goals: [...cp.goals, {
               ...goal,
               id: newId('gl'),
@@ -368,7 +406,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setS((p) => ({
           ...p,
           carePlans: p.carePlans.map((cp) => cp.id !== planId ? cp : {
-            ...cp, signed: true, signedBy: ME, updated: TODAY,
+            ...cp, signed: true, signedBy: ME, updated: clockNow(),
             version: cp.signed ? cp.version + 1 : cp.version,
           }),
         })),
@@ -378,7 +416,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setS((p) => ({
           ...p,
           encounters: [...p.encounters, {
-            id, patientId, date: TODAY, kind, reason, status: 'scheduled', duration,
+            id, patientId, date: clockNow(), kind, reason, status: 'scheduled', duration,
           }],
         }));
         return id;
@@ -388,16 +426,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setS((p) => ({
           ...p,
           patientEntries: [...p.patientEntries, {
-            id: newId('pe'), patientId, date: TODAY, kind: 'journal',
+            id: newId('pe'), patientId, date: clockNow(), kind: 'journal',
             label: label.trim() || 'Note', body: body.trim(), flagged,
-            provenance: { author: 'patient', by: 'Patient', recorded: TODAY },
+            provenance: { author: 'patient', by: 'Patient', recorded: clockNow() },
           }],
           // Only a flagged entry reaches the inbox. Everything the patient
           // writes is visible in the chart; not everything is a summons.
           tasks: flagged ? [...p.tasks, {
             id: newId('tk'), patientId, kind: 'message' as const,
             text: `Asked you to see: ${label.trim() || 'a note'}`,
-            due: TODAY, urgent: false, done: false,
+            due: clockNow(), urgent: false, done: false,
           }] : p.tasks,
         })),
 
@@ -467,7 +505,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             ...p,
             resultReports: p.resultReports.map((r) =>
               r.id === reportId
-                ? { ...r, acknowledged: true, acknowledgedBy: ME, acknowledgedAt: TODAY }
+                ? { ...r, acknowledged: true, acknowledgedBy: ME, acknowledgedAt: clockNow() }
                 : r),
             tasks: p.tasks.map((t) =>
               t.kind === 'result' && rep && t.patientId === rep.patientId ? { ...t, done: true } : t),
@@ -508,7 +546,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setS((p) => ({
           ...p,
           encounters: p.encounters.map((e) =>
-            e.id === encounterId ? { ...e, status: 'signed', signedAt: TODAY } : e),
+            e.id === encounterId ? { ...e, status: 'signed', signedAt: clockNow() } : e),
         })),
 
       setMedStatus: (medId, status, changeNote) =>
@@ -518,7 +556,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             m.id === medId
               ? {
                 ...m, status, changeNote: changeNote ?? m.changeNote,
-                stopped: status === 'stopped' ? TODAY : m.stopped,
+                stopped: status === 'stopped' ? clockNow() : m.stopped,
               }
               : m),
         })),
@@ -536,6 +574,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             aiDrafts: drop(p.aiDrafts), tasks: drop(p.tasks),
             specialists: drop(p.specialists), preVisits: drop(p.preVisits),
             orders: drop(p.orders),
+            now: p.now, lastEvents: p.lastEvents,
           };
         }),
     };

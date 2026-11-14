@@ -23,6 +23,7 @@ import {
 } from '../lib/clinical';
 import { ORDER_KINDS, type ExamTemplate, type OrderKind, type VisitNote } from '../domain/types';
 import { newId } from '../lib/persist';
+import { startVisit as metricStart, signVisit as metricSign, endVisit, countAiSection, countAiEdit } from '../lib/metrics';
 
 /** Which sections were filled by something other than the physician. */
 type Mark = 'chart' | 'ambient';
@@ -92,9 +93,19 @@ export function Encounter({ encounterId }: { encounterId: string }) {
   const [listening, setListening] = useState(false);
   const [elapsed, setElapsed] = useState(0);
 
+  // The clock on this visit starts when it opens and stops at signature.
+  useEffect(() => {
+    if (!p || !enc || enc.status === 'signed') return;
+    metricStart(enc.id, p.id, p.name);
+    return () => endVisit();
+  }, [enc?.id, p?.id, enc?.status]);
+
   // Ambient capture, simulated. Sections arrive the way they would in a
   // real consultation: history first, then findings, then the reasoning.
   const timers = useRef<number[]>([]);
+  const signRef = useRef<(() => void) | null>(null);
+  const saveRef = useRef<(() => void) | null>(null);
+  const listenRef = useRef<(() => void) | null>(null);
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   useEffect(() => {
@@ -102,6 +113,18 @@ export function Encounter({ encounterId }: { encounterId: string }) {
     const t = window.setInterval(() => setElapsed((e) => e + 1), 1000);
     return () => clearInterval(t);
   }, [listening]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!(e.metaKey || e.ctrlKey)) return;
+      const k = e.key.toLowerCase();
+      if (k === 'enter') { e.preventDefault(); signRef.current?.(); }
+      if (k === 's') { e.preventDefault(); saveRef.current?.(); }
+      if (k === 'l' && e.shiftKey) { e.preventDefault(); listenRef.current?.(); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   const startListening = () => {
     if (!p) return;
@@ -134,6 +157,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
           },
         }));
         setMarks((m) => ({ ...m, 'plan.problems': 'ambient' }));
+        countAiSection(1);
         setListening(false);
       }],
     ];
@@ -149,6 +173,12 @@ export function Encounter({ encounterId }: { encounterId: string }) {
 
   const signed = enc.status === 'signed';
 
+  const doSign = () => {
+    st.saveNote(enc.id, note);
+    st.signEncounter(enc.id);
+    metricSign(enc.id);
+  };
+
   function patch<S extends keyof VisitNote>(
     section: S, key: string, value: string, mark?: Mark,
   ) {
@@ -156,7 +186,14 @@ export function Encounter({ encounterId }: { encounterId: string }) {
     setMarks((m) => {
       const next = { ...m };
       const id = `${String(section)}.${key}`;
-      if (mark) next[id] = mark; else delete next[id];
+      if (mark) {
+        next[id] = mark;
+        if (mark === 'ambient') countAiSection(1);
+      } else {
+        // a mark clearing means the physician rewrote drafted text
+        if (m[id] === 'ambient') countAiEdit();
+        delete next[id];
+      }
       return next;
     });
   }
@@ -167,6 +204,10 @@ export function Encounter({ encounterId }: { encounterId: string }) {
     setNote((n) => ({ ...n, objective: { ...n.objective, examTemplate: t, exam: EXAM_TEMPLATES[t].body } }));
     setMarks((m) => ({ ...m, 'objective.exam': 'chart' }));
   };
+
+  signRef.current = signed ? null : doSign;
+  saveRef.current = signed ? null : () => st.saveNote(enc.id, note);
+  listenRef.current = signed ? null : (listening ? stopListening : startListening);
 
   const measures = relevantSeries(allSeries, conditions, 4);
 
@@ -195,9 +236,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
                 <button className="btn ghost" onClick={startListening}>Start listening</button>
               )}
               <button className="btn ghost" onClick={() => st.saveNote(enc.id, note)}>Save</button>
-              <button className="btn" onClick={() => { st.saveNote(enc.id, note); st.signEncounter(enc.id); }}>
-                Sign note
-              </button>
+              <button className="btn" onClick={doSign}>Sign note</button>
             </>
           )}
           <button className="btn ghost" onClick={() => nav.go({ name: 'chart', patientId: p.id })}>Chart</button>

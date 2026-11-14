@@ -134,6 +134,56 @@ So a **draft care plan is invisible** until it is signed, and an
 **unacknowledged result is invisible** until it is reviewed. The
 end-to-end test asserts both.
 
+## Time moves
+
+The clinic date is state, not a constant (`src/lib/clock.ts`), and the
+bar advances it by a day, a week or a month. A prototype frozen at one
+instant cannot test longitudinal care: a goal never ages, a follow-up
+never falls due, a result never lands overnight.
+
+Advancing is not relabelling. `src/lib/tick.ts` runs the interval:
+
+- **Ordered labs come back** four days later, as an unreviewed report
+  with a task. Values drift toward the target where a care-plan goal
+  covering that measure is on track, and away from it where nothing is
+  being done. That is a simulation, not a claim about medicine; it
+  exists so the chart answers back when the plan changes.
+- **Prevention goes overdue** when its due date passes.
+- **Patients who track at home keep tracking** while you are away.
+
+What changed is reported in the bar rather than left to be discovered.
+Silent state changes are how people stop trusting a system.
+
+The loop worth walking: place a lab order in a visit, sign it, press
+**+1w**, and find the result sitting unreviewed in the chart.
+
+## Keyboard
+
+`⌘K` opens the command palette: every patient, every chart tab and
+every action, filtered together, because mid-clinic you do not want to
+decide first what kind of thing you are looking for. Subsequence
+matching, so `mrey` finds Marcus Reyes.
+
+`/` searches the list, `j`/`k` move, `↵` opens. In a visit, `⌘↵` signs,
+`⌘S` saves, `⌘⇧L` starts and stops listening. `.` advances a day.
+`?` shows the lot.
+
+## Measuring the thing being decided
+
+`src/lib/metrics.ts` times the prototype against itself, because the
+question behind the build is whether a self-made record beats a bought
+one, and that is settled in minutes per patient rather than in
+features.
+
+Per visit: minutes from opening to signature, clicks, keystrokes,
+seconds of chart review immediately beforehand, and how many
+AI-drafted sections survived to signature unedited. Under **Usage**.
+
+The AI-kept figure needs watching in both directions. Very low means
+the drafting is not earning its place; very high may mean it is good,
+or may mean the review has gone thin, and those two look identical
+from here.
+
 ## Patients writing into their own record
 
 Under **Track** in the portal, two acts kept deliberately apart:
@@ -178,6 +228,10 @@ EMR_URL=http://localhost:4600/ node test/patient-logging.e2e.cjs
 free-text medicine parsing, adding a problem and a medicine, writing
 and signing a care plan, documenting and signing a visit, and the
 portal before and after signing. 24 assertions.
+
+`test/clock-keyboard-metrics.e2e.cjs` walks the clock, the palette and
+the timing: place a lab, sign with `⌘↵`, advance a week, find the
+result unreviewed, and check the visit was timed. 13 assertions.
 
 `test/patient-logging.e2e.cjs` walks the other loop: the patient logging
 readings and a journal entry, the out-of-range warning, and all of it
