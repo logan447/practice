@@ -10,12 +10,13 @@
  */
 import type {
   Patient, Condition, Medication, ResultSeries, ResultReport, CarePlan,
-  Encounter, PreventionItem, PatientEntry, AiDraft, Task,
+  Encounter, PreventionItem, PatientEntry, AiDraft, Task, Specialist,
+  PreVisit, Order
 } from '../domain/types';
 
 const MD = { author: 'clinician' as const, by: 'L. DuBose, MD', recorded: '2026-11-14' };
 const SRC = (doc: string, d: string) => ({
-  author: 'source' as const, by: doc, recorded: d, sources: [doc],
+  author: 'source' as const, by: doc, recorded: d, sources: [doc]
 });
 const PT = (d: string) => ({ author: 'patient' as const, by: 'Patient', recorded: d });
 
@@ -24,51 +25,44 @@ export const patients: Patient[] = [
     id: 'p1', name: 'Marcus Reyes', preferredName: 'Marcus', dob: '1972-03-18',
     sex: 'male', pronouns: 'he/him', membership: 'standard', memberSince: '2025-09-02',
     photoTone: 0, phone: '(512) 555-0142', email: 'm.reyes@example.com',
-    careTeam: [{ name: 'Dr. Priya Raman', role: 'Cardiology' }],
-    pinned: 'Wants to come off the BP medicine if the numbers hold. That is his goal, not mine.',
+    pinned: 'Wants to come off the BP medicine if the numbers hold. That is his goal, not mine.'
   },
   {
     id: 'p2', name: 'Dana Whitfield', preferredName: 'Dana', dob: '1985-07-29',
     sex: 'female', pronouns: 'she/her', membership: 'sliding-scale', memberSince: '2026-01-15',
     photoTone: 1, phone: '(512) 555-0188', email: 'dana.w@example.com',
-    careTeam: [],
-    pinned: 'Night-shift nurse, three on / four off. Any plan has to survive that rota.',
+    pinned: 'Night-shift nurse, three on / four off. Any plan has to survive that rota.'
   },
   {
     id: 'p3', name: 'Arthur Lindqvist', preferredName: 'Art', dob: '1958-11-04',
     sex: 'male', pronouns: 'he/him', membership: 'pro-bono', memberSince: '2025-11-20',
     photoTone: 2, phone: '(512) 555-0117', email: 'alindqvist@example.com',
-    careTeam: [
-      { name: 'Dr. Samuel Osei', role: 'Cardiology' },
-      { name: 'Dr. Lena Brandt', role: 'Nephrology' },
-    ],
-    pinned: 'Hard of hearing. Phone calls do not work. Message or video with captions.',
+    pinned: 'Hard of hearing. Phone calls do not work. Message or video with captions.'
   },
   {
     id: 'p4', name: 'Priya Raghunathan', dob: '1991-02-11', sex: 'female', pronouns: 'she/her',
     membership: 'standard', memberSince: '2026-06-01', photoTone: 3,
-    phone: '(512) 555-0160', email: 'p.ragh@example.com', careTeam: [],
+    phone: '(512) 555-0160', email: 'p.ragh@example.com'
   },
   {
     id: 'p5', name: 'Theodore Okonkwo', preferredName: 'Teddy', dob: '1964-08-23',
     sex: 'male', pronouns: 'he/him', membership: 'standard', memberSince: '2025-10-08',
-    photoTone: 4, phone: '(512) 555-0133', email: 't.okonkwo@example.com',
-    careTeam: [{ name: 'Dr. Grace Yun', role: 'Endocrinology' }],
+    photoTone: 4, phone: '(512) 555-0133', email: 't.okonkwo@example.com'
   },
   {
     id: 'p6', name: 'Helen Vasquez', dob: '1949-05-30', sex: 'female', pronouns: 'she/her',
     membership: 'pro-bono', memberSince: '2026-03-12', photoTone: 5,
-    phone: '(512) 555-0194', email: 'hvasquez@example.com', careTeam: [],
+    phone: '(512) 555-0194', email: 'hvasquez@example.com'
   },
   {
     id: 'p7', name: 'Jonah Feldstein', dob: '1979-12-02', sex: 'male', pronouns: 'he/him',
     membership: 'standard', memberSince: '2026-08-19', photoTone: 1,
-    phone: '(512) 555-0171', email: 'jfeld@example.com', careTeam: [],
+    phone: '(512) 555-0171', email: 'jfeld@example.com'
   },
   {
     id: 'p8', name: 'Camille Boucher', dob: '1996-09-14', sex: 'female', pronouns: 'she/her',
     membership: 'sliding-scale', memberSince: '2026-09-30', photoTone: 2,
-    phone: '(512) 555-0109', email: 'c.boucher@example.com', careTeam: [],
+    phone: '(512) 555-0109', email: 'c.boucher@example.com'
   },
 ];
 
@@ -147,8 +141,8 @@ const s = (
   points: points.map(([date, value]) => ({
     date, value,
     flag: (refHigh !== undefined && value > refHigh) ? 'high'
-      : (refLow !== undefined && value < refLow) ? 'low' : 'normal',
-  })),
+      : (refLow !== undefined && value < refLow) ? 'low' : 'normal'
+  }))
 });
 
 export const resultSeries: ResultSeries[] = [
@@ -229,7 +223,7 @@ export const carePlans: CarePlan[] = [
           { id: 'a5', text: 'Home BP log, twice weekly for 4 weeks', owner: 'patient', done: false },
           { id: 'a6', text: 'Decide on a lisinopril taper at the next visit', owner: 'physician', done: false },
         ] },
-    ],
+    ]
   },
   {
     id: 'cp2', patientId: 'p2', version: 2, updated: '2026-07-14', signed: true,
@@ -245,7 +239,7 @@ export const carePlans: CarePlan[] = [
       { id: 'g7', title: 'Eat a real meal before the night shift', why: 'She was running nights on coffee.',
         domain: 'nutrition', status: 'on-track',
         actions: [{ id: 'a9', text: 'Prep three portions on the first day off', owner: 'patient', done: true }] },
-    ],
+    ]
   },
   {
     id: 'cp3', patientId: 'p3', version: 6, updated: '2026-07-21', signed: true,
@@ -264,7 +258,7 @@ export const carePlans: CarePlan[] = [
       { id: 'g12', title: 'Walk to the mailbox and back, daily', why: 'He set this one. It is about staying independent.',
         domain: 'movement', status: 'met',
         actions: [{ id: 'a15', text: 'Build to the corner by spring', owner: 'patient', done: false }] },
-    ],
+    ]
   },
 ];
 
@@ -275,21 +269,66 @@ export const encounters: Encounter[] = [
   { id: 'e2', patientId: 'p1', date: '2026-09-02', kind: 'follow-up', reason: 'Interim review',
     status: 'signed', duration: 40, signedAt: '2026-09-02',
     note: {
-      subjective: 'Walking most evenings, 30 to 40 minutes. CPAP every night, finds it easy now. Down another 8 lb. Asked again about coming off the lisinopril. Sleeping well. No chest pain, no headaches, no dizziness.',
-      objective: 'BP 126/78 seated, repeated 124/76. Weight 201 lb, down 8 lb since May. BMI 29.1. Heart regular, no murmur. No edema.',
-      assessment: 'Prediabetes in remission on lifestyle change alone, off metformin since June. Hypertension well controlled, and the control followed the OSA treatment and the weight loss rather than a dose change. Reasonable to consider a supervised taper once weight has been stable three months.',
-      plan: 'Home BP twice weekly for four weeks, bring the log. Repeat A1c and lipids in November. Hold lisinopril unchanged until then. Agreed to revisit the taper at that visit.',
+      subjective: {
+        oneLiner: 'Marcus Reyes is a 54-year-old male with a past medical history of prediabetes, essential hypertension, mixed hyperlipidemia and obstructive sleep apnea, here for follow-up.',
+        reason: 'Wanted to talk about coming off the blood pressure tablet.',
+        chartReview: 'Last seen 4 May 2026 for an annual physical. Metformin stopped by agreement at that visit. Outstanding from the care plan: home BP log.',
+        diagnostics: 'No new results since May.',
+        specialists: 'Cardiology (Dr. Raman) not seen since 2024.',
+        additional: 'Walking most evenings, 30 to 40 minutes. CPAP every night, finds it easy now. Down another 8 lb. Sleeping well. No chest pain, no headaches, no dizziness.',
+      },
+      objective: {
+        homeMeasures: 'None submitted before this visit.',
+        vitals: 'BP 126/78 seated, repeated 124/76. Weight 201 lb, down 8 lb since May. BMI 29.1.',
+        examTemplate: 'in-person',
+        exam: 'General: well-appearing, no acute distress.\nCardiovascular: regular rate and rhythm, no murmur. No peripheral oedema.\nRespiratory: clear to auscultation bilaterally.',
+      },
+      assessment: {
+        oneLiner: 'Marcus Reyes is a 54-year-old male with prediabetes, hypertension, hyperlipidemia and OSA.',
+        overall: 'Prediabetes in remission on lifestyle change alone, off metformin since June. Hypertension well controlled, and the control followed the OSA treatment and the weight loss rather than a dose change. Reasonable to consider a supervised taper once weight has been stable three months.',
+      },
+      plan: {
+        problems: [
+          { id: 'pp1', problem: 'Essential hypertension', assessment: 'Controlled, 126/78 today.',
+            treatment: 'Hold lisinopril 10 mg unchanged for now.',
+            orders: 'Home BP twice weekly for four weeks.',
+            followUp: 'Revisit the taper in November once the log is in.' },
+          { id: 'pp2', problem: 'Prediabetes', assessment: 'In remission, A1c 5.9 off metformin.',
+            treatment: 'Continue diet and the evening walk.', orders: 'Repeat A1c in November.',
+            followUp: 'Six months.' },
+        ],
+        overall: 'Home BP twice weekly for four weeks, bring the log. Repeat A1c and lipids in November. Hold lisinopril unchanged until then. Agreed to revisit the taper at that visit.',
+      },
     } },
   { id: 'e3', patientId: 'p1', date: '2026-05-04', kind: 'annual', reason: 'Annual review',
     status: 'signed', duration: 75, signedAt: '2026-05-04',
-    note: { subjective: 'Full annual review.', objective: 'BP 132/82. Weight 209 lb.',
-      assessment: 'Good trajectory across every measure we are tracking.',
-      plan: 'Stop metformin by agreement and retest in 6 weeks. Continue everything else.' } },
+    note: {
+      subjective: {
+        oneLiner: 'Marcus Reyes is a 53-year-old male with prediabetes, hypertension and hyperlipidemia, here for an annual physical.',
+        reason: 'Annual review.', chartReview: 'Six months of steady progress.',
+        diagnostics: 'A1c 5.9, LDL 98, both improved.', specialists: 'None involved.',
+        additional: '',
+      },
+      objective: {
+        homeMeasures: 'None submitted.', vitals: 'BP 132/82. Weight 209 lb.',
+        examTemplate: 'in-person', exam: 'Full examination unremarkable.',
+      },
+      assessment: {
+        oneLiner: 'Marcus Reyes is a 53-year-old male with prediabetes, hypertension and hyperlipidemia.',
+        overall: 'Good trajectory across every measure we are tracking.',
+      },
+      plan: {
+        problems: [{ id: 'pp3', problem: 'Prediabetes', assessment: 'A1c down to 5.9.',
+          treatment: 'Stop metformin by agreement.', orders: 'Retest A1c in 6 weeks.',
+          followUp: 'Six weeks.' }],
+        overall: 'Stop metformin by agreement and retest in 6 weeks. Continue everything else.',
+      },
+    } },
   { id: 'e4', patientId: 'p3', date: '2026-11-18', kind: 'follow-up',
     reason: 'Potassium 5.3 and eGFR down. Needs review this week.', status: 'scheduled', duration: 30 },
   { id: 'e5', patientId: 'p2', date: '2026-11-14', kind: 'follow-up',
     reason: 'Three-month check. Sleep anchor not holding.', status: 'scheduled', duration: 30 },
-  { id: 'e6', patientId: 'p4', date: '2026-11-14', kind: 'intake',
+  { id: 'e6', patientId: 'p4', date: '2026-11-14', kind: 'initial',
     reason: 'First full visit. Records from previous practice received.', status: 'scheduled', duration: 90 },
 ];
 
@@ -341,7 +380,7 @@ export const aiDrafts: AiDraft[] = [
 **He has raised stopping lisinopril twice**, in the journal on 28 October and at the September visit. The plan's action "decide on a lisinopril taper at the next visit" is still open.
 
 One thing the plan does not cover: influenza vaccine is overdue since 31 October.`,
-    citations: ['Lab report, 6 Nov 2026', 'Patient journal, 28 Oct and 9 Nov', 'Encounter note, 2 Sep 2026', 'Care plan v4, goal 4', 'Prevention schedule'],
+    citations: ['Lab report, 6 Nov 2026', 'Patient journal, 28 Oct and 9 Nov', 'Encounter note, 2 Sep 2026', 'Care plan v4, goal 4', 'Prevention schedule']
   },
   {
     id: 'ai2', patientId: 'p3', kind: 'interval-summary', generated: '2026-11-14', accepted: false,
@@ -355,7 +394,7 @@ One thing the plan does not cover: influenza vaccine is overdue since 31 October
 **He reported heavy legs and tight shoes on 12 November.** Nothing in the record documents an examination for edema since July.
 
 The care plan's December nephrology review is not yet booked.`,
-    citations: ['Lab report, 11 Nov 2026', 'Patient journal, 12 Nov 2026', 'Care plan v6, goals 10 and 11', 'Medication list'],
+    citations: ['Lab report, 11 Nov 2026', 'Patient journal, 12 Nov 2026', 'Care plan v6, goals 10 and 11', 'Medication list']
   },
 ];
 
@@ -369,3 +408,43 @@ export const tasks: Task[] = [
   { id: 't7', patientId: 'p5', kind: 'refill', text: 'Refill request: semaglutide', due: '2026-11-14', urgent: false, done: false },
   { id: 't8', patientId: 'p3', kind: 'follow-up', text: 'Book nephrology review for December', due: '2026-11-20', urgent: false, done: false },
 ];
+
+export const specialists: Specialist[] = [
+  { id: 'sp1', patientId: 'p1', name: 'Dr. Priya Raman', specialty: 'Cardiology',
+    practice: 'Austin Heart', phone: '(512) 555-0310', lastSeen: '2024-08-14',
+    findings: 'Stress echo normal. No inducible ischaemia.',
+    recommendations: 'No cardiology follow-up needed unless symptoms change. Continue risk-factor work in primary care.',
+    outstanding: 'None.' },
+  { id: 'sp2', patientId: 'p3', name: 'Dr. Samuel Osei', specialty: 'Cardiology',
+    practice: 'St. David\u2019s Cardiology', phone: '(512) 555-0322', lastSeen: '2026-09-30',
+    findings: 'LAD stent patent on review. Ejection fraction 50 percent.',
+    recommendations: 'Continue dual antiplatelet therapy to 12 months post-PCI, then aspirin alone. High-intensity statin indefinitely.',
+    outstanding: 'Decision on stopping clopidogrel due November 2026.' },
+  { id: 'sp3', patientId: 'p3', name: 'Dr. Lena Brandt', specialty: 'Nephrology',
+    practice: 'Hill Country Renal', phone: '(512) 555-0344', lastSeen: '2026-01-10',
+    findings: 'CKD stage 3a, likely diabetic and hypertensive. No proteinuria at that time.',
+    recommendations: 'Avoid NSAIDs and contrast where possible. Recheck eGFR and potassium every 6 months.',
+    outstanding: 'December review not yet booked.' },
+  { id: 'sp4', patientId: 'p5', name: 'Dr. Grace Yun', specialty: 'Endocrinology',
+    practice: 'Capital Endocrine', phone: '(512) 555-0366', lastSeen: '2026-06-02',
+    findings: 'Type 2 diabetes with suboptimal control.',
+    recommendations: 'Titrate semaglutide as tolerated.', outstanding: 'None.' },
+];
+
+export const preVisits: PreVisit[] = [
+  { id: 'pv1', patientId: 'p1', encounterId: 'e1', submitted: '2026-11-12',
+    concerns: [
+      { id: 'pc1', text: 'Coming off the blood pressure tablet', addressed: false },
+      { id: 'pc2', text: 'Knee soreness after walking', addressed: false },
+      { id: 'pc3', text: 'Whether I still need the statin', addressed: false },
+    ],
+    narrative: 'Mainly I want to talk about the blood pressure tablet. My readings at home have been good for months and I would like to try without it, carefully. The knee thing is probably nothing, it only aches after the longer walks and settles overnight. And I have read things about statins and would like to know what you think, I am not planning to stop it on my own.' },
+  { id: 'pv2', patientId: 'p3', encounterId: 'e4', submitted: '2026-11-13',
+    concerns: [
+      { id: 'pc4', text: 'Legs feel heavy', addressed: false },
+      { id: 'pc5', text: 'Shoes are tight', addressed: false },
+    ],
+    narrative: 'My legs have felt heavy since about Thursday and my shoes are tighter than usual. No chest pain. I am still getting to the mailbox every day but it is harder than it was.' },
+];
+
+export const orders: Order[] = [];

@@ -47,7 +47,7 @@ export function FirstRun() {
               care plans and open work. Nothing real. You can clear them
               at any time.
             </p>
-            <button className="btn ghost" onClick={() => { st.loadDemo(); nav.reset({ name: 'today' }); }}>
+            <button className="btn ghost" onClick={() => { st.loadDemo(); nav.reset({ name: 'patients' }); }}>
               Load 3 examples
             </button>
           </div>

@@ -19,6 +19,7 @@ import { useNav, type PortalTab } from '../lib/nav';
 import { Avatar, Chip, Panel, Trend, Empty } from '../components/ui';
 import { AiMark } from '../components/AiPanel';
 import { Track } from './Track';
+import { PreVisitForm } from './PreVisit';
 import { fmtDate, relative } from '../lib/format';
 import {
   visiblePlan, visibleReports, visibleSeries, visibleEncounters,
@@ -29,6 +30,7 @@ import {
 const TABS: { id: PortalTab; label: string }[] = [
   { id: 'home', label: 'Your health' },
   { id: 'plan', label: 'Your plan' },
+  { id: 'previsit', label: 'Before your visit' },
   { id: 'track', label: 'Track' },
   { id: 'results', label: 'Results' },
   { id: 'meds', label: 'Medicines' },
@@ -169,6 +171,10 @@ export function Portal({ patientId, initialTab }: { patientId: string; initialTa
                     <div style={{ fontWeight: 600 }}>{relative(e.date)}</div>
                     <div className="small muted">{fmtDate(e.date)} &middot; {e.duration} minutes</div>
                     <p className="small" style={{ marginTop: 8 }}>{e.reason}</p>
+                    <button className="btn sm" style={{ marginTop: 12 }}
+                      onClick={() => setTab('previsit')}>
+                      {st.preVisitFor(e.id) ? 'Change what you sent' : 'Tell him what to cover'}
+                    </button>
                   </div>
                 ))}
             </Panel>
@@ -345,11 +351,11 @@ export function Portal({ patientId, initialTab }: { patientId: string; initialTa
                 <div className="stack">
                   <div>
                     <div className="eyebrow" style={{ marginBottom: 4 }}>What we talked about</div>
-                    <p>{e.note.subjective}</p>
+                    <p>{e.note.subjective.reason || e.note.subjective.additional}</p>
                   </div>
                   <div>
                     <div className="eyebrow" style={{ marginBottom: 4 }}>What we agreed</div>
-                    <p>{e.note.plan}</p>
+                    <p>{e.note.plan.overall}</p>
                   </div>
                 </div>
               )}
@@ -359,6 +365,8 @@ export function Portal({ patientId, initialTab }: { patientId: string; initialTa
       )}
 
       {/* -------------------------------------------------------- ask */}
+      {tab === 'previsit' && <PreVisitForm patientId={patientId} />}
+
       {tab === 'track' && <Track patientId={patientId} />}
 
       {tab === 'ask' && <Ask name={p.preferredName ?? p.name.split(' ')[0]} hasPlan={!!plan} />}

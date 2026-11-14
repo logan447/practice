@@ -10,11 +10,9 @@ import { useStore } from '../../lib/store';
 import { useNav } from '../../lib/nav';
 import { Chip, Panel, Empty } from '../../components/ui';
 import { fmtDate } from '../../lib/format';
+import { kindLabel } from '../../lib/clinical';
 
-const KIND: Record<string, string> = {
-  annual: 'Annual review', 'follow-up': 'Follow-up', acute: 'Acute',
-  message: 'Message', intake: 'First visit',
-};
+
 
 export function NotesTab({ patientId }: { patientId: string }) {
   const st = useStore();
@@ -26,7 +24,7 @@ export function NotesTab({ patientId }: { patientId: string }) {
   return (
     <div className="stack">
       {encounters.map((e) => (
-        <Panel key={e.id} title={KIND[e.kind]}
+        <Panel key={e.id} title={kindLabel(e.kind)}
           eyebrow={`${fmtDate(e.date)}${e.duration ? ` · ${e.duration} min` : ''}`}
           right={
             e.status === 'signed'
@@ -44,10 +42,40 @@ export function NotesTab({ patientId }: { patientId: string }) {
 
           {e.note && (
             <div className="stack">
-              <Section label="Subjective" text={e.note.subjective} />
-              <Section label="Objective" text={e.note.objective} />
-              <Section label="Assessment" text={e.note.assessment} />
-              <Section label="Plan" text={e.note.plan} />
+              <Section label="Subjective" text={[
+                e.note.subjective.oneLiner, e.note.subjective.reason,
+                e.note.subjective.chartReview, e.note.subjective.diagnostics,
+                e.note.subjective.specialists, e.note.subjective.additional,
+              ].filter(Boolean).join('\n\n')} />
+              <Section label="Objective" text={[
+                e.note.objective.homeMeasures, e.note.objective.vitals, e.note.objective.exam,
+              ].filter(Boolean).join('\n\n')} />
+              <Section label="Assessment" text={[
+                e.note.assessment.oneLiner, e.note.assessment.overall,
+              ].filter(Boolean).join('\n\n')} />
+              {e.note.plan.problems.length > 0 && (
+                <div>
+                  <div className="eyebrow" style={{ marginBottom: 6 }}>Plan by problem</div>
+                  <div className="stack-sm">
+                    {e.note.plan.problems.map((pr) => (
+                      <div key={pr.id} style={{
+                        borderLeft: '2px solid var(--accent)', paddingLeft: 11,
+                      }}>
+                        <div style={{ fontWeight: 600 }}>{pr.problem}</div>
+                        {[['Assessment', pr.assessment], ['Treatment', pr.treatment],
+                          ['Orders', pr.orders], ['Follow-up', pr.followUp]]
+                          .filter(([, v]) => v)
+                          .map(([l, v]) => (
+                            <div key={l} className="small" style={{ marginTop: 2 }}>
+                              <span className="muted">{l}: </span>{v}
+                            </div>
+                          ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <Section label="Plan summary" text={e.note.plan.overall} />
               {e.signedAt && (
                 <>
                   <div className="sep" />
@@ -69,7 +97,9 @@ function Section({ label, text }: { label: string; text: string }) {
   return (
     <div>
       <div className="eyebrow" style={{ marginBottom: 4 }}>{label}</div>
-      <p>{text}</p>
+      {text.split('\n\n').map((para, i) => (
+        <p key={i} style={{ marginTop: i ? 8 : 0, whiteSpace: 'pre-line' }}>{para}</p>
+      ))}
     </div>
   );
 }

@@ -13,8 +13,9 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import * as fixtures from '../data/patients';
 import { load, save, wipe, newId } from './persist';
 import type {
-  AiDraft, CarePlan, CarePlanGoal, Condition, Encounter, Medication, Patient,
-  PatientEntry, PreventionItem, ResultReport, ResultSeries, Task,
+  AiDraft, CarePlan, CarePlanGoal, Condition, Encounter, Medication, Order,
+  OrderKind, Patient, PatientEntry, PreVisit, PreventionItem, ResultReport,
+  ResultSeries, Specialist, Task, VisitNote,
 } from '../domain/types';
 import { measureByKey, patientSeriesId, isAlerting } from '../domain/measures';
 
@@ -33,12 +34,44 @@ interface State {
   patientEntries: PatientEntry[];
   aiDrafts: AiDraft[];
   tasks: Task[];
+  specialists: Specialist[];
+  preVisits: PreVisit[];
+  orders: Order[];
 }
 
 const EMPTY: State = {
   patients: [], conditions: [], medications: [], resultSeries: [], resultReports: [],
   carePlans: [], encounters: [], prevention: [], patientEntries: [], aiDrafts: [], tasks: [],
+  specialists: [], preVisits: [], orders: [],
 };
+
+/**
+ * Persisted state from before the note was structured. Old notes were
+ * four strings; keep the words rather than drop the patient's history.
+ */
+function migrate(raw: State | null): State | null {
+  if (!raw) return null;
+  const s: State = { ...EMPTY, ...raw };
+  s.encounters = (s.encounters ?? []).map((e) => {
+    const n = e.note as unknown;
+    if (!n || typeof (n as VisitNote).subjective === 'object') return e;
+    const old = n as { subjective: string; objective: string; assessment: string; plan: string };
+    return {
+      ...e,
+      kind: (e.kind as string) === 'intake' ? 'initial' : e.kind,
+      note: {
+        subjective: {
+          oneLiner: '', reason: '', chartReview: '', diagnostics: '', specialists: '',
+          additional: old.subjective ?? '',
+        },
+        objective: { homeMeasures: '', vitals: old.objective ?? '', exam: '' },
+        assessment: { oneLiner: '', overall: old.assessment ?? '' },
+        plan: { problems: [], overall: old.plan ?? '' },
+      },
+    };
+  });
+  return s;
+}
 
 /** The three fully built fixture patients, with everything that belongs to them. */
 const DEMO_IDS = ['p1', 'p2', 'p3'];
@@ -58,6 +91,9 @@ function demoState(): State {
     patientEntries: keep(fixtures.patientEntries),
     aiDrafts: keep(fixtures.aiDrafts),
     tasks: keep(fixtures.tasks),
+    specialists: keep(fixtures.specialists),
+    preVisits: keep(fixtures.preVisits),
+    orders: keep(fixtures.orders),
   };
 }
 
@@ -121,6 +157,17 @@ interface Store extends State {
   ) => { alerting: boolean };
   patientSeriesFor: (id: string) => ResultSeries[];
   clinicalSeriesFor: (id: string) => ResultSeries[];
+
+  specialistsFor: (id: string) => Specialist[];
+  preVisitFor: (encounterId: string) => PreVisit | undefined;
+  ordersFor: (encounterId: string) => Order[];
+  encounter: (id: string) => Encounter | undefined;
+
+  addSpecialist: (patientId: string, sp: Omit<Specialist, 'id' | 'patientId'>) => void;
+  submitPreVisit: (patientId: string, encounterId: string, concerns: string[], narrative: string) => void;
+  toggleConcern: (preVisitId: string, concernId: string) => void;
+  addOrder: (patientId: string, encounterId: string, kind: OrderKind, text: string, goalId?: string) => void;
+  removeOrder: (orderId: string) => void;
   addGoal: (planId: string, goal: Omit<CarePlanGoal, 'id' | 'actions'> & { actions: string[] }) => void;
   signPlan: (planId: string) => void;
   startVisit: (patientId: string, kind: Encounter['kind'], reason: string, duration: number) => string;
@@ -139,7 +186,7 @@ interface Store extends State {
 const Ctx = createContext<Store | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [s, setS] = useState<State>(() => load<State>() ?? EMPTY);
+  const [s, setS] = useState<State>(() => migrate(load<State>()) ?? EMPTY);
 
   useEffect(() => { save(s); }, [s]);
 
@@ -172,6 +219,48 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       tasksFor: (id) => by(s.tasks, id).filter((t) => !t.done),
       openTasks: () => s.tasks.filter((t) => !t.done),
 
+      specialistsFor: (id) => by(s.specialists, id),
+      preVisitFor: (encounterId) => s.preVisits.find((x) => x.encounterId === encounterId),
+      ordersFor: (encounterId) => s.orders.filter((o) => o.encounterId === encounterId),
+      encounter: (id) => s.encounters.find((e) => e.id === id),
+
+      addSpecialist: (patientId, sp) =>
+        setS((p) => ({ ...p, specialists: [...p.specialists, { ...sp, id: newId('sp'), patientId }] })),
+
+      submitPreVisit: (patientId, encounterId, concerns, narrative) =>
+        setS((p) => ({
+          ...p,
+          preVisits: [
+            ...p.preVisits.filter((x) => x.encounterId !== encounterId),
+            {
+              id: newId('pv'), patientId, encounterId, submitted: TODAY, narrative,
+              concerns: concerns.map((text) => ({ id: newId('pc'), text, addressed: false })),
+            },
+          ],
+        })),
+
+      toggleConcern: (preVisitId, concernId) =>
+        setS((p) => ({
+          ...p,
+          preVisits: p.preVisits.map((pv) => pv.id !== preVisitId ? pv : {
+            ...pv,
+            concerns: pv.concerns.map((c) =>
+              c.id === concernId ? { ...c, addressed: !c.addressed } : c),
+          }),
+        })),
+
+      addOrder: (patientId, encounterId, kind, text, goalId) =>
+        setS((p) => ({
+          ...p,
+          orders: [...p.orders, {
+            id: newId('or'), patientId, encounterId, kind, text, goalId,
+            status: 'draft', created: TODAY,
+          }],
+        })),
+
+      removeOrder: (orderId) =>
+        setS((p) => ({ ...p, orders: p.orders.filter((o) => o.id !== orderId) })),
+
       loadDemo: () => setS(demoState()),
       clearAll: () => { wipe(); setS(EMPTY); },
 
@@ -189,7 +278,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           photoTone: Math.abs(d.name.length * 7) % 6,
           phone: d.phone,
           email: d.email,
-          careTeam: [],
           pinned: d.pinned.trim() || undefined,
         };
 
@@ -214,7 +302,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         });
 
         const encounters: Encounter[] = d.bookIntake ? [{
-          id: newId('en'), patientId: id, date: TODAY, kind: 'intake',
+          id: newId('en'), patientId: id, date: TODAY, kind: 'initial',
           reason: 'First full visit. History, medicines, habits, and what they want to work on.',
           status: 'scheduled', duration: 90,
         }] : [];
@@ -446,6 +534,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             carePlans: drop(p.carePlans), encounters: drop(p.encounters),
             prevention: drop(p.prevention), patientEntries: drop(p.patientEntries),
             aiDrafts: drop(p.aiDrafts), tasks: drop(p.tasks),
+            specialists: drop(p.specialists), preVisits: drop(p.preVisits),
+            orders: drop(p.orders),
           };
         }),
     };

@@ -141,10 +141,20 @@ a { color: var(--accent); }
 
 /* ---------------------------------------------------------------- shell */
 
-.app {
-  display: grid;
-  grid-template-columns: 216px minmax(0, 1fr);
-  height: 100%;
+.app { display: grid; grid-template-rows: auto minmax(0, 1fr); height: 100%; }
+
+.topbar {
+  display: flex; align-items: center; gap: 9px;
+  padding: 0 max(18px, env(safe-area-inset-right, 0px)) 0 max(18px, env(safe-area-inset-left, 0px));
+  height: 52px; background: var(--panel); border-bottom: 1px solid var(--line);
+}
+.topbar .mark {
+  background: none; border: 0; cursor: pointer; text-align: left; padding: 0;
+  font: 600 14.5px/1.15 var(--serif); color: var(--ink);
+}
+.topbar .mark small {
+  display: block; font: 600 9px/1.3 var(--sans); letter-spacing: .14em;
+  text-transform: uppercase; color: var(--ink-3); margin-top: 2px;
 }
 
 .rail {
@@ -238,10 +248,6 @@ a { color: var(--accent); }
 .split { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 16px; align-items: start; }
 
 @media (max-width: 1000px) {
-  .app { grid-template-columns: 64px minmax(0, 1fr); }
-  .rail .mark small, .rail nav button span.label, .rail .foot span { display: none; }
-  .rail .mark { font-size: 0; }
-  .rail nav button { justify-content: center; padding: 11px 0; }
   .split, .g2, .g3 { grid-template-columns: minmax(0, 1fr); }
 }
 
@@ -411,3 +417,50 @@ input.search:focus { outline: 2px solid var(--accent-line); outline-offset: -1px
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
+
+
+/* ---------------------------------------------------- patient header v2 */
+
+.phead .pid { display: flex; flex-direction: column; align-items: center; gap: 7px; flex: none; }
+
+/* The reminder is a note icon that lights up only when there is one. A
+   banner across every chart stops being read by the second week. */
+.notepin {
+  width: 26px; height: 26px; border-radius: 6px; cursor: pointer;
+  display: grid; place-items: center; border: 1px solid var(--line);
+  background: var(--panel-2); color: var(--ink-3); padding: 0;
+}
+.notepin:disabled { opacity: 0.35; cursor: default; }
+.notepin.has { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); }
+.notepin.has:hover { filter: brightness(0.97); }
+
+.oneliner {
+  margin-top: 10px; font: 400 15px/1.45 var(--serif);
+  color: var(--ink); max-width: 76ch;
+}
+.problems { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.problems .chip { background: var(--accent-soft); color: var(--accent); }
+
+/* ------------------------------------------------------------- the visit */
+
+.wrap.wide { max-width: 1420px; }
+.visit {
+  display: grid; grid-template-columns: minmax(0, 1.62fr) minmax(320px, 0.95fr);
+  gap: 16px; align-items: start;
+}
+@media (max-width: 1180px) { .visit { grid-template-columns: minmax(0, 1fr); } }
+
+.btn.listening { background: var(--crit); color: #fff; }
+.pulse {
+  width: 8px; height: 8px; border-radius: 50%; background: #fff;
+  animation: pulse 1.1s ease-in-out infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+
+.problem-block {
+  border: 1px solid var(--line); border-radius: var(--r);
+  padding: 13px; background: var(--panel-2);
+}
+.problem-title { font-weight: 600; background: var(--panel); }
+
+textarea.note[rows] { min-height: 0; }

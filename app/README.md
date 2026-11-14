@@ -66,6 +66,59 @@ window or blocked storage degrades to "nothing saved" rather than a
 white screen. Nothing clinical should ever live there; it is so that a
 prototype you are evaluating survives a reload.
 
+## Navigation
+
+No rail and no Today page. A solo practice has one list and the charts
+hanging off it, so a navigation rail with two items in it is furniture.
+The patient list is home, sorted so whoever needs something is at the
+top, and it carries the open-item signal the inbox used to.
+
+Chart tabs follow how the work actually goes: **Care plan, Medicines,
+Prevention, Results, Notes, Specialists.** Care plan is the landing
+tab, because it is what the practice is for. There is no Summary tab;
+it duplicated the others.
+
+## The patient header
+
+Name, demographics, contact, then the generated clinical one-liner and
+the active problem list. The reminder is a note icon under the avatar
+that lights up only when there is one: a banner across the top of every
+chart stops being read by the second week.
+
+Portraits are deliberately **illustrations, not photographs**
+(`src/components/Portrait.tsx`). A photograph of a real-looking person
+in a medical record is either a real person who did not consent to
+appearing in one, or a synthetic face indistinguishable from one. They
+are deterministic per patient and grey with age.
+
+## The visit
+
+Note on the left, workspace on the right, no page changes mid-visit.
+
+The note is **structured, not four text boxes** (`VisitNote` in
+`domain/types.ts`), because the sections have different sources. On
+open, the chart is assembled into it: the one-liner, the patient's own
+reason for coming, a selective chart review, recent results and recent
+specialist care. The plan is **problem-oriented** — assessment,
+treatment, orders and follow-up per problem.
+
+Provenance is visible per section. Pulled text is marked **From
+chart**, ambient text **From the room**, and anything typed is unmarked
+and therefore the physician's own. **A mark clears the moment you edit
+that section**, because once you have rewritten it, it is yours.
+
+**Start listening** simulates ambient capture: sections arrive in the
+order a consultation produces them, history then findings then
+reasoning. The interface is real; the capture is not.
+
+The right panel is Today's priorities (from the patient, with the full
+narrative one click away), Medicines, Measures, and Orders. Orders can
+be tied to a problem in the care plan.
+
+Exam templates for in-person and telehealth are in `lib/clinical.ts`.
+The telehealth one ends with its own limitations, which is the part
+that matters medicolegally.
+
 ## The patient portal
 
 Same record, different reader, reached from any chart as **See their
@@ -117,15 +170,16 @@ targets. Averaging them would be wrong.
 ```
 npm run build
 cd dist && python3 -m http.server 4600
-node test/new-patient.e2e.js    # needs playwright on NODE_PATH
+EMR_URL=http://localhost:4600/ node test/new-patient.e2e.cjs
+EMR_URL=http://localhost:4600/ node test/patient-logging.e2e.cjs
 ```
 
-`test/new-patient.e2e.js` walks the whole path: empty start, intake,
+`test/new-patient.e2e.cjs` walks the whole path: empty start, intake,
 free-text medicine parsing, adding a problem and a medicine, writing
 and signing a care plan, documenting and signing a visit, and the
 portal before and after signing. 24 assertions.
 
-`test/patient-logging.e2e.js` walks the other loop: the patient logging
+`test/patient-logging.e2e.cjs` walks the other loop: the patient logging
 readings and a journal entry, the out-of-range warning, and all of it
 arriving on the physician's chart, results and inbox. 15 assertions.
 

@@ -1,14 +1,10 @@
 /** Shared presentational pieces. No clinical logic lives here. */
 import type { ReactNode } from 'react';
 import type { Patient, ResultFlag, ResultSeries, Author } from '../domain/types';
-import { initials } from '../lib/format';
+import { Portrait } from './Portrait';
 
 export function Avatar({ patient, lg }: { patient: Patient; lg?: boolean }) {
-  return (
-    <div className={`av t${patient.photoTone}${lg ? ' lg' : ''}`} aria-hidden="true">
-      {initials(patient.name)}
-    </div>
-  );
+  return <Portrait patient={patient} size={lg ? 54 : 34} />;
 }
 
 export function Panel({

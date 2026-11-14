@@ -8,11 +8,10 @@
  */
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 
-export type ChartTab = 'summary' | 'plan' | 'meds' | 'results' | 'prevention' | 'notes';
-export type PortalTab = 'home' | 'plan' | 'track' | 'results' | 'meds' | 'visits' | 'ask';
+export type ChartTab = 'plan' | 'meds' | 'prevention' | 'results' | 'notes' | 'specialists';
+export type PortalTab = 'home' | 'plan' | 'previsit' | 'track' | 'results' | 'meds' | 'visits' | 'ask';
 
 export type Route =
-  | { name: 'today' }
   | { name: 'patients' }
   | { name: 'new-patient' }
   | { name: 'chart'; patientId: string; tab?: ChartTab }
@@ -31,7 +30,7 @@ interface Nav {
 const Ctx = createContext<Nav | null>(null);
 
 export function NavProvider({ children }: { children: ReactNode }) {
-  const [stack, setStack] = useState<Route[]>([{ name: 'today' }]);
+  const [stack, setStack] = useState<Route[]>([{ name: 'patients' }]);
 
   const value = useMemo<Nav>(() => ({
     route: stack[stack.length - 1],

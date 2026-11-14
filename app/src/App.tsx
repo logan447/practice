@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StoreProvider, useStore } from './lib/store';
 import { NavProvider, useNav } from './lib/nav';
-import { Today } from './screens/Today';
 import { Patients } from './screens/Patients';
 import { Chart } from './screens/Chart';
 import { Encounter } from './screens/Encounter';
@@ -9,39 +8,28 @@ import { FirstRun } from './screens/FirstRun';
 import { NewPatient } from './screens/NewPatient';
 import { Portal } from './portal/Portal';
 
-function Rail() {
+/**
+ * One slim bar, no navigation rail.
+ *
+ * A solo practice has one list and the charts hanging off it. A rail
+ * with two items in it is furniture, so the bar carries only the way
+ * home and the two controls that are not clinical.
+ */
+function TopBar() {
   const nav = useNav();
   const st = useStore();
-  const urgent = st.openTasks().filter((t) => t.urgent).length;
-  const r = nav.route;
-
-  const item = (name: 'today' | 'patients', label: string, badge?: number) => (
-    <button className={r.name === name ? 'on' : ''} onClick={() => nav.go({ name })}>
-      <span className="label">{label}</span>
-      {badge ? <span className="badge">{badge}</span> : null}
-    </button>
-  );
-
   return (
-    <aside className="rail">
-      <div className="mark">
-        Direct Lifestyle Medicine
-        <small>Clinical record</small>
-      </div>
-      <nav>
-        {item('today', 'Today', urgent)}
-        {item('patients', 'Patients')}
-        <button className={r.name === 'new-patient' ? 'on' : ''}
-          onClick={() => nav.go({ name: 'new-patient' })}>
-          <span className="label">New patient</span>
-        </button>
-      </nav>
-      <div className="foot">
-        <span>L. DuBose, MD</span>
-        <ThemeToggle />
-        <ResetControl />
-      </div>
-    </aside>
+    <header className="topbar">
+      <button className="mark" onClick={() => nav.reset({ name: 'patients' })}>
+        Direct Lifestyle Medicine<small>Clinical record</small>
+      </button>
+      <span className="spacer" />
+      {st.hasData && (
+        <span className="small muted" style={{ marginRight: 4 }}>L. DuBose, MD</span>
+      )}
+      <ThemeToggle />
+      <ResetControl />
+    </header>
   );
 }
 
@@ -53,7 +41,7 @@ function ThemeToggle() {
     else el.setAttribute('data-theme', theme);
   }, [theme]);
   const next = () => setTheme((t) => (t === 'system' ? 'light' : t === 'light' ? 'dark' : 'system'));
-  return <button onClick={next} title="Appearance">Appearance: {theme}</button>;
+  return <button className="btn quiet sm" onClick={next} title="Appearance">{theme}</button>;
 }
 
 /** Prototype housekeeping: start over without opening devtools. */
@@ -63,12 +51,12 @@ function ResetControl() {
   const [armed, setArmed] = useState(false);
   if (!st.hasData) return null;
   return armed ? (
-    <button style={{ color: 'var(--crit)' }}
-      onClick={() => { st.clearAll(); setArmed(false); nav.reset({ name: 'today' }); }}>
-      Really clear everything?
+    <button className="btn quiet sm" style={{ color: 'var(--crit)' }}
+      onClick={() => { st.clearAll(); setArmed(false); nav.reset({ name: 'patients' }); }}>
+      Really clear?
     </button>
   ) : (
-    <button onClick={() => setArmed(true)}>Clear all data</button>
+    <button className="btn quiet sm" onClick={() => setArmed(true)}>Clear data</button>
   );
 }
 
@@ -80,7 +68,6 @@ function Screen() {
   if (!st.hasData && route.name !== 'new-patient') return <FirstRun />;
 
   switch (route.name) {
-    case 'today': return <Today />;
     case 'patients': return <Patients />;
     case 'new-patient': return <NewPatient />;
     case 'chart': return <Chart patientId={route.patientId} initialTab={route.tab} />;
@@ -94,7 +81,7 @@ export default function App() {
     <StoreProvider>
       <NavProvider>
         <div className="app">
-          <Rail />
+          <TopBar />
           <main className="main"><Screen /></main>
         </div>
       </NavProvider>

@@ -1,5 +1,5 @@
 const {chromium}=require('playwright');
-const U='http://localhost:4600/';
+const U=process.env.EMR_URL||'http://localhost:4600/';
 const step=[]; const fail=[];
 const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
 
@@ -41,7 +41,8 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
 
   // 3 — landed in chart
   ok('lands on the new chart', await p.locator('h1:has-text("Rosa Delgado")').isVisible());
-  ok('pinned line carried through', await p.locator('text=Cares for her mother full time').isVisible());
+  await p.click('.notepin'); await p.waitForTimeout(250);
+  ok('reminder opens from the note pin', await p.locator('text=Cares for her mother full time').isVisible());
   ok('reported conditions present', await p.locator('text=Trouble sleeping').first().isVisible());
   ok('intake visit booked', await p.locator('button:has-text("Open visit")').isVisible());
   await p.screenshot({path:'e2e-3-newchart.png', fullPage:true});
@@ -63,7 +64,7 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
 
   // 5 — care plan
   await p.click('button[role="tab"]:has-text("Care plan")');
-  await p.waitForTimeout(250);
+  await p.waitForTimeout(300);
   ok('empty plan prompts to start', await p.locator('text=No care plan yet').first().isVisible());
   await p.fill('textarea','Get the blood pressure down without adding a second tablet, and protect her sleep.');
   await p.click('button:has-text("Start the plan")');
@@ -81,7 +82,7 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   await p.screenshot({path:'e2e-4-plan.png', fullPage:true});
 
   // 6 — portal BEFORE signing: plan must be invisible
-  await p.click('button:has-text("See their view")');
+  await p.click('button:has-text("Their view")');
   await p.waitForTimeout(350);
   ok('portal opens', await p.locator('text=Patient view').isVisible());
   const hidden = await p.locator('text=Your plan is being written').first().isVisible();
@@ -92,15 +93,15 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
 
   // 7 — sign it
   await p.click('button:has-text("Back to the chart")');
-  await p.waitForTimeout(300);
+  await p.waitForTimeout(400);
   await p.click('button[role="tab"]:has-text("Care plan")');
-  await p.waitForTimeout(250);
+  await p.waitForTimeout(300);
   await p.click('button:has-text("Sign and share")');
   await p.waitForTimeout(350);
   ok('plan signed', await p.locator('text=visible to patient').isVisible());
 
   // 8 — portal AFTER signing
-  await p.click('button:has-text("See their view")');
+  await p.click('button:has-text("Their view")');
   await p.waitForTimeout(400);
   ok('signed plan now visible to patient', await p.locator('text=Walk 20 minutes before her mother wakes').first().isVisible());
   ok('patient greeted by name', await p.locator('h1:has-text("Hello, Rosa")').isVisible());
@@ -115,8 +116,9 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   await p.waitForTimeout(300);
   await p.click('button:has-text("Open visit")');
   await p.waitForTimeout(400);
-  ok('encounter opens for the new patient', await p.locator('text=Visit note').isVisible());
-  await p.fill('textarea >> nth=0','Here with her mother. Sleeping five hours, broken.');
+  ok('encounter opens for the new patient', await p.locator('h2:has-text("Subjective")').isVisible());
+  ok('note pre-populates the one-liner', (await p.locator('textarea').first().inputValue()).includes('Rosa Delgado is a'));
+  await p.fill('textarea >> nth=5','Here with her mother. Sleeping five hours, broken.');
   await p.waitForTimeout(150);
   await p.click('button:has-text("Sign note")');
   await p.waitForTimeout(400);
@@ -125,9 +127,7 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
 
   // 10 — persistence across reload
   await p.goto(U,{waitUntil:'networkidle'});
-  await p.waitForTimeout(400);
-  await p.click('text=Patients');
-  await p.waitForTimeout(300);
+  await p.waitForTimeout(500);
   ok('patient survives a reload', await p.locator('text=Rosa Delgado').isVisible());
   await p.screenshot({path:'e2e-9-reload.png'});
 

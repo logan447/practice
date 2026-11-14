@@ -1,5 +1,5 @@
 const {chromium}=require('playwright');
-const U='http://localhost:4700/';
+const U=process.env.EMR_URL||'http://localhost:4700/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 (async()=>{
@@ -9,10 +9,9 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   p.on('console',m=>{if(m.type()==='error')errs.push(m.text());});
 
   await p.goto(U,{waitUntil:'networkidle'}); await p.waitForTimeout(300);
-  await p.click('button:has-text("Load 3 examples")'); await p.waitForTimeout(400);
-  await p.click('text=Patients'); await p.waitForTimeout(300);
+  await p.click('button:has-text("Load 3 examples")'); await p.waitForTimeout(500);
   await p.click('text=Marcus Reyes'); await p.waitForTimeout(400);
-  await p.click('button:has-text("See their view")'); await p.waitForTimeout(400);
+  await p.click('button:has-text("Their view")'); await p.waitForTimeout(400);
   await p.click('button[role="tab"]:has-text("Track")'); await p.waitForTimeout(350);
   ok('Track tab opens', await p.locator('text=What are you recording?').isVisible());
   await p.screenshot({path:'t-1-track.png', fullPage:true});
@@ -59,25 +58,19 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // physician side
   await p.click('button:has-text("Back to the chart")'); await p.waitForTimeout(400);
-  ok('chart shows what they are tracking', await p.locator('text=What they are tracking').isVisible());
-  ok('flagged note surfaced on summary', await p.locator('text=Asked you to see this').first().isVisible());
-  await p.screenshot({path:'t-4-chart.png', fullPage:true});
-
   await p.click('button[role="tab"]:has-text("Results")'); await p.waitForTimeout(350);
   ok('results keeps patient data separate', await p.locator('text=Patient-measured, not clinic-measured').isVisible());
   await p.screenshot({path:'t-5-results.png', fullPage:true});
 
-  // inbox
-  await p.click('text=Today'); await p.waitForTimeout(400);
-  ok('urgent reading reached the inbox', await p.locator('text=outside the usual range').first().isVisible());
-  ok('flagged note reached the inbox', await p.locator('text=Asked you to see').first().isVisible());
-  await p.screenshot({path:'t-6-today.png', fullPage:true});
+  // encounter workspace shows what they logged
+  await p.click('button:has-text("Open visit")'); await p.waitForTimeout(600);
+  ok('visit workspace shows home readings', await p.locator('text=Home').first().isVisible());
 
   // persistence
-  await p.goto(U,{waitUntil:'networkidle'}); await p.waitForTimeout(400);
-  await p.click('text=Patients'); await p.waitForTimeout(250);
-  await p.click('text=Marcus Reyes'); await p.waitForTimeout(400);
-  ok('patient-logged data survives reload', await p.locator('text=What they are tracking').isVisible());
+  await p.goto(U,{waitUntil:'networkidle'}); await p.waitForTimeout(600);
+  await p.click('text=Marcus Reyes'); await p.waitForTimeout(500);
+  await p.click('button[role="tab"]:has-text("Results")'); await p.waitForTimeout(400);
+  ok('patient-logged data survives reload', await p.locator('text=Patient-measured, not clinic-measured').isVisible());
 
   const over=await p.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth+1);
   ok('no horizontal overflow', !over);

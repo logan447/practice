@@ -40,8 +40,6 @@ export interface Patient {
   photoTone: number; // 0-5, drives the avatar tint; no stock photography
   phone: string;
   email: string;
-  /** Other clinicians involved. Empty is normal and not a problem. */
-  careTeam: { name: string; role: string }[];
   /** One line the physician wants to see every single time. */
   pinned?: string;
 }
@@ -167,7 +165,60 @@ export interface CarePlan {
 
 // ------------------------------------------------------------ encounters
 
-export type EncounterKind = 'annual' | 'follow-up' | 'acute' | 'message' | 'intake';
+export type EncounterKind = 'follow-up' | 'annual' | 'acute' | 'paperwork' | 'initial';
+
+export const ENCOUNTER_KINDS: { id: EncounterKind; label: string; mins: number }[] = [
+  { id: 'follow-up', label: 'Follow-up', mins: 30 },
+  { id: 'annual', label: 'Annual physical', mins: 75 },
+  { id: 'acute', label: 'Acute concern', mins: 20 },
+  { id: 'paperwork', label: 'Paperwork', mins: 15 },
+  { id: 'initial', label: 'Initial visit', mins: 90 },
+];
+
+export type ExamTemplate = 'in-person' | 'telehealth';
+
+/** One problem in a problem-oriented plan. */
+export interface PlanProblem {
+  id: string;
+  problem: string;
+  assessment: string;
+  treatment: string;
+  orders: string;
+  followUp: string;
+}
+
+/**
+ * The note.
+ *
+ * Structured rather than four free-text blocks, because the sections
+ * have different sources: some are pulled from the chart, some come
+ * from the patient, and some are the physician's own. Keeping them
+ * apart is what lets each one be attributed correctly.
+ */
+export interface VisitNote {
+  subjective: {
+    oneLiner: string;
+    reason: string;
+    chartReview: string;
+    diagnostics: string;
+    specialists: string;
+    additional: string;
+  };
+  objective: {
+    homeMeasures: string;
+    vitals: string;
+    examTemplate?: ExamTemplate;
+    exam: string;
+  };
+  assessment: {
+    oneLiner: string;
+    overall: string;
+  };
+  plan: {
+    problems: PlanProblem[];
+    overall: string;
+  };
+}
 
 /** FHIR: Encounter + Composition */
 export interface Encounter {
@@ -178,13 +229,63 @@ export interface Encounter {
   reason: string;
   status: 'scheduled' | 'in-progress' | 'signed';
   duration?: number; // minutes
-  note?: {
-    subjective: string;
-    objective: string;
-    assessment: string;
-    plan: string;
-  };
+  note?: VisitNote;
   signedAt?: string;
+}
+
+// ------------------------------------------------------- before the visit
+
+/** What the patient sends in before they come. */
+export interface PreVisit {
+  id: string;
+  patientId: string;
+  encounterId: string;
+  /** Short items, in their words. These become today's priorities. */
+  concerns: { id: string; text: string; addressed: boolean }[];
+  /** The longer version, kept verbatim. */
+  narrative: string;
+  submitted: string;
+}
+
+// ---------------------------------------------------------------- orders
+
+export type OrderKind = 'prescription' | 'lab' | 'imaging' | 'diagnostic' | 'referral';
+
+export const ORDER_KINDS: { id: OrderKind; label: string }[] = [
+  { id: 'prescription', label: 'Prescription' },
+  { id: 'lab', label: 'Lab' },
+  { id: 'imaging', label: 'Imaging' },
+  { id: 'diagnostic', label: 'Other test' },
+  { id: 'referral', label: 'Referral' },
+];
+
+export interface Order {
+  id: string;
+  patientId: string;
+  encounterId?: string;
+  kind: OrderKind;
+  text: string;
+  /** Ties the order to a problem in the care plan. */
+  goalId?: string;
+  status: 'draft' | 'placed';
+  created: string;
+}
+
+// ----------------------------------------------------------- specialists
+
+export interface Specialist {
+  id: string;
+  patientId: string;
+  name: string;
+  specialty: string;
+  practice?: string;
+  phone?: string;
+  lastSeen?: string;
+  /** What they found and what they advised. Kept verbatim where possible. */
+  findings?: string;
+  recommendations?: string;
+  /** Anything still waiting on them, or on us. */
+  outstanding?: string;
 }
 
 // ------------------------------------------------------------ prevention

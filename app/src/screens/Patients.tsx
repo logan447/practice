@@ -37,9 +37,12 @@ export function Patients() {
 
   return (
     <div className="wrap">
-      <div className="page-head">
-        <h1>Patients</h1>
-        <div className="sub">{st.patients.length} members. Sorted by what is open.</div>
+      <div className="page-head row" style={{ alignItems: 'flex-end' }}>
+        <div style={{ flex: 1 }}>
+          <h1>Patients</h1>
+          <div className="sub">{st.patients.length} members. Sorted by what is open.</div>
+        </div>
+        <button className="btn" onClick={() => nav.go({ name: 'new-patient' })}>New patient</button>
       </div>
 
       <div style={{ marginBottom: 16, maxWidth: 420 }}>
