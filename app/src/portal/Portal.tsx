@@ -18,6 +18,7 @@ import { useStore } from '../lib/store';
 import { useNav, type PortalTab } from '../lib/nav';
 import { Avatar, Chip, Panel, Trend, Empty } from '../components/ui';
 import { AiMark } from '../components/AiPanel';
+import { Track } from './Track';
 import { fmtDate, relative } from '../lib/format';
 import {
   visiblePlan, visibleReports, visibleSeries, visibleEncounters,
@@ -28,6 +29,7 @@ import {
 const TABS: { id: PortalTab; label: string }[] = [
   { id: 'home', label: 'Your health' },
   { id: 'plan', label: 'Your plan' },
+  { id: 'track', label: 'Track' },
   { id: 'results', label: 'Results' },
   { id: 'meds', label: 'Medicines' },
   { id: 'visits', label: 'Visits' },
@@ -59,7 +61,10 @@ export function Portal({ patientId, initialTab }: { patientId: string; initialTa
     <div className="wrap" style={{ maxWidth: 940 }}>
       <div className="row" style={{ marginBottom: 14 }}>
         <Chip tone="info">Patient view</Chip>
-        <span className="small muted">This is exactly what {p.preferredName ?? p.name} sees.</span>
+        <span className="small muted">
+          Exactly what {p.preferredName ?? p.name} sees. Anything you record under
+          Track is saved as theirs.
+        </span>
         <span className="spacer" />
         <button className="btn ghost sm" onClick={() => nav.go({ name: 'chart', patientId })}>
           Back to the chart
@@ -354,6 +359,8 @@ export function Portal({ patientId, initialTab }: { patientId: string; initialTa
       )}
 
       {/* -------------------------------------------------------- ask */}
+      {tab === 'track' && <Track patientId={patientId} />}
+
       {tab === 'ask' && <Ask name={p.preferredName ?? p.name.split(' ')[0]} hasPlan={!!plan} />}
     </div>
   );

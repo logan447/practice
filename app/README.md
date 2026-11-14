@@ -81,6 +81,37 @@ So a **draft care plan is invisible** until it is signed, and an
 **unacknowledged result is invisible** until it is reviewed. The
 end-to-end test asserts both.
 
+## Patients writing into their own record
+
+Under **Track** in the portal, two acts kept deliberately apart:
+
+**Log a measurement** picks from a catalogue (`src/domain/measures.ts`)
+rather than a free-text box, so a home blood pressure becomes a number
+on a trend instead of a sentence nobody can plot. Each measure carries
+its own units, input bounds and LOINC code.
+
+**Write something** is prose, in their words, with a checkbox asking
+for it to be looked at.
+
+Two rules decide what reaches the physician's inbox:
+
+- A measurement does **not** create a task. A blood pressure reading is
+  data, not a summons. The exception is a reading far outside the
+  ordinary, which raises an urgent task and tells the patient to make
+  contact, routing to the usual urgent and emergency pathways. Those
+  thresholds are deliberately wide: a prototype that cries wolf teaches
+  people to ignore it.
+- A journal entry reaches the inbox only if the patient ticks the box.
+  Everything they write is in the chart regardless; not everything is a
+  summons. That keeps agency with them and the inbox usable.
+
+**Patient-measured values never merge into clinical series.** They get
+their own series, drawn dashed and in a different colour, shown in
+their own section on the chart and in Results. Two reasons: provenance,
+and the fact that a reading taken on a kitchen table and one taken in
+clinic are not the same measurement and are judged against different
+targets. Averaging them would be wrong.
+
 ## Tests
 
 ```
@@ -93,6 +124,10 @@ node test/new-patient.e2e.js    # needs playwright on NODE_PATH
 free-text medicine parsing, adding a problem and a medicine, writing
 and signing a care plan, documenting and signing a visit, and the
 portal before and after signing. 24 assertions.
+
+`test/patient-logging.e2e.js` walks the other loop: the patient logging
+readings and a journal entry, the out-of-range warning, and all of it
+arriving on the physician's chart, results and inbox. 15 assertions.
 
 ## Not built yet
 

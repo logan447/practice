@@ -48,7 +48,8 @@ export function Encounter({ encounterId }: { encounterId: string }) {
   const lastSigned = st.encountersFor(p.id).find((e) => e.status === 'signed');
   const aiDraft = st.draftsFor(p.id).find((d) => d.kind === 'interval-summary');
   const meds = st.medsFor(p.id).filter((m) => m.status !== 'stopped');
-  const tracked = st.seriesFor(p.id).slice(0, 3);
+  const tracked = st.clinicalSeriesFor(p.id).slice(0, 3);
+  const selfTracked = st.patientSeriesFor(p.id);
   const unack = st.reportsFor(p.id).filter((r) => !r.acknowledged);
 
   const signed = enc.status === 'signed';
@@ -201,6 +202,26 @@ export function Encounter({ encounterId }: { encounterId: string }) {
               })}
             </div>
           </Panel>
+
+          {selfTracked.length > 0 && (
+            <Panel title="What they logged" right={<Chip tone="info">Patient-measured</Chip>}>
+              <div className="stack">
+                {selfTracked.map((sr) => {
+                  const last = sr.points[sr.points.length - 1];
+                  return (
+                    <div key={sr.id}>
+                      <div className="row">
+                        <span className="small" style={{ fontWeight: 600 }}>{sr.name}</span>
+                        <span className="spacer" />
+                        <span className="small num">{last.value} {sr.unit}</span>
+                      </div>
+                      <Trend series={sr} w={300} h={32} />
+                    </div>
+                  );
+                })}
+              </div>
+            </Panel>
+          )}
 
           <Panel title="Medicines">
             <div className="stack-sm">

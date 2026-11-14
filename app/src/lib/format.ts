@@ -4,6 +4,9 @@ const TODAY = new Date('2026-11-14T09:00:00');
 
 export const today = () => TODAY;
 
+/** The clinic's "today" as yyyy-mm-dd, for date inputs and new records. */
+export const todayIso = (): string => '2026-11-14';
+
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 /** 6 Nov 2026 — never 11/6, which means two different days either side of the Atlantic. */

@@ -16,6 +16,7 @@ import type {
   AiDraft, CarePlan, CarePlanGoal, Condition, Encounter, Medication, Patient,
   PatientEntry, PreventionItem, ResultReport, ResultSeries, Task,
 } from '../domain/types';
+import { measureByKey, patientSeriesId, isAlerting } from '../domain/measures';
 
 const TODAY = '2026-11-14';
 const ME = 'L. DuBose, MD';
@@ -111,6 +112,15 @@ interface Store extends State {
   addCondition: (patientId: string, name: string, code: string, note?: string) => void;
   addMedication: (patientId: string, name: string, dose: string, sig: string, indication?: string) => void;
   createPlan: (patientId: string, summary: string) => string;
+
+  // the patient's own hand
+  addJournal: (patientId: string, label: string, body: string, flagged: boolean) => void;
+  addMeasurement: (
+    patientId: string, measureKey: string,
+    values: Record<string, number>, date: string, note: string,
+  ) => { alerting: boolean };
+  patientSeriesFor: (id: string) => ResultSeries[];
+  clinicalSeriesFor: (id: string) => ResultSeries[];
   addGoal: (planId: string, goal: Omit<CarePlanGoal, 'id' | 'actions'> & { actions: string[] }) => void;
   signPlan: (planId: string) => void;
   startVisit: (patientId: string, kind: Encounter['kind'], reason: string, duration: number) => string;
@@ -148,6 +158,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       conditionsFor: (id) => by(s.conditions, id),
       medsFor: (id) => by(s.medications, id),
       seriesFor: (id) => by(s.resultSeries, id),
+      clinicalSeriesFor: (id) => by(s.resultSeries, id).filter((x) => x.source !== 'patient'),
+      patientSeriesFor: (id) => by(s.resultSeries, id).filter((x) => x.source === 'patient'),
       series: (id) => s.resultSeries.find((x) => x.id === id),
       reportsFor: (id) => by(s.resultReports, id),
       planFor: (id) => s.carePlans.find((x) => x.patientId === id),
@@ -282,6 +294,82 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           }],
         }));
         return id;
+      },
+
+      addJournal: (patientId, label, body, flagged) =>
+        setS((p) => ({
+          ...p,
+          patientEntries: [...p.patientEntries, {
+            id: newId('pe'), patientId, date: TODAY, kind: 'journal',
+            label: label.trim() || 'Note', body: body.trim(), flagged,
+            provenance: { author: 'patient', by: 'Patient', recorded: TODAY },
+          }],
+          // Only a flagged entry reaches the inbox. Everything the patient
+          // writes is visible in the chart; not everything is a summons.
+          tasks: flagged ? [...p.tasks, {
+            id: newId('tk'), patientId, kind: 'message' as const,
+            text: `Asked you to see: ${label.trim() || 'a note'}`,
+            due: TODAY, urgent: false, done: false,
+          }] : p.tasks,
+        })),
+
+      addMeasurement: (patientId, measureKey, values, date, note) => {
+        const measure = measureByKey(measureKey);
+        if (!measure) return { alerting: false };
+
+        const alerting = measure.fields.some((f) =>
+          values[f.key] !== undefined && isAlerting(f, values[f.key]));
+
+        const summary = measure.fields
+          .filter((f) => values[f.key] !== undefined)
+          .map((f) => `${values[f.key]} ${f.unit}`)
+          .join(' / ');
+
+        setS((p) => {
+          const series = [...p.resultSeries];
+          const touched: string[] = [];
+
+          for (const f of measure.fields) {
+            const v = values[f.key];
+            if (v === undefined || Number.isNaN(v)) continue;
+            const sid = patientSeriesId(patientId, measureKey, f.key);
+            touched.push(sid);
+            const point = { date, value: v, flag: 'normal' as const };
+            const at = series.findIndex((x) => x.id === sid);
+            if (at === -1) {
+              series.push({
+                id: sid, patientId, source: 'patient',
+                name: measure.fields.length > 1 ? `${measure.label}, ${f.label.toLowerCase()}` : measure.label,
+                code: f.loinc, unit: f.unit, points: [point],
+              });
+            } else {
+              // one reading per day per measure: the later one wins
+              const pts = series[at].points.filter((x) => x.date !== date);
+              series[at] = {
+                ...series[at],
+                points: [...pts, point].sort((a, b) => a.date.localeCompare(b.date)),
+              };
+            }
+          }
+
+          return {
+            ...p,
+            resultSeries: series,
+            patientEntries: [...p.patientEntries, {
+              id: newId('pe'), patientId, date, kind: 'measurement' as const,
+              label: measure.label, body: note.trim() ? `${summary}. ${note.trim()}` : summary,
+              seriesIds: touched,
+              provenance: { author: 'patient', by: 'Patient', recorded: date },
+            }],
+            tasks: alerting ? [...p.tasks, {
+              id: newId('tk'), patientId, kind: 'message' as const,
+              text: `${measure.label} logged at ${summary}, outside the usual range`,
+              due: date, urgent: true, done: false,
+            }] : p.tasks,
+          };
+        });
+
+        return { alerting };
       },
 
       acknowledgeReport: (reportId) =>

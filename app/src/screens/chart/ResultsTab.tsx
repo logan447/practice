@@ -13,7 +13,8 @@ import { fmtDate, relative } from '../../lib/format';
 export function ResultsTab({ patientId }: { patientId: string }) {
   const st = useStore();
   const reports = st.reportsFor(patientId).slice().sort((a, b) => b.resulted.localeCompare(a.resulted));
-  const series = st.seriesFor(patientId);
+  const series = st.clinicalSeriesFor(patientId);
+  const selfTracked = st.patientSeriesFor(patientId);
   const pending = reports.filter((r) => !r.acknowledged);
 
   return (
@@ -111,6 +112,47 @@ export function ResultsTab({ patientId }: { patientId: string }) {
           </table>
         )}
       </Panel>
+
+      {selfTracked.length > 0 && (
+        <Panel title="What the patient is tracking" flush right={
+          <Chip tone="info">Patient-measured, not clinic-measured</Chip>
+        }>
+          <table className="rows">
+            <thead>
+              <tr>
+                <th>Measure</th>
+                <th style={{ width: 130 }}>Latest</th>
+                <th style={{ width: 110 }}>Readings</th>
+                <th style={{ width: 150 }}>Since</th>
+                <th style={{ width: 220 }}>Trend</th>
+              </tr>
+            </thead>
+            <tbody>
+              {selfTracked.map((sr) => {
+                const last = sr.points[sr.points.length - 1];
+                const first = sr.points[0];
+                return (
+                  <tr key={sr.id}>
+                    <td>
+                      <div style={{ fontWeight: 600 }}>{sr.name}</div>
+                      <div className="small muted num">LOINC {sr.code}</div>
+                    </td>
+                    <td className="num">{last.value} <span className="small muted">{sr.unit}</span></td>
+                    <td className="small muted num">{sr.points.length}</td>
+                    <td className="small muted">{fmtDate(first.date)}</td>
+                    <td><Trend series={sr} w={200} h={38} /></td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          <p className="small muted" style={{ padding: '12px 16px', borderTop: '1px solid var(--line-2)' }}>
+            Recorded by the patient at home. Kept apart from clinic measurements
+            on purpose: different conditions, and home readings are judged against
+            different targets.
+          </p>
+        </Panel>
+      )}
 
       {reports.filter((r) => r.acknowledged).length > 0 && (
         <Panel title="Reviewed" flush>

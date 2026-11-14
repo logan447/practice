@@ -9,7 +9,7 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 
 export type ChartTab = 'summary' | 'plan' | 'meds' | 'results' | 'prevention' | 'notes';
-export type PortalTab = 'home' | 'plan' | 'results' | 'meds' | 'visits' | 'ask';
+export type PortalTab = 'home' | 'plan' | 'track' | 'results' | 'meds' | 'visits' | 'ask';
 
 export type Route =
   | { name: 'today' }

@@ -102,6 +102,12 @@ export interface ResultSeries {
   name: string;
   code: string; // LOINC
   unit: string;
+  /**
+   * Who measured it. Patient-logged readings live in their own series
+   * and are never merged into clinical ones: different provenance, and
+   * clinically a different measurement (see domain/measures.ts).
+   */
+  source?: 'clinical' | 'patient';
   refLow?: number;
   refHigh?: number;
   /** Where we have agreed to get to, if anywhere. */
@@ -204,6 +210,10 @@ export interface PatientEntry {
   kind: 'journal' | 'measurement' | 'questionnaire';
   label: string;
   body: string;
+  /** The patient asked for this to be looked at. Creates a task. */
+  flagged?: boolean;
+  /** Set on measurement entries, so the chart can link back to the trend. */
+  seriesIds?: string[];
   /** Patient-reported. Unverified by design, and labelled as such. */
   provenance: Provenance;
 }

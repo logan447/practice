@@ -96,11 +96,14 @@ export function Trend({ series, w = 190, h = 44 }: { series: ResultSeries; w?: n
             stroke="var(--accent-line)" strokeWidth="1.25" strokeDasharray="5 3" />
         ) : null;
       })()}
-      <path d={line} fill="none" stroke="var(--accent)" strokeWidth="1.75"
+      <path d={line} fill="none"
+        stroke={series.source === 'patient' ? 'var(--info)' : 'var(--accent)'}
+        strokeWidth="1.75" strokeDasharray={series.source === 'patient' ? '4 2.5' : undefined}
         strokeLinejoin="round" strokeLinecap="round" />
       {pts.map((p, i) => (
         <circle key={i} cx={x(i)} cy={y(p.value)} r={i === pts.length - 1 ? 3.2 : 1.9}
-          fill={p.flag === 'normal' ? 'var(--accent)' : 'var(--warn)'} />
+          fill={p.flag !== 'normal' ? 'var(--warn)'
+            : series.source === 'patient' ? 'var(--info)' : 'var(--accent)'} />
       ))}
     </svg>
   );

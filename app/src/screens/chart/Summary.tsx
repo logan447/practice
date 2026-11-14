@@ -26,7 +26,8 @@ export function Summary({ patientId, onTab }: { patientId: string; onTab: (t: Ch
   const entries = st.entriesFor(patientId).slice(0, 3);
   const draft = st.draftsFor(patientId).find((d) => d.kind === 'interval-summary');
 
-  const tracked = st.seriesFor(patientId).slice(0, 4);
+  const tracked = st.clinicalSeriesFor(patientId).slice(0, 4);
+  const selfTracked = st.patientSeriesFor(patientId);
 
   return (
     <div className="split">
@@ -173,15 +174,39 @@ export function Summary({ patientId, onTab }: { patientId: string; onTab: (t: Ch
           </div>
         </Panel>
 
+        {selfTracked.length > 0 && (
+          <Panel title="What they are tracking" right={<Chip tone="info">Patient-measured</Chip>}>
+            <div className="stack">
+              {selfTracked.map((sr) => {
+                const last = sr.points[sr.points.length - 1];
+                return (
+                  <div key={sr.id}>
+                    <div className="row">
+                      <span className="small" style={{ fontWeight: 600 }}>{sr.name}</span>
+                      <span className="spacer" />
+                      <span className="small num">{last.value} {sr.unit}</span>
+                    </div>
+                    <Trend series={sr} w={300} h={34} />
+                    <div className="small muted">
+                      {sr.points.length} reading{sr.points.length > 1 ? 's' : ''} &middot; latest {relative(last.date)}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Panel>
+        )}
+
         <Panel title="From the patient" right={
           <Chip>Patient-reported</Chip>
         }>
           {entries.length === 0 ? <Empty>Nothing recently.</Empty> : (
             <div className="stack">
-              {entries.map((e) => (
+              {entries.slice(0, 5).map((e) => (
                 <div key={e.id}>
                   <div className="row">
                     <span className="eyebrow">{e.label}</span>
+                    {e.flagged && <Chip tone="warn">Asked you to see this</Chip>}
                     <span className="spacer" />
                     <span className="small muted">{relative(e.date)}</span>
                   </div>
