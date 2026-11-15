@@ -432,3 +432,117 @@ not the physician.
 The log lives in the same browser storage as everything else, which
 the screen says out loud. A real record keeps it server-side and
 append-only, where the person being audited cannot reach it.
+
+## Documents that leave the building
+
+A chart that cannot produce a document is a notebook. `src/lib/documents.ts`
+generates five from the record, so none of them can disagree with it.
+
+| Document | For | What shapes it |
+|---|---|---|
+| Visit summary | The patient | House Style: ~5th grade, short sentences, no em dashes, no marketing |
+| Referral letter | Another clinician | Problem list, medication with RxNorm identifiers, allergies, recent results |
+| Work or school note | An employer | The least that does the job |
+| Prior authorization | A health plan | The clinical case, and nothing about coverage |
+| Whole record | The patient, or another system | FHIR R4 Bundle, plus a readable copy |
+
+Three choices worth stating:
+
+**The work note withholds by default.** An employer needs to know the
+person was seen and what they can do. They do not need the diagnosis.
+Including it is a checkbox that is off, with a warning chip when it is
+on, because that disclosure is the patient's decision and not a
+template's.
+
+**The prior authorization says nothing about the membership.** How
+this practice's membership interacts with any coverage is unsettled
+(D-039 guardrail 4b), so the letter argues the clinical case only. A
+template that asserted a payer position would put the practice's name
+to a claim nobody has checked. `NEEDS-COUNSEL`.
+
+**The export is FHIR R4, not C-CDA.** The original idea said CCD.
+Producing real C-CDA takes a toolkit and a validator, and a
+hand-rolled approximation would be worse than useless: it would look
+exportable and fail at the receiving end. The domain model has been
+shaped for FHIR R4 from the first commit, so that is the export this
+can stand behind. Resources carry real ICD-10-CM, RxNorm and LOINC
+codings from the terminology work. C-CDA stays on the list as real
+work, not as a checkbox.
+
+### Information blocking
+
+This is where the rule stops being theoretical. Stated on screen, with
+what is checkable separated from what is not:
+
+- Information blocking is **45 CFR Part 171**. It prohibits practices
+  likely to interfere with the access, exchange or use of electronic
+  health information, with named exceptions.
+- Provider disincentives were established by a final rule published
+  **1 July 2024 (89 FR 54718)** and run through Medicare programs.
+- That last point is `NEEDS-COUNSEL` here: a direct-pay practice that
+  is not Medicare-enrolled sits differently from the practices most
+  guidance is written for, and *not being reachable by a disincentive
+  is not the same as being outside the prohibition*. The two get
+  conflated.
+- Separately, the HIPAA right of access (**45 CFR 164.524**) gives a
+  patient their record within an outer limit measured in days, with a
+  limit on fees.
+
+The design answer is to make the question not arise. The export is one
+button in the chart and another in the patient's own portal. It is the
+whole record rather than a summary chosen by us. No request, no delay,
+no fee. A record built this way cannot block, because there is nothing
+in the path to block with.
+
+## A diary bound to the real working year
+
+Visits used to appear from nowhere, which made every question about
+capacity unaskable. `src/domain/schedule.ts` holds the working year,
+with every input tagged:
+
+| Input | Value | Where from |
+|---|---|---|
+| Hours a week | 30 | sourced, D-018 |
+| Weeks worked | 39 | sourced, D-018 |
+| Clinic days | Monday to Friday | sourced, D-017 |
+| Away | up to ~3 months a year | sourced, D-017 |
+| Panel target | ~140 at 5 to 6 hours each | sourced, D-018 |
+| Break-even | 19 adults | sourced, working-model.md §3 |
+| Home visit | 150 minutes with travel | sourced, working-model.md §4 |
+| Day start, end, lunch | 9 to 5, 45 minutes | assumed |
+| Admin per clinic day | 90 minutes | assumed |
+| Messaging per week | 180 minutes | assumed, and load-bearing |
+
+Booking now collides with that. A Saturday is refused with the reason.
+An away block is refused with its dates. A day that cannot take a 150
+minute home visit says what is already in it, by name and time, and
+offers the next day that can. The home visit is the appointment that
+teaches the lesson: two and a half hours out of about seven is a third
+of the day for one patient.
+
+### The arithmetic disagrees with the target, and the screen says so
+
+1,170 hours a year, minus the messaging assumption, divided by the
+sourced 5 to 6 hours per patient, gives a panel of **175 to 210**.
+D-018 targets about **140**. That is a gap of roughly 213 hours a
+year, about 5.5 hours a week.
+
+One of three things is true: the messaging assumption is too small
+(most likely), the sourced hours per patient already include work this
+model double counts, or D-018 held back capacity on purpose and the
+reason was never written down. The gap is shown rather than tuned
+away, because closing it by adjusting an assumption until the two
+agree would destroy the only evidence that something is missing.
+`REFRESH-AT-RUNWAY`: three months of real messaging and admin time
+settles it.
+
+### A layout bug this surfaced
+
+`.wrap` is the page container, carrying 26px of top and 72px of bottom
+padding. Nine wrapping flex rows across the app were written as
+`className="row wrap"` and had been silently 98px taller than the
+markup suggested. Renamed to `.row.flow`.
+
+Both are logged: **D-040** (the working year and the capacity gap) and
+**D-041** (what the record produces and the information-blocking
+posture) in `docs/charter/decision-log.md`.

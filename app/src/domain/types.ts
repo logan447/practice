@@ -179,14 +179,22 @@ export interface CarePlan {
 
 // ------------------------------------------------------------ encounters
 
-export type EncounterKind = 'follow-up' | 'annual' | 'acute' | 'paperwork' | 'initial';
+export type EncounterKind =
+  | 'follow-up' | 'annual' | 'acute' | 'paperwork' | 'initial' | 'home';
 
+/**
+ * Durations are the schedule's unit of truth. The home visit figure is
+ * sourced: working-model.md §4 puts it at about two to two and a half
+ * hours including travel, which is why it is the appointment that
+ * decides what else a day can hold.
+ */
 export const ENCOUNTER_KINDS: { id: EncounterKind; label: string; mins: number }[] = [
   { id: 'follow-up', label: 'Follow-up', mins: 30 },
   { id: 'annual', label: 'Annual physical', mins: 75 },
   { id: 'acute', label: 'Acute concern', mins: 20 },
   { id: 'paperwork', label: 'Paperwork', mins: 15 },
   { id: 'initial', label: 'Initial visit', mins: 90 },
+  { id: 'home', label: 'Home visit', mins: 150 },
 ];
 
 export type ExamTemplate = 'in-person' | 'telehealth';
@@ -242,6 +250,8 @@ export interface Encounter {
   kind: EncounterKind;
   reason: string;
   status: 'scheduled' | 'in-progress' | 'signed';
+  /** Minutes from midnight. Absent on historical visits. */
+  start?: number;
   duration?: number; // minutes
   note?: VisitNote;
   signedAt?: string;

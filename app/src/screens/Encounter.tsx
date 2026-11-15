@@ -269,6 +269,12 @@ export function Encounter({ encounterId }: { encounterId: string }) {
           <p className="oneliner" style={{ marginTop: 8 }}>{note.subjective.oneLiner || oneLiner(p, conditions)}</p>
         </div>
         <div className="acts">
+          {signed && (
+            <button className="btn ghost"
+              onClick={() => nav.go({ name: 'chart', patientId: p.id, tab: 'paper' })}>
+              Visit summary
+            </button>
+          )}
           {signed ? <Chip tone="ok">Signed {enc.signedAt && fmtDate(enc.signedAt)}</Chip> : (
             <>
               {listening ? (
@@ -621,7 +627,7 @@ function Orders({
 
       {!signed && (
         <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--line-2)' }}>
-          <div className="row wrap" style={{ gap: 5, marginBottom: 8 }}>
+          <div className="row flow" style={{ gap: 5, marginBottom: 8 }}>
             {ORDER_KINDS.map((k) => (
               <button key={k.id} className={`btn sm ${kind === k.id ? '' : 'ghost'}`}
                 onClick={() => setKind(k.id)}>{k.label}</button>

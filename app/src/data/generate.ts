@@ -21,6 +21,7 @@ import type {
   PreventionItem, ResultPoint, ResultReport, ResultSeries, Specialist, Task,
 } from '../domain/types';
 import { addDays, ORIGIN } from '../lib/clock';
+import { dayStatus, WORKING_YEAR } from '../domain/schedule';
 
 // ----------------------------------------------------------------- random
 
@@ -261,6 +262,34 @@ export function generatePanel(n = 120, seed = 20261114): Panel {
   let n_ = 0;
   const id = (p: string) => `${p}${(n_++).toString(36)}`;
 
+  /**
+   * Visits land on real days at real times.
+   *
+   * A calendar full of appointments on Sundays and inside away blocks
+   * is worse than no calendar: it teaches you that the schedule is
+   * decoration. So every booking walks forward to a working day with
+   * a gap big enough, exactly as the booking screen does.
+   */
+  const dayBook = new Map<string, { start: number; minutes: number }[]>();
+  const Y = WORKING_YEAR;
+  const place = (near: string, minutes: number, forward = true):
+  { date: string; start: number } | undefined => {
+    for (let i = 0; i < 160; i++) {
+      const iso = addDays(near, forward ? i : -i);
+      if (dayStatus(iso, Y).status !== 'clinic') continue;
+      const taken = dayBook.get(iso) ?? [];
+      const lunchEnd = Y.lunchStart + Y.lunchMinutes;
+      for (let t = Y.dayStart; t + minutes <= Y.dayEnd; t += 15) {
+        const end = t + minutes;
+        if (t < lunchEnd && end > Y.lunchStart) continue;
+        if (taken.some((b) => t < b.start + b.minutes && end > b.start)) continue;
+        dayBook.set(iso, [...taken, { start: t, minutes }]);
+        return { date: iso, start: t };
+      }
+    }
+    return undefined;
+  };
+
   for (let i = 0; i < n; i++) {
     const sex: Patient['sex'] = chance(0.52) ? 'female' : 'male';
     const first = pick(sex === 'female' ? FIRST_F : FIRST_M);
@@ -407,13 +436,20 @@ export function generatePanel(n = 120, seed = 20261114): Panel {
     const problemList = [...have].slice(0, 3).join(', ') || 'no active problems';
     const visits = Math.min(6, Math.floor(tenureDays / 110));
     for (let v = 0; v < visits; v++) {
-      const date = addDays(ORIGIN, -Math.floor(between(20, tenureDays || 60)));
+      const kind = v === visits - 1 ? 'initial' : chance(0.2) ? 'annual' : 'follow-up';
+      const mins = kind === 'initial' ? 90 : kind === 'annual' ? 75 : 30;
+      // From two days back, not twenty: a practice that saw nobody in
+      // the last three weeks is not a practice, and the week view
+      // opens on an empty grid that looks like a bug.
+      const slot = place(addDays(ORIGIN, -Math.floor(between(2, tenureDays || 60))), mins, false);
+      if (!slot) continue;
+      const date = slot.date;
       const reason = pick(['Routine review', 'Medication review', 'Results review', 'New symptom', 'Annual physical']);
       out.encounters.push({
-        id: id('en'), patientId: pid, date,
-        kind: v === visits - 1 ? 'initial' : chance(0.2) ? 'annual' : 'follow-up',
+        id: id('en'), patientId: pid, date, start: slot.start,
+        kind,
         reason,
-        status: 'signed', duration: pick([20, 30, 45, 75]), signedAt: date,
+        status: 'signed', duration: mins, signedAt: date,
         note: {
           subjective: {
             oneLiner: `${first}, ${yearsOld}, with ${problemList}.`,
@@ -444,14 +480,23 @@ export function generatePanel(n = 120, seed = 20261114): Panel {
 
     // --- the next visit, for some. A panel with nothing booked in it
     //     is a panel nobody is running.
-    if (chance(0.34)) {
-      const when = addDays(ORIGIN, Math.floor(between(1, 70)));
-      const kind = chance(0.18) ? 'annual' : chance(0.15) ? 'acute' : 'follow-up';
-      out.encounters.push({
-        id: id('en'), patientId: pid, date: when, kind,
-        reason: pick(['Routine review', 'Medication review', 'Results review', 'Annual physical']),
-        status: 'scheduled', duration: kind === 'annual' ? 75 : kind === 'acute' ? 20 : 30,
-      });
+    if (chance(0.42)) {
+      const kind = chance(0.12) ? 'annual'
+        : chance(0.1) ? 'acute'
+          : chance(0.1) ? 'home' : 'follow-up';
+      const mins = kind === 'annual' ? 75 : kind === 'acute' ? 20 : kind === 'home' ? 150 : 30;
+      // Inside four weeks. A diary that thins out to nothing after the
+      // first fortnight is not what a running practice looks like.
+      const slot = place(addDays(ORIGIN, Math.floor(between(1, 28))), mins);
+      if (slot) {
+        out.encounters.push({
+          id: id('en'), patientId: pid, date: slot.date, start: slot.start, kind,
+          reason: kind === 'home'
+            ? 'Home visit'
+            : pick(['Routine review', 'Medication review', 'Results review', 'Annual physical']),
+          status: 'scheduled', duration: mins,
+        });
+      }
     }
 
     // --- prevention

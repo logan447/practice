@@ -51,10 +51,12 @@ export function InlineAdd({
 }
 
 export function Field({
-  label, value, onChange, placeholder, textarea,
+  label, value, onChange, placeholder, textarea, type,
 }: {
   label: string; value: string; onChange: (v: string) => void;
   placeholder?: string; textarea?: boolean;
+  /** A date is a date. Typing one into a text box is not entry, it is dictation. */
+  type?: 'text' | 'date' | 'number';
 }) {
   return (
     <label style={{ display: 'block' }}>
@@ -62,7 +64,7 @@ export function Field({
       {textarea
         ? <textarea className="note" style={{ minHeight: 60 }} value={value}
           placeholder={placeholder} onChange={(e) => onChange(e.target.value)} />
-        : <input className="search" value={value} placeholder={placeholder}
+        : <input className="search" type={type ?? 'text'} value={value} placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)} />}
     </label>
   );

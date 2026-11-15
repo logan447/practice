@@ -21,6 +21,7 @@ import { Avatar, Chip, Panel, Trend, Empty } from '../components/ui';
 import { AiMark } from '../components/AiPanel';
 import { Track } from './Track';
 import { PreVisitForm } from './PreVisit';
+import { YourRecords } from './YourRecords';
 import { fmtDate, relative } from '../lib/format';
 import {
   visiblePlan, visibleReports, visibleSeries, visibleEncounters,
@@ -37,6 +38,7 @@ const TABS: { id: PortalTab; label: string }[] = [
   { id: 'meds', label: 'Medicines' },
   { id: 'visits', label: 'Visits' },
   { id: 'ask', label: 'Ask' },
+  { id: 'records', label: 'Your records' },
 ];
 
 export function Portal({ patientId, initialTab }: { patientId: string; initialTab?: PortalTab }) {
@@ -380,6 +382,7 @@ export function Portal({ patientId, initialTab }: { patientId: string; initialTa
       {tab === 'track' && <Track patientId={patientId} />}
 
       {tab === 'ask' && <Ask name={p.preferredName ?? p.name.split(' ')[0]} hasPlan={!!plan} />}
+      {tab === 'records' && <YourRecords patientId={patientId} />}
     </div>
   );
 }

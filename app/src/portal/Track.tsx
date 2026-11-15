@@ -81,7 +81,7 @@ function LogMeasure({ patientId }: { patientId: string }) {
 
   return (
     <Panel title="What are you recording?">
-      <div className="row wrap" style={{ gap: 7, marginBottom: 16 }}>
+      <div className="row flow" style={{ gap: 7, marginBottom: 16 }}>
         {MEASURES.map((m) => (
           <button key={m.key}
             className={`btn ${key === m.key ? '' : 'ghost'} sm`}

@@ -80,6 +80,8 @@ export function CommandPalette() {
       { id: 'c-new', label: 'New patient', group: 'Actions', run: () => nav.go({ name: 'new-patient' }) },
       { id: 'c-list', label: 'All patients', group: 'Actions', run: () => nav.reset({ name: 'patients' }) },
       { id: 'c-metrics', label: 'Usage and timing', group: 'Actions', run: () => nav.go({ name: 'metrics' }) },
+      { id: 'c-sched', label: 'Schedule and capacity', group: 'Actions', run: () => nav.go({ name: 'schedule' }) },
+      { id: 'c-log', label: 'Who did what', group: 'Actions', run: () => nav.go({ name: 'audit' }) },
       {
         id: 'c-panel', label: 'Load a full panel of 120 patients', group: 'Actions',
         run: () => { st.loadPanel(); nav.reset({ name: 'patients' }); },
@@ -93,6 +95,7 @@ export function CommandPalette() {
       const tabs: [ChartTab, string][] = [
         ['plan', 'Care plan'], ['meds', 'Medicines'], ['prevention', 'Prevention'],
         ['results', 'Results'], ['notes', 'Notes'], ['specialists', 'Specialists'],
+        ['records', 'Records'], ['paper', 'Paper'], ['history', 'History'],
       ];
       for (const [tab, label] of tabs) {
         out.push({

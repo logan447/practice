@@ -9,6 +9,7 @@ import { NewPatient } from './screens/NewPatient';
 import { Portal } from './portal/Portal';
 import { Metrics } from './screens/Metrics';
 import { Audit } from './screens/Audit';
+import { Schedule } from './screens/Schedule';
 import { ActorControl } from './components/SignIn';
 import { useActor } from './lib/session';
 import { can } from './lib/permissions';
@@ -40,6 +41,7 @@ function TopBar() {
       <span className="spacer" />
       {st.hasData && clinician && (
         <>
+          <button className="btn quiet sm" onClick={() => nav.go({ name: 'schedule' })}>Schedule</button>
           <button className="btn quiet sm" onClick={() => nav.go({ name: 'audit' })}>Log</button>
           <button className="btn quiet sm" onClick={() => nav.go({ name: 'metrics' })}>Usage</button>
           <button className="btn quiet sm" title="Command palette"
@@ -110,6 +112,7 @@ function Screen() {
     case 'new-patient': return <NewPatient />;
     case 'metrics': return <Metrics />;
     case 'audit': return <Audit />;
+    case 'schedule': return <Schedule />;
     case 'chart': return <Chart patientId={route.patientId} initialTab={route.tab} />;
     case 'encounter': return <Encounter encounterId={route.encounterId} />;
     case 'portal': return <Portal patientId={route.patientId} initialTab={route.tab} />;

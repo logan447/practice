@@ -9,14 +9,16 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 
 export type ChartTab =
-  | 'plan' | 'meds' | 'prevention' | 'results' | 'notes' | 'specialists' | 'records' | 'history';
-export type PortalTab = 'home' | 'plan' | 'previsit' | 'track' | 'results' | 'meds' | 'visits' | 'ask';
+  | 'plan' | 'meds' | 'prevention' | 'results' | 'notes' | 'specialists' | 'records' | 'history' | 'paper';
+export type PortalTab =
+  | 'home' | 'plan' | 'previsit' | 'track' | 'results' | 'meds' | 'visits' | 'ask' | 'records';
 
 export type Route =
   | { name: 'patients' }
   | { name: 'new-patient' }
   | { name: 'metrics' }
   | { name: 'audit' }
+  | { name: 'schedule' }
   | { name: 'chart'; patientId: string; tab?: ChartTab }
   | { name: 'encounter'; encounterId: string }
   | { name: 'portal'; patientId: string; tab?: PortalTab };

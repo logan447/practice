@@ -678,3 +678,130 @@ kbd {
   font-size: 11.5px; line-height: 1.6; color: var(--ink-2);
   white-space: pre-wrap; word-break: break-word;
 }
+
+/* ------------------------------------------------------------ booking */
+.booking {
+  border: 1px solid var(--accent-line); border-radius: 8px;
+  background: var(--panel-2); padding: 13px 15px; margin-top: 10px;
+}
+.booking .mins { color: var(--ink-3); font-size: 11px; margin-left: 3px; }
+.bookwhy {
+  margin: 11px 0 0; font-size: 13.5px; line-height: 1.55; color: var(--ink-2);
+  border-left: 2px solid var(--warn); padding-left: 11px;
+}
+.daystrip { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line-2); }
+.dsitem {
+  display: flex; gap: 10px; align-items: center;
+  font-size: 13px; padding: 3px 0; color: var(--ink-2);
+}
+.dsitem .num { min-width: 62px; color: var(--ink-3); font-size: 12px; }
+
+/* -------------------------------------------------------- week grid */
+.weekgrid {
+  display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px;
+}
+.wday {
+  border: 1px solid var(--line); border-radius: 8px; background: var(--panel);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.wday.weekend, .wday.away { background: var(--panel-2); }
+.wday.today { border-color: var(--accent); }
+.wdhead {
+  display: flex; align-items: center; gap: 6px; padding: 7px 9px;
+  border-bottom: 1px solid var(--line-2); font-size: 12px; color: var(--ink-3);
+}
+.wdhead .num { font-weight: 600; color: var(--ink); }
+.wdoff {
+  padding: 16px 9px; font-size: 11.5px; color: var(--ink-3);
+  text-align: center; line-height: 1.5;
+}
+.wdcol { position: relative; margin: 6px; }
+.wdlunch {
+  position: absolute; left: 0; right: 0;
+  background: repeating-linear-gradient(
+    45deg, transparent, transparent 4px, var(--line-2) 4px, var(--line-2) 8px);
+  border-radius: 3px;
+}
+.wdvisit {
+  position: absolute; left: 0; right: 0; overflow: hidden;
+  background: var(--accent-soft); border: 1px solid var(--accent-line);
+  border-left: 3px solid var(--accent); border-radius: 4px;
+  padding: 3px 5px; font: inherit; font-size: 11px; text-align: left;
+  cursor: pointer; color: var(--ink); display: block;
+}
+.wdvisit:hover { background: var(--panel); }
+.wdvisit .line1 {
+  display: flex; gap: 5px; align-items: baseline;
+  white-space: nowrap; overflow: hidden;
+}
+.wdvisit .t { color: var(--ink-3); font-size: 10px; flex: none; }
+.wdvisit .n {
+  font-weight: 600; line-height: 1.3;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.wdvisit .k {
+  color: var(--ink-3); font-size: 10px; display: block;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.wdvisit.k-home { border-left-color: var(--warn); background: var(--warn-soft); }
+.wdvisit.k-initial { border-left-color: var(--info, var(--accent)); }
+.wdempty {
+  position: absolute; inset: 0; display: flex; align-items: center;
+  justify-content: center; font-size: 11.5px; color: var(--ink-3);
+}
+.wdfoot {
+  margin-top: auto; padding: 6px 9px; border-top: 1px solid var(--line-2);
+  font-size: 11px; color: var(--ink-3);
+}
+@media (max-width: 1000px) {
+  .weekgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ---------------------------------------------------------- documents */
+.docwrap {
+  border: 1px solid var(--line); border-radius: 9px;
+  background: var(--panel); padding: 14px 16px; margin-bottom: 16px;
+}
+.dochead {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding-bottom: 11px; border-bottom: 1px solid var(--line-2); margin-bottom: 12px;
+}
+.docbody {
+  margin: 0; padding: 18px 20px; max-height: 520px; overflow: auto;
+  background: var(--panel-2); border: 1px solid var(--line-2); border-radius: 6px;
+  font-family: var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 12.5px; line-height: 1.65; color: var(--ink);
+  white-space: pre-wrap; word-break: break-word;
+}
+.doclist .listrow { align-items: center; }
+
+@media print {
+  body * { visibility: hidden !important; }
+  .docwrap, .docwrap * { visibility: visible !important; }
+  /*
+   * left/top/width rather than inset:0. Setting bottom as well gives
+   * the box a computed height, and a document longer than one page
+   * then gets clipped instead of paginating.
+   */
+  .docwrap {
+    position: absolute; left: 0; top: 0; width: 100%;
+    margin: 0; border: 0; padding: 0;
+    background: #fff; color: #000;
+  }
+  .dochead, .docwrap .small { display: none !important; }
+  .docbody {
+    max-height: none; overflow: visible; border: 0; background: #fff;
+    color: #000; padding: 0; font-size: 11pt;
+  }
+}
+.infoblock { margin-top: 13px; padding-top: 11px; border-top: 1px solid var(--line-2); }
+.infoblock p { max-width: 74ch; line-height: 1.6; color: var(--ink-2); }
+
+/*
+ * A flex row that wraps.
+ *
+ * Not `.row.wrap`: `.wrap` is the page container and carries 26px of
+ * top and 72px of bottom padding, so every wrapping row in the app was
+ * quietly 98px taller than it looked in the markup.
+ */
+.row.flow { flex-wrap: wrap; }

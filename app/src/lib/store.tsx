@@ -200,7 +200,14 @@ interface Store extends State {
   removeOrder: (orderId: string) => void;
   addGoal: (planId: string, goal: Omit<CarePlanGoal, 'id' | 'actions'> & { actions: string[] }) => void;
   signPlan: (planId: string) => void;
-  startVisit: (patientId: string, kind: Encounter['kind'], reason: string, duration: number) => string;
+  startVisit: (
+    patientId: string, kind: Encounter['kind'], reason: string, duration: number,
+    at?: { date: string; start: number },
+  ) => string;
+  /** Everything booked on one day, as the schedule needs it. */
+  bookedOn: (iso: string) => Encounter[];
+  moveVisit: (encounterId: string, date: string, start: number) => void;
+  cancelVisit: (encounterId: string) => void;
 
   // changing
   acknowledgeReport: (reportId: string) => void;
@@ -486,16 +493,41 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           }),
         })),
 
-      startVisit: (patientId, kind, reason, duration) => {
+      startVisit: (patientId, kind, reason, duration, at) => {
         const id = newId('en');
         setS((p) => ({
           ...p,
           encounters: [...p.encounters, {
-            id, patientId, date: clockNow(), kind, reason, status: 'scheduled', duration,
+            id, patientId,
+            date: at?.date ?? clockNow(),
+            start: at?.start,
+            kind, reason, status: 'scheduled', duration,
           }],
         }));
         return id;
       },
+
+      // Signed visits stay on the calendar. They happened, they took
+      // the time, and a week view that hides them answers the wrong
+      // question about how full a day was.
+      bookedOn: (iso) => s.encounters
+        .filter((e) => e.date === iso)
+        .sort((a, b) => (a.start ?? 0) - (b.start ?? 0)),
+
+      moveVisit: (encounterId, date, start) =>
+        setS((p) => ({
+          ...p,
+          encounters: p.encounters.map((e) =>
+            (e.id === encounterId ? { ...e, date, start } : e)),
+        })),
+
+      cancelVisit: (encounterId) =>
+        setS((p) => ({
+          ...p,
+          encounters: p.encounters.filter((e) => e.id !== encounterId),
+          orders: p.orders.filter((o) => o.encounterId !== encounterId),
+          preVisits: p.preVisits.filter((v) => v.encounterId !== encounterId),
+        })),
 
       addJournal: (patientId, label, body, flagged) =>
         setS((p) => ({

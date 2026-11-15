@@ -18,7 +18,7 @@ import { useEffect, useState } from 'react';
 import { useStore } from '../lib/store';
 import { useNav, type ChartTab } from '../lib/nav';
 import { Avatar, Chip } from '../components/ui';
-import { ENCOUNTER_KINDS, type EncounterKind } from '../domain/types';
+import { Booking } from '../components/Booking';
 import { age, fmtDate, MEMBERSHIP_LABEL, monthsSince } from '../lib/format';
 import { oneLiner } from '../lib/clinical';
 import { markChartOpen } from '../lib/metrics';
@@ -34,6 +34,7 @@ import { findIssues } from '../lib/dataQuality';
 import { CodePicker } from '../components/CodePicker';
 import { searchConditions } from '../domain/terminology';
 import { HistoryTab } from './chart/HistoryTab';
+import { PaperTab } from './chart/PaperTab';
 import { useActor, signInAs, ROLE_LABEL } from '../lib/session';
 import { can } from '../lib/permissions';
 import { recordRead, record } from '../lib/audit';
@@ -107,6 +108,7 @@ export function Chart({ patientId, initialTab }: { patientId: string; initialTab
     ...(specialists.length ? [{ id: 'specialists' as ChartTab, label: 'Specialists' }] : []),
     ...(allergies.length || documents.length || st.entriesFor(p.id).length
       ? [{ id: 'records' as ChartTab, label: 'Records' }] : []),
+    { id: 'paper', label: 'Paper' },
     { id: 'history', label: 'History' },
   ];
 
@@ -224,15 +226,18 @@ export function Chart({ patientId, initialTab }: { patientId: string; initialTab
         </div>
 
         {picking && (
-          <div className="row wrap" style={{ flexBasis: '100%', gap: 7, paddingTop: 4 }}>
-            <span className="eyebrow" style={{ alignSelf: 'center' }}>Visit type</span>
-            {ENCOUNTER_KINDS.map((k) => (
-              <button key={k.id} className="btn ghost sm" onClick={() => {
-                const id = st.startVisit(p.id, k.id as EncounterKind, k.label, k.mins);
+          <div style={{ flexBasis: '100%' }}>
+            <Booking
+              patientId={p.id}
+              onCancel={() => setPicking(false)}
+              onBooked={(id, sameDay) => {
                 setPicking(false);
-                nav.go({ name: 'encounter', encounterId: id });
-              }}>{k.label}</button>
-            ))}
+                // Booked for today means it starts now. Booked for a
+                // future day means it goes in the diary and stays there.
+                if (sameDay) nav.go({ name: 'encounter', encounterId: id });
+                else nav.go({ name: 'schedule' });
+              }}
+            />
           </div>
         )}
 
@@ -265,6 +270,7 @@ export function Chart({ patientId, initialTab }: { patientId: string; initialTab
       {tab === 'notes' && <NotesTab patientId={p.id} />}
       {tab === 'specialists' && <SpecialistsTab patientId={p.id} />}
       {tab === 'records' && <RecordsTab patientId={p.id} />}
+      {tab === 'paper' && <PaperTab patientId={p.id} />}
       {tab === 'history' && <HistoryTab patientId={p.id} />}
     </div>
   );

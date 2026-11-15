@@ -86,14 +86,14 @@ function Form({
         </Panel>
 
         <Panel title="Readings to send in">
-          <div className="row wrap" style={{ gap: 6, marginBottom: 14 }}>
+          <div className="row flow" style={{ gap: 6, marginBottom: 14 }}>
             {MEASURES.map((m) => (
               <button key={m.key} className={`btn ${measureKey === m.key ? '' : 'ghost'} sm`}
                 onClick={() => { setMeasureKey(m.key); setVals({}); }}>{m.label}</button>
             ))}
           </div>
           <p className="small muted" style={{ marginBottom: 12 }}>{measure.hint}</p>
-          <div className="row wrap" style={{ gap: 12, alignItems: 'flex-end' }}>
+          <div className="row flow" style={{ gap: 12, alignItems: 'flex-end' }}>
             {measure.fields.map((f) => (
               <label key={f.key}>
                 <div className="eyebrow" style={{ marginBottom: 5 }}>{f.label}</div>

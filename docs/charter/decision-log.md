@@ -619,3 +619,77 @@ more open. Proof renders: 2 pages, exact 11 x 8.5 in trim.
 most of `docs/charter/` carry the $100 direct-primary-care model.
 `docs/agreements/medicare-medicaid-membership.md` is the one to read
 first, since D-039 unsettles its conclusions.
+
+---
+
+## D-040 — The prototype's working year is bound to D-017 and D-018
+
+**Decided 2026-11-15, during the EMR prototype build.**
+
+The prototype's scheduling now runs on the decided working year rather
+than on free-floating appointments: 30 hours a week for 39 weeks
+(D-018), Monday to Friday business hours (D-017), up to about three
+months a year away (D-017), home visits at 150 minutes including
+travel (working-model.md §4), and a panel target of about 140 adults
+at 5 to 6 hours each (D-018). Booking refuses what does not fit and
+says why. The model and its tags live in `app/src/domain/schedule.ts`.
+
+**Two inputs are assumptions, not decisions, and are marked as such on
+screen:** 90 minutes of admin per clinic day, and 180 minutes a week
+of messaging and results to cover the 24 to 72 hour response
+commitment in D-017 with no coverage clinician.
+
+**The arithmetic does not agree with D-018 and the gap is being kept.**
+1,170 hours minus the messaging assumption, divided by 5 to 6 hours
+per patient, gives a carrying capacity of 175 to 210 adults. D-018
+targets about 140. The difference is roughly 213 hours a year, about
+5.5 hours a week. Three readings are possible: the messaging
+assumption is too small, the sourced per-patient hours already include
+work this model double counts, or D-018 held back capacity for a
+reason nobody wrote down. The prototype displays the gap rather than
+tuning an assumption until the two agree, because that would destroy
+the evidence that something is unaccounted for.
+
+**Revisit when:** three months of real messaging and admin time exist.
+`REFRESH-AT-RUNWAY`
+
+---
+
+## D-041 — What the record can produce, and the information-blocking posture
+
+**Decided 2026-11-15, during the EMR prototype build.**
+
+The prototype generates five documents from the record: a visit
+summary, a referral letter, a work or school note, a prior
+authorization request, and the whole record as a FHIR R4 Bundle with a
+readable copy beside it. Generated rather than typed, so none of them
+can disagree with the chart. Patient-facing documents follow the House
+Style; clinician-facing ones do not, because a referral letter written
+at a fifth-grade level wastes a colleague's time.
+
+**The work note withholds the diagnosis by default.** An employer
+needs to know the person was seen and what they can do. Whether to say
+why is the patient's decision, not a template's. Including it is a
+checkbox that is off.
+
+**The prior authorization says nothing about the membership.** It
+argues the clinical case only. Guardrail 4b of the D-039 addendum
+forbids stating how Medicare or Medicaid work with a membership until
+counsel settles it, and the same restraint applies to a form that goes
+to any plan over the practice's name. `NEEDS-COUNSEL`
+
+**The export is FHIR R4, not C-CDA.** Hand-rolling C-CDA without a
+toolkit and a validator would produce something that looks exportable
+and fails at the receiving end. C-CDA stays on the list as real work.
+
+**Information-blocking posture.** The patient can take the whole
+record from their own portal: no request, no delay, no fee. The rule
+is 45 CFR Part 171; provider disincentives came from the final rule of
+1 July 2024 (89 FR 54718) and run through Medicare programs. Whether
+and how that reaches a direct-pay practice that is not Medicare
+enrolled is **unsettled**, and the prototype says so rather than
+asserting either way. Not being reachable by a disincentive is not the
+same as being outside the prohibition. `NEEDS-COUNSEL`
+
+**Revisit when:** counsel settles the payer posture, or a real C-CDA
+requirement appears from a receiving system.
