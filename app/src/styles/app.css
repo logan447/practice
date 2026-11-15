@@ -1432,3 +1432,9 @@ blockquote.said footer {
 .spdetail {
   margin: 2px 0 7px; font: 400 14px/1.6 var(--sans); color: var(--ink);
 }
+.statementdraft {
+  margin: -12px 0 20px; font-size: 13px; line-height: 1.6; color: var(--ink-3);
+}
+.ppnone {
+  margin: 2px 0 0; font-size: 13px; line-height: 1.55; color: var(--ink-3);
+}

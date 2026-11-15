@@ -27,6 +27,7 @@ import { generatePanel } from '../data/generate';
 import { longitudinal } from '../data/longitudinal';
 import * as sharon from '../data/sharon';
 import * as clinical from '../data/sharon-clinical';
+import * as demo from '../data/demo-states';
 import { resolveDrug } from '../domain/terminology';
 import { recordDiff, type Snapshot } from './audit';
 import { actor as currentActor } from './session';
@@ -117,13 +118,25 @@ function migrate(raw: State | null): State | null {
 }
 
 /** The fully built fixture patients, with everything that belongs to them. */
-const DEMO_IDS = ['p0', 'p1', 'p2', 'p3'];
+/**
+ * Three states, so the structure can be judged against all of them.
+ *
+ * Sharon White (p0) is the complete chart, Marcus Reyes (p1) the half
+ * written one, Nina Alvarado (p9) the chart on its first day. A screen
+ * designed against only the first hides every empty state; against
+ * only the last it never has to hold four years of numbers.
+ */
+const DEMO_IDS = ['p0', 'p1', 'p9'];
 
 function demoState(): State {
   const keep = <T extends { patientId: string }>(xs: T[]) =>
     xs.filter((x) => DEMO_IDS.includes(x.patientId));
   return {
-    patients: [sharon.sharon, ...fixtures.patients.filter((p) => DEMO_IDS.includes(p.id))],
+    patients: [
+      sharon.sharon,
+      ...fixtures.patients.filter((p) => DEMO_IDS.includes(p.id)),
+      demo.nina,
+    ],
     conditions: [...sharon.sharonConditions, ...keep(fixtures.conditions)],
     medications: [...sharon.sharonMeds, ...keep(fixtures.medications)],
     allergies: [],
@@ -131,7 +144,7 @@ function demoState(): State {
     resultSeries: [...sharon.sharonSeries, ...keep(fixtures.resultSeries)],
     resultReports: [...sharon.sharonReports, ...keep(fixtures.resultReports)],
     carePlans: [sharon.sharonPlan, ...keep(fixtures.carePlans)],
-    encounters: [...sharon.sharonEncounters, ...keep(fixtures.encounters)],
+    encounters: [...sharon.sharonEncounters, ...keep(fixtures.encounters), ...demo.ninaEncounters],
     prevention: [...sharon.sharonPrevention, ...keep(fixtures.prevention)],
     patientEntries: keep(fixtures.patientEntries),
     aiDrafts: keep(fixtures.aiDrafts),
@@ -139,17 +152,17 @@ function demoState(): State {
     specialists: [...sharon.sharonSpecialists, ...keep(fixtures.specialists)],
     preVisits: keep(fixtures.preVisits),
     orders: [...sharon.sharonOrders, ...keep(fixtures.orders)],
-    masterPlans: [sharon.sharonMaster],
-    vitals: clinical.sharonVitals,
-    labPanels: clinical.sharonPanels,
-    exams: clinical.sharonExams,
-    studies: clinical.sharonStudies,
+    masterPlans: [sharon.sharonMaster, demo.marcusMaster],
+    vitals: [...clinical.sharonVitals, ...demo.marcusVitals],
+    labPanels: [...clinical.sharonPanels, ...demo.marcusPanels],
+    exams: [...clinical.sharonExams, ...demo.marcusExams],
+    studies: [...clinical.sharonStudies, ...demo.marcusStudies],
     emRecords: clinical.sharonEm,
     careLog: clinical.sharonCareLog,
     consents: clinical.sharonConsents,
-    checkIns: clinical.sharonCheckIns,
+    checkIns: [...clinical.sharonCheckIns, ...demo.marcusCheckIns],
     proposals: [],
-    lifestyle: clinical.sharonLifestyle,
+    lifestyle: [...clinical.sharonLifestyle, ...demo.marcusLifestyle],
     now: ORIGIN,
     lastEvents: [],
   };

@@ -43,6 +43,7 @@ import type {
   CheckInFeeling, OnPlan, ServiceConsent, VitalsSet,
 } from '../domain/types';
 import { addDays, ORIGIN } from '../lib/clock';
+import { composeStatement } from '../lib/synthesis';
 import type { Depth, Panel } from './generate';
 
 // ------------------------------------------------------------- random
@@ -712,7 +713,13 @@ export function longitudinal(panel: Panel, seed = 777): LongitudinalLayer {
       ? { id: nextVisit.id, date: nextVisit.date }
       : visits[visits.length - 1];
     if (anchorVisit && chance(depth === 'new' ? 0.4 : 0.78)) {
-      const sentOn = addDays(anchorVisit.date, -Math.floor(between(1, 4)));
+      // Sent a few days before the visit, but never dated in the
+      // future: a chart that shows an answer from next month is a
+      // chart whose dates nobody trusts.
+      const ahead = anchorVisit.date > ORIGIN;
+      const sentOn = ahead
+        ? addDays(ORIGIN, -Math.floor(between(0, 5)))
+        : addDays(anchorVisit.date, -Math.floor(between(1, 4)));
       const feel = (): CheckInFeeling => {
         const roll = r();
         if (arc === 'improving') return roll < 0.55 ? 'better' : roll < 0.85 ? 'same' : 'unsure';
@@ -772,6 +779,7 @@ export function longitudinal(panel: Panel, seed = 777): LongitudinalLayer {
       out.masterPlans.push(buildMaster({
         p, depth, conds, managed, meds, visits,
         encounters: panel.encounters.filter((e) => e.patientId === p.id && e.status === 'signed'),
+        checkIns: out.checkIns.filter((c) => c.patientId === p.id),
         prevention: prevBy.get(p.id) ?? [],
         lifestyle: out.lifestyle.filter((x) => x.patientId === p.id),
         panels: out.labPanels.filter((x) => x.patientId === p.id),
@@ -796,6 +804,7 @@ interface MasterInput {
   meds: Medication[];
   visits: { id: string; date: string; kind: string }[];
   encounters: Encounter[];
+  checkIns: ProblemCheckIn[];
   prevention: PreventionItem[];
   lifestyle: LifestyleIntervention[];
   panels: LabPanel[];
@@ -866,34 +875,21 @@ function buildMaster(i: MasterInput): MasterPlan {
   // everything, in one paragraph with no heading over it. Then a
   // chart review per problem, built from that problem's own measure,
   // its own drug history and the notes that actually mentioned it.
-  const joined = new Date(p.memberSince + 'T12:00:00')
-    .toLocaleString('en-GB', { month: 'long', year: 'numeric' });
-  const moving = managed.filter((c) => c.trend === 'improving').length;
-  const holding = managed.filter((c) => c.trend === 'stable').length;
-  const unassessed = managed.filter((c) => !c.trend || c.trend === 'not-assessed').length;
-  const worse = managed.filter((c) => c.trend === 'worsening').length;
-  const gapsNow = prevention.filter((x) => x.status === 'overdue');
-  const dueNow = prevention.filter((x) => x.status === 'due');
-  const lsRunning = lifestyle.filter((x) => x.status === 'active' || x.status === 'achieved').length;
-  const lsStuck = lifestyle.filter((x) => x.status === 'struggling' || x.status === 'not-started').length;
-
-  const history = [
-    `${managed.length} problem${managed.length === 1 ? '' : 's'} managed here since ${he.toLowerCase()} joined in ${joined}, across ${visits.length} visits.`,
-    [
-      moving > 0 ? `${moving} moving the right way` : '',
-      holding > 0 ? `${holding} holding` : '',
-      worse > 0 ? `${worse} going the wrong way` : '',
-      unassessed > 0 ? `${unassessed} not assessed at the last visit` : '',
-    ].filter(Boolean).join(', ') + '.',
-    gapsNow.length > 0
-      ? `Preventatively the gap is ${gapsNow.map((x) => x.name.toLowerCase()).join(' and ')}.`
-      : dueNow.length > 0
-        ? `${dueNow.map((x) => x.name).join(' and ')} ${dueNow.length > 1 ? 'are' : 'is'} due.`
-        : 'Everything on the preventative list is current.',
-    lifestyle.length === 0
-      ? 'No lifestyle prescriptions written yet.'
-      : `${lifestyle.length} lifestyle prescription${lifestyle.length === 1 ? '' : 's'} running, ${lsRunning} of them going and ${lsStuck} not.`,
-  ].filter(Boolean).join(' ');
+  // The opening paragraph is written by the same function the live
+  // synthesis uses, over only the records the summary is supposed to
+  // know about. That is what makes the staleness real: the paragraph
+  // is a correct summary of the chart as it stood, and the records
+  // that arrived since are exactly what the review step will offer.
+  const composed = composeStatement({
+    patientId: p.id, now: updated, master: undefined,
+    conditions: i.conds, medications: meds,
+    encounters: i.encounters.filter((e) => e.date <= updated),
+    exams: known(exams), vitals: known(vitals), panels: kPanels,
+    studies: known(studies), specialists: [], prevention,
+    entries: [], checkIns: i.checkIns.filter((c) => c.date <= updated),
+    lifestyle,
+  });
+  const history = composed?.text ?? '';
 
   // One chart review per problem, from that problem's own record.
   const MEASURE: Record<string, string> = {
@@ -947,7 +943,7 @@ function buildMaster(i: MasterInput): MasterPlan {
     }
     byProblemS[c.id] = parts.join(' ');
   }
-  for (const item of [...gapsNow, ...dueNow]) {
+  for (const item of prevention.filter((x) => x.status !== 'current')) {
     byProblemS[`prevention:${item.id}`] = item.lastDone
       ? `Last done ${fmt(item.lastDone)}.${item.dueBy ? ` Due ${fmt(item.dueBy)}.` : ''} ${item.status === 'overdue' ? 'Overdue since then and not booked.' : 'Not yet booked.'}`
       : `Never done in this chart.${item.dueBy ? ` Due ${fmt(item.dueBy)}.` : ''}`;

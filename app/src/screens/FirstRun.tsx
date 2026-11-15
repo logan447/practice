@@ -41,10 +41,13 @@ export function FirstRun() {
 
         <section className="panel">
           <div className="body">
-            <h2 style={{ fontSize: 17 }}>Load examples</h2>
+            <h2 style={{ fontSize: 17 }}>Load three worked examples</h2>
             <p className="small muted" style={{ margin: '8px 0 16px' }}>
-              Three fictional patients with a year of history, results,
-              care plans and open work. Nothing real. You can clear them
+              The same chart in three states, because a structure can only be
+              judged against all of them. Sharon White is complete: two years,
+              every section written. Marcus Reyes is half written, which is
+              what charts actually look like. Nina Alvarado joined last week
+              and has nothing on file. All fictional, and you can clear them
               at any time.
             </p>
             <button className="btn ghost" onClick={() => { st.loadDemo(); nav.reset({ name: 'patients' }); }}>

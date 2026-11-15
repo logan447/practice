@@ -171,10 +171,12 @@ function Item({
   );
 }
 
-export function Subjective({ patientId, master, onSave }: {
+export function Subjective({ patientId, master, onSave, onReview }: {
   patientId: string;
   master?: MasterPlan;
   onSave: (patch: Partial<MasterPlan>) => void;
+  /** Generate proposals and open the review drawer. */
+  onReview: () => void;
 }) {
   const st = useStore();
   const p = st.patient(patientId);
@@ -188,6 +190,8 @@ export function Subjective({ patientId, master, onSave }: {
   const lifestyle = st.lifestyleFor(patientId);
   const orders = st.ordersForPatient(patientId).filter((o) => o.status !== 'done');
   const checkIns = st.checkInsFor(patientId);
+  const records = st.encountersFor(patientId).filter((e) => e.status === 'signed').length
+    + panels.length + vitals.length + checkIns.length;
 
   const svc = p?.services ?? { preventative: true, lifestyle: true };
   const S = master?.subjective ?? { history: '', byProblem: {}, goals: '', context: '' };
@@ -217,6 +221,20 @@ export function Subjective({ patientId, master, onSave }: {
       <Prose value={S.history} rows={4} className="prose statement"
         placeholder="Where the work stands today, across all of it. One paragraph."
         onSave={saveStatement} />
+
+      {/*
+        * The way in to the summariser, where the summary has nothing
+        * to show. A blank paragraph with a placeholder in it reads as
+        * a form field nobody filled in, which is the wrong lesson: the
+        * point of this paragraph is that it is composed from the
+        * record. The button writes a proposal, not the paragraph.
+        */}
+      {!S.history.trim() && records > 0 && (
+        <p className="statementdraft">
+          Nothing written here yet. {records} record{records === 1 ? '' : 's'} on file.{' '}
+          <button className="linkish" onClick={onReview}>Draft it from the record</button>
+        </p>
+      )}
 
       {managed.length === 0 && openPrevention.length === 0 && openLifestyle.length === 0 && (
         <p className="snone">

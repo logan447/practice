@@ -847,3 +847,29 @@ should be derived from them. All of it is fictional.
 
 **Revisit when:** real panel data exists, or when the generator is
 being used for anything other than looking at the screen.
+
+## D-046 The demo carries three fill states, and one summariser writes them all
+
+**Decided 2026-11-15.** The example set is three charts rather than a
+crowd: Sharon White complete, Marcus Reyes half written, Nina Alvarado
+on her first day. The opening statement of the subjective is composed
+by one function, `composeStatement`, which the demo data and the live
+review step both call. Every section on an empty chart states what it
+does not have; none of them renders blank.
+
+**Reasoning.** A structure can only be judged against all three fill
+states, and the middle one is the one that actually occurs and is
+almost never designed for: half the problems reviewed, one patient
+answer of four, vitals but no labs, a plan written for one problem and
+not the rest. Two summarisers, one for the demo and one for the
+product, would mean the thing being evaluated is not the thing that
+would ship.
+
+**What follows from it.** A blank space in a clinical document reads
+as a normal finding, so the empty cases are written out: no
+examination documented is not the same as a normal examination, an
+empty preventative schedule is not up to date, a problem with no plan
+says so. A `three-states` suite pins all of it.
+
+**Revisit when:** the structure is tried on a ten problem chart, which
+is the fill state none of the three covers.

@@ -59,15 +59,22 @@ export function Assessment({ patientId, prose }: {
         <div className="derived">
           <div className="dhead">
             <span>Preventative services</span>
-            <Chip tone={behind.length === 0 ? 'ok' : 'warn'}>
-              {behind.length === 0 ? 'Up to date' : `${behind.length} outstanding`}
+            {/*
+              * An empty schedule is not an up to date one. Saying "up
+              * to date" over a chart with nothing on it is the same
+              * failure as rendering a missing examination as normal.
+              */}
+            <Chip tone={current.length === 0 && behind.length === 0 ? 'warn'
+              : behind.length === 0 ? 'ok' : 'warn'}>
+              {current.length === 0 && behind.length === 0 ? 'Not started'
+                : behind.length === 0 ? 'Up to date' : `${behind.length} outstanding`}
             </Chip>
           </div>
           {behind.length === 0 ? (
             <div className="dline muted">
               {current.length > 0
                 ? `All current: ${current.map((x) => x.name).join(', ')}.`
-                : 'Nothing scheduled yet.'}
+                : 'Nothing scheduled yet. Nothing has been assessed as due or not due.'}
             </div>
           ) : (
             behind.map((x) => (
@@ -222,6 +229,18 @@ export function Plan({ patientId, master, onSetProblem, prose }: {
               )}
             </div>
 
+            {/*
+              * A problem with no plan says so. An empty box with a
+              * placeholder in it reads as a form nobody filled in;
+              * this reads as a fact about the chart, which is what it
+              * is.
+              */}
+            {!(P.byProblem[c.id] ?? '').trim() && (
+              <p className="ppnone">
+                No plan written for this problem{
+                  c.trend === 'worsening' ? ', and it is the one going the wrong way' : ''}.
+              </p>
+            )}
             {prose.problem(c.id, P.byProblem[c.id] ?? '', (v) => onSetProblem(c.id, v))}
           </div>
         );

@@ -25,7 +25,7 @@
  * a number wrong, it is rendering silence as normal.
  */
 import type {
-  CarePlan, Condition, Encounter, ExamRecord, LabPanel, MasterPlan,
+  CarePlan, Condition, ConditionTrend, Encounter, ExamRecord, LabPanel, MasterPlan,
   Medication, PreventionItem, Specialist, SummaryProposal, VitalsSet,
   DiagnosticStudy, PatientEntry, ProblemCheckIn, LifestyleIntervention,
 } from '../domain/types';
@@ -124,51 +124,12 @@ export function propose(input: SynthesisInput): SummaryProposal[] {
 
   // --------------------------------------------- the opening statement
   //
-  // Where everything stands, in counts and in the numbers that moved.
-  // Regenerated rather than edited, because it is the one paragraph
-  // whose whole job is to be current.
+  // The one paragraph whose whole job is to be current. Composed, not
+  // edited, and composed by the same function that writes it anywhere
+  // else, so what the demo shows is what the product would do.
   {
-    const managed = input.conditions.filter((c) => c.managed && c.status === 'active');
-    const tally = (t: string) => managed.filter((c) => (c.trend ?? 'not-assessed') === t).length;
-    const dueItems = input.prevention.filter((x) => x.status !== 'current');
-    const stuck = input.lifestyle.filter((x) => x.status === 'struggling' || x.status === 'not-started');
-    const visitsSigned = input.encounters.filter((e) => e.status === 'signed');
-    const moved: string[] = [];
-    for (const key of ['A1c', 'LDL']) {
-      const now = latestPanelValue(input.panels, key);
-      const before = priorPanelValue(input.panels, key);
-      if (now && before && now.v.value !== before.v.value) {
-        moved.push(`${key} ${before.v.value} to ${now.v.value}`);
-      }
-    }
-    const office = byDateDesc(input.vitals.filter((x) => x.source === 'office'));
-    if (office[0]?.systolic && office[1]?.systolic && office[0].systolic !== office[1].systolic) {
-      moved.push(`blood pressure ${office[1].systolic} to ${office[0].systolic} systolic`);
-    }
-    if (managed.length > 0) {
-      M('subjective.statement', 'The opening statement', 'documented',
-        `${managed.length} problem${managed.length === 1 ? '' : 's'} managed here across ${
-          visitsSigned.length} visit${visitsSigned.length === 1 ? '' : 's'}. ${
-          [
-            tally('improving') > 0 ? `${tally('improving')} improving` : '',
-            tally('stable') > 0 ? `${tally('stable')} stable` : '',
-            tally('worsening') > 0 ? `${tally('worsening')} worsening` : '',
-            tally('not-assessed') > 0 ? `${tally('not-assessed')} not assessed` : '',
-          ].filter(Boolean).join(', ')
-        }.${moved.length > 0 ? ` Since the last summary, ${moved.join(', ')}.` : ''}${
-          dueItems.length > 0
-            ? ` Outstanding preventatively: ${dueItems.map((x) => x.name.toLowerCase()).join(', ')}.`
-            : ' Nothing outstanding preventatively.'
-        }${
-          stuck.length > 0
-            ? ` ${stuck.length} lifestyle prescription${stuck.length === 1 ? '' : 's'} not going.`
-            : ''
-        }`,
-        [
-          ...managed.map((c) => `Condition ${c.id}, gauge ${c.trend ?? 'not assessed'}`),
-          ...dueItems.map((x) => `Prevention item ${x.id}`),
-        ]);
-    }
+    const st = composeStatement(input);
+    if (st) M('subjective.statement', 'Where the work stands today', 'documented', st.text, st.basis);
   }
 
   // ------------------------------------------------ subjective, by problem
@@ -420,3 +381,173 @@ export function applyProposal(
 /** New text on top, old kept below. Nothing is overwritten silently. */
 const joinNew = (existing: string, added: string): string =>
   (existing.trim() ? `${added}\n\n${existing}` : added);
+
+// ------------------------------------------- where the work stands today
+
+/**
+ * The opening paragraph, written from the record.
+ *
+ * What it is trying to say, in order: how much is being managed and
+ * for how long; which numbers actually moved and by how much; what
+ * changed in the treatment while they moved; what is outstanding; and
+ * where the patient and the chart do not agree.
+ *
+ * Every clause is built from a value on the chart. There is no
+ * sentence here that can be true of a patient whose record does not
+ * support it, which is the only property that makes a generated
+ * summary safe to read quickly. Where a thing is not known it is left
+ * out rather than softened, and where it is absent and that absence
+ * matters, the absence is what gets said.
+ */
+export function composeStatement(
+  input: SynthesisInput,
+): { text: string; basis: string[] } | undefined {
+  const managed = input.conditions.filter((c) => c.managed && c.status === 'active');
+  const signed = byDateDesc(input.encounters.filter((e) => e.status === 'signed'));
+  const basis: string[] = [];
+  const sentences: string[] = [];
+
+  if (managed.length === 0 && signed.length === 0) return undefined;
+
+  // ------------------------------------------------- 1. the shape of it
+  const first = signed[signed.length - 1];
+  const since = first ? ` since ${monthYear(first.date)}` : '';
+  const tally = (t: ConditionTrend) =>
+    managed.filter((c) => (c.trend ?? 'not-assessed') === t).length;
+  const dir = [
+    tally('improving') > 0 ? `${count(tally('improving'))} moving the right way` : '',
+    tally('stable') > 0 ? `${count(tally('stable'))} holding` : '',
+    tally('worsening') > 0 ? `${count(tally('worsening'))} going the wrong way` : '',
+  ].filter(Boolean);
+
+  if (managed.length === 0) {
+    sentences.push(`Nothing is being managed here yet, across ${count(signed.length)} visit${signed.length === 1 ? '' : 's'}${since}.`);
+  } else {
+    sentences.push(
+      `${cap(count(managed.length))} problem${managed.length === 1 ? '' : 's'} managed here${since}, across ${count(signed.length)} visit${signed.length === 1 ? '' : 's'}${
+        dir.length > 0 ? `, ${dir.join(' and ')}` : ''}.`,
+    );
+  }
+  basis.push(...managed.map((c) => `Condition ${c.id}, gauge ${c.trend ?? 'not assessed'}`));
+  if (first) basis.push(`First visit ${first.id}, ${fmtDate(first.date)}`);
+
+  // -------------------------------------------- 2. the numbers that moved
+  const moves: string[] = [];
+  const lab = (
+    key: string, label: string, unit: string, lower: boolean,
+    least: number, threshold?: number,
+  ) => {
+    const hits = byDateDesc(input.panels).filter((p) => p.values.some((v) => v.key === key));
+    if (hits.length < 2) return;
+    const now = hits[0].values.find((v) => v.key === key)!;
+    const then = hits[hits.length - 1].values.find((v) => v.key === key)!;
+    const delta = Math.round((now.value - then.value) * 10) / 10;
+    // Below this the movement is noise, and reporting noise as change
+    // is how a summary stops being worth reading.
+    if (Math.abs(delta) < least) return;
+    const crossed = threshold !== undefined && lower
+      && now.value < threshold
+      && hits.slice(1).every((p) => (p.values.find((v) => v.key === key)?.value ?? 0) >= threshold);
+    moves.push(crossed
+      ? `the ${label} is under ${threshold} for the first time`
+      : `the ${label} is ${delta < 0 ? 'down' : 'up'} ${Math.abs(delta)}${
+        unit ? `${unit}${Math.abs(delta) === 1 ? '' : 's'}` : ''
+      } since ${monthYear(hits[hits.length - 1].date)}`);
+    basis.push(`${hits[0].name}, ${fmtDate(hits[0].date)}`);
+  };
+  lab('A1c', 'A1c', ' point', true, 0.3, 7);
+  lab('LDL', 'LDL', '', true, 8, 100);
+  lab('eGFR', 'eGFR', '', false, 5);
+
+  const office = byDateDesc(input.vitals.filter((v) => v.source === 'office'));
+  const sysNow = office[0]?.systolic;
+  const sysThen = office[office.length - 1]?.systolic;
+  if (office.length >= 2 && sysNow && sysThen) {
+    const d = sysNow - sysThen;
+    if (Math.abs(d) >= 4) {
+      moves.push(`the blood pressure is ${d < 0 ? 'down' : 'up'} ${Math.abs(d)} systolic`);
+      basis.push(`Vitals ${office[0].id}, ${fmtDate(office[0].date)}`);
+    }
+  }
+  const wtNow = office[0]?.weightLb;
+  const wtThen = office[office.length - 1]?.weightLb;
+  if (office.length >= 2 && wtNow && wtThen) {
+    const d = wtNow - wtThen;
+    if (Math.abs(d) >= 5) {
+      moves.push(`the weight is ${d < 0 ? 'down' : 'up'} ${Math.abs(d)} lb`);
+    }
+  }
+  if (moves.length > 0) sentences.push(`${cap(list(moves))}.`);
+  else if (input.panels.length + office.length > 0) {
+    sentences.push('Nothing has moved enough on the measures to call it a change.');
+  }
+
+  // ------------------------------------- 3. what changed in the treatment
+  const stopped = input.medications.filter((m) => m.status === 'stopped');
+  const started = input.medications.filter(
+    (m) => m.status === 'active' && first && m.started > first.date,
+  );
+  if (stopped.length > 0 && started.length === 0) {
+    sentences.push(`${cap(count(stopped.length))} drug${stopped.length === 1 ? '' : 's'} came off rather than went on.`);
+    basis.push(...stopped.slice(0, 2).map((m) => `Medication ${m.id}, stopped`));
+  } else if (started.length > 0) {
+    sentences.push(`${cap(started.map((m) => m.name).slice(0, 2).join(' and '))} started since the first visit${
+      stopped.length > 0 ? `, and ${stopped.map((m) => m.name).slice(0, 2).join(' and ')} came off` : ''}.`);
+    basis.push(...started.slice(0, 2).map((m) => `Medication ${m.id}, started ${fmtDate(m.started)}`));
+  }
+
+  // --------------------------------------------- 4. what is outstanding
+  const overdue = input.prevention.filter((x) => x.status === 'overdue');
+  const due = input.prevention.filter((x) => x.status === 'due');
+  const notAssessed = managed.filter((c) => (c.trend ?? 'not-assessed') === 'not-assessed');
+  const stuck = input.lifestyle.filter((x) => x.status === 'struggling' || x.status === 'not-started');
+  const work: string[] = [];
+  if (overdue.length > 0) {
+    work.push(`${list(overdue.map((x) => x.name.toLowerCase()))} overdue`);
+    basis.push(...overdue.map((x) => `Prevention item ${x.id}`));
+  }
+  if (due.length > 0) work.push(`${list(due.map((x) => x.name.toLowerCase()))} due`);
+  if (stuck.length > 0) {
+    work.push(`${count(stuck.length)} lifestyle prescription${stuck.length === 1 ? '' : 's'} not going`);
+    basis.push(...stuck.slice(0, 2).map((x) => `Lifestyle ${x.id}, ${x.status}`));
+  }
+  if (notAssessed.length > 0) {
+    work.push(`${list(notAssessed.map((c) => c.name))} not assessed at a visit`);
+  }
+  if (work.length > 0) {
+    sentences.push(`${cap(managed.length > 0 && overdue.length > 0 && tally('worsening') === 0
+      ? 'the work left is not in the numbers: '
+      : 'outstanding: ')}${work.join(', ')}.`);
+  } else if (managed.length > 0) {
+    sentences.push('Nothing outstanding preventatively, and every prescription is running.');
+  }
+
+  // ----------------------------------- 5. where the two accounts differ
+  const clash = managed.find((c) => {
+    const said = input.checkIns.find((x) => x.about.kind === 'condition' && x.about.id === c.id);
+    if (!said) return false;
+    return (c.trend === 'improving' && said.feeling === 'worse')
+      || (c.trend === 'stable' && said.feeling === 'worse')
+      || (c.trend === 'worsening' && said.feeling === 'better');
+  });
+  if (clash) {
+    sentences.push(`They and the chart do not agree about the ${clash.name.toLowerCase()}, which is worth settling before anything is changed on the numbers.`);
+    basis.push(`Patient answer about ${clash.name}`);
+  }
+  const overall = input.checkIns.find((c) => c.about.kind === 'overall');
+  if (overall && !clash) {
+    sentences.push(`Asked before this visit how their health is going overall, they said it was ${
+      overall.feeling === 'unsure' ? 'hard to say' : FEELING_LABEL[overall.feeling].toLowerCase()}.`);
+    basis.push(`Patient answer ${overall.id}, ${fmtDate(overall.date)}`);
+  }
+
+  return { text: sentences.join(' '), basis };
+}
+
+const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
+const count = (n: number) => (n <= 10 ? WORDS[n] : String(n));
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+const list = (xs: string[]) =>
+  (xs.length <= 1 ? (xs[0] ?? '') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
+const monthYear = (iso: string) =>
+  new Date(iso + 'T12:00:00').toLocaleString('en-GB', { month: 'long', year: 'numeric' });
