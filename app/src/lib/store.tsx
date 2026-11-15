@@ -15,13 +15,14 @@ import { load, save, wipe, newId } from './persist';
 import { ORIGIN, now as clockNow, setNow, addDays } from './clock';
 import { tick } from './tick';
 import { ENCOUNTER_KINDS } from '../domain/types';
+import { evaluateMonth } from './monthly';
 import type {
   AiDraft, CarePlan, CarePlanGoal, Condition, Encounter, Medication, Order,
   OrderKind, Patient, PatientEntry, PreVisit, PreventionItem, ResultReport,
   ResultSeries, Specialist, Task, VisitNote, Allergy, ChartDocument, MasterPlan,
   VitalsSet, LabPanel, ExamRecord, DiagnosticStudy, EmRecord, CareLogEntry, ProblemCheckIn,
   PatientUpdate, Message, UpdateRequest, CareGoalStatus, ChartVersion, InfoRequest,
-  EncounterKind, CareProgram, InstrumentScore, InstrumentId, Claim,
+  EncounterKind, CareProgram, InstrumentScore, InstrumentId, Claim, MonthlyService,
   ServiceConsent, LifestyleIntervention,
 } from '../domain/types';
 import { fmtDate } from './format';
@@ -324,6 +325,19 @@ interface Store extends State {
     urgent: number;
   };
   infoRequestsFor: (patientId: string, status?: InfoRequest['status']) => InfoRequest[];
+
+  // ------------------------------------------------- the monthly record
+  /** Computed, never stored: the chart and the evaluation cannot disagree. */
+  monthFor: (patientId: string, program: CareProgram, month?: string) => MonthlyService;
+  /** A physician agreeing that a month is billable. The only way past the checks. */
+  attestMonth: (patientId: string, program: CareProgram, month: string) => void;
+  /** Produced only from an attested month, or a signed encounter. */
+  prepareClaim: (
+    patientId: string,
+    basis: { monthlyServiceId?: string; encounterId?: string },
+    code: string, period: string, diagnoses: string[],
+  ) => void;
+  claimsFor: (patientId: string) => Claim[];
   /** Open a visit, a care management review or a behavioural health review. */
   openEncounter: (patientId: string, kind: EncounterKind) => string;
   askPatient: (
@@ -352,6 +366,8 @@ interface Store extends State {
     goals: Record<string, CareGoalStatus>;
     plan: ChartVersion['plan'];
     minutes?: number;
+    planUpdated?: boolean;
+    problems?: string[];
     noChange?: boolean;
   }) => void;
   lifestyleFor: (id: string) => LifestyleIntervention[];
@@ -536,6 +552,31 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             + updates.filter((u) => u.urgent).length,
         };
       },
+      monthFor: (patientId, program, month) => {
+        const m = month ?? s.now.slice(0, 7);
+        const patient = s.patients.find((x) => x.id === patientId);
+        const att = s.attestations.find(
+          (a) => a.patientId === patientId && a.program === program && a.month === m,
+        );
+        return evaluateMonth({
+          patient: patient ?? { id: patientId } as Patient,
+          program, month: m,
+          conditions: by(s.conditions, patientId),
+          log: by(s.careLog, patientId),
+          consents: by(s.consents, patientId),
+          encounters: by(s.encounters, patientId),
+          scores: by(s.scores, patientId),
+          master: s.masterPlans.find((x) => x.patientId === patientId),
+          version: [...by(s.chartVersions, patientId)].sort((a, b) => b.version - a.version)[0],
+          attested: att ? { by: att.by, at: att.at } : undefined,
+          claimed: s.claims.some(
+            (c) => c.patientId === patientId && c.period === m
+              && c.status !== 'void' && c.basis.monthlyServiceId?.includes(program),
+          ),
+        });
+      },
+      claimsFor: (patientId) => by(s.claims, patientId)
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
       infoRequestsFor: (patientId, status) => by(s.infoRequests, patientId)
         .filter((r) => (status ? r.status === status : true))
         .sort((a, b) => b.created.localeCompare(a.created)),
@@ -1217,6 +1258,27 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           };
         }),
 
+      attestMonth: (patientId, program, month) =>
+        setS((p) => ({
+          ...p,
+          attestations: [
+            ...p.attestations.filter(
+              (a) => !(a.patientId === patientId && a.program === program && a.month === month),
+            ),
+            { id: newId('at'), patientId, program, month, by: ME, at: clockNow() },
+          ],
+        })),
+
+      prepareClaim: (patientId, basis, code, period, diagnoses) =>
+        setS((p) => ({
+          ...p,
+          claims: [...p.claims, {
+            id: newId('cm'), patientId, code, period, units: 1,
+            diagnoses, createdAt: clockNow(), createdBy: ME,
+            basis, status: 'prepared' as const,
+          }],
+        })),
+
       cancelAsk: (id) =>
         setS((p) => ({
           ...p,
@@ -1263,7 +1325,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
               id: newId('cl'), patientId, program,
               date: now, minutes: opts.minutes,
               by: ME, role: 'physician' as const, countable: true,
-              activity: `${program === 'ccm' ? 'Care management' : 'Behavioural health'} review: read what had arrived since the last approval, updated the plan and published version ${version.version}.`,
+              encounterId,
+              problems: opts.problems,
+              planUpdated: opts.planUpdated,
+              activity: `${program === 'ccm' ? 'Care management' : 'Behavioural health'} review: read what had arrived since the last approval${
+                opts.planUpdated ? ', updated the care plan' : ''
+              } and published version ${version.version}.`,
             }]
             : p.careLog;
 

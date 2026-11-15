@@ -28,6 +28,26 @@ export interface Provenance {
 export type Sex = 'female' | 'male';
 
 /** FHIR: Patient */
+/**
+ * What Medicare needs to know before a service is eligible.
+ *
+ * Structured rather than inferred, because every care management and
+ * wellness code turns on one of these and a chart that guesses is a
+ * chart that bills wrongly. Absent means unknown, which is not the
+ * same as false and is shown as unknown.
+ */
+export interface MedicareStatus {
+  partB?: boolean;
+  /** When Part B started. The wellness visit rules count from here. */
+  partBSince?: string;
+  /** Qualified Medicare Beneficiary, which changes the APCM tier. */
+  qmb?: boolean;
+  /** The last initial preventive physical examination, where there was one. */
+  ippeOn?: string;
+  /** Wellness visits already furnished, newest first. */
+  awvOn?: string[];
+}
+
 export interface Patient {
   id: string;
   name: string;
@@ -255,7 +275,7 @@ export interface CarePlan {
 
 export type EncounterKind =
   | 'follow-up' | 'annual' | 'acute' | 'paperwork' | 'initial' | 'home'
-  | 'ccm' | 'bhi';
+  | 'ccm' | 'bhi' | 'awv';
 
 /**
  * The three encounters that advance the living chart.
@@ -284,6 +304,10 @@ export const ENCOUNTER_KINDS: { id: EncounterKind; label: string; mins: number }
   { id: 'home', label: 'Home visit', mins: 150 },
   { id: 'ccm', label: 'Care management review', mins: 20 },
   { id: 'bhi', label: 'Behavioural health review', mins: 20 },
+  // Kept apart from 'annual' on purpose. A Medicare wellness visit and
+  // a routine annual physical are different services with different
+  // required elements, and only one of them is a Medicare benefit.
+  { id: 'awv', label: 'Medicare wellness visit', mins: 45 },
 ];
 
 export type ExamTemplate = 'in-person' | 'telehealth';
@@ -1167,6 +1191,14 @@ export interface ServiceConsent {
   by: string;
   /** What the patient was told. The part audits ask for. */
   note: string;
+  /**
+   * The disclosures that were actually made, ticked individually.
+   *
+   * A free text note saying "consent obtained" is not evidence that
+   * the patient was told the things the rule requires them to be
+   * told. Each one is its own field so the gap is visible.
+   */
+  disclosures?: string[];
   revoked?: string;
 }
 

@@ -23,7 +23,7 @@
  * Signing does everything else: freezes the version, preserves the
  * note, sends the requests, records the time.
  */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useStore } from '../lib/store';
 import { useNav } from '../lib/nav';
 import { Chip, Panel } from '../components/ui';
@@ -86,8 +86,27 @@ export function Review({ encounterId }: { encounterId: string }) {
     lifestyle: approved?.plan.lifestyle ?? master?.plan?.lifestyle ?? '',
     followUp: approved?.plan.followUp ?? master?.plan?.followUp ?? '',
   }));
-  const [minutes, setMinutes] = useState(enc?.duration ?? 20);
   const [asking, setAsking] = useState('');
+  /**
+   * The timer runs from the moment the encounter opens.
+   *
+   * Typing a number at the end of a review is how time records become
+   * estimates, and an estimate is the thing an audit is least able to
+   * accept. It is editable, because the clock does not know that the
+   * physician took a phone call, but it starts from something real.
+   */
+  const [openedAt] = useState(() => Date.now());
+  const [minutes, setMinutes] = useState(0);
+  const [running, setRunning] = useState(true);
+  useEffect(() => {
+    if (!running) return undefined;
+    const t = setInterval(
+      () => setMinutes(Math.max(1, Math.round((Date.now() - openedAt) / 60000))),
+      5000,
+    );
+    return () => clearInterval(t);
+  }, [running, openedAt]);
+  const [planTouched, setPlanTouched] = useState(false);
 
   if (!enc || !p) return null;
 
@@ -109,7 +128,9 @@ export function Review({ encounterId }: { encounterId: string }) {
         (pr) => [pr.conditionId, goals[pr.conditionId] ?? pr.goal ?? 'needs-improvement'],
       )),
       plan,
-      minutes: isReview ? minutes : undefined,
+      minutes: isReview ? Math.max(minutes, 1) : undefined,
+      planUpdated: planTouched,
+      problems: draft.problems.map((pr) => pr.conditionId),
       noChange: !anyChange,
     });
     nav.go({ name: 'chart', patientId });
@@ -164,9 +185,12 @@ export function Review({ encounterId }: { encounterId: string }) {
                 <textarea className="prose" rows={2}
                   placeholder="The plan for this problem."
                   value={plan.byProblem[pr.conditionId] ?? ''}
-                  onChange={(e) => setPlan((v) => ({
-                    ...v, byProblem: { ...v.byProblem, [pr.conditionId]: e.target.value },
-                  }))} />
+                  onChange={(e) => {
+                    setPlanTouched(true);
+                    setPlan((v) => ({
+                      ...v, byProblem: { ...v.byProblem, [pr.conditionId]: e.target.value },
+                    }));
+                  }} />
               </div>
             ))}
 
@@ -303,9 +327,17 @@ export function Review({ encounterId }: { encounterId: string }) {
               </p>
               <div className="row" style={{ gap: 8, alignItems: 'center' }}>
                 <input className="search" style={{ maxWidth: 90 }} type="number" value={minutes}
-                  onChange={(e) => setMinutes(Number(e.target.value))} />
+                  onChange={(e) => { setRunning(false); setMinutes(Number(e.target.value)); }} />
                 <span className="small muted">minutes</span>
+                <button className="btn ghost sm" onClick={() => setRunning((v) => !v)}>
+                  {running ? 'Pause the clock' : 'Start the clock'}
+                </button>
               </div>
+              <p className="small muted" style={{ marginTop: 8 }}>
+                Running since you opened this review. Editing it stops the
+                clock, because a number somebody typed and a number somebody
+                measured should not look the same.
+              </p>
             </Panel>
           )}
 
