@@ -271,7 +271,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
         <div className="acts">
           {signed && (
             <button className="btn ghost"
-              onClick={() => nav.go({ name: 'chart', patientId: p.id, tab: 'paper' })}>
+              onClick={() => nav.go({ name: 'chart', patientId: p.id })}>
               Visit summary
             </button>
           )}
@@ -454,7 +454,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
                 </Chip>
               )}
               <button className="btn quiet sm"
-                onClick={() => nav.go({ name: 'chart', patientId: p.id, tab: 'meds' })}>Manage</button>
+                onClick={() => nav.go({ name: 'chart', patientId: p.id })}>Manage</button>
             </div>
           }>
             {ixAlerts.length > 0 && (

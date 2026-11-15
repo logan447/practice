@@ -41,17 +41,20 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
 
   // 3 — landed in chart
   ok('lands on the new chart', await p.locator('h1:has-text("Rosa Delgado")').isVisible());
-  await p.click('.notepin'); await p.waitForTimeout(250);
-  ok('reminder opens from the note pin', await p.locator('text=Cares for her mother full time').isVisible());
-  ok('reported conditions present', await p.locator('text=Trouble sleeping').first().isVisible());
-  ok('intake visit booked', await p.locator('button:has-text("Open visit")').isVisible());
+
+  ok('the pinned reminder is in the header', await p.locator('.cpin').isVisible());
+  ok('reported conditions present in the history', await p.locator('.chead .dx:has-text("Trouble sleeping")').isVisible());
+  ok('but not yet something we manage',
+    (await p.locator('.csum').textContent().catch(()=>'')).includes('Trouble sleeping')===false);
+  ok('intake visit booked', await p.locator('.nextvisit').isVisible());
   await p.screenshot({path:'e2e-3-newchart.png', fullPage:true});
 
   // 4 — medicines parsed from free text
-  await p.click('button[role="tab"]:has-text("Medicines")');
+  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
+  await p.click('.railfoot button:has-text("Medicines")'); await p.waitForTimeout(350);
   await p.waitForTimeout(250);
-  ok('medicine name parsed', await p.locator('text=Amlodipine 5 mg').isVisible());
-  ok('sig parsed', await p.locator('text=one tablet each morning').isVisible());
+  ok('medicine name parsed', await p.locator('.drawer >> text=Amlodipine 5 mg').first().isVisible());
+  ok('sig parsed', await p.locator('.drawer >> text=one tablet each morning').first().isVisible());
   // add one
   await p.click('button:has-text("+ Add a medicine")');
   await p.waitForTimeout(200);
@@ -65,13 +68,14 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   await p.fill('input[placeholder="One tablet by mouth each morning"]','One tablet at night');
   await p.click('button:has-text("Save")');
   await p.waitForTimeout(300);
-  ok('added a medicine', await p.locator('text=Atorvastatin 20 mg').isVisible());
+  ok('added a medicine', await p.locator('.drawer >> text=Atorvastatin 20 mg').first().isVisible());
 
   // 5 — care plan
-  await p.click('button[role="tab"]:has-text("Care plan")');
+  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
+  await p.click('.railfoot button:has-text("Shared plan")');
   await p.waitForTimeout(300);
   ok('empty plan prompts to start', await p.locator('text=No care plan yet').first().isVisible());
-  await p.fill('textarea','Get the blood pressure down without adding a second tablet, and protect her sleep.');
+  await p.fill('.drawer textarea','Get the blood pressure down without adding a second tablet, and protect her sleep.');
   await p.click('button:has-text("Start the plan")');
   await p.waitForTimeout(350);
   ok('plan created as a draft', await p.locator('text=Draft').first().isVisible());
@@ -87,7 +91,9 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   await p.screenshot({path:'e2e-4-plan.png', fullPage:true});
 
   // 6 — portal BEFORE signing: plan must be invisible
-  await p.click('button:has-text("Sign in as them")');
+  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
+  await p.click('.railfoot button:has-text("Details")'); await p.waitForTimeout(350);
+  await p.click('.drawer button:has-text("Sign in as them")');
   await p.waitForTimeout(350);
   ok('portal opens', await p.locator('text=Patient view').isVisible());
   const hidden = await p.locator('text=Your plan is being written').first().isVisible();
@@ -97,18 +103,22 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   await p.screenshot({path:'e2e-5-portal-before.png', fullPage:true});
 
   // 7 — sign it
+  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
   await p.click('.whoami'); await p.waitForTimeout(250);
   await p.click('.srow:has-text("L. DuBose")'); await p.waitForTimeout(500);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(450);
   await p.waitForTimeout(400);
-  await p.click('button[role="tab"]:has-text("Care plan")');
+  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
+  await p.click('.railfoot button:has-text("Shared plan")');
   await p.waitForTimeout(300);
   await p.click('button:has-text("Sign and share")');
   await p.waitForTimeout(350);
   ok('plan signed', await p.locator('text=visible to patient').isVisible());
 
   // 8 — portal AFTER signing
-  await p.click('button:has-text("Sign in as them")');
+  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
+  await p.click('.railfoot button:has-text("Details")'); await p.waitForTimeout(350);
+  await p.click('.drawer button:has-text("Sign in as them")');
   await p.waitForTimeout(400);
   ok('signed plan now visible to patient', await p.locator('text=Walk 20 minutes before her mother wakes').first().isVisible());
   ok('patient greeted by name', await p.locator('h1:has-text("Hello, Rosa")').isVisible());
@@ -119,11 +129,12 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   await p.screenshot({path:'e2e-7-portal-ask.png', fullPage:true});
 
   // 9 — document the visit
+  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
   await p.click('.whoami'); await p.waitForTimeout(250);
   await p.click('.srow:has-text("L. DuBose")'); await p.waitForTimeout(500);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(450);
   await p.waitForTimeout(300);
-  await p.click('button:has-text("Open visit")');
+  await p.click('.nextvisit');
   await p.waitForTimeout(400);
   ok('encounter opens for the new patient', await p.locator('h2:has-text("Subjective")').isVisible());
   ok('note pre-populates the one-liner', (await p.locator('textarea').first().inputValue()).includes('Rosa Delgado is a'));

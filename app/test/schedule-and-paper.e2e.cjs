@@ -59,17 +59,12 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     gap.includes('D-018 targets about 140') && gap.includes('REFRESH-AT-RUNWAY'));
 
   // ----------------------------------------- 3. booking collides
+  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
   await p.click('.topbar .mark'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(450);
-  // a chart with a visit already booked shows "Open visit" instead
-  if(await p.locator('button:has-text("Start a visit")').count()===0){
-    for(let i=1;i<12;i++){
-      await p.click('.topbar .mark'); await p.waitForTimeout(220);
-      await p.locator('table.rows tbody tr').nth(i).click(); await p.waitForTimeout(320);
-      if(await p.locator('button:has-text("Start a visit")').count()>0) break;
-    }
-  }
-  await p.click('button:has-text("Start a visit")'); await p.waitForTimeout(400);
+  // Booking lives in the visits drawer now, not in the header.
+  await p.click('.railhead .linkish'); await p.waitForTimeout(400);
+  await p.click('.drawer button:has-text("Book a visit")'); await p.waitForTimeout(400);
   ok('booking offers the real visit types with their lengths',
     (await p.locator('.booking').textContent()).includes('150m'));
 
@@ -110,17 +105,26 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   }
   ok('there is now a slot to take', await p.locator('.booking .slots button').count()>0);
   await p.locator('.booking .slots button').first().click(); await p.waitForTimeout(800);
-  ok('a future booking lands on the schedule, not in a visit',
-    await p.locator('h1:has-text("Schedule")').isVisible());
+  // Booking from the chart leaves you in the chart. The visit shows
+  // up in the rail rather than throwing you at the calendar.
+  ok('booking from the chart stays in the chart',
+    await p.locator('.chead h1').count()>0);
+  ok('and the new visit is in the rail',
+    (await p.locator('.rail').textContent()).includes('Home visit')
+    || await p.locator('.nextvisit:not(.empty)').count()>0);
+  await p.click('.topbar button:has-text("Schedule")'); await p.waitForTimeout(700);
   ok('the home visit is on the grid', await p.locator('.wdvisit.k-home').count()>0);
 
   // ------------------------------------------- 4. paper
+  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
   await p.click('.topbar .mark'); await p.waitForTimeout(400);
   let gotSummary=false;
   for(let i=0;i<14 && !gotSummary;i++){
+  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
     await p.click('.topbar .mark'); await p.waitForTimeout(200);
     await p.locator('table.rows tbody tr').nth(i).click(); await p.waitForTimeout(320);
-    await p.click('button[role="tab"]:has-text("Paper")'); await p.waitForTimeout(250);
+  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
+    await p.click('.railfoot button:has-text("Documents")'); await p.waitForTimeout(250);
     if(await p.locator('button:has-text("Summary")').count()>0) gotSummary=true;
   }
   ok('a signed visit can produce a summary', gotSummary);
@@ -163,9 +167,11 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.screenshot({path:'v8-export.png'});
 
   // ------------------------------- 5. the patient takes it themselves
-  await p.click('.dochead button:has-text("Close")').catch(()=>{});
+  await p.click('.dochead button:has-text("Close")', {timeout:2000}).catch(()=>{});
   await p.waitForTimeout(200);
-  await p.click('button:has-text("Sign in as them")'); await p.waitForTimeout(700);
+  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
+  await p.click('.railfoot button:has-text("Details")'); await p.waitForTimeout(350);
+  await p.click('.drawer button:has-text("Sign in as them")'); await p.waitForTimeout(700);
   await p.click('button[role="tab"]:has-text("Your records")'); await p.waitForTimeout(450);
   const yr = await p.locator('.wrap').first().textContent();
   ok('the patient can take their record without asking', yr.includes('You do not need to ask'));

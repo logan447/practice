@@ -546,3 +546,85 @@ markup suggested. Renamed to `.row.flow`.
 Both are logged: **D-040** (the working year and the capacity gap) and
 **D-041** (what the record produces and the information-blocking
 posture) in `docs/charter/decision-log.md`.
+
+## One workspace, not eight tabs
+
+The chart was a header full of administration above eight tabs. Eight
+tabs across the top meant the first thing the record said about a
+patient was "here are eight places to look", which is a statement
+about the software rather than about the person. This iteration is one
+screen: who they are, the longitudinal plan, and what is coming.
+
+### The header is generated, not typed
+
+Two new structured fields carry it:
+
+- `Condition.managed` — does this practice actively manage this
+  problem, or is it history we carry?
+- `Patient.services` — two independent switches, preventative and
+  lifestyle medicine. Not a tier: a patient can have chronic disease
+  management and lifestyle medicine without preventative services.
+
+From those, `practiceSummary()` composes the line. Sharon White reads:
+
+> **Sharon White**
+> 60 F | PMH: `Essential hypertension` `Type 2 diabetes mellitus` `Mixed hyperlipidemia` `Hypothyroidism` `Osteoarthritis, both knees`
+> Following with our office for management of `Essential hypertension` `Type 2 diabetes mellitus` `Mixed hyperlipidemia`, preventative services, and lifestyle medicine services.
+
+Past medical history and what we are doing are different lists, and
+most charts conflate them. Here the managed ones are tinted and the
+rest are plain, and a patient with no preventative services simply
+does not get that clause. Both switches and the per-problem ticks are
+in the Details drawer, next to a line saying that nothing in the
+header is typed.
+
+Gone from the header: membership pill, sign-in-as-patient, the
+reconciliation indicator, Start Visit, contact details, date of birth,
+pronouns, and the avatar. The pinned clinical reminder stays, as a
+line rather than an icon.
+
+### The master care plan
+
+`MasterPlan` is one living SOAP document per patient, not an encounter
+note. Each section carries two kinds of content, distinguished by how
+they look rather than by a label on every line:
+
+- **Prose** is the physician's, typed in place and saved on blur.
+- **Derived blocks** are composed from the structured record at read
+  time: measurements with their latest value, recent reports, goal
+  progress, outstanding prevention, the medicine list, co-management.
+  Composing rather than copying is what stops a longitudinal document
+  drifting out of date with the record it describes.
+
+Signing a visit note carries its plan into the master plan as a dated
+line per problem. The note itself is kept exactly as signed and lives
+in the visits drawer, so the longitudinal document stays current
+without anyone retyping it and without the visit being overwritten.
+
+### The rail, and the drawers
+
+The right column holds two things. The next visit, because that is the
+frame every decision on the left is made against, and it is sticky so
+it stays there while you read. And the pending orders, expandable to
+send, close or cancel.
+
+Starting a visit moved into the visits drawer behind **All**: read a
+past note, start one that is booked, or book a new one. Booking is a
+scheduling act and belongs next to the schedule rather than beside the
+patient's name.
+
+Everything that was a tab is still here, reached from the place in the
+plan that refers to it ("All results" in Objective, "Manage" by the
+medicine list) or from one quiet row at the foot of the rail. Drawers
+own the Escape key: the global handler now skips when any
+`role="dialog"` is open, which also stops the clock moving under one.
+
+### Two bugs this surfaced
+
+The old navigation rail was removed two iterations ago but its CSS
+stayed behind, including `background: var(--rail)`. The moment a new
+element used the class name it came back as a black column down the
+side of the chart. Deleted rather than renamed around.
+
+The global Escape handler called `nav.back()` from anywhere, so
+closing a drawer also navigated out of the chart.

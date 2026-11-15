@@ -143,10 +143,25 @@ a { color: var(--accent); }
 
 .app { display: grid; grid-template-rows: auto minmax(0, 1fr); height: 100%; }
 
+/*
+ * Wraps rather than widening the document.
+ *
+ * The bar gained controls over several iterations and at phone width
+ * it was forcing the whole page to 899px, which is why every screen
+ * under it scrolled sideways. A bar is allowed to take two lines; a
+ * chart is not allowed to be wider than the screen.
+ */
 .topbar {
-  display: flex; align-items: center; gap: 9px;
-  padding: 0 max(18px, env(safe-area-inset-right, 0px)) 0 max(18px, env(safe-area-inset-left, 0px));
-  height: 52px; background: var(--panel); border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: 9px; flex-wrap: wrap;
+  padding: 7px max(18px, env(safe-area-inset-right, 0px)) 7px max(18px, env(safe-area-inset-left, 0px));
+  min-height: 52px; background: var(--panel); border-bottom: 1px solid var(--line);
+}
+.topbar .mark { flex: none; }
+.whoami { min-width: 0; max-width: 100%; }
+.whoami .rolename { white-space: nowrap; }
+@media (max-width: 620px) {
+  .topbar .spacer { display: none; }
+  .whoami .rolename { display: none; }
 }
 .topbar .mark {
   background: none; border: 0; cursor: pointer; text-align: left; padding: 0;
@@ -157,47 +172,12 @@ a { color: var(--accent); }
   text-transform: uppercase; color: var(--ink-3); margin-top: 2px;
 }
 
-.rail {
-  background: var(--rail);
-  color: var(--rail-ink);
-  display: flex;
-  flex-direction: column;
-  padding: 18px 0 12px;
-  padding-left: max(0px, env(safe-area-inset-left, 0px));
-  min-width: 0;
-}
-.rail .mark {
-  font: 600 15px/1.2 var(--serif);
-  color: #fff;
-  padding: 0 18px 2px;
-}
-.rail .mark small {
-  display: block;
-  font: 600 9.5px/1.4 var(--sans);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--rail-ink-dim);
-  margin-top: 3px;
-}
-.rail nav { margin-top: 22px; display: flex; flex-direction: column; }
-.rail nav button {
-  background: none; border: 0; cursor: pointer;
-  text-align: left; padding: 9px 18px;
-  color: var(--rail-ink); font-size: 14px;
-  display: flex; align-items: center; gap: 10px;
-  border-left: 2px solid transparent;
-}
-.rail nav button:hover { background: rgb(255 255 255 / 0.05); }
-.rail nav button.on {
-  background: rgb(255 255 255 / 0.08);
-  border-left-color: var(--accent);
-  color: #fff; font-weight: 600;
-}
-.rail nav button .badge {
-  margin-left: auto; background: var(--crit); color: #fff;
-  font-size: 11px; font-weight: 600; border-radius: 999px;
-  padding: 1px 6px; min-width: 18px; text-align: center;
-}
+/*
+ * The old navigation rail's styles lived here and outlived the rail
+ * itself by two iterations. They were dark, and the moment a new
+ * element used the class name it came back as a black column down the
+ * side of the chart. Removed rather than renamed around.
+ */
 .rail .foot {
   margin-top: auto; padding: 12px 18px 0;
   border-top: 1px solid rgb(255 255 255 / 0.08);
@@ -805,3 +785,282 @@ kbd {
  * quietly 98px taller than it looked in the markup.
  */
 .row.flow { flex-wrap: wrap; }
+
+/* ------------------------------------------------------------- drawers */
+.drawerwrap { position: fixed; inset: 0; z-index: 70; display: flex; justify-content: flex-end; }
+.drawerveil {
+  position: absolute; inset: 0; border: 0; padding: 0;
+  background: rgb(14 22 21 / 34%); cursor: pointer;
+  animation: veil 160ms ease-out;
+}
+@keyframes veil { from { opacity: 0; } to { opacity: 1; } }
+.drawer {
+  position: relative; width: min(640px, 94vw); height: 100%;
+  background: var(--bg); border-left: 1px solid var(--line);
+  box-shadow: -18px 0 50px rgb(0 0 0 / 16%);
+  display: flex; flex-direction: column;
+  animation: slidein 190ms cubic-bezier(.22,.7,.3,1);
+}
+.drawer.wide { width: min(880px, 96vw); }
+@keyframes slidein { from { transform: translateX(28px); opacity: .5; } to { transform: none; opacity: 1; } }
+.drawer > header {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 16px 20px; border-bottom: 1px solid var(--line);
+  background: var(--panel);
+}
+.drawer > header h2 { font-size: 16px; font-weight: 600; margin: 0; }
+.drawer > header p { margin: 3px 0 0; }
+.drawerbody { flex: 1; overflow-y: auto; padding: 18px 20px 48px; }
+.drawerbody > .stack > .panel:first-child { margin-top: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .drawer, .drawerveil { animation: none; }
+}
+
+/* =====================================================================
+   The simplified chart.
+   One header, one plan, one narrow rail. Everything else is a drawer.
+   ===================================================================== */
+
+.chart { }
+.chartinner {
+  max-width: 1180px; margin: 0 auto;
+  padding: 22px max(24px, env(safe-area-inset-right, 0px)) 80px max(24px, env(safe-area-inset-left, 0px));
+}
+.backlink { margin-bottom: 14px; }
+
+/* ------------------------------------------------------------ header */
+.chead { margin-bottom: 26px; max-width: 86ch; }
+.chead h1 {
+  font: 400 32px/1.15 var(--serif); letter-spacing: -0.012em;
+  margin: 0 0 10px; color: var(--ink);
+}
+.cdem {
+  display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+  margin: 0 0 9px; font-size: 14px; color: var(--ink-2);
+}
+.cdem .bar { width: 1px; height: 13px; background: var(--line); margin: 0 2px; }
+.cdem .pmh { color: var(--ink-3); }
+.csum {
+  margin: 0; font-size: 15px; line-height: 1.75; color: var(--ink-2);
+}
+.cpin {
+  margin: 12px 0 0; font-size: 13.5px; line-height: 1.6; color: var(--ink-3);
+  border-left: 2px solid var(--line); padding-left: 11px;
+}
+
+/* A diagnosis. Compact, quiet, and darker when we are managing it. */
+.dx {
+  display: inline-block; font: 500 12.5px/1 var(--sans);
+  padding: 4px 7px; border-radius: 4px; white-space: nowrap;
+  max-width: 100%; overflow-wrap: anywhere;
+  background: var(--panel-2); color: var(--ink-2);
+  border: 1px solid var(--line-2);
+}
+.dx.on {
+  background: var(--accent-soft); color: var(--accent);
+  border-color: var(--accent-line);
+}
+.csum .dx { margin: 0 1px; }
+
+/* --------------------------------------------------------- workspace */
+.workspace {
+  display: grid; grid-template-columns: minmax(0, 1fr) 268px;
+  gap: 40px; align-items: start; margin-top: 22px;
+}
+@media (max-width: 1080px) {
+  .workspace { grid-template-columns: minmax(0, 1fr); gap: 26px; }
+}
+@media (max-width: 620px) {
+  .dx { white-space: normal; }
+  .chartinner { padding-left: 16px; padding-right: 16px; }
+}
+
+/* ------------------------------------------------------ master plan */
+.master { max-width: 78ch; }
+.masterfoot {
+  font-size: 12px; color: var(--ink-3); margin: 24px 0 0;
+  padding-top: 12px; border-top: 1px solid var(--line-2);
+}
+.masterfoot.top { margin: 0 0 20px; padding: 0; border: 0; }
+
+.soap { margin-bottom: 34px; }
+.soaphead {
+  display: flex; align-items: baseline; gap: 11px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--line);
+  margin-bottom: 15px;
+}
+.soaphead .letter {
+  font: 600 12px/1 var(--sans); letter-spacing: 0.1em;
+  color: var(--accent); width: 13px;
+}
+.soaphead h2 {
+  font: 600 15px/1 var(--sans); letter-spacing: -0.005em;
+  margin: 0; color: var(--ink);
+}
+.soapbody > * + * { margin-top: 16px; }
+.soaplabel {
+  font: 600 11px/1 var(--sans); letter-spacing: 0.07em;
+  text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px;
+}
+
+/* Prose that does not look like a form field until you touch it. */
+textarea.prose {
+  display: block; resize: none; overflow: hidden;
+  font: 400 14.5px/1.72 var(--sans); color: var(--ink);
+  background: transparent; border: 1px solid transparent;
+  border-radius: 6px; padding: 7px 9px; margin: -7px -9px;
+  width: calc(100% + 18px); field-sizing: content;
+}
+textarea.prose::placeholder { color: var(--ink-3); font-style: italic; }
+textarea.prose:hover { border-color: var(--line-2); }
+textarea.prose:focus {
+  outline: none; border-color: var(--accent-line);
+  background: var(--panel); box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
+}
+
+/* Composed from the record, not typed. */
+.derived {
+  background: var(--panel-2); border: 1px solid var(--line-2);
+  border-radius: 7px; padding: 11px 13px;
+}
+.dhead {
+  display: flex; align-items: baseline; gap: 10px;
+  font: 600 11px/1 var(--sans); letter-spacing: 0.07em;
+  text-transform: uppercase; color: var(--ink-3); margin-bottom: 9px;
+}
+.dhead > span:first-child { flex: 1; }
+.dline {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-size: 13.5px; color: var(--ink-2); padding: 3px 0;
+}
+.dline.muted { color: var(--ink-3); }
+.measures {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 13px;
+}
+.measure .mname {
+  font-size: 12px; color: var(--ink-3); margin-bottom: 3px;
+}
+
+.gdot { width: 7px; height: 7px; border-radius: 50%; flex: none; background: var(--ink-3); }
+.gdot.on-track { background: var(--ok); }
+.gdot.needs-attention { background: var(--warn); }
+.gdot.met { background: var(--accent); }
+.gdot.not-started { background: var(--line); border: 1px solid var(--ink-3); }
+
+.problemplan { padding-bottom: 4px; }
+.pphead {
+  display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap;
+  margin-bottom: 6px; font-size: 14px;
+}
+.ppcode {
+  font-family: var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 11px; color: var(--ink-3);
+}
+
+/* A link that is a button. Used instead of adding more buttons. */
+.linkish {
+  background: none; border: 0; padding: 0; font: inherit; font-size: 12.5px;
+  color: var(--accent); cursor: pointer; text-decoration: none;
+}
+.linkish:hover { text-decoration: underline; }
+
+/* -------------------------------------------------------- the rail */
+/*
+ * Sticky, because the plan it sits beside is long and the next visit
+ * is the frame every decision in that plan is made against. Scrolling
+ * it out of view is how you end up planning three months of work for
+ * a patient you are seeing on Tuesday.
+ */
+.rail { display: flex; flex-direction: column; gap: 22px; }
+@media (min-width: 1081px) {
+  .workspace > div:last-child { position: sticky; top: 18px; }
+}
+.railblock { }
+.railhead {
+  display: flex; align-items: baseline; gap: 10px;
+  padding-bottom: 7px; border-bottom: 1px solid var(--line); margin-bottom: 11px;
+}
+.railhead h3 {
+  font: 600 11px/1 var(--sans); letter-spacing: 0.07em;
+  text-transform: uppercase; color: var(--ink-3); margin: 0; flex: 1;
+}
+.nextvisit {
+  display: block; width: 100%; text-align: left; cursor: pointer;
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 3px solid var(--accent); border-radius: 7px;
+  padding: 11px 13px; font: inherit; color: var(--ink);
+}
+.nextvisit:hover { border-color: var(--accent-line); background: var(--accent-soft); }
+.nextvisit.empty {
+  border-left-color: var(--line); color: var(--ink-3); font-size: 13px;
+  text-align: center; padding: 16px 13px;
+}
+.nvdate { font: 600 14.5px/1.3 var(--sans); }
+.nvkind { font-size: 13px; color: var(--ink-2); margin-top: 2px; }
+.nvwhen { font-size: 12px; color: var(--ink-3); margin-top: 4px; }
+.railmore { margin-top: 7px; }
+.railline {
+  display: flex; gap: 8px; width: 100%; text-align: left; cursor: pointer;
+  background: none; border: 0; padding: 5px 0; font: inherit; font-size: 12.5px;
+  color: var(--ink-2); border-top: 1px solid var(--line-2);
+}
+.railline:hover { color: var(--accent); }
+.railline .muted { margin-left: auto; }
+
+.orderlist { display: flex; flex-direction: column; }
+.orderrow { border-bottom: 1px solid var(--line-2); }
+.orderrow:last-child { border-bottom: 0; }
+.ohead {
+  display: block; width: 100%; text-align: left; cursor: pointer;
+  background: none; border: 0; padding: 8px 0; font: inherit;
+  color: var(--ink-2);
+}
+.ohead:hover .otext { color: var(--accent); }
+.okind {
+  display: block; font: 600 10.5px/1 var(--sans); letter-spacing: 0.07em;
+  text-transform: uppercase; color: var(--ink-3); margin-bottom: 3px;
+}
+.otext { font-size: 13px; line-height: 1.45; }
+.orderrow.draft .okind { color: var(--warn); }
+.odetail { padding: 0 0 10px; }
+
+.railfoot {
+  display: flex; flex-wrap: wrap; gap: 4px 14px;
+  margin-top: 26px; padding-top: 13px; border-top: 1px solid var(--line-2);
+}
+.railfoot .linkish { color: var(--ink-3); font-size: 12px; }
+.railfoot .linkish:hover { color: var(--accent); }
+
+/* ------------------------------------------------- visits drawer */
+.visitrow {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0; border-bottom: 1px solid var(--line-2);
+}
+.visitrow:last-child { border-bottom: 0; }
+.readnote {
+  margin-top: 12px; padding: 14px 16px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 7px;
+}
+.readnote h4 { font: 600 13.5px/1 var(--sans); margin: 0 0 12px; }
+.readnote .nb + .nb { margin-top: 13px; }
+.readnote p { margin: 0; font-size: 13.5px; line-height: 1.65; white-space: pre-wrap; }
+
+.svcrow {
+  display: flex; align-items: center; gap: 9px;
+  padding: 6px 0; font-size: 14px; cursor: pointer;
+}
+.measure .mval {
+  display: flex; align-items: baseline; gap: 6px; margin-bottom: 2px;
+}
+.measure .mval b { font: 600 17px/1 var(--serif); color: var(--ink); }
+.measure .mval b.f-high { color: var(--warn); }
+.measure .mval b.f-low { color: var(--info, var(--warn)); }
+.measure .mval b.f-critical { color: var(--crit); }
+.measure .munit { font-size: 11.5px; color: var(--ink-3); }
+.measure .mdelta { font-size: 11.5px; color: var(--ink-3); }
+.measure .mwhen { font-size: 11px; color: var(--ink-3); margin-left: auto; }
+.addproblem { display: inline-block; margin-top: 4px; }
+.addproblembox {
+  border: 1px solid var(--accent-line); border-radius: 7px;
+  background: var(--panel-2); padding: 12px 13px; max-width: 420px;
+}

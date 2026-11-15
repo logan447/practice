@@ -194,3 +194,44 @@ export const previsitReason = (pv: PreVisit | undefined): string => {
   const head = c.length ? `${list(c)}.` : '';
   return [head, pv.narrative.trim()].filter(Boolean).join(' ');
 };
+
+// ------------------------------------------------- the header summary
+
+/**
+ * The one line under the name.
+ *
+ * Generated from structure, not typed: which problems carry
+ * `managed`, and which of the two service switches are on. A patient
+ * on chronic disease management and lifestyle medicine but not
+ * preventative services gets a sentence that says exactly that and
+ * nothing else.
+ *
+ * Returns the parts rather than a string, because the problems render
+ * as tags and the services as words.
+ */
+export interface Summary {
+  managed: Condition[];
+  services: string[];
+  /** True when there is nothing to say at all. */
+  empty: boolean;
+}
+
+export function practiceSummary(p: Patient, conditions: Condition[]): Summary {
+  const managed = conditions.filter((c) => c.managed && c.status !== 'resolved');
+  const svc = p.services ?? { preventative: true, lifestyle: true };
+  const services = [
+    svc.preventative ? 'preventative services' : '',
+    svc.lifestyle ? 'lifestyle medicine services' : '',
+  ].filter(Boolean);
+  return { managed, services, empty: managed.length === 0 && services.length === 0 };
+}
+
+/** "a, b, and c" with no Oxford fuss when there are only two. */
+export const joinWords = (xs: string[]): string =>
+  xs.length <= 1 ? (xs[0] ?? '')
+    : xs.length === 2 ? `${xs[0]} and ${xs[1]}`
+      : `${xs.slice(0, -1).join(', ')}, and ${xs[xs.length - 1]}`;
+
+/** Age and sex, the way it is said out loud. */
+export const demographicLine = (p: Patient): string =>
+  `${age(p.dob)} ${p.sex === 'female' ? 'F' : 'M'}`;

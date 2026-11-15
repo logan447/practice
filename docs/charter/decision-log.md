@@ -693,3 +693,43 @@ same as being outside the prohibition. `NEEDS-COUNSEL`
 
 **Revisit when:** counsel settles the payer posture, or a real C-CDA
 requirement appears from a receiving system.
+
+---
+
+## D-042 — The chart is one workspace, and its summary is generated
+
+**Decided 2026-11-15, owner direction, during the EMR prototype build.**
+
+The patient chart moves from a header plus eight tabs to a single
+clinical workspace: a minimal header, a longitudinal SOAP care plan,
+and a narrow right column for the next visit and pending orders.
+Everything else moves into slide-out drawers.
+
+**Two structured fields now carry the header sentence.** Each
+condition records whether the practice actively manages it, and each
+patient has two independent service switches, preventative and
+lifestyle medicine. The line under the name is composed from those,
+never typed. Past medical history and what this practice is doing are
+different lists; conflating them is the thing this change fixes.
+
+**The master care plan is a document, not a note.** One per patient,
+updated as visits happen. Signing a visit note prepends a dated line
+per problem into the standing plan; the note is kept exactly as
+signed. Prose in each section is the physician's; the structured
+content beside it is composed from the record at read time rather than
+copied, so the longitudinal document cannot drift out of date with
+what it describes.
+
+**Removed from the header:** membership, sign-in-as-patient, the
+reconciliation indicator, Start Visit, contact details, date of birth,
+pronouns, and the avatar. All of it is one drawer away. The pinned
+clinical reminder stays as a line.
+
+**Sharon White** (`app/src/data/sharon.ts`) is the worked example: 60F,
+three managed problems, two carried as history, four years of
+measurements, overdue prevention, and a populated master plan.
+
+**Revisit when:** the design has been used for a week. The open
+questions are whether prose that saves on blur is right for a document
+this long, and whether a single plan per patient holds up for someone
+with ten problems rather than three.

@@ -305,6 +305,7 @@ export function generatePanel(n = 120, seed = 20261114): Panel {
       id: pid, name, preferredName: first, dob, sex,
       pronouns: sex === 'female' ? 'she/her' : 'he/him',
       membership: chance(0.18) ? (chance(0.3) ? 'pro-bono' : 'sliding-scale') : 'standard',
+      services: { preventative: !chance(0.18), lifestyle: !chance(0.12) },
       memberSince: addDays(ORIGIN, -tenureDays),
       photoTone: i % 6,
       phone: `(512) 555-0${String(100 + (i % 899)).padStart(3, '0')}`,
@@ -334,6 +335,9 @@ export function generatePanel(n = 120, seed = 20261114): Panel {
       out.conditions.push({
         id: id('cd'), patientId: pid, name: spec.name, code: spec.code,
         status: chance(0.07) ? 'resolved' : 'active', onset,
+        // Most of a panel's problems are ours. The ones that are not
+        // are the interesting case, so a quarter sit in history only.
+        managed: !chance(0.25),
         provenance: chance(0.4)
           ? { author: 'source', by: pick(OUTSIDE), recorded: onset }
           : { author: 'clinician', by: 'L. DuBose, MD', recorded: onset },

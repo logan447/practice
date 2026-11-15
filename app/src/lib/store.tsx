@@ -17,9 +17,11 @@ import { tick } from './tick';
 import type {
   AiDraft, CarePlan, CarePlanGoal, Condition, Encounter, Medication, Order,
   OrderKind, Patient, PatientEntry, PreVisit, PreventionItem, ResultReport,
-  ResultSeries, Specialist, Task, VisitNote, Allergy, ChartDocument,
+  ResultSeries, Specialist, Task, VisitNote, Allergy, ChartDocument, MasterPlan,
 } from '../domain/types';
+import { fmtDate } from './format';
 import { generatePanel } from '../data/generate';
+import * as sharon from '../data/sharon';
 import { resolveDrug } from '../domain/terminology';
 import { recordDiff, type Snapshot } from './audit';
 import { actor as currentActor } from './session';
@@ -45,6 +47,8 @@ interface State {
   specialists: Specialist[];
   preVisits: PreVisit[];
   orders: Order[];
+  /** One living SOAP document per patient. */
+  masterPlans: MasterPlan[];
   /** The clinic's today. Movable, because care is longitudinal. */
   now: string;
   /** What changed the last time the clock moved. */
@@ -55,7 +59,7 @@ const EMPTY: State = {
   patients: [], conditions: [], medications: [], allergies: [], documents: [],
   resultSeries: [], resultReports: [],
   carePlans: [], encounters: [], prevention: [], patientEntries: [], aiDrafts: [], tasks: [],
-  specialists: [], preVisits: [], orders: [],
+  specialists: [], preVisits: [], orders: [], masterPlans: [],
   now: ORIGIN, lastEvents: [],
 };
 
@@ -87,29 +91,30 @@ function migrate(raw: State | null): State | null {
   return s;
 }
 
-/** The three fully built fixture patients, with everything that belongs to them. */
-const DEMO_IDS = ['p1', 'p2', 'p3'];
+/** The fully built fixture patients, with everything that belongs to them. */
+const DEMO_IDS = ['p0', 'p1', 'p2', 'p3'];
 
 function demoState(): State {
   const keep = <T extends { patientId: string }>(xs: T[]) =>
     xs.filter((x) => DEMO_IDS.includes(x.patientId));
   return {
-    patients: fixtures.patients.filter((p) => DEMO_IDS.includes(p.id)),
-    conditions: keep(fixtures.conditions),
-    medications: keep(fixtures.medications),
+    patients: [sharon.sharon, ...fixtures.patients.filter((p) => DEMO_IDS.includes(p.id))],
+    conditions: [...sharon.sharonConditions, ...keep(fixtures.conditions)],
+    medications: [...sharon.sharonMeds, ...keep(fixtures.medications)],
     allergies: [],
     documents: [],
-    resultSeries: keep(fixtures.resultSeries),
-    resultReports: keep(fixtures.resultReports),
-    carePlans: keep(fixtures.carePlans),
-    encounters: keep(fixtures.encounters),
-    prevention: keep(fixtures.prevention),
+    resultSeries: [...sharon.sharonSeries, ...keep(fixtures.resultSeries)],
+    resultReports: [...sharon.sharonReports, ...keep(fixtures.resultReports)],
+    carePlans: [sharon.sharonPlan, ...keep(fixtures.carePlans)],
+    encounters: [...sharon.sharonEncounters, ...keep(fixtures.encounters)],
+    prevention: [...sharon.sharonPrevention, ...keep(fixtures.prevention)],
     patientEntries: keep(fixtures.patientEntries),
     aiDrafts: keep(fixtures.aiDrafts),
-    tasks: keep(fixtures.tasks),
-    specialists: keep(fixtures.specialists),
+    tasks: [...sharon.sharonTasks, ...keep(fixtures.tasks)],
+    specialists: [...sharon.sharonSpecialists, ...keep(fixtures.specialists)],
     preVisits: keep(fixtures.preVisits),
-    orders: keep(fixtures.orders),
+    orders: [...sharon.sharonOrders, ...keep(fixtures.orders)],
+    masterPlans: [sharon.sharonMaster],
     now: ORIGIN,
     lastEvents: [],
   };
@@ -150,6 +155,7 @@ interface Store extends State {
   medsFor: (id: string) => Medication[];
   allergiesFor: (id: string) => Allergy[];
   documentsFor: (id: string) => ChartDocument[];
+  masterPlanFor: (id: string) => MasterPlan | undefined;
   seriesFor: (id: string) => ResultSeries[];
   series: (id: string) => ResultSeries | undefined;
   reportsFor: (id: string) => ResultReport[];
@@ -191,6 +197,9 @@ interface Store extends State {
   specialistsFor: (id: string) => Specialist[];
   preVisitFor: (encounterId: string) => PreVisit | undefined;
   ordersFor: (encounterId: string) => Order[];
+  ordersForPatient: (patientId: string) => Order[];
+  placeOrder: (orderId: string) => void;
+  completeOrder: (orderId: string) => void;
   encounter: (id: string) => Encounter | undefined;
 
   addSpecialist: (patientId: string, sp: Omit<Specialist, 'id' | 'patientId'>) => void;
@@ -219,6 +228,12 @@ interface Store extends State {
   setMedStatus: (medId: string, status: Medication['status'], changeNote?: string) => void;
   removePatient: (patientId: string) => void;
   markDocumentReviewed: (docId: string) => void;
+
+  // the longitudinal plan, and what the header is generated from
+  saveMasterPlan: (patientId: string, patch: Partial<MasterPlan>) => void;
+  setProblemPlan: (patientId: string, conditionId: string, text: string) => void;
+  setManaged: (conditionId: string, managed: boolean) => void;
+  setServices: (patientId: string, services: { preventative: boolean; lifestyle: boolean }) => void;
 }
 
 const Ctx = createContext<Store | null>(null);
@@ -272,6 +287,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       medsFor: (id) => by(s.medications, id),
       allergiesFor: (id) => by(s.allergies, id),
       documentsFor: (id) => [...by(s.documents, id)].sort((a, b) => b.date.localeCompare(a.date)),
+      masterPlanFor: (id) => s.masterPlans.find((m) => m.patientId === id),
       seriesFor: (id) => by(s.resultSeries, id),
       clinicalSeriesFor: (id) => by(s.resultSeries, id).filter((x) => x.source !== 'patient'),
       patientSeriesFor: (id) => by(s.resultSeries, id).filter((x) => x.source === 'patient'),
@@ -324,6 +340,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             id: newId('or'), patientId, encounterId, kind, text, goalId,
             status: 'draft', created: clockNow(),
           }],
+        })),
+
+      ordersForPatient: (patientId) => by(s.orders, patientId)
+        .sort((a, b) => b.created.localeCompare(a.created)),
+
+      placeOrder: (orderId) =>
+        setS((p) => ({
+          ...p,
+          orders: p.orders.map((o) => (o.id === orderId ? { ...o, status: 'placed' } : o)),
+        })),
+
+      completeOrder: (orderId) =>
+        setS((p) => ({
+          ...p,
+          orders: p.orders.map((o) =>
+            (o.id === orderId ? { ...o, status: 'done', closed: clockNow() } : o)),
         })),
 
       removeOrder: (orderId) =>
@@ -399,6 +431,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
         const conditions: Condition[] = lines(d.conditions).map((name) => ({
           id: newId('cd'), patientId: id, name, code: '', status: 'active',
+          // What they told us at intake, not yet a problem we have
+          // taken on. Ticking it is a decision, made in the chart.
+          managed: false,
           onset: clockNow(),
           provenance: { author: 'patient', by: 'Reported at intake', recorded: clockNow() },
         }));
@@ -442,6 +477,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           ...p,
           conditions: [...p.conditions, {
             id: newId('cd'), patientId, name, code, status: 'active', onset: clockNow(), note,
+            // A problem added here is one you are taking on. It can be
+            // moved to history-only from the details drawer.
+            managed: true,
             provenance: { author: 'clinician', by: ME, recorded: clockNow() },
           }],
         })),
@@ -649,12 +687,55 @@ export function StoreProvider({ children }: { children: ReactNode }) {
               : e),
         })),
 
+      /**
+       * Signing carries the visit's plan into the master plan.
+       *
+       * The note itself is kept exactly as signed. What moves is a
+       * dated line per problem, prepended to that problem's standing
+       * plan, so the longitudinal document stays current without
+       * anyone retyping it and without the visit being overwritten.
+       */
       signEncounter: (encounterId) =>
-        setS((p) => ({
-          ...p,
-          encounters: p.encounters.map((e) =>
-            e.id === encounterId ? { ...e, status: 'signed', signedAt: clockNow() } : e),
-        })),
+        setS((p) => {
+          const enc = p.encounters.find((e) => e.id === encounterId);
+          const encounters = p.encounters.map((e) =>
+            e.id === encounterId ? { ...e, status: 'signed' as const, signedAt: clockNow() } : e);
+          if (!enc?.note) return { ...p, encounters };
+
+          const conds = p.conditions.filter((c) => c.patientId === enc.patientId);
+          const existing = p.masterPlans.find((m) => m.patientId === enc.patientId);
+          const base: MasterPlan = existing ?? {
+            id: newId('mp'), patientId: enc.patientId, updated: clockNow(), updatedBy: ME,
+            subjective: { history: '', goals: '', context: '' },
+            objective: { narrative: '' },
+            assessment: { narrative: '' },
+            plan: { byProblem: {}, prevention: '', lifestyle: '', followUp: '' },
+          };
+
+          const byProblem = { ...base.plan.byProblem };
+          let touched = false;
+          for (const pr of enc.note.plan.problems) {
+            const c = conds.find((x) => x.name.toLowerCase() === pr.problem.toLowerCase());
+            const text = [pr.treatment, pr.orders, pr.followUp].filter((x) => x?.trim()).join(' ');
+            if (!c || !text.trim()) continue;
+            const line = `${fmtDate(clockNow())}: ${text.trim()}`;
+            byProblem[c.id] = byProblem[c.id] ? `${line}\n\n${byProblem[c.id]}` : line;
+            touched = true;
+          }
+          if (!touched) return { ...p, encounters };
+
+          const next: MasterPlan = {
+            ...base,
+            plan: { ...base.plan, byProblem },
+            updated: clockNow(), updatedBy: ME,
+          };
+          return {
+            ...p, encounters,
+            masterPlans: existing
+              ? p.masterPlans.map((m) => (m.patientId === enc.patientId ? next : m))
+              : [...p.masterPlans, next],
+          };
+        }),
 
       setMedStatus: (medId, status, changeNote) =>
         setS((p) => ({
@@ -666,6 +747,72 @@ export function StoreProvider({ children }: { children: ReactNode }) {
                 stopped: status === 'stopped' ? clockNow() : m.stopped,
               }
               : m),
+        })),
+
+      /**
+       * Writes through to the one plan, creating it on first edit.
+       * A patient with no master plan is not an error state: it is a
+       * patient nobody has written one for yet.
+       */
+      saveMasterPlan: (patientId, patch) =>
+        setS((p) => {
+          const existing = p.masterPlans.find((m) => m.patientId === patientId);
+          const base: MasterPlan = existing ?? {
+            id: newId('mp'), patientId, updated: clockNow(), updatedBy: ME,
+            subjective: { history: '', goals: '', context: '' },
+            objective: { narrative: '' },
+            assessment: { narrative: '' },
+            plan: { byProblem: {}, prevention: '', lifestyle: '', followUp: '' },
+          };
+          const next: MasterPlan = {
+            ...base, ...patch,
+            subjective: { ...base.subjective, ...patch.subjective },
+            objective: { ...base.objective, ...patch.objective },
+            assessment: { ...base.assessment, ...patch.assessment },
+            plan: { ...base.plan, ...patch.plan },
+            updated: clockNow(), updatedBy: ME,
+          };
+          return {
+            ...p,
+            masterPlans: existing
+              ? p.masterPlans.map((m) => (m.patientId === patientId ? next : m))
+              : [...p.masterPlans, next],
+          };
+        }),
+
+      setProblemPlan: (patientId, conditionId, text) =>
+        setS((p) => {
+          const existing = p.masterPlans.find((m) => m.patientId === patientId);
+          const base: MasterPlan = existing ?? {
+            id: newId('mp'), patientId, updated: clockNow(), updatedBy: ME,
+            subjective: { history: '', goals: '', context: '' },
+            objective: { narrative: '' },
+            assessment: { narrative: '' },
+            plan: { byProblem: {}, prevention: '', lifestyle: '', followUp: '' },
+          };
+          const next: MasterPlan = {
+            ...base,
+            plan: { ...base.plan, byProblem: { ...base.plan.byProblem, [conditionId]: text } },
+            updated: clockNow(), updatedBy: ME,
+          };
+          return {
+            ...p,
+            masterPlans: existing
+              ? p.masterPlans.map((m) => (m.patientId === patientId ? next : m))
+              : [...p.masterPlans, next],
+          };
+        }),
+
+      setManaged: (conditionId, managed) =>
+        setS((p) => ({
+          ...p,
+          conditions: p.conditions.map((c) => (c.id === conditionId ? { ...c, managed } : c)),
+        })),
+
+      setServices: (patientId, services) =>
+        setS((p) => ({
+          ...p,
+          patients: p.patients.map((x) => (x.id === patientId ? { ...x, services } : x)),
         })),
 
       markDocumentReviewed: (docId) =>
@@ -687,7 +834,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             prevention: drop(p.prevention), patientEntries: drop(p.patientEntries),
             aiDrafts: drop(p.aiDrafts), tasks: drop(p.tasks),
             specialists: drop(p.specialists), preVisits: drop(p.preVisits),
-            orders: drop(p.orders),
+            orders: drop(p.orders), masterPlans: drop(p.masterPlans),
             now: p.now, lastEvents: p.lastEvents,
           };
         }),

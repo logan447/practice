@@ -11,7 +11,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '../lib/store';
-import { useNav, type ChartTab } from '../lib/nav';
+import { useNav } from '../lib/nav';
 import { Portrait } from './Portrait';
 import { age } from '../lib/format';
 
@@ -92,17 +92,14 @@ export function CommandPalette() {
     );
 
     if (currentPatient) {
-      const tabs: [ChartTab, string][] = [
-        ['plan', 'Care plan'], ['meds', 'Medicines'], ['prevention', 'Prevention'],
-        ['results', 'Results'], ['notes', 'Notes'], ['specialists', 'Specialists'],
-        ['records', 'Records'], ['paper', 'Paper'], ['history', 'History'],
-      ];
-      for (const [tab, label] of tabs) {
-        out.push({
-          id: `t-${tab}`, label: `Go to ${label}`, group: 'This patient',
-          run: () => nav.go({ name: 'chart', patientId: currentPatient, tab }),
-        });
-      }
+      // The chart no longer has tabs to jump to. What used to be a tab
+      // is a drawer opened from the place in the plan that refers to
+      // it, so a palette entry for each one would be a second
+      // navigation scheme for a screen that deliberately has none.
+      out.push({
+        id: 't-chart', label: 'Back to the chart', group: 'This patient',
+        run: () => nav.go({ name: 'chart', patientId: currentPatient }),
+      });
       out.push({
         id: 't-portal', label: 'See their view', group: 'This patient',
         run: () => nav.go({ name: 'portal', patientId: currentPatient }),

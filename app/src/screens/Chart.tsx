@@ -1,63 +1,73 @@
 /**
  * The chart.
  *
- * The header answers "who is this" in the order a clinician asks it:
- * name, demographics, the one-liner, then the active problem list.
- * Contact sits under the name because it is needed often and is not
- * clinical.
+ * One screen. The header says who this is and what we are doing for
+ * them, and nothing else: no membership, no contact details, no
+ * administrative controls. The middle is the master care plan. The
+ * right is what is coming and what is outstanding.
  *
- * The reminder moved out of a banner and under the avatar as a note
- * icon. A banner across the top of every chart stops being read by the
- * second week; an icon that only lights up when there is something to
- * say keeps its meaning.
+ * Everything that used to be a tab is still here and is reachable
+ * from the place in the plan that refers to it, or from the one quiet
+ * row at the foot of the rail. That is deliberate. Eight tabs across
+ * the top meant the first thing the chart said about a patient was
+ * "here are eight places to look", which is a statement about the
+ * software rather than about the person.
  *
- * Tabs follow how the work actually goes: set the plan, manage the
- * medicines, cover prevention, read the results, write the note.
+ * The header's sentence is generated from structured data: which
+ * problems carry `managed`, and which of the two service switches are
+ * on. Past medical history and what this practice is doing are
+ * different lists, and most charts conflate them.
  */
 import { useEffect, useState } from 'react';
 import { useStore } from '../lib/store';
-import { useNav, type ChartTab } from '../lib/nav';
-import { Avatar, Chip } from '../components/ui';
-import { Booking } from '../components/Booking';
-import { age, fmtDate, MEMBERSHIP_LABEL, monthsSince } from '../lib/format';
-import { oneLiner } from '../lib/clinical';
+import { useNav } from '../lib/nav';
 import { markChartOpen } from '../lib/metrics';
-import { PlanTab } from './chart/PlanTab';
+import { useActor, ROLE_LABEL, signInAs } from '../lib/session';
+import { can } from '../lib/permissions';
+import { recordRead, record } from '../lib/audit';
+import { practiceSummary, demographicLine } from '../lib/clinical';
+import { Drawer } from '../components/Drawer';
+import { MasterPlanView } from './chart/MasterPlanView';
+import { RightRail } from './chart/RightRail';
 import { MedsTab } from './chart/MedsTab';
 import { ResultsTab } from './chart/ResultsTab';
 import { PreventionTab } from './chart/PreventionTab';
 import { NotesTab } from './chart/NotesTab';
 import { SpecialistsTab } from './chart/SpecialistsTab';
 import { RecordsTab } from './chart/RecordsTab';
+import { PaperTab } from './chart/PaperTab';
+import { HistoryTab } from './chart/HistoryTab';
+import { PlanTab } from './chart/PlanTab';
 import { QualityStrip } from '../components/Quality';
 import { findIssues } from '../lib/dataQuality';
-import { CodePicker } from '../components/CodePicker';
-import { searchConditions } from '../domain/terminology';
-import { HistoryTab } from './chart/HistoryTab';
-import { PaperTab } from './chart/PaperTab';
-import { useActor, signInAs, ROLE_LABEL } from '../lib/session';
-import { can } from '../lib/permissions';
-import { recordRead, record } from '../lib/audit';
 
-const SEX_SHORT: Record<string, string> = { female: 'F', male: 'M' };
+type DrawerName =
+  | null | 'meds' | 'results' | 'prevention' | 'specialists' | 'notes'
+  | 'records' | 'paper' | 'history' | 'goals' | 'details';
 
-export function Chart({ patientId, initialTab }: { patientId: string; initialTab?: ChartTab }) {
+const TITLES: Record<string, { title: string; sub?: string }> = {
+  meds: { title: 'Medicines', sub: 'Stopped drugs stay, with the reason' },
+  results: { title: 'Results' },
+  prevention: { title: 'Prevention' },
+  specialists: { title: 'Specialists', sub: 'Co-management fails at the handoff' },
+  notes: { title: 'Visit notes', sub: 'As they were signed' },
+  records: { title: 'Allergies and outside records' },
+  paper: { title: 'Documents' },
+  history: { title: 'Who did what' },
+  goals: { title: 'Shared care plan', sub: 'What the patient sees in their portal' },
+  details: { title: 'Patient details' },
+};
+
+export function Chart({ patientId }: { patientId: string }) {
   const st = useStore();
   const nav = useNav();
-  const [tab, setTab] = useState<ChartTab>(initialTab ?? 'plan');
-  const [showNote, setShowNote] = useState(false);
-  const [picking, setPicking] = useState(false);
-  const [addProblem, setAddProblem] = useState(false);
-  const [problem, setProblem] = useState({ name: '', code: '' });
-
   const me = useActor();
+  const [drawer, setDrawer] = useState<DrawerName>(null);
 
-  // Time here is chart review, and it is what the assembled note should shrink.
   useEffect(() => { markChartOpen(); }, [patientId]);
 
   const p = st.patient(patientId);
 
-  // Opening someone else's chart is the event an access audit is for.
   useEffect(() => {
     if (p) recordRead(me, st.now, p.id, p.preferredName ?? p.name.split(' ')[0]);
   }, [p?.id, me.id]);
@@ -83,195 +93,198 @@ export function Chart({ patientId, initialTab }: { patientId: string; initialTab
   }
 
   const conditions = st.conditionsFor(p.id);
-  const active = conditions.filter((c) => c.status === 'active');
-  const specialists = st.specialistsFor(p.id);
-  const nextVisit = st.encountersFor(p.id).find((e) => e.status !== 'signed');
-  const unack = st.reportsFor(p.id).filter((r) => !r.acknowledged).length;
-  const allergies = st.allergiesFor(p.id);
-  const documents = st.documentsFor(p.id);
+  const history = conditions.filter((c) => c.status !== 'resolved');
+  const { managed, services } = practiceSummary(p, conditions);
 
-  /**
-   * What is wrong with this record, computed rather than curated. On a
-   * clean chart it is empty and costs a line of nothing.
-   */
   const issues = findIssues({
     patient: p, allPatients: st.patients, medications: st.medsFor(p.id),
-    allergies, conditions, series: st.seriesFor(p.id), documents,
+    allergies: st.allergiesFor(p.id), conditions,
+    series: st.seriesFor(p.id), documents: st.documentsFor(p.id),
   });
 
-  const tabs: { id: ChartTab; label: string; badge?: number }[] = [
-    { id: 'plan', label: 'Care plan' },
-    { id: 'meds', label: 'Medicines' },
-    { id: 'prevention', label: 'Prevention' },
-    { id: 'results', label: 'Results', badge: unack },
-    { id: 'notes', label: 'Notes' },
-    ...(specialists.length ? [{ id: 'specialists' as ChartTab, label: 'Specialists' }] : []),
-    ...(allergies.length || documents.length || st.entriesFor(p.id).length
-      ? [{ id: 'records' as ChartTab, label: 'Records' }] : []),
-    { id: 'paper', label: 'Paper' },
-    { id: 'history', label: 'History' },
-  ];
-
-  /** Allergies belong in the header. They are read at every decision. */
-  const worst = allergies.find((a) => a.severity === 'severe') ?? allergies[0];
+  /** The sentence, assembled from the two structured lists. */
+  const doing: string[] = [];
+  if (managed.length > 0) doing.push('__problems__');
+  doing.push(...services);
 
   return (
-    <div className="wrap">
-      {nav.canBack && (
-        <button className="btn quiet" style={{ marginBottom: 10 }} onClick={nav.back}>&larr; Back</button>
-      )}
+    <div className="chart">
+      <div className="chartinner">
+        {nav.canBack && (
+          <button className="btn quiet backlink" onClick={nav.back}>&larr; Back</button>
+        )}
 
-      <div className="phead">
-        <div className="pid">
-          <Avatar patient={p} lg />
-          <button
-            className={`notepin${p.pinned ? ' has' : ''}`}
-            aria-label={p.pinned ? 'Reminder about this patient' : 'No reminder'}
-            title={p.pinned ? 'Reminder' : 'No reminder'}
-            onClick={() => p.pinned && setShowNote((v) => !v)}
-            disabled={!p.pinned}
-          >
-            <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true">
-              <path d="M2.5 2h11v8.5L10 14H2.5z" fill="currentColor" opacity=".9" />
-              <path d="M13.5 10.5H10V14z" fill="var(--panel)" />
-            </svg>
-          </button>
-        </div>
-
-        <div style={{ minWidth: 0, flex: 1 }}>
+        {/* ------------------------------------------------- header */}
+        <header className="chead">
           <h1>{p.name}</h1>
-          <div className="meta">
-            {age(p.dob)} &middot; {SEX_SHORT[p.sex] ?? p.sex} ({p.pronouns}) &middot; born {fmtDate(p.dob)}
-          </div>
-          <div className="meta">{p.phone} &middot; {p.email}</div>
-          <div className="meta allergy">
-            {allergies.length === 0 ? 'No allergies recorded' : (
+
+          <p className="cdem">
+            <span>{demographicLine(p)}</span>
+            {history.length > 0 && (
               <>
-                <b>Allergies:</b>{' '}
-                {allergies.map((a) => `${a.substance} (${a.severity ?? 'unknown'})`).join(', ')}
-                {worst?.severity === 'severe' && <Chip tone="crit">Severe</Chip>}
+                <span className="bar" aria-hidden="true" />
+                <span className="pmh">PMH:</span>
+                {history.map((c) => (
+                  <span key={c.id} className={`dx${c.managed ? ' on' : ''}`}
+                    title={c.code ? `${c.code}${c.note ? ` · ${c.note}` : ''}` : c.note}>
+                    {c.name}
+                  </span>
+                ))}
               </>
             )}
-          </div>
+          </p>
 
-          <p className="oneliner">{oneLiner(p, conditions)}</p>
-
-          <div className="problems">
-            {active.length === 0
-              ? <span className="small muted">No active problems recorded.</span>
-              : active.map((c) => (
-                <span key={c.id} className="chip" title={c.code ? `${c.code}${c.note ? ` \u00b7 ${c.note}` : ''}` : 'No code, so nothing checks against it'}>
-                  {c.name}
-                  {!c.code && <span className="uncoded" aria-label="uncoded">?</span>}
+          {doing.length > 0 && (
+            <p className="csum">
+              Following with our office for{' '}
+              {doing.map((part, i) => (
+                <span key={part}>
+                  {i > 0 && (i === doing.length - 1 ? (doing.length > 2 ? ', and ' : ' and ') : ', ')}
+                  {part === '__problems__' ? (
+                    <>
+                      management of{' '}
+                      {managed.map((c, j) => (
+                        <span key={c.id}>
+                          {j > 0 && ' '}
+                          <span className="dx on">{c.name}</span>
+                        </span>
+                      ))}
+                    </>
+                  ) : part}
                 </span>
               ))}
-            {!addProblem && (
-              <button className="btn quiet sm" onClick={() => setAddProblem(true)}>+ Problem</button>
-            )}
-          </div>
-
-          {addProblem && (
-            <div style={{ maxWidth: 420, marginTop: 10 }}>
-              <CodePicker
-                label="Add a problem" value={problem.name} autoFocus
-                placeholder="Type a diagnosis"
-                hint={`ICD-10-CM. Press escape to close.`}
-                onText={(v) => setProblem({ name: v, code: '' })}
-                search={(q) => searchConditions(q).map((c) => ({
-                  id: c.code, primary: c.name, code: c.code,
-                }))}
-                onPick={(r) => setProblem({ name: r.primary, code: r.code })}
-              />
-              <div className="row" style={{ marginTop: 9 }}>
-                <button className="btn sm" disabled={!problem.name.trim()}
-                  onClick={() => {
-                    st.addCondition(p.id, problem.name.trim(), problem.code);
-                    setProblem({ name: '', code: '' });
-                    setAddProblem(false);
-                  }}>
-                  Add{problem.code ? ` ${problem.code}` : ' without a code'}
-                </button>
-                <button className="btn ghost sm" onClick={() => setAddProblem(false)}>Cancel</button>
-              </div>
-            </div>
+              .
+            </p>
           )}
-        </div>
 
-        <div className="acts">
-          <Chip tone={p.membership === 'standard' ? undefined : 'accent'}>
-            {MEMBERSHIP_LABEL[p.membership]} &middot; {monthsSince(p.memberSince)} mo
-          </Chip>
-          {unack > 0 && <Chip tone="crit">{unack} result{unack > 1 ? 's' : ''}</Chip>}
-          {me.role === 'physician' && (
-          <button className="btn ghost" title="Sign in as this patient, with their permissions"
-            onClick={() => {
-              const next = { id: `pt-${p.id}`, name: p.name, role: 'patient' as const, patientId: p.id };
-              record(next, st.now, {
-                action: 'sign-in', resource: 'Session', resourceId: next.id, patientId: p.id,
-                summary: `Signed in as ${p.name} (patient)`,
-              });
-              signInAs(next);
-              nav.reset({ name: 'portal', patientId: p.id });
-            }}>
-            Sign in as them
-          </button>
-          )}
-          {nextVisit ? (
-            <button className="btn" onClick={() => nav.go({ name: 'encounter', encounterId: nextVisit.id })}>
-              Open visit
-            </button>
-          ) : (
-            <button className="btn" onClick={() => setPicking((v) => !v)}>Start a visit</button>
-          )}
-        </div>
+          {p.pinned && <p className="cpin">{p.pinned}</p>}
+        </header>
 
-        {picking && (
-          <div style={{ flexBasis: '100%' }}>
-            <Booking
-              patientId={p.id}
-              onCancel={() => setPicking(false)}
-              onBooked={(id, sameDay) => {
-                setPicking(false);
-                // Booked for today means it starts now. Booked for a
-                // future day means it goes in the diary and stays there.
-                if (sameDay) nav.go({ name: 'encounter', encounterId: id });
-                else nav.go({ name: 'schedule' });
-              }}
-            />
-          </div>
+        {issues.length > 0 && (
+          <QualityStrip issues={issues} onGo={(t) => setDrawer(
+            t === 'plan' ? 'goals' : (t as DrawerName))} />
         )}
 
-        {showNote && p.pinned && (
-          <div className="pinned" style={{ flexBasis: '100%' }}>
-            <b>Remember</b>
-            <span>{p.pinned}</span>
-            <button className="btn quiet sm" style={{ marginLeft: 'auto' }}
-              onClick={() => setShowNote(false)}>Close</button>
+        {/* -------------------------------------------- the workspace */}
+        <div className="workspace">
+          <MasterPlanView patientId={p.id} onOpen={(w) => setDrawer(w)} />
+          <div>
+            <RightRail patientId={p.id} />
+            <nav className="railfoot">
+              {([
+                ['goals', 'Shared plan'], ['results', 'Results'], ['meds', 'Medicines'],
+                ['prevention', 'Prevention'], ['records', 'Records'], ['paper', 'Documents'],
+                ['history', 'History'], ['details', 'Details'],
+              ] as [DrawerName, string][]).map(([k, label]) => (
+                <button key={k} className="linkish" onClick={() => setDrawer(k)}>{label}</button>
+              ))}
+            </nav>
           </div>
-        )}
+        </div>
       </div>
 
-      <QualityStrip issues={issues} onGo={(t) => setTab(t)} />
+      <Drawer open={drawer !== null} wide
+        title={drawer ? TITLES[drawer].title : ''}
+        sub={drawer ? TITLES[drawer].sub : undefined}
+        onClose={() => setDrawer(null)}>
+        {drawer === 'meds' && <MedsTab patientId={p.id} />}
+        {drawer === 'results' && <ResultsTab patientId={p.id} />}
+        {drawer === 'prevention' && <PreventionTab patientId={p.id} />}
+        {drawer === 'specialists' && <SpecialistsTab patientId={p.id} />}
+        {drawer === 'notes' && <NotesTab patientId={p.id} />}
+        {drawer === 'records' && <RecordsTab patientId={p.id} />}
+        {drawer === 'paper' && <PaperTab patientId={p.id} />}
+        {drawer === 'history' && <HistoryTab patientId={p.id} />}
+        {drawer === 'goals' && <PlanTab patientId={p.id} />}
+        {drawer === 'details' && <Details patientId={p.id} />}
+      </Drawer>
+    </div>
+  );
+}
 
-      <div className="tabs" role="tablist">
-        {tabs.map((t) => (
-          <button key={t.id} role="tab" aria-selected={tab === t.id}
-            className={tab === t.id ? 'on' : ''} onClick={() => setTab(t.id)}>
-            {t.label}
-            {t.badge ? <span className="chip crit" style={{ marginLeft: 6 }}>{t.badge}</span> : null}
-          </button>
+/**
+ * What the header stopped carrying.
+ *
+ * Membership, contact details, and the two switches that generate the
+ * summary sentence. Administrative, so out of the clinical view, but
+ * one click away rather than gone.
+ */
+function Details({ patientId }: { patientId: string }) {
+  const st = useStore();
+  const nav = useNav();
+  const me = useActor();
+  const p = st.patient(patientId);
+  const conditions = st.conditionsFor(patientId);
+  if (!p) return null;
+  const svc = p.services ?? { preventative: true, lifestyle: true };
+
+  return (
+    <div className="stack">
+      <section className="panel"><div className="body">
+        <div className="soaplabel">Contact</div>
+        <p>{p.phone}</p>
+        <p>{p.email}</p>
+        <p className="small muted">
+          Born {p.dob} &middot; {p.pronouns} &middot; member since {p.memberSince}
+        </p>
+      </div></section>
+
+      <section className="panel"><div className="body">
+        <div className="soaplabel">Membership</div>
+        <p style={{ textTransform: 'capitalize' }}>{p.membership.replace('-', ' ')}</p>
+        <p className="small muted">
+          The clinical care is identical at every fee level.
+        </p>
+      </div></section>
+
+      <section className="panel"><div className="body">
+        <div className="soaplabel">What we provide</div>
+        <p className="small muted" style={{ marginBottom: 10 }}>
+          These two switches and the managed problems below generate the sentence
+          at the top of the chart. Nothing there is typed.
+        </p>
+        <label className="svcrow">
+          <input type="checkbox" checked={svc.preventative}
+            onChange={(e) => st.setServices(p.id, { ...svc, preventative: e.target.checked })} />
+          <span>Preventative services</span>
+        </label>
+        <label className="svcrow">
+          <input type="checkbox" checked={svc.lifestyle}
+            onChange={(e) => st.setServices(p.id, { ...svc, lifestyle: e.target.checked })} />
+          <span>Lifestyle medicine services</span>
+        </label>
+      </div></section>
+
+      <section className="panel"><div className="body">
+        <div className="soaplabel">Problems we manage</div>
+        <p className="small muted" style={{ marginBottom: 10 }}>
+          Unticked problems stay in the history and stay out of the sentence.
+        </p>
+        {conditions.filter((c) => c.status !== 'resolved').map((c) => (
+          <label key={c.id} className="svcrow">
+            <input type="checkbox" checked={!!c.managed}
+              onChange={(e) => st.setManaged(c.id, e.target.checked)} />
+            <span>{c.name}</span>
+            {c.code && <span className="ppcode">{c.code}</span>}
+          </label>
         ))}
-      </div>
+      </div></section>
 
-      {tab === 'plan' && <PlanTab patientId={p.id} />}
-      {tab === 'meds' && <MedsTab patientId={p.id} />}
-      {tab === 'prevention' && <PreventionTab patientId={p.id} />}
-      {tab === 'results' && <ResultsTab patientId={p.id} />}
-      {tab === 'notes' && <NotesTab patientId={p.id} />}
-      {tab === 'specialists' && <SpecialistsTab patientId={p.id} />}
-      {tab === 'records' && <RecordsTab patientId={p.id} />}
-      {tab === 'paper' && <PaperTab patientId={p.id} />}
-      {tab === 'history' && <HistoryTab patientId={p.id} />}
+      {me.role === 'physician' && (
+        <button className="btn ghost"
+          title="Signs in as this patient, with their permissions"
+          onClick={() => {
+            const next = { id: `pt-${p.id}`, name: p.name, role: 'patient' as const, patientId: p.id };
+            record(next, st.now, {
+              action: 'sign-in', resource: 'Session', resourceId: next.id, patientId: p.id,
+              summary: `Signed in as ${p.name} (patient)`,
+            });
+            signInAs(next);
+            nav.reset({ name: 'portal', patientId: p.id });
+          }}>
+          Sign in as them
+        </button>
+      )}
     </div>
   );
 }

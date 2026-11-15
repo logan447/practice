@@ -113,7 +113,7 @@ function Screen() {
     case 'metrics': return <Metrics />;
     case 'audit': return <Audit />;
     case 'schedule': return <Schedule />;
-    case 'chart': return <Chart patientId={route.patientId} initialTab={route.tab} />;
+    case 'chart': return <Chart patientId={route.patientId} />;
     case 'encounter': return <Encounter encounterId={route.encounterId} />;
     case 'portal': return <Portal patientId={route.patientId} initialTab={route.tab} />;
   }
@@ -133,6 +133,12 @@ function GlobalKeys() {
       const t = e.target as HTMLElement;
       const typing = /input|textarea|select/i.test(t?.tagName ?? '');
       if (typing) { countKey(); return; }
+
+      // A drawer or a document preview owns Escape while it is open,
+      // and the clock has no business moving underneath one. Both
+      // mark themselves with role="dialog", so one check covers every
+      // overlay rather than each one stopping propagation by hand.
+      if (document.querySelector('[role="dialog"]')) return;
 
       if (e.key === 'Escape') { nav.back(); return; }
       if (e.key === '.') { e.preventDefault(); st.advanceTime(1); return; }

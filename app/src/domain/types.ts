@@ -37,6 +37,14 @@ export interface Patient {
   pronouns: string;
   membership: 'standard' | 'sliding-scale' | 'pro-bono';
   memberSince: string;
+  /**
+   * What this practice provides for this person, apart from managing
+   * named problems. Two independent switches rather than a tier,
+   * because a patient can have chronic disease management and
+   * lifestyle medicine without preventative services, or any other
+   * combination. The chart's summary line is generated from these.
+   */
+  services?: { preventative: boolean; lifestyle: boolean };
   photoTone: number; // 0-5, drives the avatar tint; no stock photography
   phone: string;
   email: string;
@@ -56,6 +64,13 @@ export interface Condition {
   /** ICD-10-CM. Empty when the problem was typed rather than coded. */
   code: string;
   status: ConditionStatus;
+  /**
+   * Whether this practice actively manages it, as opposed to carrying
+   * it on the history. The distinction is the whole point of the
+   * summary line: "past medical history" and "what we are doing" are
+   * different lists and most charts conflate them.
+   */
+  managed?: boolean;
   onset: string;
   resolved?: string;
   /** Short clinical framing, physician-authored. */
@@ -257,6 +272,49 @@ export interface Encounter {
   signedAt?: string;
 }
 
+// ------------------------------------------------- the longitudinal plan
+
+/**
+ * The master care plan.
+ *
+ * Not an encounter note. One living SOAP document per patient that
+ * stays current as visits happen, while the individual notes are kept
+ * as they were signed. The sections hold the physician's own prose;
+ * the structured parts of the chart (measures, results, problems,
+ * goals, prevention, medicines) are composed alongside them at read
+ * time rather than copied in, so the plan cannot drift out of date
+ * with the record it describes.
+ */
+export interface MasterPlan {
+  id: string;
+  patientId: string;
+  updated: string;
+  updatedBy: string;
+  subjective: {
+    /** Relevant history and what is ongoing. */
+    history: string;
+    /** Theirs, in their words. */
+    goals: string;
+    /** What matters from previous visits. */
+    context: string;
+  };
+  objective: {
+    /** Anything the measures and results do not already say. */
+    narrative: string;
+  };
+  assessment: {
+    /** Overall clinical assessment across the problems. */
+    narrative: string;
+  };
+  plan: {
+    /** Keyed by condition id. One management plan per problem. */
+    byProblem: Record<string, string>;
+    prevention: string;
+    lifestyle: string;
+    followUp: string;
+  };
+}
+
 // ------------------------------------------------------- before the visit
 
 /** What the patient sends in before they come. */
@@ -291,8 +349,14 @@ export interface Order {
   text: string;
   /** Ties the order to a problem in the care plan. */
   goalId?: string;
-  status: 'draft' | 'placed';
+  /**
+   * draft is written but not sent, placed is out and waiting, done is
+   * closed. The middle one is the state that matters: an order that is
+   * out and forgotten is how results get missed.
+   */
+  status: 'draft' | 'placed' | 'done';
   created: string;
+  closed?: string;
 }
 
 // ------------------------------------------------------------- allergies

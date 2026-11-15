@@ -22,7 +22,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('palette opens the patient', await p.locator('h1:has-text("Marcus Reyes")').isVisible());
 
   // place a lab order in the visit
-  await p.click('button:has-text("Open visit")'); await p.waitForTimeout(600);
+  await p.click('.nextvisit'); await p.waitForTimeout(600);
   const orderBox = p.locator('input[placeholder*="A1c and lipid panel"]');
   await orderBox.scrollIntoViewIfNeeded();
   await orderBox.fill('A1c and lipid panel');
@@ -42,12 +42,14 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.screenshot({path:'v5-advanced.png'});
 
   await p.click('button:has-text("Chart")'); await p.waitForTimeout(500);
-  await p.click('button[role="tab"]:has-text("Results")'); await p.waitForTimeout(500);
+  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
+  await p.click('.railfoot button:has-text("Results")'); await p.waitForTimeout(500);
   ok('ordered lab came back unreviewed', await p.locator('text=Not yet reviewed').first().isVisible());
   await p.screenshot({path:'v5-results.png', fullPage:true});
 
   // metrics
-  await p.click('button:has-text("Usage")'); await p.waitForTimeout(500);
+  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
+  await p.click('.topbar button:has-text("Usage")'); await p.waitForTimeout(500);
   ok('usage page shows a timed visit', await p.locator('text=Median note time').isVisible());
   ok('the visit is listed', await p.locator('text=Marcus Reyes').first().isVisible());
   await p.screenshot({path:'v5-metrics.png', fullPage:true});

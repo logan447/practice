@@ -62,15 +62,18 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // an unreadable outside record, found by walking the panel
   let foundGarble=false;
+  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
   await p.click('.topbar .mark'); await p.waitForTimeout(400);
   await p.click('button:has-text("Needs reconciling")'); await p.waitForTimeout(400);
   const n = Math.min(await p.locator('table.rows tbody tr').count(), 14);
   for (let i=0;i<n && !foundGarble;i++){
+  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
     await p.click('.topbar .mark'); await p.waitForTimeout(250);
     await p.click('button:has-text("Needs reconciling")'); await p.waitForTimeout(250);
     await p.locator('table.rows tbody tr').nth(i).click(); await p.waitForTimeout(350);
-    if (await p.locator('button[role="tab"]:has-text("Records")').count()===0) continue;
-    await p.click('button[role="tab"]:has-text("Records")'); await p.waitForTimeout(300);
+    if (await p.locator('.railfoot button:has-text("Records")').count()===0) continue;
+  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
+    await p.click('.railfoot button:has-text("Records")'); await p.waitForTimeout(300);
     if (await p.locator('.garble').count()>0) foundGarble=true;
   }
   ok('an outside record that would not parse is shown as such', foundGarble);
@@ -82,14 +85,26 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.keyboard.press('Escape'); await p.waitForTimeout(200);
 
   // a patient with hypertension, so the whole scripted visit lands
+  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
   await p.click('.topbar .mark'); await p.waitForTimeout(400);
   await p.fill('input[aria-label="Search patients"]','Essential hypertens'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(500);
-  if (await p.locator('button:has-text("Open visit")').count()===0) {
-    await p.click('button:has-text("Start a visit")'); await p.waitForTimeout(300);
-    await p.click('button.sm:has-text("Follow-up")'); await p.waitForTimeout(700);
+  if (await p.locator('.nextvisit:not(.empty)').count()===0) {
+    await p.click('.railhead .linkish'); await p.waitForTimeout(350);
+    await p.click('.drawer button:has-text("Book a visit")'); await p.waitForTimeout(350);
+    await p.click('.booking button:has-text("Follow-up")'); await p.waitForTimeout(250);
+    await p.click('.booking button:has-text("Today")', {timeout:2000}).catch(()=>{});
+    await p.waitForTimeout(200);
+    if (await p.locator('.booking .slots button').count()===0) {
+      await p.click('.booking button:has-text("Next day it fits")', {timeout:2000}).catch(()=>{});
+      await p.waitForTimeout(300);
+    }
+    await p.locator('.booking .slots button').first().click(); await p.waitForTimeout(800);
+    if (await p.locator('h1:has-text("Schedule")').count()>0) {
+      await p.click('.wdvisit'); await p.waitForTimeout(600);
+    }
   } else {
-    await p.click('button:has-text("Open visit")'); await p.waitForTimeout(700);
+    await p.click('.nextvisit'); await p.waitForTimeout(700);
   }
   ok('a visit is open', await p.locator('h2:has-text("Subjective")').isVisible());
 

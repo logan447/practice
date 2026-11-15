@@ -105,9 +105,7 @@ export function Audit() {
             <tbody>
               {rows.slice(0, 300).map((e) => (
                 <tr key={e.id} className={e.patientId ? 'click' : undefined}
-                  onClick={() => e.patientId && nav.go({
-                    name: 'chart', patientId: e.patientId, tab: 'history',
-                  })}>
+                  onClick={() => e.patientId && nav.go({ name: 'chart', patientId: e.patientId })}>
                   <td className="small muted">
                     {when(e.at)}
                     <div style={{ marginTop: 2 }}>clinic {fmtDate(e.clinicDate)}</div>
