@@ -21,7 +21,7 @@ import type {
   ResultSeries, Specialist, Task, VisitNote, Allergy, ChartDocument, MasterPlan,
   VitalsSet, LabPanel, ExamRecord, DiagnosticStudy, EmRecord, CareLogEntry, ProblemCheckIn,
   PatientUpdate, Message, UpdateRequest, CareGoalStatus, ChartVersion, InfoRequest,
-  EncounterKind, CareProgram,
+  EncounterKind, CareProgram, InstrumentScore, InstrumentId, Claim,
   ServiceConsent, LifestyleIntervention,
 } from '../domain/types';
 import { fmtDate } from './format';
@@ -79,10 +79,19 @@ interface State {
   messages: Message[];
   /** Questions we sent, so an answer has something to answer. */
   requests: UpdateRequest[];
+  /** Scored questionnaires, kept as numbers with dates. */
+  scores: InstrumentScore[];
   /** The approved living chart, one immutable row per approval. */
   chartVersions: ChartVersion[];
   /** What we have asked the patient for, open until answered. */
   infoRequests: InfoRequest[];
+  /**
+   * A physician's attestation that a month's service was reviewed and
+   * is billable. Stored; the rest of the monthly evaluation is
+   * computed, because duplicating it would let the two disagree.
+   */
+  attestations: { id: string; patientId: string; program: CareProgram; month: string; by: string; at: string }[];
+  claims: Claim[];
   /** Drafted by the assistant, not yet anybody's words. */
   lifestyle: LifestyleIntervention[];
   /** The clinic's today. Movable, because care is longitudinal. */
@@ -99,7 +108,7 @@ const EMPTY: State = {
   vitals: [], labPanels: [], exams: [], studies: [],
   emRecords: [], careLog: [], consents: [], lifestyle: [],
   checkIns: [], updates: [], messages: [], requests: [],
-  chartVersions: [], infoRequests: [],
+  scores: [], chartVersions: [], infoRequests: [], attestations: [], claims: [],
   now: ORIGIN, lastEvents: [],
 };
 
@@ -135,7 +144,8 @@ function migrate(raw: State | null): State | null {
     'patientEntries', 'aiDrafts', 'tasks', 'specialists', 'preVisits', 'orders',
     'masterPlans', 'vitals', 'labPanels', 'exams', 'studies', 'emRecords',
     'careLog', 'consents', 'lifestyle', 'checkIns',
-    'updates', 'messages', 'requests', 'chartVersions', 'infoRequests',
+    'updates', 'messages', 'requests', 'scores', 'chartVersions', 'infoRequests',
+    'attestations', 'claims',
   ] as (keyof State)[]) fill(k);
   if (!s.now) s.now = ORIGIN;
   if (!Array.isArray(s.lastEvents)) s.lastEvents = [];
@@ -219,6 +229,8 @@ function demoState(): State {
     careLog: clinical.sharonCareLog,
     consents: clinical.sharonConsents,
     checkIns: [...contact.sharonCheckIns, ...demo.marcusCheckIns],
+    scores: clinical.sharonScores,
+    attestations: [], claims: [],
     chartVersions: [...versions.sharonVersions],
     infoRequests: [...versions.sharonAsks],
     updates: contact.sharonUpdates,
@@ -293,6 +305,8 @@ interface Store extends State {
   simulateVisit: (patientId: string) => void;
   messagesFor: (id: string) => Message[];
   requestsFor: (id: string) => UpdateRequest[];
+  /** Newest first. */
+  scoresFor: (id: string, instrument?: InstrumentId) => InstrumentScore[];
 
   // -------------------------------------------------- the encounter cycle
   /** The approved chart, or nothing where none has been approved yet. */
@@ -493,6 +507,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       updatesFor: (id) => [...by(s.updates, id)].sort((a, b) => b.date.localeCompare(a.date)),
       messagesFor: (id) => [...by(s.messages, id)].sort((a, b) => b.date.localeCompare(a.date)),
       requestsFor: (id) => [...by(s.requests, id)].sort((a, b) => b.sent.localeCompare(a.sent)),
+      scoresFor: (id, instrument) => [...by(s.scores, id)]
+        .filter((x) => (instrument ? x.instrument === instrument : true))
+        .sort((a, b) => b.date.localeCompare(a.date)),
 
       currentVersion: (patientId) => [...by(s.chartVersions, patientId)]
         .sort((a, b) => b.version - a.version)[0],
@@ -1438,6 +1455,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             lifestyle: drop(p.lifestyle),
             checkIns: drop(p.checkIns), updates: drop(p.updates),
             messages: drop(p.messages), requests: drop(p.requests),
+            scores: drop(p.scores), attestations: drop(p.attestations),
+            claims: drop(p.claims),
             chartVersions: drop(p.chartVersions), infoRequests: drop(p.infoRequests),
             emRecords: p.emRecords.filter((e) =>
               !p.encounters.some((x) => x.id === e.encounterId && x.patientId === patientId)),

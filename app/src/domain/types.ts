@@ -943,6 +943,70 @@ export interface DiagnosticStudy {
   significant: boolean;
 }
 
+// ------------------------------------------------ validated instruments
+
+/**
+ * A scored questionnaire, kept as a number rather than as prose.
+ *
+ * Behavioural health integration requires systematic assessment with
+ * a validated rating scale, and a wellness visit requires screening
+ * for depression and for cognitive impairment. "Discussed mood" does
+ * not satisfy either. Storing the instrument, the score, the date and
+ * who answered is what makes the requirement checkable rather than
+ * assertable, and it is also the only way to show a trajectory, which
+ * is what the clinical work actually turns on.
+ */
+export type InstrumentId =
+  | 'phq-9' | 'phq-2' | 'gad-7' | 'audit-c' | 'mini-cog' | 'phq-9-item-9';
+
+export const INSTRUMENTS: {
+  id: InstrumentId; label: string; max: number;
+  /** What the score means, in bands. */
+  bands: { at: number; label: string }[];
+}[] = [
+  {
+    id: 'phq-9', label: 'PHQ-9', max: 27,
+    bands: [
+      { at: 0, label: 'None or minimal' }, { at: 5, label: 'Mild' },
+      { at: 10, label: 'Moderate' }, { at: 15, label: 'Moderately severe' },
+      { at: 20, label: 'Severe' },
+    ],
+  },
+  { id: 'phq-2', label: 'PHQ-2', max: 6, bands: [{ at: 0, label: 'Negative' }, { at: 3, label: 'Positive' }] },
+  {
+    id: 'gad-7', label: 'GAD-7', max: 21,
+    bands: [
+      { at: 0, label: 'Minimal' }, { at: 5, label: 'Mild' },
+      { at: 10, label: 'Moderate' }, { at: 15, label: 'Severe' },
+    ],
+  },
+  { id: 'audit-c', label: 'AUDIT-C', max: 12, bands: [{ at: 0, label: 'Negative' }, { at: 3, label: 'Positive' }] },
+  { id: 'mini-cog', label: 'Mini-Cog', max: 5, bands: [{ at: 0, label: 'Possible impairment' }, { at: 3, label: 'Negative' }] },
+];
+
+export interface InstrumentScore {
+  id: string;
+  patientId: string;
+  instrument: InstrumentId;
+  date: string;
+  score: number;
+  /** Who filled it in. Patient-reported unless a clinician administered it. */
+  by: 'patient' | 'clinician';
+  encounterId?: string;
+  /**
+   * Item 9 of the PHQ-9, kept separately because it is a safety
+   * question and burying it inside a total is how it gets missed.
+   */
+  safetyFlag?: boolean;
+  note?: string;
+}
+
+export const bandFor = (instrument: InstrumentId, score: number): string => {
+  const spec = INSTRUMENTS.find((x) => x.id === instrument);
+  if (!spec) return '';
+  return [...spec.bands].reverse().find((b) => score >= b.at)?.label ?? '';
+};
+
 // ------------------------------------------- documentation and billing
 
 /**
@@ -1011,6 +1075,87 @@ export interface CareLogEntry {
   countable: boolean;
   /** Present when not countable: why. */
   excludedBecause?: string;
+  /** The encounter it was recorded in, where it came from one. */
+  encounterId?: string;
+  /** Condition ids the work was about. */
+  problems?: string[];
+  /** Whether the care plan was changed by this work. */
+  planUpdated?: boolean;
+  /**
+   * The same minutes cannot be counted twice.
+   *
+   * A block of time belongs to one programme. Where an activity could
+   * arguably sit under two, it is recorded once against the one it was
+   * claimed for, and this names the other so the choice is visible
+   * rather than silently available to both.
+   */
+  notAlsoCountedFor?: CareProgram[];
+}
+
+// ------------------------------------------------- the monthly record
+
+/**
+ * Whether a month's service can be billed, and why or why not.
+ *
+ * Deliberately a ladder rather than a boolean, because four different
+ * things get conflated and only the last one is a claim:
+ *
+ *   recorded      minutes exist in the log
+ *   threshold     the countable minutes reach the code's minimum
+ *   requirements  consent, eligibility, care plan, the rest
+ *   ready         a physician has looked at all of it and agrees
+ *
+ * Reaching a time threshold is the weakest of the four and the one
+ * software is most tempted to treat as sufficient. It is not, and the
+ * system never advances past `threshold` on its own.
+ */
+export type MonthStatus = 'recorded' | 'threshold' | 'requirements' | 'ready' | 'claimed';
+
+export interface RequirementCheck {
+  id: string;
+  label: string;
+  /** What the rule actually asks for, in one line. */
+  rule: string;
+  met: boolean;
+  /** What in this chart satisfies it, or what is missing. */
+  evidence: string;
+  /** False where this is good practice rather than a billing rule. */
+  mandatory: boolean;
+}
+
+export interface MonthlyService {
+  id: string;
+  patientId: string;
+  program: CareProgram;
+  /** YYYY-MM. */
+  month: string;
+  code?: string;
+  countableMinutes: number;
+  excludedMinutes: number;
+  checks: RequirementCheck[];
+  status: MonthStatus;
+  /** Set when a physician reviewed the month and agreed it is billable. */
+  attestedBy?: string;
+  attestedAt?: string;
+}
+
+/**
+ * The billing output, produced only after the requirements were
+ * verified by a person. Separate from the clinical record on purpose.
+ */
+export interface Claim {
+  id: string;
+  patientId: string;
+  code: string;
+  /** The service month for care management, or the date of service. */
+  period: string;
+  units: number;
+  diagnoses: string[];
+  createdAt: string;
+  createdBy: string;
+  /** What it was built from. */
+  basis: { encounterId?: string; monthlyServiceId?: string };
+  status: 'prepared' | 'submitted' | 'void';
 }
 
 export interface ServiceConsent {

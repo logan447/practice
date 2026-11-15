@@ -11,6 +11,7 @@
 import type {
   VitalsSet, LabPanel, ExamRecord, DiagnosticStudy,
   EmRecord, CareLogEntry, ServiceConsent, LabValue, LifestyleIntervention,
+  InstrumentScore,
 } from '../domain/types';
 
 const P = 'p0';
@@ -324,5 +325,48 @@ export const sharonLifestyle: LifestyleIntervention[] = [
     forConditions: [], status: 'not-started',
     started: '2026-06-18',
     barrier: 'Her brother has offered twice. She has not taken him up on it.',
+  },
+];
+
+// --------------------------------------------- validated instruments
+
+/**
+ * Scored, not described.
+ *
+ * The carer strain has been in her record since January as prose. A
+ * number with a date on it is what makes it trackable, what satisfies
+ * a screening requirement, and what shows that the sleep prescription
+ * in April was followed by a fall in the score rather than by a
+ * paragraph saying things seemed better.
+ *
+ * Item 9 is kept separately on purpose. It is a safety question and
+ * burying it inside a total is how it gets missed.
+ */
+export const sharonScores: InstrumentScore[] = [
+  {
+    id: 'is1', patientId: P, instrument: 'phq-9', date: '2026-01-20',
+    score: 11, by: 'patient', encounterId: 'se1', safetyFlag: false,
+    note: 'At transfer. Sleep, low energy and feeling overwhelmed were the items scored highest.',
+  },
+  {
+    id: 'is2', patientId: P, instrument: 'gad-7', date: '2026-01-20',
+    score: 9, by: 'patient', encounterId: 'se1',
+  },
+  {
+    id: 'is3', patientId: P, instrument: 'phq-9', date: '2026-06-18',
+    score: 7, by: 'patient', encounterId: 'se2', safetyFlag: false,
+    note: 'Down four points. The sleep prescription is the only thing that changed.',
+  },
+  {
+    id: 'is4', patientId: P, instrument: 'phq-9', date: '2026-10-30',
+    score: 6, by: 'patient', encounterId: 'se3', safetyFlag: false,
+  },
+  {
+    id: 'is5', patientId: P, instrument: 'gad-7', date: '2026-10-30',
+    score: 7, by: 'patient', encounterId: 'se3',
+  },
+  {
+    id: 'is6', patientId: P, instrument: 'audit-c', date: '2026-01-20',
+    score: 1, by: 'patient', encounterId: 'se1',
   },
 ];
