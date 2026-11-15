@@ -43,6 +43,11 @@ import { fmtDate } from './format';
 const monthYear = (iso: string) =>
   new Date(`${iso}T12:00:00`).toLocaleString('en-GB', { month: 'short', year: 'numeric' });
 import { medsAbout, specialistsAbout } from '../screens/chart/relate';
+import { LIFESTYLE_DOMAINS } from '../domain/types';
+
+const DOMAIN_LABEL: Record<string, string> = Object.fromEntries(
+  LIFESTYLE_DOMAINS.map((d) => [d.id, d.label]),
+);
 
 export interface SubjectiveInput {
   patientId: string;
@@ -90,9 +95,12 @@ export interface ProblemSummary {
 }
 
 export interface Intervention {
+  /** What it is, in two or three words. */
   label: string;
-  /** The status in a few words, as last reported. */
+  /** How it is going, in two or three more. Kept short on purpose. */
   status: string;
+  /** What was actually asked for, or what is in the way. */
+  detail?: string;
   tone: 'ok' | 'warn' | 'crit' | 'none';
   /** Who said so and when, because that is half of what it means. */
   attribution?: string;
@@ -122,6 +130,15 @@ const touches = (text: string, c: Condition, meds: Medication[]): boolean => {
 };
 
 const cap = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
+
+/** The first sentence, without its full stop. For embedding in ours. */
+const oneSentence = (text: string, max = 120): string => {
+  const clean = text.replace(/\s+/g, ' ').trim();
+  const stop = clean.search(/[.;]\s/);
+  const first = stop > 12 ? clean.slice(0, stop) : clean;
+  return (first.length <= max ? first : `${first.slice(0, max).trimEnd()}...`)
+    .replace(/[.;,\s]+$/, '');
+};
 
 const trimTo = (text: string, max = 260): string => {
   const clean = text.replace(/\s+/g, ' ').trim();
@@ -282,6 +299,25 @@ function outstanding(input: SubjectiveInput): string | undefined {
   return `Unsettled: ${bits.join('; ')}.`;
 }
 
+/**
+ * One problem, in two sentences.
+ *
+ * The shape is deliberate and it is not extraction. An earlier version
+ * quoted the patient verbatim and then stacked dated fragments from
+ * the notes underneath, which is a transcript, not a summary: it grows
+ * with the record instead of staying the same length, and the reader
+ * has to do the synthesis the screen was supposed to do.
+ *
+ * So each problem gets one sentence of what the patient reports and
+ * one of what the encounters document, both composed from structured
+ * signals rather than copied. The verbatim words are not lost; they
+ * are one click away in the encounter the sentence came from, which
+ * is where they belong. What stays on this page is the reading.
+ *
+ * The two sentences stay separate rather than being merged, because
+ * one is testimony and one is finding, and a paragraph that blends
+ * them cannot be checked.
+ */
 function problemSummary(
   c: Condition,
   input: SubjectiveInput,
@@ -291,7 +327,6 @@ function problemSummary(
   const clauses: Clause[] = [];
   const sources: SourceRef[] = [];
 
-  // --- their experience of it, most recent first
   const answer = desc(input.checkIns.filter(
     (x) => x.about.kind === 'condition' && x.about.id === c.id,
   ))[0];
@@ -299,82 +334,141 @@ function problemSummary(
     (m) => m.from === 'patient'
       && ((m.about ?? []).includes(c.id) || touches(m.body, c, mine)),
   ))[0];
+  const forThis = input.lifestyle.filter((x) => x.forConditions.includes(c.id));
 
-  if (answer) {
-    clauses.push({
-      voice: 'patient',
-      text: `${trimTo(answer.text, 230)}`,
-    });
-    sources.push(ref({
-      id: answer.id, kind: 'answer', date: answer.date,
-      label: `Their answer about ${c.name}, ${fmtDate(answer.date)}`,
-    }));
-  }
-  if (msg && (!answer || msg.date > answer.date)) {
-    clauses.push({
-      voice: 'patient',
-      text: `Wrote in on ${fmtDate(msg.date)}: ${trimTo(msg.body, 200)}`,
-    });
-    sources.push(ref({
-      id: msg.id, kind: 'message', date: msg.date, label: `Message, ${fmtDate(msg.date)}`,
-    }));
-  }
+  // ----------------------------------------------- what the patient reports
+  {
+    const bits: string[] = [];
+    if (answer) {
+      bits.push(
+        answer.feeling === 'better' ? 'this is going better'
+          : answer.feeling === 'worse' ? 'this is worse'
+            : answer.feeling === 'unsure' ? 'they are not sure how this is going'
+              : 'this is much the same',
+      );
+      if (answer.onPlan === 'yes') bits.push('and that they are doing the plan as agreed');
+      else if (answer.onPlan === 'partly') bits.push('and that they are doing some of the plan');
+      else if (answer.onPlan === 'no') bits.push('and that they are not doing the plan at the moment');
+      sources.push(ref({
+        id: answer.id, kind: 'answer', date: answer.date,
+        label: `Their answer about ${c.name}, ${fmtDate(answer.date)}`,
+      }));
+    }
 
-  // --- what the visits document about it, condensed rather than copied
-  const notes = desc(input.encounters.filter((e) => e.status === 'signed'))
-    .filter((e) => {
-      const txt = [
-        e.note?.subjective.additional, e.note?.subjective.reason,
-        e.note?.assessment.overall,
-      ].filter(Boolean).join(' ');
-      return txt.length > 0 && touches(txt, c, mine);
-    });
-  if (notes.length > 0) {
-    const latest = notes[0];
-    const said = [latest.note?.assessment.overall, latest.note?.subjective.additional]
-      .filter(Boolean)[0] ?? '';
-    clauses.push({
-      voice: 'documented',
-      text: `${fmtDate(latest.date)}: ${trimTo(said, 230)}${
-        notes.length > 1 ? ` Documented at ${notes.length} visits.` : ''}`,
-    });
-    sources.push(ref({
-      id: latest.id, kind: 'visit', date: latest.date,
-      label: `Visit note, ${fmtDate(latest.date)}`,
-    }));
-  } else if (clauses.length === 0) {
-    clauses.push({
-      voice: 'documented',
-      text: 'Nothing on file speaks to this problem directly. It has been carried rather than worked on.',
-    });
-  }
+    // What they say is in the way, taken from the prescriptions they
+    // have told us are not going rather than from a guess.
+    // Which struggle to name, when there is more than one. What they
+    // told us they are not doing beats what we recorded as stalled,
+    // and a prescription that never started beats one that is partly
+    // happening, because the first is the bigger gap.
+    const saidNo = new Set(input.checkIns
+      .filter((x) => x.about.kind === 'lifestyle' && x.onPlan === 'no')
+      .map((x) => (x.about as { id: string }).id));
+    const rank = (x: LifestyleIntervention) =>
+      (saidNo.has(x.id) ? 0 : x.status === 'not-started' ? 1 : 2);
+    const stuck = forThis
+      .filter((x) => x.status === 'struggling' || x.status === 'not-started' || saidNo.has(x.id))
+      .sort((a, b) => rank(a) - rank(b));
+    // Named by its domain rather than by its text. A prescription
+    // reads as a thing to do, not as a thing to struggle with, and
+    // "struggling with something hot and real on her mother's nights"
+    // is the kind of sentence that tells you a machine wrote it.
+    const struggle = stuck[0]
+      ? lower(DOMAIN_LABEL[stuck[0].domain] ?? stuck[0].domain)
+      : undefined;
+    const why = stuck[0]?.barrier;
+    const sentence = bits.length > 0
+      ? `Patient reports ${bits.join(' ')}${
+        struggle ? `, but continues to struggle with ${struggle}` : ''}.${
+        why ? ` ${oneSentence(why, 110)}.` : ''}`
+      : struggle
+        ? `Patient has told us they are struggling with ${struggle}.${
+          why ? ` ${oneSentence(why, 110)}.` : ''}`
+        : 'Nothing on file from the patient about this problem.';
+    clauses.push({ voice: 'patient', text: sentence });
 
-  // --- a drug that came off for a reason is context this problem needs,
-  //     however long ago it happened.
-  const stopped = desc(
-    medsAbout(c.name, input.medications.filter((m) => m.status === 'stopped' && m.changeNote))
-      .map((m) => ({ ...m, date: m.stopped ?? m.started })),
-  )[0];
-  if (stopped) {
-    clauses.push({
-      voice: 'documented',
-      // The note usually says "Stopped <month>..." already; saying it
-      // twice is the tell that a summary was assembled rather than
-      // written.
-      text: /^stopped/i.test(stopped.changeNote ?? '')
-        ? `${stopped.name}: ${stopped.changeNote}`
-        : `${stopped.name} stopped ${monthYear(stopped.date)}: ${stopped.changeNote}`,
-    });
+    if (msg) {
+      clauses.push({
+        voice: 'patient',
+        text: `Wrote in on ${fmtDate(msg.date)} about ${lower(msg.subject ?? 'this')}.`,
+      });
+      sources.push(ref({
+        id: msg.id, kind: 'message', date: msg.date, label: `Message, ${fmtDate(msg.date)}`,
+      }));
+    }
   }
 
-  // --- the measure, where it has one
-  const trajectory = measureLine(c, input);
-  if (trajectory) {
-    clauses.push({ voice: 'documented', text: trajectory.text });
-    sources.push(...trajectory.sources.map(ref));
+  // ------------------------------------------- what the encounters document
+  {
+    const bits: string[] = [];
+
+    // Adherence, as last reported rather than as prescribed.
+    const reported = mine.filter((m) => m.adherence);
+    const off = reported.filter((m) => m.adherence!.status !== 'taking');
+    if (off.length > 0) {
+      bits.push(`${list(off.map((m) => m.name))} not being taken as written`);
+    } else if (reported.length > 0) {
+      bits.push(`${reported.length > 1 ? 'medicines' : `${reported[0].name}`} being taken as prescribed`);
+    } else if (mine.length > 0) {
+      bits.push('adherence never asked about');
+    }
+
+    // A drug that came off, and why. Old, and still the context.
+    const stopped = desc(
+      medsAbout(c.name, input.medications.filter((m) => m.status === 'stopped' && m.changeNote))
+        .map((m) => ({ ...m, date: m.stopped ?? m.started })),
+    )[0];
+    if (stopped) {
+      bits.push(`${lower(stopped.name)} stopped in ${monthYear(stopped.date)} after ${
+        lower(oneSentence(stripStopped(stopped.changeNote ?? ''), 110))}`);
+    }
+
+    // The direction of the measure, in words rather than a reading.
+    const trajectory = measureLine(c, input);
+    if (trajectory?.movement) bits.push(trajectory.movement);
+
+    // Last, the visit's own one line, where nothing above covered it.
+    const notes = desc(input.encounters.filter((e) => e.status === 'signed'))
+      .filter((e) => {
+        const txt = [
+          e.note?.subjective.additional, e.note?.subjective.reason,
+          e.note?.assessment.overall,
+        ].filter(Boolean).join(' ');
+        return txt.length > 0 && touches(txt, c, mine);
+      });
+    if (notes[0]) {
+      sources.push(ref({
+        id: notes[0].id, kind: 'visit', date: notes[0].date,
+        label: `Visit note, ${fmtDate(notes[0].date)}`,
+      }));
+      if (bits.length === 0) {
+        const said = notes[0].note?.assessment.overall
+          ?? notes[0].note?.subjective.additional ?? '';
+        bits.push(lower(trimTo(said, 180)));
+      }
+    }
+
+    if (bits.length > 0) {
+      clauses.push({
+        voice: 'documented',
+        text: `${notes.length > 1 ? `Across ${notes.length} encounters the record documents`
+          : 'The record documents'} ${list(bits)}.`,
+      });
+    } else {
+      clauses.push({
+        voice: 'documented',
+        text: 'Nothing in the notes on file speaks to this problem directly. It has been carried rather than worked on.',
+      });
+    }
+
+    // The measure itself, as a number, after the reading of it.
+    const trajectory2 = measureLine(c, input);
+    if (trajectory2) {
+      clauses.push({ voice: 'documented', text: trajectory2.text });
+      sources.push(...trajectory2.sources.map(ref));
+    }
   }
 
-  // --- where the two accounts disagree
   let conflict: string | undefined;
   if (answer) {
     if (c.trend === 'improving' && answer.feeling === 'worse') {
@@ -398,19 +492,37 @@ function problemSummary(
   };
 }
 
+const lower = (s: string) => (s ? s.charAt(0).toLowerCase() + s.slice(1) : s);
+
+/** Change notes usually open with "Stopped <month>"; the sentence already said that. */
+const stripStopped = (s: string) =>
+  s.replace(/^stopped\s+\w+\s+\d{4}\.?\s*/i, '').replace(/^stopped\s*/i, '');
+
+const list = (xs: string[]): string =>
+  (xs.length <= 1 ? (xs[0] ?? '')
+    : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
+
+/**
+ * The measure a problem is judged on: the number, and the direction.
+ *
+ * `movement` is the direction in words, for the sentence that reads
+ * the record. `text` is the value with its trajectory, for the line
+ * underneath. They are separate because "improving" and "6.9, from
+ * 8.1 in January" answer different questions and a reader needs both.
+ */
 function measureLine(
   c: Condition, input: SubjectiveInput,
-): { text: string; sources: SourceRef[] } | undefined {
-  const KEY: Record<string, [string, string, string]> = {
-    'Type 2 diabetes mellitus': ['A1c', 'A1c', '%'],
-    Prediabetes: ['A1c', 'A1c', '%'],
-    'Mixed hyperlipidemia': ['LDL', 'LDL', ''],
-    'Chronic kidney disease, stage 3a': ['eGFR', 'eGFR', ''],
-    Hypothyroidism: ['TSH', 'TSH', ''],
+): { text: string; movement?: string; sources: SourceRef[] } | undefined {
+  const KEY: Record<string, [string, string, string, boolean]> = {
+    'Type 2 diabetes mellitus': ['A1c', 'A1c', '%', true],
+    Prediabetes: ['A1c', 'A1c', '%', true],
+    'Mixed hyperlipidemia': ['LDL', 'LDL', '', true],
+    'Chronic kidney disease, stage 3a': ['eGFR', 'eGFR', '', false],
+    Hypothyroidism: ['TSH', 'TSH', '', true],
   };
   const spec = KEY[c.name];
   if (spec) {
-    const [key, label, unit] = spec;
+    const [key, label, unit, lowerIsBetter] = spec;
     const hits = desc(input.panels).filter((p) => p.values.some((v) => v.key === key));
     if (hits.length === 0) {
       return {
@@ -420,10 +532,15 @@ function measureLine(
     }
     const now = hits[0].values.find((v) => v.key === key)!;
     const then = hits[hits.length - 1].values.find((v) => v.key === key)!;
+    const delta = Math.round((now.value - then.value) * 10) / 10;
+    const better = lowerIsBetter ? delta < 0 : delta > 0;
     return {
-      text: hits.length > 1 && now.value !== then.value
+      text: hits.length > 1 && delta !== 0
         ? `${label} ${now.value}${unit} on ${fmtDate(hits[0].date)}, from ${then.value}${unit} in ${monthYear(hits[hits.length - 1].date)}.`
         : `${label} ${now.value}${unit} on ${fmtDate(hits[0].date)}, the only value on file.`,
+      movement: hits.length > 1 && delta !== 0
+        ? `the ${label} ${better ? 'improving' : 'worsening'} by ${Math.abs(delta)}${unit} since ${monthYear(hits[hits.length - 1].date)}`
+        : undefined,
       sources: [{
         id: hits[0].id, kind: 'result', date: hits[0].date,
         label: `${hits[0].name}, ${fmtDate(hits[0].date)}`,
@@ -434,6 +551,8 @@ function measureLine(
     const office = desc(input.vitals.filter((v) => v.source === 'office'));
     const home = desc(input.vitals.filter((v) => v.source === 'home' && v.systolic));
     if (office.length === 0) return undefined;
+    const first = office[office.length - 1];
+    const drop = (first.systolic ?? 0) - (office[0].systolic ?? 0);
     const homeLine = home.length > 0
       ? ` Home readings average ${Math.round(
         home.reduce((a, h) => a + (h.systolic ?? 0), 0) / home.length,
@@ -442,6 +561,9 @@ function measureLine(
     return {
       text: `${office[0].systolic}/${office[0].diastolic} in clinic on ${fmtDate(office[0].date)}${
         office[1]?.systolic ? `, from ${office[1].systolic}/${office[1].diastolic}` : ''}.${homeLine}`,
+      movement: office.length > 1 && Math.abs(drop) >= 5
+        ? `the blood pressure ${drop > 0 ? 'down' : 'up'} ${Math.abs(drop)} systolic since ${monthYear(first.date)}`
+        : undefined,
       sources: [{
         id: office[0].id, kind: 'vitals', date: office[0].date,
         label: `Vitals, ${fmtDate(office[0].date)}`,
@@ -471,9 +593,9 @@ function interventionsFor(
       label: `${m.name}${m.dose ? ` ${m.dose}` : ''}`,
       status: a
         ? (a.status === 'taking' ? 'Taking as prescribed'
-          : a.status === 'missing-some' ? `Missing some${a.note ? `. ${a.note}` : ''}`
-            : `Not taking${a.note ? `. ${a.note}` : ''}`)
-        : 'Prescribed. Adherence never asked about.',
+          : a.status === 'missing-some' ? 'Missing some' : 'Not taking')
+        : 'Never asked about',
+      detail: a?.note ?? (a ? undefined : m.sig),
       tone: a
         ? (a.status === 'taking' ? 'ok' : a.status === 'missing-some' ? 'warn' : 'crit')
         : 'warn',
@@ -486,15 +608,16 @@ function interventionsFor(
       (x) => x.about.kind === 'lifestyle' && x.about.id === li.id,
     ))[0];
     out.push({
-      label: li.prescription.split('.')[0],
+      label: DOMAIN_LABEL[li.domain] ?? li.domain,
       status: answer
-        ? `${answer.onPlan === 'yes' ? 'Doing it'
-          : answer.onPlan === 'partly' ? 'Partly' : 'Not doing it'}${
-          answer.text ? `. ${trimTo(answer.text, 110)}` : ''}`
+        ? (answer.onPlan === 'yes' ? 'Doing it'
+          : answer.onPlan === 'partly' ? 'Partly' : 'Not doing it')
         : li.status === 'achieved' ? 'Achieved'
-          : li.status === 'struggling' ? `Struggling${li.barrier ? `. ${li.barrier}` : ''}`
+          : li.status === 'struggling' ? 'Struggling'
             : li.status === 'not-started' ? 'Written, never started'
               : 'In progress',
+      detail: oneSentence(li.prescription, 90)
+        + (li.barrier ? `. ${oneSentence(li.barrier, 80)}` : ''),
       tone: li.status === 'achieved' ? 'ok'
         : li.status === 'struggling' || li.status === 'not-started' ? 'warn' : 'none',
       attribution: answer

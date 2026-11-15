@@ -83,6 +83,15 @@ export function CommandPalette() {
       { id: 'c-sched', label: 'Schedule and capacity', group: 'Actions', run: () => nav.go({ name: 'schedule' }) },
       { id: 'c-log', label: 'Who did what', group: 'Actions', run: () => nav.go({ name: 'audit' }) },
       {
+        // Reachable from anywhere, because the first run screen is
+        // gone the moment there is any data and the worked examples
+        // are the only charts with a record deep enough to read.
+        id: 'c-demo',
+        label: 'Load the three worked examples (replaces what is here)',
+        group: 'Actions',
+        run: () => { st.loadDemo(); nav.reset({ name: 'patients' }); },
+      },
+      {
         id: 'c-panel', label: 'Load a full panel of 120 patients', group: 'Actions',
         run: () => { st.loadPanel(); nav.reset({ name: 'patients' }); },
       },

@@ -51,10 +51,12 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   const htn = subj.locator('#subj-sc1');
   ok('one block per managed problem', (await subj.locator('.sprob').count())===3);
-  ok('the patient\u2019s words lead the problem',
-    (await htn.locator('.psum .said').first().textContent()).startsWith('Better. The home readings'));
-  ok('the visit note is summarised beside them, dated',
-    (await htn.locator('.psum .doc').allTextContents()).join(' ').includes('26 Aug 2026'));
+  ok('what the patient reports leads the problem, composed not quoted',
+    (await htn.locator('.psum .said').first().textContent()).startsWith('Patient reports'));
+  ok('and names what they are struggling with',
+    (await htn.locator('.psum .said').first().textContent()).includes('struggle with'));
+  ok('the record is read beside it, in its own voice',
+    (await htn.locator('.psum .doc').allTextContents()).join(' ').includes('the record documents'));
   ok('and the measure carries its trajectory',
     (await htn.locator('.psum').textContent()).includes('Home readings average'));
 
@@ -66,7 +68,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('a drug being skipped is called out rather than listed as prescribed',
     (await subj.locator('#subj-sc3 .ivlist').textContent()).includes('Missing some'));
   ok('a drug stopped for a reason stays as context',
-    (await subj.locator('#subj-sc2 .psum').textContent()).includes('Glipizide'));
+    (await subj.locator('#subj-sc2 .psum').allTextContents()).join(' ').toLowerCase()
+      .includes('glipizide stopped'));
   ok('every problem lists the records behind it',
     (await subj.locator('.psrc').count())===3);
 

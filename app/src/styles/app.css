@@ -1564,3 +1564,10 @@ blockquote.said footer {
   color: var(--ink-3); min-width: 76px;
 }
 .drawerlead { margin: 0 0 6px; font-size: 13.5px; line-height: 1.6; color: var(--ink-2); }
+.emptysubj { margin: 0 0 14px; }
+.emptysubj p { margin: 0 0 8px; font-size: 13.5px; line-height: 1.6; color: var(--ink-2); }
+.ivlist .ivd {
+  flex: 1 1 100%; margin-left: 190px; font-size: 12.5px; line-height: 1.5;
+  color: var(--ink-3);
+}
+@media (max-width: 900px) { .ivlist .ivd { margin-left: 0; } }

@@ -64,9 +64,13 @@ export function Subjective({ patientId, onOpenSources }: {
 }) {
   const st = useStore();
   const p = st.patient(patientId);
+  const conditions = st.conditionsFor(patientId);
+  const history = conditions.filter(
+    (c) => c.status === 'active' && c.managed !== true,
+  );
   const live = livingSubjective({
     patientId, now: st.now,
-    conditions: st.conditionsFor(patientId),
+    conditions,
     medications: st.medsFor(patientId),
     encounters: st.encountersFor(patientId),
     updates: st.updatesFor(patientId),
@@ -98,15 +102,51 @@ export function Subjective({ patientId, onOpenSources }: {
         Written from {live.sources.length} record{live.sources.length === 1 ? '' : 's'} on file
         {live.lastSource && `, the most recent ${relative(live.lastSource.date)}`}. Recomputed
         every time this chart is opened.{' '}
-        <button className="linkish" onClick={onOpenSources}>Read the sources</button>
+        <button className="linkish" onClick={onOpenSources}>
+          {live.sources.length === 0
+            ? 'Add a visit, an update or a message'
+            : 'Read the sources'}
+        </button>
       </p>
 
       {/* ------------------------------------------------ problem by problem */}
+      {/*
+        * An empty summary has to say what would fill it.
+        *
+        * Two different emptinesses, and they need different answers.
+        * A chart with problems nobody has taken on has nothing to
+        * summarise by problem until somebody ticks one, and the tick
+        * was buried in a drawer. A chart with no records has nothing
+        * to summarise at all, and the way to change that is to add a
+        * record, not to write in the summary.
+        */}
       {live.problems.length === 0 && (
-        <p className="snone">
-          Nothing is being managed here yet, so there is nothing to summarise.
-          The problem list is history only.
-        </p>
+        <div className="emptysubj">
+          <p>
+            Nothing is being managed here yet, so there is nothing to summarise
+            by problem.
+          </p>
+          {history.length > 0 ? (
+            <>
+              <p className="small muted">
+                These are on the history. Tick the ones this practice is taking
+                on and they will appear here with everything on file about them.
+              </p>
+              <div className="row" style={{ gap: 7, flexWrap: 'wrap' }}>
+                {history.map((c) => (
+                  <button key={c.id} className="btn sm ghost"
+                    onClick={() => st.setManaged(c.id, true)}>
+                    Manage {c.name}
+                  </button>
+                ))}
+              </div>
+            </>
+          ) : (
+            <p className="small muted">
+              No problems on the list at all. Add one in the plan below.
+            </p>
+          )}
+        </div>
       )}
 
       {live.problems.map((pr) => (
@@ -130,6 +170,7 @@ export function Subjective({ patientId, onOpenSources }: {
                   <span className="ivl">{iv.label}</span>
                   <Chip tone={ivTone(iv.tone)}>{iv.status}</Chip>
                   {iv.attribution && <span className="iva">{iv.attribution}</span>}
+                  {iv.detail && <span className="ivd">{iv.detail}</span>}
                 </li>
               ))}
             </ul>

@@ -63,11 +63,10 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   const mOverall = (await p.locator('.soap').first().locator('.psum').first().textContent());
   ok('there is still an overall summary, from fewer records', mOverall.length>60);
   const mSubj = await sectionText(0);
-  ok('a problem with nothing said about it says so',
-    mSubj.includes('carried rather than worked on')
-    || mSubj.includes('Nothing on file speaks to this problem'));
+  ok('a problem with nothing from the patient says so',
+    mSubj.includes('Nothing on file from the patient about this problem'));
   ok('a drug nobody has asked about says that too',
-    mSubj.includes('Adherence never asked about'));
+    mSubj.includes('Never asked about'));
   const mObj = await sectionText(1);
   ok('vitals are there', (await p.locator('.vitblock').count())>0);
   ok('the missing examination is stated, not skipped',
