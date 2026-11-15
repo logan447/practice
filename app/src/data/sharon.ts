@@ -355,7 +355,16 @@ export const sharonTasks: Task[] = [
 export const sharonMaster: MasterPlan = {
   id: 'smp1', patientId: 'p0', updated: '2026-06-20', updatedBy: 'L. DuBose, MD',
   subjective: {
-    history: 'Hypertension and hyperlipidemia since 2016, type 2 diabetes since 2019, all managed elsewhere until she transferred here in January 2026 with an A1c of 8.1. Hypothyroidism held by endocrinology, stable for years. Knee osteoarthritis limits how much walking is realistic.',
+    // The opening statement. No heading in front of it, because it is
+    // the first thing read.
+    history: 'Three problems managed here since she transferred in January 2026, all three moving the right way: the A1c is down 1.2 points, the blood pressure is down 26 systolic, and the LDL is under 100 for the first time. One drug came off rather than went on. The work left is not metabolic. The mammogram is eighteen months overdue, the eye examination is due, and the evening meals on her mother\u2019s nights are the half of the lifestyle plan we have not solved.',
+    byProblem: {
+      sc1: 'Chart review: 158/88 at transfer in January on lisinopril 10 alone. Amlodipine added in April, lisinopril to 20 in June. 132/78 in October. Asked in June to start checking at home and has done so since September; those readings run six to eight points lower than clinic. No cough, no ankle swelling she has noticed, though trace oedema has been on the examination since June.',
+      sc2: 'Chart review: A1c 8.1 in January, 7.6 in April, 7.4 in June, 6.9 in October. Glipizide stopped in June after two evening hypoglycaemic episodes on her mother\u2019s nights; empagliflozin started the same day. The fall since has come with one fewer drug, not one more. UACR 42 in January, 19 in October. Feet examined in June, sensation intact.',
+      sc3: 'Chart review: LDL 134 in January on atorvastatin 20, 96 in June after the dose went to 40, 78 in October. She read about statins over the summer and asked to understand the reasoning rather than stop it. No muscle symptoms at any visit.',
+      'prevention:sp1': 'Chart review: last mammogram March 2024, so eighteen months overdue. Agreed to book it in January, in June and again in October. Has not booked it. What is actually in the way has not been written down anywhere.',
+      'prevention:sp3': 'Chart review: last dilated examination October 2025, reported as no retinopathy. Due since October. Referral sent 30 October, appointment not yet confirmed.',
+    },
     goals: 'She wants to stay off insulin, and she wants to understand her own numbers rather than be told they are fine. Her words in January: "nobody has ever shown me what any of it means."',
     context: 'Caring for her mother three evenings a week since 2024. That is the fixed constraint every plan has had to fit around, and it is why glipizide came off in June after two evening hypoglycaemic episodes. The four evenings she is at home are the ones worth planning with.',
   },

@@ -87,27 +87,7 @@ export function Objective({ patientId, onOpen }: {
         )}
       </div>
 
-      {/* ------------------------------------------------- B. fishbone */}
-      <div className="derived">
-        <div className="dhead">
-          <span>Key labs</span>
-          <button className="linkish" onClick={() => onOpen('results')}>All results</button>
-        </div>
-        {latestByGroup.size === 0 ? (
-          <div className="dline muted">No laboratory results on file.</div>
-        ) : (
-          <div className="bones">
-            {GROUP_ORDER.filter((g) => latestByGroup.has(g.group)).map((g) => {
-              const { now, before } = latestByGroup.get(g.group)!;
-              return (
-                <Fishbone key={g.group} label={g.label} now={now} before={before} />
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* ----------------------------------------------------- C. exam */}
+      {/* ----------------------------------------------------- B. the examination */}
       <div className="derived">
         <div className="dhead">
           <span>Physical examination</span>
@@ -143,6 +123,26 @@ export function Objective({ patientId, onOpen }: {
               })}
             </div>
           </>
+        )}
+      </div>
+
+      {/* ------------------------------------------------- C. key labs */}
+      <div className="derived">
+        <div className="dhead">
+          <span>Key labs</span>
+          <button className="linkish" onClick={() => onOpen('results')}>All results</button>
+        </div>
+        {latestByGroup.size === 0 ? (
+          <div className="dline muted">No laboratory results on file.</div>
+        ) : (
+          <div className="bones">
+            {GROUP_ORDER.filter((g) => latestByGroup.has(g.group)).map((g) => {
+              const { now, before } = latestByGroup.get(g.group)!;
+              return (
+                <Fishbone key={g.group} label={g.label} now={now} before={before} />
+              );
+            })}
+          </div>
         )}
       </div>
 

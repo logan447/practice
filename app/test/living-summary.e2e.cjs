@@ -32,11 +32,43 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('no pinned note in the header', await p.locator('.cpin').count()===0);
 
   // ----------------------------------------- 2. the summary lags
-  ok('the chart says the summary is behind the record',
-    await p.locator('.summarybanner').isVisible());
+  ok('the chart says the summary is behind the record, in the rail',
+    await p.locator('.railnotices .summarybanner').isVisible());
+  ok('and nothing sits between the header and the subjective',
+    await p.locator('.chartinner > .summarybanner, .chartinner > .quality').count()===0);
   const banner = await p.locator('.summarybanner').textContent();
   ok(`it names what is new: ${banner.replace(/\s+/g,' ').slice(0,52)}`,
     /records added since the summary/.test(banner));
+
+  // ------------------------- 2b. the subjective, three sources at once
+  const subj = p.locator('.soap').first();
+  const stext = (await subj.textContent()).replace(/\s+/g,' ');
+  ok('it opens with a statement and no label over it',
+    (await subj.locator('.soaplabel').count())===0
+    && (await subj.locator('textarea.statement').inputValue()).startsWith('Three problems'));
+  ok('one block per managed problem, then the services',
+    (await subj.locator('.sprob').count())>=3+2);
+  const htn = subj.locator('#subj-sc1');
+  ok('the chart review is prose we can edit',
+    (await htn.locator('textarea.sreview').inputValue()).startsWith('Chart review:'));
+  ok('the numbers are composed, current beside previous',
+    (await htn.locator('.snum').allTextContents()).join('|').includes('was 136/80'));
+  ok('home and clinic readings are both there and kept apart',
+    (await htn.locator('.snum').allTextContents()).join('|').toLowerCase().includes('home bp'));
+  ok('the patient\u2019s own words are quoted, not paraphrased',
+    (await htn.locator('blockquote.said p').textContent()).startsWith('Better. The home readings'));
+  ok('and carry how they said it was going',
+    (await htn.locator('blockquote.said footer').textContent()).includes('Doing the plan'));
+  ok('a specialist comment lands on the problem it is about',
+    (await subj.locator('#subj-sc2 .sspec').textContent()).includes('Ophthalmology'));
+  ok('and not on the ones it is not',
+    (await htn.locator('.sspec').count())===0);
+  ok('orders outstanding sit with their problem',
+    (await subj.locator('#subj-sp1 .sord').textContent()).includes('Screening mammogram'));
+  ok('an unanswered problem says so rather than reading as fine',
+    stext.includes('Not answered before this visit'));
+  ok('their health overall comes last',
+    stext.lastIndexOf('Their health overall') > stext.indexOf('Physical activity'));
 
   // ------------------------------------------- 3. objective order
   const sections = await p.locator('.soaphead h2').allTextContents();
@@ -46,6 +78,9 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     (await p.locator('.vitblock .vhead').allTextContents()).join('|').includes('Office')
     && (await p.locator('.vitblock.home').count())>0);
   ok('labs are fishbones', await p.locator('.bone').count()>=4);
+  const objText = (await p.locator('.soap').nth(1).textContent());
+  ok('the examination comes before the labs',
+    objText.indexOf('Physical examination') < objText.indexOf('Key labs'));
   const bone = await p.locator('.bone').first().textContent();
   ok(`current with previous in brackets: ${bone.replace(/\s+/g,' ').slice(0,46)}`, /\(\d/.test(bone));
   ok('the examination carries its own date', await p.locator('.examrow').count()>0);
@@ -74,7 +109,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     !plan.includes('FOLLOW-UP') && (await p.locator('.railhead:has-text("Follow-up")').count())===1);
 
   // ------------------------------------------ 6. the review step
-  await p.click('.summarybanner button'); await p.waitForTimeout(700);
+  await p.click('.railnotices .summarybanner button'); await p.waitForTimeout(700);
   const n = await p.locator('.proposal').count();
   ok(`the assistant proposes (${n})`, n>4);
   ok('interpretations are marked as such',
@@ -83,13 +118,18 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     (await p.locator('.drawerbody').textContent()).includes('Read into the record'));
   ok('every proposal shows what it was built from',
     await p.locator('.pbasis').count()===n);
+  const pbody = await p.locator('.drawerbody').textContent();
+  ok('the draft pulls on the patient\u2019s own answers, cited as such',
+    /Patient answer sci\d/.test(pbody));
+  ok('and on the notes, cited separately',
+    /Encounter se\d/.test(pbody));
   const before = await p.locator('.proposal').count();
   await p.locator('.proposal button:has-text("Accept")').first().click();
   await p.waitForTimeout(400);
   ok('accepting removes it from review', await p.locator('.proposal').count()===before-1);
   await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(500);
   ok('and the summary is now dated today',
-    (await p.locator('.masterfoot.top').textContent()).includes('today'));
+    (await p.locator('.masterfoot').first().textContent()).includes('today'));
 
   // -------------------------------------------- 7. the packet
   await p.click('.railfoot button:has-text("Export")'); await p.waitForTimeout(700);

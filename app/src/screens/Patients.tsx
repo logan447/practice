@@ -22,6 +22,10 @@ export function Patients() {
   const addPatient = can(me, 'add-patient', { now: st.now });
   const [q, setQ] = useState('');
   const [onlyDirty, setOnlyDirty] = useState(false);
+  // How much record is behind a patient is the thing you want to sort
+  // by when you are judging whether a longitudinal view earns its
+  // place. It is not a clinical sort, so it is off by default.
+  const [byDepth, setByDepth] = useState(false);
   const [sel, setSel] = useState(0);
   const search = useRef<HTMLInputElement>(null);
 
@@ -31,7 +35,10 @@ export function Patients() {
       .map((p) => {
         const open = st.tasksFor(p.id);
         const conds = st.conditionsFor(p.id).filter((c) => c.status === 'active');
-        const next = st.encountersFor(p.id).find((e) => e.status === 'scheduled');
+        const all = st.encountersFor(p.id);
+        const next = all.find((e) => e.status === 'scheduled');
+        const seen = all.filter((e) => e.status === 'signed');
+        const last = seen.map((e) => e.date).sort().slice(-1)[0];
         // Panel-wide, because which charts need reconciling is a
         // property of the panel, not something you find one at a time.
         const issues = findIssues({
@@ -40,7 +47,7 @@ export function Patients() {
           series: st.seriesFor(p.id), documents: st.documentsFor(p.id),
         });
         return {
-          p, open, conds, next, issues,
+          p, open, conds, next, issues, visits: seen.length, last,
           crit: issues.filter((i) => i.level === 'crit').length,
           urgent: open.some((t) => t.urgent),
         };
@@ -50,11 +57,12 @@ export function Patients() {
         && (!needle
           || p.name.toLowerCase().includes(needle)
           || conds.some((c) => c.name.toLowerCase().includes(needle))))
-      .sort((a, b) =>
-        Number(b.urgent) - Number(a.urgent)
-        || b.open.length - a.open.length
-        || a.p.name.localeCompare(b.p.name));
-  }, [st, q, onlyDirty]);
+      .sort((a, b) => (byDepth
+        ? b.visits - a.visits || a.p.name.localeCompare(b.p.name)
+        : Number(b.urgent) - Number(a.urgent)
+          || b.open.length - a.open.length
+          || a.p.name.localeCompare(b.p.name)));
+  }, [st, q, onlyDirty, byDepth]);
 
   const dirty = useMemo(
     () => rows.filter((r) => r.issues.length > 0).length,
@@ -100,6 +108,10 @@ export function Patients() {
           <input className="search" placeholder="Search by name or condition"
             value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search patients" />
         </div>
+        <button className={`btn sm ${byDepth ? '' : 'ghost'}`}
+          onClick={() => setByDepth((v) => !v)}>
+          Longest record first
+        </button>
         {(dirty > 0 || onlyDirty) && (
           <button className={`btn sm ${onlyDirty ? '' : 'ghost'}`}
             onClick={() => setOnlyDirty((v) => !v)}>
@@ -115,13 +127,14 @@ export function Patients() {
               <th colSpan={2}>Patient</th>
               <th>Active problems</th>
               <th style={{ width: 130 }}>Membership</th>
+              <th style={{ width: 140 }}>Visits with us</th>
               <th style={{ width: 130 }}>Next visit</th>
               <th style={{ width: 90 }}>Open</th>
               <th style={{ width: 110 }}>Record</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map(({ p, open, conds, next, urgent, issues, crit }, i) => (
+            {rows.map(({ p, open, conds, next, urgent, issues, crit, visits, last }, i) => (
               <tr key={p.id} className={`click${i === sel ? ' sel' : ''}`}
                 onMouseEnter={() => setSel(i)}
                 onClick={() => nav.go({ name: 'chart', patientId: p.id })}>
@@ -142,6 +155,16 @@ export function Patients() {
                   <Chip tone={p.membership === 'standard' ? undefined : 'accent'}>
                     {MEMBERSHIP_LABEL[p.membership]}
                   </Chip>
+                </td>
+                <td className="small">
+                  {visits === 0
+                    ? <span className="muted">None yet</span>
+                    : (
+                      <>
+                        {visits} {visits === 1 ? 'visit' : 'visits'}
+                        <div className="small muted">last {relative(last!)}</div>
+                      </>
+                    )}
                 </td>
                 <td className="small muted">{next ? relative(next.date) : 'Not booked'}</td>
                 <td>

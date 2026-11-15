@@ -789,3 +789,61 @@ settles the payer posture. The open questions are whether a single
 living summary holds up for a patient with ten problems rather than
 three, and whether the proposal review stays read rather than
 becoming a button people click through.
+
+## D-044 The chart is one living document, built from three sources
+
+**Decided 2026-11-15.** The main chart view is a longitudinal
+document, not a visit note and not a tab set. Its subjective describes
+each problem from three sources that are kept visibly apart: a
+physician-authored chart review of the notes on file, measures
+composed from the structured record at read time, and the patient's
+own words from a check-in sent before each visit. A specialist comment
+appears against the problem its specialty looks after and nowhere
+else, and what is outstanding for a problem sits with that problem.
+
+**Reasoning.** A longitudinal subjective written only from visit notes
+is a clinician's account of a patient's account, filtered twice and
+updated only on the days we see them. The second source is what makes
+the document worth maintaining, and merging the two into one paragraph
+is how the disagreement between them disappears. The disagreement is
+the useful part: a problem the chart calls improving and the patient
+calls worse is a problem we have misunderstood, and the synthesis step
+now names those clashes rather than leaving them to be noticed.
+
+**What follows from it.** A new record type for the patient's per
+problem answers, kept verbatim and never edited by the practice. The
+opening statement replaces the three labelled subsections that were
+there before. Notices moved out of the path between the header and the
+first line of the subjective. The examination moved above the labs in
+the objective, because that is the order it is read in.
+
+**Revisit when:** the structure has been used on a ten problem chart,
+or when it is clear how often the pre-visit check-in actually gets
+answered. If it is rarely answered the third source is decoration and
+the design has to say so.
+
+## D-045 The demo panel is generated with deliberate depth
+
+**Decided 2026-11-15.** The generated panel draws a depth tier per
+patient rather than one flat tenure: new members with one visit and no
+series, through to members of five years with twenty visits, eight lab
+draws, two specialists and years of examinations. Every number for a
+patient follows one arc, so the gauge on a problem and the series
+under it cannot disagree. BMI is computed from a height and a weight
+rather than asserted.
+
+**Reasoning.** A prototype that only shows the deep chart hides every
+empty state, and one that only shows the shallow chart hides whether
+the longitudinal view earns its place. Both have to be in the panel to
+judge the structure. The arc constraint came from watching a chart say
+"improving" over a weight series that wandered upward, which is the
+fastest way to stop trusting a demo.
+
+**Assumptions owned.** The share of each depth tier, the uptake of
+home monitoring and care management, and the proportion of charts
+whose last examination predates the last visit are guesses in the
+right order of magnitude. They are not measured rates and nothing
+should be derived from them. All of it is fictional.
+
+**Revisit when:** real panel data exists, or when the generator is
+being used for anything other than looking at the screen.

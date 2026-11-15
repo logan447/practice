@@ -24,6 +24,7 @@ import { relative } from '../../lib/format';
 import type { MasterPlan } from '../../domain/types';
 import { Objective } from './Objective';
 import { Assessment, Plan } from './AssessPlan';
+import { Subjective } from './Subjective';
 
 /**
  * A text block that saves what it is left with, and nothing sooner.
@@ -86,7 +87,6 @@ export function MasterPlanView({ patientId, onOpen }: {
   if (!p) return null;
 
   const save = (patch: Partial<MasterPlan>) => st.saveMasterPlan(patientId, patch);
-  const S = mp?.subjective ?? { history: '', goals: '', context: '' };
   const O = mp?.objective ?? { narrative: '' };
   const A = mp?.assessment ?? { narrative: '' };
   const P = mp?.plan ?? { byProblem: {}, prevention: '', lifestyle: '', followUp: '' };
@@ -94,28 +94,9 @@ export function MasterPlanView({ patientId, onOpen }: {
 
   return (
     <div className="master">
-      {mp && (
-        <p className="masterfoot top">
-          Updated {relative(mp.updated)} by {mp.updatedBy}
-        </p>
-      )}
-
       {/* ------------------------------------------------- subjective */}
       <Section letter="S" title="Subjective">
-        <Label>History and what is ongoing</Label>
-        <Prose value={S.history} rows={4}
-          placeholder="What has happened, and what is still happening."
-          onSave={(v) => save({ subjective: { ...S, history: v } })} />
-
-        <Label>What they want</Label>
-        <Prose value={S.goals} rows={3}
-          placeholder="Their priorities, in their words."
-          onSave={(v) => save({ subjective: { ...S, goals: v } })} />
-
-        <Label>Context that carries forward</Label>
-        <Prose value={S.context} rows={3}
-          placeholder="The thing about their life that every plan has to fit around."
-          onSave={(v) => save({ subjective: { ...S, context: v } })} />
+        <Subjective patientId={patientId} master={mp} onSave={save} />
       </Section>
 
       {/* -------------------------------------------------- objective */}
@@ -184,6 +165,7 @@ export function MasterPlanView({ patientId, onOpen }: {
       </section>
 
       <p className="masterfoot">
+        {mp && <>Summary last updated {relative(mp.updated)} by {mp.updatedBy}. </>}
         Visits are kept as they were signed.{' '}
         <button className="linkish" onClick={() => onOpen('notes')}>Read the notes</button>
       </p>

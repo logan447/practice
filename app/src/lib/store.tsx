@@ -18,12 +18,13 @@ import type {
   AiDraft, CarePlan, CarePlanGoal, Condition, Encounter, Medication, Order,
   OrderKind, Patient, PatientEntry, PreVisit, PreventionItem, ResultReport,
   ResultSeries, Specialist, Task, VisitNote, Allergy, ChartDocument, MasterPlan,
-  VitalsSet, LabPanel, ExamRecord, DiagnosticStudy, EmRecord, CareLogEntry,
+  VitalsSet, LabPanel, ExamRecord, DiagnosticStudy, EmRecord, CareLogEntry, ProblemCheckIn,
   ServiceConsent, SummaryProposal, ConditionTrend, LifestyleIntervention,
 } from '../domain/types';
 import { fmtDate } from './format';
 import { propose, applyProposal } from './synthesis';
 import { generatePanel } from '../data/generate';
+import { longitudinal } from '../data/longitudinal';
 import * as sharon from '../data/sharon';
 import * as clinical from '../data/sharon-clinical';
 import { resolveDrug } from '../domain/terminology';
@@ -65,6 +66,8 @@ interface State {
   emRecords: EmRecord[];
   careLog: CareLogEntry[];
   consents: ServiceConsent[];
+  /** The patient's own words on each problem, sent in before a visit. */
+  checkIns: ProblemCheckIn[];
   /** Drafted by the assistant, not yet anybody's words. */
   proposals: SummaryProposal[];
   lifestyle: LifestyleIntervention[];
@@ -81,6 +84,7 @@ const EMPTY: State = {
   specialists: [], preVisits: [], orders: [], masterPlans: [],
   vitals: [], labPanels: [], exams: [], studies: [],
   emRecords: [], careLog: [], consents: [], proposals: [], lifestyle: [],
+  checkIns: [],
   now: ORIGIN, lastEvents: [],
 };
 
@@ -143,6 +147,7 @@ function demoState(): State {
     emRecords: clinical.sharonEm,
     careLog: clinical.sharonCareLog,
     consents: clinical.sharonConsents,
+    checkIns: clinical.sharonCheckIns,
     proposals: [],
     lifestyle: clinical.sharonLifestyle,
     now: ORIGIN,
@@ -193,6 +198,8 @@ interface Store extends State {
   emFor: (encounterId: string) => EmRecord | undefined;
   careLogFor: (id: string, month?: string) => CareLogEntry[];
   consentsFor: (id: string) => ServiceConsent[];
+  /** Newest first. */
+  checkInsFor: (id: string) => ProblemCheckIn[];
   proposalsFor: (id: string) => SummaryProposal[];
   lifestyleFor: (id: string) => LifestyleIntervention[];
   seriesFor: (id: string) => ResultSeries[];
@@ -347,6 +354,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         .filter((e) => !month || e.date.startsWith(month))
         .sort((a, b) => b.date.localeCompare(a.date)),
       consentsFor: (id) => by(s.consents, id),
+      checkInsFor: (id) => [...by(s.checkIns, id)].sort((a, b) => b.date.localeCompare(a.date)),
       proposalsFor: (id) => by(s.proposals, id).filter((p) => p.status === 'pending'),
       lifestyleFor: (id) => by(s.lifestyle, id),
       seriesFor: (id) => by(s.resultSeries, id),
@@ -451,24 +459,46 @@ export function StoreProvider({ children }: { children: ReactNode }) {
        */
       loadPanel: () => {
         const g = generatePanel();
+        // The longitudinal layer reads the generated record and writes
+        // the years behind it: vitals at every visit, lab panels,
+        // examinations, imaging, the care management and consent
+        // records, and a living summary that is deliberately a few
+        // records out of date. It also stamps the trend on each
+        // managed problem, read off the same arc the numbers follow,
+        // so the gauge and the results cannot disagree.
+        const d = longitudinal(g);
+        // Sharon stays in the panel. She is the hand-built deep chart
+        // and the point of comparison for everything generated.
+        const demo = demoState();
         setS({
           ...EMPTY,
-          patients: g.patients,
-          conditions: g.conditions,
-          medications: g.medications,
+          patients: [demo.patients[0], ...g.patients],
+          conditions: [...demo.conditions.filter((c) => c.patientId === 'p0'), ...g.conditions],
+          medications: [...demo.medications.filter((m) => m.patientId === 'p0'), ...g.medications],
           allergies: g.allergies,
-          documents: g.documents,
-          resultSeries: g.resultSeries,
-          resultReports: g.resultReports,
-          encounters: g.encounters,
-          prevention: g.prevention,
-          specialists: g.specialists,
-          carePlans: g.carePlans,
-          tasks: g.tasks,
+          documents: [...demo.documents.filter((x) => x.patientId === 'p0'), ...g.documents],
+          resultSeries: [...demo.resultSeries.filter((x) => x.patientId === 'p0'), ...g.resultSeries],
+          resultReports: [...demo.resultReports.filter((x) => x.patientId === 'p0'), ...g.resultReports],
+          encounters: [...demo.encounters.filter((x) => x.patientId === 'p0'), ...g.encounters],
+          prevention: [...demo.prevention.filter((x) => x.patientId === 'p0'), ...g.prevention],
+          specialists: [...demo.specialists.filter((x) => x.patientId === 'p0'), ...g.specialists],
+          carePlans: [...demo.carePlans.filter((x) => x.patientId === 'p0'), ...g.carePlans],
+          orders: demo.orders.filter((x) => x.patientId === 'p0'),
+          tasks: [...demo.tasks.filter((x) => x.patientId === 'p0'), ...g.tasks],
+          masterPlans: [...demo.masterPlans, ...d.masterPlans],
+          vitals: [...demo.vitals, ...d.vitals],
+          labPanels: [...demo.labPanels, ...d.labPanels],
+          exams: [...demo.exams, ...d.exams],
+          studies: [...demo.studies, ...d.studies],
+          emRecords: [...demo.emRecords, ...d.emRecords],
+          careLog: [...demo.careLog, ...d.careLog],
+          consents: [...demo.consents, ...d.consents],
+          checkIns: [...demo.checkIns, ...d.checkIns],
+          lifestyle: [...demo.lifestyle, ...d.lifestyle],
           now: ORIGIN,
           lastEvents: [],
         });
-        return g.patients.length;
+        return g.patients.length + 1;
       },
 
       clearAll: () => { wipe(); setS(EMPTY); },
@@ -767,7 +797,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           const existing = p.masterPlans.find((m) => m.patientId === enc.patientId);
           const base: MasterPlan = existing ?? {
             id: newId('mp'), patientId: enc.patientId, updated: clockNow(), updatedBy: ME,
-            subjective: { history: '', goals: '', context: '' },
+            subjective: { history: '', byProblem: {}, goals: '', context: '' },
             objective: { narrative: '' },
             assessment: { narrative: '' },
             plan: { byProblem: {}, prevention: '', lifestyle: '', followUp: '' },
@@ -820,7 +850,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           const existing = p.masterPlans.find((m) => m.patientId === patientId);
           const base: MasterPlan = existing ?? {
             id: newId('mp'), patientId, updated: clockNow(), updatedBy: ME,
-            subjective: { history: '', goals: '', context: '' },
+            subjective: { history: '', byProblem: {}, goals: '', context: '' },
             objective: { narrative: '' },
             assessment: { narrative: '' },
             plan: { byProblem: {}, prevention: '', lifestyle: '', followUp: '' },
@@ -846,7 +876,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           const existing = p.masterPlans.find((m) => m.patientId === patientId);
           const base: MasterPlan = existing ?? {
             id: newId('mp'), patientId, updated: clockNow(), updatedBy: ME,
-            subjective: { history: '', goals: '', context: '' },
+            subjective: { history: '', byProblem: {}, goals: '', context: '' },
             objective: { narrative: '' },
             assessment: { narrative: '' },
             plan: { byProblem: {}, prevention: '', lifestyle: '', followUp: '' },
@@ -923,6 +953,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           prevention: by(s.prevention, patientId),
           plan: s.carePlans.find((c) => c.patientId === patientId),
           entries: by(s.patientEntries, patientId),
+          checkIns: by(s.checkIns, patientId),
+          lifestyle: by(s.lifestyle, patientId),
         });
         setS((p) => ({
           ...p,
@@ -947,7 +979,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           const existing = p.masterPlans.find((m) => m.patientId === pr.patientId);
           const base: MasterPlan = existing ?? {
             id: newId('mp'), patientId: pr.patientId, updated: clockNow(), updatedBy: ME,
-            subjective: { history: '', goals: '', context: '' },
+            subjective: { history: '', byProblem: {}, goals: '', context: '' },
             objective: { narrative: '' },
             assessment: { narrative: '' },
             plan: { byProblem: {}, prevention: '', lifestyle: '', followUp: '' },
@@ -1015,6 +1047,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             vitals: drop(p.vitals), labPanels: drop(p.labPanels), exams: drop(p.exams),
             studies: drop(p.studies), careLog: drop(p.careLog), consents: drop(p.consents),
             proposals: drop(p.proposals), lifestyle: drop(p.lifestyle),
+            checkIns: drop(p.checkIns),
             emRecords: p.emRecords.filter((e) =>
               !p.encounters.some((x) => x.id === e.encounterId && x.patientId === patientId)),
             now: p.now, lastEvents: p.lastEvents,

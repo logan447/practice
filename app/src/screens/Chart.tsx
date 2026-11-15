@@ -98,6 +98,7 @@ export function Chart({ patientId }: { patientId: string }) {
     panels: st.panelsFor(p.id), studies: st.studiesFor(p.id),
     specialists: st.specialistsFor(p.id), prevention: st.preventionFor(p.id),
     plan: st.planFor(p.id), entries: st.entriesFor(p.id),
+    checkIns: st.checkInsFor(p.id), lifestyle: st.lifestyleFor(p.id),
   });
   const pending = st.proposalsFor(p.id);
 
@@ -168,48 +169,63 @@ export function Chart({ patientId }: { patientId: string }) {
 
         </header>
 
-        {/*
-          * The one standing invitation on the chart.
-          *
-          * Shown only when the record has moved since the summary was
-          * written. Nothing is generated until it is asked for, and
-          * nothing generated reaches the summary without review.
-          */}
-        {stale.count > 0 && (
-          <div className="summarybanner">
-            <span>
-              <b>{stale.count}</b> record{stale.count > 1 ? 's' : ''} added since the summary
-              was written: {stale.what.slice(0, 3).join(', ')}
-              {stale.what.length > 3 && `, and ${stale.what.length - 3} more`}.
-            </span>
-            <span className="spacer" />
-            <button className="btn sm" onClick={() => {
-              st.generateProposals(p.id);
-              setDrawer('review');
-            }}>
-              Draft an update
-            </button>
-          </div>
-        )}
-
-        {pending.length > 0 && stale.count === 0 && (
-          <div className="summarybanner">
-            <span><b>{pending.length}</b> proposed change{pending.length > 1 ? 's' : ''} waiting for review.</span>
-            <span className="spacer" />
-            <button className="btn sm" onClick={() => setDrawer('review')}>Review</button>
-          </div>
-        )}
-
-        {issues.length > 0 && (
-          <QualityStrip issues={issues} onGo={(t) => setDrawer(
-            t === 'plan' ? 'plan' : t === 'notes' ? 'visits' : (t as ChartDrawer))} />
-        )}
-
         {/* -------------------------------------------- the workspace */}
         <div className="workspace">
           <MasterPlanView patientId={p.id} onOpen={(w) => setDrawer(
             w === 'notes' ? 'visits' : (w as ChartDrawer))} />
           <div>
+            {/*
+              * Notices live in the right column.
+              *
+              * They were under the header, between the name and the
+              * summary, which is the one place on this screen that has
+              * to stay clear: the eye goes from the name to the problem
+              * list to the first line of the subjective, and anything
+              * in that path is read before the clinical content and
+              * remembered instead of it. These still have to be seen,
+              * so they sit at the top of the rail where the other
+              * standing state is.
+              */}
+            <div className="railnotices">
+          {/*
+            * The one standing invitation on the chart.
+            *
+            * Shown only when the record has moved since the summary was
+            * written. Nothing is generated until it is asked for, and
+            * nothing generated reaches the summary without review.
+            */}
+          {stale.count > 0 && (
+            <div className="summarybanner">
+              <span>
+                <b>{stale.count}</b> record{stale.count > 1 ? 's' : ''}{' '}
+                {st.masterPlanFor(p.id)
+                  ? 'added since the summary was written'
+                  : 'on file, and nothing in the summary yet'}: {stale.what.slice(0, 3).join(', ')}
+                {stale.what.length > 3 && `, and ${stale.what.length - 3} more`}.
+              </span>
+              <span className="spacer" />
+              <button className="btn sm" onClick={() => {
+                st.generateProposals(p.id);
+                setDrawer('review');
+              }}>
+                Draft an update
+              </button>
+            </div>
+          )}
+
+          {pending.length > 0 && stale.count === 0 && (
+            <div className="summarybanner">
+              <span><b>{pending.length}</b> proposed change{pending.length > 1 ? 's' : ''} waiting for review.</span>
+              <span className="spacer" />
+              <button className="btn sm" onClick={() => setDrawer('review')}>Review</button>
+            </div>
+          )}
+
+          {issues.length > 0 && (
+            <QualityStrip issues={issues} onGo={(t) => setDrawer(
+              t === 'plan' ? 'plan' : t === 'notes' ? 'visits' : (t as ChartDrawer))} />
+          )}
+            </div>
             <Rail patientId={p.id} open={setDrawer}
               onJump={(cid) => {
                 const el = document.getElementById(`problem-${cid}`);

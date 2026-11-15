@@ -326,8 +326,24 @@ export interface MasterPlan {
   updated: string;
   updatedBy: string;
   subjective: {
-    /** Relevant history and what is ongoing. */
+    /**
+     * The opening statement: where the work stands today, across
+     * everything. One short paragraph, no heading above it, because
+     * this is the first thing read and a label in front of it only
+     * delays the reading.
+     */
     history: string;
+    /**
+     * Chart review per problem, keyed by condition id, and by
+     * `prevention:<id>` and `lifestyle:<id>` for the services.
+     *
+     * This is the longitudinal half of each problem's subjective: how
+     * it has been going across the notes on file. The patient's own
+     * words sit beside it rather than inside it, and the two are
+     * never merged, because one is a clinician's reading of the
+     * record and the other is testimony.
+     */
+    byProblem: Record<string, string>;
     /** Theirs, in their words. */
     goals: string;
     /** What matters from previous visits. */
@@ -348,6 +364,64 @@ export interface MasterPlan {
     lifestyle: string;
     followUp: string;
   };
+}
+
+// ------------------------------------------------- the patient's words
+
+/**
+ * What the patient says about one problem, before the visit.
+ *
+ * FHIR: QuestionnaireResponse, one item per problem.
+ *
+ * The reason this is its own record and not a line in the note. A
+ * longitudinal subjective written only from visit notes is a
+ * clinician's account of a patient's account, filtered twice and
+ * updated only on the days we happen to see them. Asking the patient
+ * to say how each problem is going, in their own words, before every
+ * visit gives the summary a second source that is actually theirs,
+ * dated, and never rewritten by us.
+ *
+ * It is kept strictly apart from the chart review beside it. Patient
+ * testimony and clinical reading disagree often, and the disagreement
+ * is usually the most useful thing on the screen.
+ */
+export type CheckInFeeling = 'better' | 'same' | 'worse' | 'unsure';
+
+export const FEELING_LABEL: Record<CheckInFeeling, string> = {
+  better: 'Better',
+  same: 'About the same',
+  worse: 'Worse',
+  unsure: 'Not sure',
+};
+
+/** Whether they are doing the plan as written, in their own judgement. */
+export type OnPlan = 'yes' | 'partly' | 'no';
+
+export const ON_PLAN_LABEL: Record<OnPlan, string> = {
+  yes: 'Doing the plan',
+  partly: 'Doing some of it',
+  no: 'Not doing it',
+};
+
+export interface ProblemCheckIn {
+  id: string;
+  patientId: string;
+  /** The visit it was sent in before, where there was one. */
+  encounterId?: string;
+  date: string;
+  /**
+   * What it is about. A condition id, a prevention item id, a
+   * lifestyle intervention id, or the whole of their health.
+   */
+  about:
+  | { kind: 'condition'; id: string }
+  | { kind: 'prevention'; id: string }
+  | { kind: 'lifestyle'; id: string }
+  | { kind: 'overall' };
+  feeling: CheckInFeeling;
+  onPlan?: OnPlan;
+  /** Their words, verbatim. Never edited here. */
+  text: string;
 }
 
 // ------------------------------------------------------- before the visit

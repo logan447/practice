@@ -152,6 +152,51 @@ const ALSO_TAKING: { name: string; dose: string; sig: string; p: number }[] = [
   { name: 'Lithium', dose: '300 mg', sig: 'One tablet twice daily', p: 0.02 },
 ];
 
+/**
+ * What the letter actually said.
+ *
+ * These are shown against the problem the specialty looks after, so a
+ * line that says nothing ("see the letter on file") makes the whole
+ * row worth skipping. Each one is a finding plus what they asked us
+ * to do, which is the half that falls through.
+ */
+const SPECIALIST_SAYS: Record<string, string[]> = {
+  Cardiology: [
+    'Echocardiogram showed preserved ejection fraction with mild left atrial enlargement. Asked us to keep the pressure under 130 and to avoid adding a rate-limiting agent.',
+    'Stress test negative. Happy for primary care to continue secondary prevention. Discharged.',
+    'Started a low dose beta blocker and asked us to check the heart rate at the next visit.',
+  ],
+  Endocrinology: [
+    'Agreed with holding off on insulin. Suggested a GLP-1 agonist if the next A1c is still above 7.5, and left the decision with us.',
+    'Thyroid replacement is at the right dose. Asked for a level every twelve months rather than every six.',
+    'Reviewed the weight history. Recommended referral to a structured programme rather than another drug.',
+  ],
+  Nephrology: [
+    'Chronic kidney disease is stable and likely hypertensive rather than diabetic. Asked us to stop all non-steroidal anti-inflammatories and to repeat the ratio in six months.',
+    'Declines to see again unless the function drops further. Asked us to keep the potassium under review while on the current combination.',
+  ],
+  Gastroenterology: [
+    'Endoscopy showed mild oesophagitis, no Barrett\u2019s. Asked for a step-down attempt on the proton pump inhibitor after eight weeks.',
+    'Symptoms are functional. Advised against further imaging.',
+  ],
+  Orthopaedics: [
+    'Radiographs show moderate joint space loss. Not yet a surgical candidate. Asked us to continue weight work and to refer again if night pain develops.',
+    'Injection given, with about three months of benefit expected. Asked us to arrange physiotherapy rather than repeat it.',
+  ],
+  Psychiatry: [
+    'Diagnosis confirmed. Suggested increasing the current agent before switching, and offered to review in three months.',
+    'Discharged back to us on a stable dose, with advice to continue for at least twelve months after remission.',
+  ],
+  Pulmonology: [
+    'Spirometry consistent with asthma, reversible. Stepped up the inhaled steroid and asked us to check technique at every visit.',
+    'Sleep study confirmed moderate obstructive sleep apnoea. Pressure settings adjusted; asked us to chase the usage download.',
+  ],
+  Urology: [
+    'Prostate examination benign, PSA within range for age. Happy for us to titrate the alpha blocker.',
+    'Flow study mildly obstructed. Offered surgery, which was declined for now.',
+  ],
+};
+
 const ALLERGY_POOL = [
   { substance: 'Penicillin', reaction: 'Rash', severity: 'moderate' as const },
   { substance: 'Sulfa drugs', reaction: 'Hives', severity: 'moderate' as const },
@@ -229,10 +274,144 @@ const GOALS: Record<string, {
   }],
 };
 
+/**
+ * What people actually say about each problem.
+ *
+ * The notes matter more here than they look. The living summary's
+ * subjective section is built by matching a visit note against the
+ * problem list and the drugs given for each problem, so a panel whose
+ * notes all say "doing broadly what we agreed" exercises none of
+ * that. These lines name the drug and the problem the way a patient
+ * would, which is what the matching has to cope with.
+ *
+ * {drug} is filled from the medicine actually on the list for that
+ * problem, so the note and the medicine list cannot disagree.
+ * Fictional throughout.
+ */
+const SUBJ: Record<string, string[]> = {
+  'Essential hypertension': [
+    'The {drug} suits {them} better than the last one. No cough, no dizziness standing up. Checking the pressure at home most weeks.',
+    'Takes the {drug} most mornings. Forgets it on the weekends, which {they} says is about half the time.',
+    'Pressure readings at home are lower than the ones here and {they} wants to know which one we are treating.',
+    'Stopped the {drug} for a fortnight after reading about it, then restarted. Wants to talk through the reasoning rather than be told.',
+  ],
+  'Type 2 diabetes mellitus': [
+    '{Drug} going down fine now it is taken with food. Finger sticks mostly in the 120s, higher after the weekends.',
+    'Sugars are better on the weeks {they} cooks. Evenings are where it comes apart.',
+    'Asking whether {they} can come off the {drug} if the numbers keep going the way they are going.',
+    'Two low episodes in the last month, both late evening, both after a missed meal.',
+  ],
+  'Prediabetes': [
+    'Has read the number off the last result and wants to know how far off diabetes {they} is.',
+    'Walking has held up most weeks. Breakfast is still a pastry on the way in.',
+  ],
+  'Mixed hyperlipidemia': [
+    'Taking the {drug} at night. No muscle aches this time, which was the problem with the last one.',
+    'Read that the {drug} is unnecessary at {their} age and has stopped it twice since the last visit.',
+    'Wants to try diet alone for three months before we talk about the {drug} again.',
+  ],
+  Obesity: [
+    'Weight has shifted a little and {they} can tell from the stairs rather than from the scale.',
+    'Nothing has moved. {They} is clear that the problem is the evenings, not the mornings.',
+  ],
+  'Obstructive sleep apnea': [
+    'CPAP every night now. Took three months to tolerate the mask and {they} nearly gave up twice.',
+    'Machine is in the cupboard. {They} says it was the mask, not the idea.',
+  ],
+  'Generalized anxiety disorder': [
+    '{Drug} has taken the edge off. Sleep is still the worst part of it.',
+    'Worse since the shift pattern changed. Not wanting a dose change yet.',
+  ],
+  'Major depressive disorder': [
+    'Better than at the last visit. Back at work three days a week and that is the part {they} is proud of.',
+    '{Drug} taken every morning. Flat rather than low, which {they} says is different.',
+  ],
+  'Osteoarthritis': [
+    'Knees ache after the longer walks and settle by morning. No swelling, no locking.',
+    'Taking the {drug} most days, which {they} knows we have asked {them} not to do.',
+  ],
+  'Chronic low back pain': [
+    'Back is manageable in the mornings and bad by the evening. Lifting at work is the thing that sets it off.',
+    'The {drug} helps enough to sleep and not enough to work.',
+  ],
+  'Chronic kidney disease, stage 3a': [
+    'Has understood that the ibuprofen is the thing to stop and has stopped it.',
+    'Worried about dialysis after a conversation with a relative. Wants to know where {they} actually stands.',
+  ],
+  Hypothyroidism: [
+    '{Drug} on an empty stomach, which {they} manages on the weekdays and not at the weekend.',
+    'Tired again. Wants the level checked rather than the dose changed.',
+  ],
+  Asthma: [
+    'Using the {drug} twice a week, mostly in the cold.',
+    'Chest has been tight since the move. Reliever four or five times a week.',
+  ],
+  'Gastro-oesophageal reflux': [
+    '{Drug} controls it as long as {they} takes it before food rather than after.',
+    'Worse lying down. Has started sleeping propped up and that has helped more than the tablet.',
+  ],
+  'Coronary artery disease': [
+    'No chest pain since the stent. Walks to the shop and back without stopping.',
+    'Takes the {drug} and the aspirin without fail, which is the one thing {they} is strict about.',
+  ],
+  'Atrial fibrillation': [
+    'Aware of the odd flutter in the evenings. No breathlessness with it.',
+    'On the {drug} and worried about bruising. Has not missed a dose.',
+  ],
+  'Heart failure with preserved ejection fraction': [
+    'Weighs {themself} most mornings. Up three pounds this week and the ankles show it.',
+    'Breathless on the stairs, better than three months ago. {Drug} in the morning as written.',
+  ],
+  'Benign prostatic hyperplasia': [
+    'Up twice a night rather than four times since the {drug} started.',
+    'No better. The night-time trips are the thing {they} wants fixed.',
+  ],
+  'Vitamin D deficiency': [
+    'Takes the {drug} when {they} remembers, which is most days.',
+  ],
+};
+
+/** Generic lines for a visit that was not about any one problem. */
+const SUBJ_GENERAL = [
+  'No new symptoms. Here for the review and for the blood test results.',
+  'Busy stretch at work and the walking stopped. Wants to restart rather than change the plan.',
+  'Nothing new. Wanted the medicine list gone through because the pharmacy list and ours disagree.',
+  'Came in about a cough that has settled on its own. Took the chance to review everything else.',
+];
+
 const OUTSIDE = ['Travis County Health', 'Capital Family Practice', 'St. David’s', 'Hill Country Clinic', 'Riverside Urgent Care', 'Lone Star Imaging'];
+
+/**
+ * How much record there is behind a patient.
+ *
+ * A real panel is not uniform. Somebody who joined three weeks ago
+ * has one visit and a blank slate; somebody four years in has twenty
+ * visits, a lab series, two specialists and a plan that has already
+ * been wrong twice. A prototype that only shows the second kind
+ * hides every empty state, and one that only shows the first hides
+ * whether the longitudinal view is worth anything at all.
+ *
+ * So depth is drawn deliberately rather than falling out of a single
+ * random tenure, and it is carried on the panel so the clinical layer
+ * can match it. Assumption owned: the shares below are a guess at
+ * what a membership practice in its third year looks like, not a
+ * measured distribution.
+ */
+export type Depth = 'new' | 'establishing' | 'established' | 'deep';
+
+export const DEPTH_LABEL: Record<Depth, string> = {
+  new: 'New member',
+  establishing: 'Getting started',
+  established: 'Established',
+  deep: 'Years of record',
+};
 
 export interface Panel {
   patients: Patient[];
+  /** Keyed by patient id. */
+  depth: Record<string, Depth>;
+  /** Signed visits per patient, oldest first, for the clinical layer. */
+  visits: Record<string, { id: string; date: string; kind: Encounter['kind'] }[]>;
   conditions: Condition[];
   medications: Medication[];
   allergies: Allergy[];
@@ -254,7 +433,8 @@ export function generatePanel(n = 120, seed = 20261114): Panel {
   const round = (v: number, dp: number) => Math.round(v * 10 ** dp) / 10 ** dp;
 
   const out: Panel = {
-    patients: [], conditions: [], medications: [], allergies: [], documents: [],
+    patients: [], depth: {}, visits: {},
+    conditions: [], medications: [], allergies: [], documents: [],
     resultSeries: [], resultReports: [], encounters: [], prevention: [],
     specialists: [], carePlans: [], tasks: [],
   };
@@ -299,7 +479,21 @@ export function generatePanel(n = 120, seed = 20261114): Panel {
     // adult panel, weighted to middle age
     const yearsOld = Math.round(22 + Math.pow(r(), 0.75) * 58);
     const dob = addDays(ORIGIN, -(yearsOld * 365 + Math.floor(r() * 365)));
-    const tenureDays = Math.floor(r() * 900);
+
+    // How long they have been here, drawn from the depth tiers rather
+    // than from one flat range, so the panel has both ends of the
+    // spread in it and not only the middle.
+    const dRoll = r();
+    const depth: Depth = dRoll < 0.17 ? 'new'
+      : dRoll < 0.40 ? 'establishing'
+        : dRoll < 0.80 ? 'established' : 'deep';
+    out.depth[pid] = depth;
+    const tenureDays = Math.floor(
+      depth === 'new' ? between(10, 130)
+        : depth === 'establishing' ? between(160, 470)
+          : depth === 'established' ? between(520, 1300)
+            : between(1400, 2500),
+    );
 
     out.patients.push({
       id: pid, name, preferredName: first, dob, sex,
@@ -385,12 +579,19 @@ export function generatePanel(n = 120, seed = 20261114): Panel {
     // --- lab history
     for (const sn of seriesNames) {
       const spec = SERIES[sn];
-      const count = 2 + Math.floor(r() * 5);
+      // As many points as the record could actually hold. A three week
+      // member with a five year trend line is the tell.
+      const count = depth === 'new' ? (chance(0.55) ? 1 : 0)
+        : depth === 'establishing' ? 1 + Math.floor(r() * 2)
+          : depth === 'established' ? 3 + Math.floor(r() * 3)
+            : 5 + Math.floor(r() * 5);
+      if (count === 0) continue;
       let value = between(spec.lo, spec.hi);
       const trend = between(-0.06, 0.03);
       const points: ResultPoint[] = [];
       for (let k = count - 1; k >= 0; k--) {
-        const date = addDays(ORIGIN, -(k * Math.floor(between(70, 200)) + Math.floor(r() * 20)));
+        const gap = Math.max(60, Math.floor(tenureDays / Math.max(count, 1)));
+        const date = addDays(ORIGIN, -(k * gap + Math.floor(r() * 20) + 6));
         value = value * (1 + trend) + between(-1, 1) * (spec.hi - spec.lo) * 0.03;
         const v = round(Math.max(spec.lo * 0.8, Math.min(spec.hi * 1.1, value)), spec.dp);
         points.push({
@@ -438,19 +639,65 @@ export function generatePanel(n = 120, seed = 20261114): Panel {
     // note in it would read as a bug, and the history is most of what
     // makes a chart worth navigating in the first place.
     const problemList = [...have].slice(0, 3).join(', ') || 'no active problems';
-    const visits = Math.min(6, Math.floor(tenureDays / 110));
+
+    // Pronouns, because the notes are written about a person and
+    // getting this wrong in a demo is the sort of thing that teaches
+    // you not to trust the demo.
+    const they = sex === 'female' ? 'she' : 'he';
+    const their = sex === 'female' ? 'her' : 'his';
+    const them = sex === 'female' ? 'her' : 'him';
+    const themself = sex === 'female' ? 'herself' : 'himself';
+    const fill = (t: string, drug: string) => t
+      .replace(/\{drug\}/g, drug.toLowerCase())
+      .replace(/\{Drug\}/g, drug ? `The ${drug.toLowerCase()}` : 'It')
+      .replace(/\{they\}/g, they).replace(/\{They\}/g, they[0].toUpperCase() + they.slice(1))
+      .replace(/\{their\}/g, their).replace(/\{them\}/g, them)
+      .replace(/\{themself\}/g, themself);
+
+    // One line per visit, cycling through the problems so a long
+    // record reads like a record rather than like one visit repeated.
+    const managedNames = [...have];
+    const lineFor = (v: number): { text: string; about?: string } => {
+      const pool = managedNames.filter((c) => SUBJ[c]);
+      if (pool.length === 0 || chance(0.22)) return { text: pick(SUBJ_GENERAL) };
+      const about = pool[v % pool.length];
+      const lines = SUBJ[about];
+      const drug = out.medications
+        .filter((m) => m.patientId === pid && m.indication === about)
+        .map((m) => m.name)[0] ?? '';
+      const candidates = drug ? lines : lines.filter((l) => !l.includes('{drug}') && !l.includes('{Drug}'));
+      if (candidates.length === 0) return { text: pick(SUBJ_GENERAL) };
+      return { text: fill(candidates[Math.floor(r() * candidates.length)], drug), about };
+    };
+
+    // Visits scale with how long they have been here. The deep end is
+    // the case the longitudinal view exists for; the new end is where
+    // the empty states have to hold.
+    const visits = depth === 'new' ? (chance(0.35) ? 0 : 1)
+      : depth === 'establishing' ? 2 + Math.floor(r() * 3)
+        : depth === 'established' ? 5 + Math.floor(r() * 5)
+          : 11 + Math.floor(r() * 12);
+    /** Visit dates, oldest first, so the lab and vitals series can follow them. */
+    const visitDates: { id: string; date: string; kind: Encounter['kind'] }[] = [];
     for (let v = 0; v < visits; v++) {
-      const kind = v === visits - 1 ? 'initial' : chance(0.2) ? 'annual' : 'follow-up';
+      const isFirst = v === visits - 1;
+      const kind: Encounter['kind'] = isFirst ? 'initial' : chance(0.16) ? 'annual' : 'follow-up';
       const mins = kind === 'initial' ? 90 : kind === 'annual' ? 75 : 30;
-      // From two days back, not twenty: a practice that saw nobody in
-      // the last three weeks is not a practice, and the week view
-      // opens on an empty grid that looks like a bug.
-      const slot = place(addDays(ORIGIN, -Math.floor(between(2, tenureDays || 60))), mins, false);
+      // Spread across the tenure rather than landing at random, with
+      // enough jitter that the intervals are not identical.
+      const span = Math.max(tenureDays - 14, 30);
+      const back = Math.round(14 + (span * (v + 0.4)) / Math.max(visits, 1) + between(-18, 18));
+      const slot = place(addDays(ORIGIN, -Math.max(2, back)), mins, false);
       if (!slot) continue;
       const date = slot.date;
-      const reason = pick(['Routine review', 'Medication review', 'Results review', 'New symptom', 'Annual physical']);
+      const reason = kind === 'initial' ? 'First visit'
+        : kind === 'annual' ? 'Annual physical'
+          : pick(['Routine review', 'Medication review', 'Results review', 'New symptom']);
+      const line = lineFor(v);
+      const eid = id('en');
+      visitDates.push({ id: eid, date, kind });
       out.encounters.push({
-        id: id('en'), patientId: pid, date, start: slot.start,
+        id: eid, patientId: pid, date, start: slot.start,
         kind,
         reason,
         status: 'signed', duration: mins, signedAt: date,
@@ -458,33 +705,43 @@ export function generatePanel(n = 120, seed = 20261114): Panel {
           subjective: {
             oneLiner: `${first}, ${yearsOld}, with ${problemList}.`,
             reason, chartReview: '', diagnostics: '', specialists: '',
-            additional: pick([
-              'Doing broadly what we agreed. Sticking points are the evenings and the weekends.',
-              'No new symptoms. Tablets taken as written, with the occasional missed day.',
-              'Reports feeling steadier than at the last visit. Sleep still broken.',
-              'Busy stretch at work and the walking stopped. Wants to restart rather than change the plan.',
-            ]),
+            additional: line.text,
           },
           objective: {
-            homeMeasures: '', vitals: `BP ${Math.round(between(112, 148))}/${Math.round(between(68, 92))}. Weight ${Math.round(between(140, 272))} lb.`,
+            homeMeasures: '', vitals: '',
             exam: 'Well. Heart sounds normal, chest clear, no oedema.',
           },
           assessment: {
             oneLiner: '',
+            overall: line.about
+              ? pick([
+                `${line.about} is where the work is at the moment. The rest is holding.`,
+                `${line.about} moving in the right direction, slowly, which is the only way it moves.`,
+                `${line.about} not where we want it. Worth one change rather than three.`,
+              ])
+              : pick([
+                'Stable. Continue as we are and review in three months.',
+                'Nothing here needs a change today.',
+              ]),
+          },
+          plan: {
+            problems: [],
             overall: pick([
-              'Stable. Continue as we are and review in three months.',
-              'Moving in the right direction, slowly, which is the only way it moves.',
-              'Not where we want it. Worth one change rather than three.',
+              'Continue as we are. Review in three months.',
+              'Repeat bloods before the next visit and review then.',
+              'One change, reviewed in six weeks.',
+              'No change today. Prevention gaps are the thing to chase.',
             ]),
           },
-          plan: { problems: [], overall: pick(['Continue. Review in three months.', 'Repeat bloods before the next visit.', 'One change, reviewed in six weeks.']) },
         },
       });
     }
+    visitDates.sort((a, b) => a.date.localeCompare(b.date));
+    out.visits[pid] = visitDates;
 
     // --- the next visit, for some. A panel with nothing booked in it
     //     is a panel nobody is running.
-    if (chance(0.42)) {
+    if (chance(depth === 'new' ? 0.8 : 0.42)) {
       const kind = chance(0.12) ? 'annual'
         : chance(0.1) ? 'acute'
           : chance(0.1) ? 'home' : 'follow-up';
@@ -515,16 +772,47 @@ export function generatePanel(n = 120, seed = 20261114): Panel {
       });
     }
 
-    // --- a specialist for some
-    if (chance(0.26)) {
+    // --- specialists, more of them the longer the record
+    const spCount = depth === 'new' ? (chance(0.12) ? 1 : 0)
+      : depth === 'establishing' ? (chance(0.3) ? 1 : 0)
+        : depth === 'established' ? Math.floor(r() * 2)
+          : 1 + Math.floor(r() * 2);
+    const usedSpecialty = new Set<string>();
+    for (let sp = 0; sp < spCount; sp++) {
+      // Specialties that follow from the problem list, so the letter
+      // shown against a problem is a letter about that problem.
+      const options = [
+        ...(have.has('Essential hypertension') || have.has('Coronary artery disease')
+          || have.has('Atrial fibrillation') || have.has('Heart failure with preserved ejection fraction')
+          ? ['Cardiology'] : []),
+        ...(have.has('Type 2 diabetes mellitus') || have.has('Hypothyroidism')
+          || have.has('Obesity') ? ['Endocrinology'] : []),
+        ...(have.has('Chronic kidney disease, stage 3a') ? ['Nephrology'] : []),
+        ...(have.has('Gastro-oesophageal reflux') ? ['Gastroenterology'] : []),
+        ...(have.has('Osteoarthritis') || have.has('Chronic low back pain') ? ['Orthopaedics'] : []),
+        ...(have.has('Major depressive disorder') || have.has('Generalized anxiety disorder')
+          ? ['Psychiatry'] : []),
+        ...(have.has('Asthma') || have.has('Obstructive sleep apnea') ? ['Pulmonology'] : []),
+        ...(have.has('Benign prostatic hyperplasia') ? ['Urology'] : []),
+      ].filter((x) => !usedSpecialty.has(x));
+      if (options.length === 0) break;
+      const specialty = pick(options);
+      usedSpecialty.add(specialty);
       out.specialists.push({
         id: id('sp'), patientId: pid,
         name: `Dr. ${pick(FIRST_F.concat(FIRST_M))} ${pick(LAST)}`,
-        specialty: pick(['Cardiology', 'Endocrinology', 'Nephrology', 'Gastroenterology', 'Orthopaedics', 'Psychiatry']),
+        specialty,
         practice: pick(OUTSIDE), phone: '(512) 555-03' + String(10 + (i % 89)),
         lastSeen: addDays(ORIGIN, -Math.floor(between(40, 900))),
-        findings: 'See the letter on file.',
-        outstanding: chance(0.4) ? 'Awaiting their follow-up letter.' : 'None.',
+        findings: pick(SPECIALIST_SAYS[specialty] ?? ['See the letter on file.']),
+        outstanding: chance(0.4)
+          ? pick([
+            'Awaiting their follow-up letter.',
+            'They asked us to repeat the bloods and send them. Not done.',
+            'They have changed a dose and we have not had it in writing.',
+            'Discharged back to us with no letter.',
+          ])
+          : 'None.',
       });
     }
 
@@ -561,7 +849,10 @@ export function generatePanel(n = 120, seed = 20261114): Panel {
     }
 
     // --- outside documents, in three states of repair
-    const docs = Math.floor(r() * 3);
+    const docs = depth === 'new' ? (chance(0.4) ? 1 : 0)
+      : depth === 'establishing' ? Math.floor(r() * 2)
+        : depth === 'established' ? 1 + Math.floor(r() * 3)
+          : 2 + Math.floor(r() * 4);
     for (let d = 0; d < docs; d++) {
       const st = r();
       const status: ChartDocument['status'] = st < 0.62 ? 'parsed' : st < 0.88 ? 'scanned' : 'failed';

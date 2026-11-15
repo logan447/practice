@@ -27,8 +27,9 @@
 import type {
   CarePlan, Condition, Encounter, ExamRecord, LabPanel, MasterPlan,
   Medication, PreventionItem, Specialist, SummaryProposal, VitalsSet,
-  DiagnosticStudy, PatientEntry,
+  DiagnosticStudy, PatientEntry, ProblemCheckIn, LifestyleIntervention,
 } from '../domain/types';
+import { FEELING_LABEL, ON_PLAN_LABEL } from '../domain/types';
 import { fmtDate } from './format';
 
 export interface SynthesisInput {
@@ -46,6 +47,9 @@ export interface SynthesisInput {
   prevention: PreventionItem[];
   plan?: CarePlan;
   entries: PatientEntry[];
+  /** The patient's own answers, one per problem, sent in before a visit. */
+  checkIns: ProblemCheckIn[];
+  lifestyle: LifestyleIntervention[];
 }
 
 const byDateDesc = <T extends { date: string }>(xs: T[]): T[] =>
@@ -65,6 +69,13 @@ export function staleSince(input: SynthesisInput): { count: number; what: string
     (x) => `vitals on ${fmtDate(x.date)}`);
   after(input.studies, (s) => `${s.name} on ${fmtDate(s.date)}`);
   after(input.entries.filter((e) => e.flagged), (e) => `a flagged note on ${fmtDate(e.date)}`);
+  // The patient's own answers count as records. A summary that updates
+  // for a lab and not for the patient saying the opposite of the lab
+  // is a summary that only listens to one source.
+  const said = input.checkIns.filter((c) => c.date > since);
+  if (said.length > 0) {
+    what.push(`${said.length} answer${said.length > 1 ? 's' : ''} from the patient on ${fmtDate(said[0].date)}`);
+  }
   return { count: what.length, what };
 }
 
@@ -111,6 +122,55 @@ export function propose(input: SynthesisInput): SummaryProposal[] {
   const lastVisit = signed[0];
   const since = input.master?.updated ?? '0000-00-00';
 
+  // --------------------------------------------- the opening statement
+  //
+  // Where everything stands, in counts and in the numbers that moved.
+  // Regenerated rather than edited, because it is the one paragraph
+  // whose whole job is to be current.
+  {
+    const managed = input.conditions.filter((c) => c.managed && c.status === 'active');
+    const tally = (t: string) => managed.filter((c) => (c.trend ?? 'not-assessed') === t).length;
+    const dueItems = input.prevention.filter((x) => x.status !== 'current');
+    const stuck = input.lifestyle.filter((x) => x.status === 'struggling' || x.status === 'not-started');
+    const visitsSigned = input.encounters.filter((e) => e.status === 'signed');
+    const moved: string[] = [];
+    for (const key of ['A1c', 'LDL']) {
+      const now = latestPanelValue(input.panels, key);
+      const before = priorPanelValue(input.panels, key);
+      if (now && before && now.v.value !== before.v.value) {
+        moved.push(`${key} ${before.v.value} to ${now.v.value}`);
+      }
+    }
+    const office = byDateDesc(input.vitals.filter((x) => x.source === 'office'));
+    if (office[0]?.systolic && office[1]?.systolic && office[0].systolic !== office[1].systolic) {
+      moved.push(`blood pressure ${office[1].systolic} to ${office[0].systolic} systolic`);
+    }
+    if (managed.length > 0) {
+      M('subjective.statement', 'The opening statement', 'documented',
+        `${managed.length} problem${managed.length === 1 ? '' : 's'} managed here across ${
+          visitsSigned.length} visit${visitsSigned.length === 1 ? '' : 's'}. ${
+          [
+            tally('improving') > 0 ? `${tally('improving')} improving` : '',
+            tally('stable') > 0 ? `${tally('stable')} stable` : '',
+            tally('worsening') > 0 ? `${tally('worsening')} worsening` : '',
+            tally('not-assessed') > 0 ? `${tally('not-assessed')} not assessed` : '',
+          ].filter(Boolean).join(', ')
+        }.${moved.length > 0 ? ` Since the last summary, ${moved.join(', ')}.` : ''}${
+          dueItems.length > 0
+            ? ` Outstanding preventatively: ${dueItems.map((x) => x.name.toLowerCase()).join(', ')}.`
+            : ' Nothing outstanding preventatively.'
+        }${
+          stuck.length > 0
+            ? ` ${stuck.length} lifestyle prescription${stuck.length === 1 ? '' : 's'} not going.`
+            : ''
+        }`,
+        [
+          ...managed.map((c) => `Condition ${c.id}, gauge ${c.trend ?? 'not assessed'}`),
+          ...dueItems.map((x) => `Prevention item ${x.id}`),
+        ]);
+    }
+  }
+
   // ------------------------------------------------ subjective, by problem
   //
   // Attributed only where the patient's own words actually touch the
@@ -135,14 +195,35 @@ export function propose(input: SynthesisInput): SummaryProposal[] {
       const t = txt.toLowerCase();
       return terms.some((term) => t.includes(term));
     });
-    if (!hit) continue;
-    claimed.add(hit.e.id);
+    const said = input.checkIns.find(
+      (x) => x.about.kind === 'condition' && x.about.id === c.id && x.date > since,
+    );
+    if (!hit && !said) continue;
+    if (hit) claimed.add(hit.e.id);
+    // Both sources, in one proposal, each attributed. They are not
+    // merged into a single sentence, because one of them is the
+    // patient's testimony and summarising it away is how it stops
+    // counting.
+    const lines = [
+      hit ? `${fmtDate(hit.e.date)}: ${hit.txt}` : '',
+      said
+        ? `Before the visit on ${fmtDate(said.date)} they said ${
+          said.feeling === 'unsure' ? 'they were not sure how it was going'
+            : said.feeling === 'same' ? 'it was about the same'
+              : `it was ${FEELING_LABEL[said.feeling].toLowerCase()}`}${
+          said.onPlan ? ` and that they were ${ON_PLAN_LABEL[said.onPlan].toLowerCase()}` : ''
+        }: "${said.text}"`
+        : '',
+    ].filter(Boolean);
     M(
       `subjective.byProblem.${c.id}`,
       `Subjective, ${c.name}`,
       'documented',
-      `${fmtDate(hit.e.date)}: ${hit.txt}`,
-      [`Encounter ${hit.e.id}, ${fmtDate(hit.e.date)}`],
+      lines.join('\n\n'),
+      [
+        ...(hit ? [`Encounter ${hit.e.id}, ${fmtDate(hit.e.date)}`] : []),
+        ...(said ? [`Patient answer ${said.id}, ${fmtDate(said.date)}`] : []),
+      ],
     );
   }
 
@@ -195,10 +276,26 @@ export function propose(input: SynthesisInput): SummaryProposal[] {
       ? (a1c.v.value < a1cPrior.v.value ? 'falling' : a1c.v.value > a1cPrior.v.value ? 'rising' : 'unchanged')
       : 'without a prior value to compare';
     const stopped = input.medications.filter((m) => m.status === 'stopped');
+    // Derived from this chart's own series, and from nothing else. An
+    // interpretation that reaches for a detail the record does not
+    // hold is the failure mode this whole screen exists to prevent,
+    // and a sentence written once for one patient becomes exactly
+    // that as soon as it is shown for a second.
+    const a1cSeries = input.panels.filter((p) => p.values.some((v) => v.key === 'A1c')).length;
+    const added = input.medications.filter((m) => m.status === 'active'
+      && input.master && m.started > (input.master.updated ?? ''));
     M('assessment.narrative', 'Assessment, reading', 'interpretation',
       `Glycaemic control is ${dir}${
-        stopped.length > 0 ? `, and it has moved while ${stopped[0].name} was withdrawn rather than while an agent was added` : ''
-      }. On the numbers alone the diabetes is the problem responding best; whether that holds depends on whether the evening meals on her carer nights get solved.`,
+        stopped.length > 0
+          ? `, and it has moved while ${stopped[0].name} was withdrawn rather than while an agent was added`
+          : added.length > 0
+            ? `, alongside ${added[0].name} starting after the last summary`
+            : ', with no change to the medicine list behind it'
+      }. ${
+        a1cSeries >= 3
+          ? `The direction rests on ${a1cSeries} values, which is enough to call a trend.`
+          : `The direction rests on ${a1cSeries} value${a1cSeries === 1 ? '' : 's'}, which is not enough to call a trend. The next draw is what would confirm it.`
+      }`,
       ['Interpretation of the A1c series and the medication history. Not a documented finding.']);
   }
 
@@ -225,6 +322,37 @@ export function propose(input: SynthesisInput): SummaryProposal[] {
           [`Encounter ${lastVisit.id}, ${fmtDate(lastVisit.date)}`,
             ...meds.map((m) => `Medication ${m.id}`)]);
       }
+    }
+  }
+
+  // ------------------------------------- where the two sources disagree
+  //
+  // The gauge is ours, the answer is theirs, and when they point in
+  // opposite directions one of us is wrong. This is the single most
+  // useful thing two sources buy you, so it is called out rather than
+  // left for somebody to notice.
+  {
+    const clashes: string[] = [];
+    for (const c of input.conditions.filter((x) => x.managed && x.status === 'active')) {
+      const said = input.checkIns.find(
+        (x) => x.about.kind === 'condition' && x.about.id === c.id,
+      );
+      if (!said) continue;
+      if (c.trend === 'improving' && said.feeling === 'worse') {
+        clashes.push(`${c.name}: the chart calls it improving and they say it is worse.`);
+      } else if (c.trend === 'stable' && said.feeling === 'worse') {
+        clashes.push(`${c.name}: recorded as stable, reported as worse.`);
+      } else if (c.trend === 'worsening' && said.feeling === 'better') {
+        clashes.push(`${c.name}: the numbers are worse and they feel better.`);
+      }
+      if (said.onPlan === 'no' && c.trend === 'improving') {
+        clashes.push(`${c.name}: improving while they say they are not doing the plan, so something else is doing the work.`);
+      }
+    }
+    if (clashes.length > 0) {
+      M('assessment.narrative', 'Where the patient and the chart disagree', 'interpretation',
+        `${clashes.join(' ')} Worth resolving before the plan is changed on the strength of the numbers alone.`,
+        ['Comparison of the recorded gauge against the patient\u2019s own answer. Neither is a finding on its own.']);
     }
   }
 
@@ -255,7 +383,7 @@ export function applyProposal(
   master: MasterPlan | undefined, p: SummaryProposal,
 ): Partial<MasterPlan> | { problemId: string; text: string } | null {
   const text = p.acceptedText ?? p.text;
-  const S = master?.subjective ?? { history: '', goals: '', context: '' };
+  const S = master?.subjective ?? { history: '', byProblem: {}, goals: '', context: '' };
   const A = master?.assessment ?? { narrative: '' };
   const O = master?.objective ?? { narrative: '' };
   const P = master?.plan ?? { byProblem: {}, prevention: '', lifestyle: '', followUp: '' };
@@ -263,7 +391,16 @@ export function applyProposal(
   if (p.target.startsWith('plan.byProblem.')) {
     return { problemId: p.target.replace('plan.byProblem.', ''), text };
   }
-  if (p.target.startsWith('subjective.byProblem.') || p.target === 'subjective.history') {
+  if (p.target.startsWith('subjective.byProblem.')) {
+    const key = p.target.replace('subjective.byProblem.', '');
+    return {
+      subjective: {
+        ...S,
+        byProblem: { ...S.byProblem, [key]: joinNew(S.byProblem[key] ?? '', text) },
+      },
+    };
+  }
+  if (p.target === 'subjective.history' || p.target === 'subjective.statement') {
     return { subjective: { ...S, history: joinNew(S.history, text) } };
   }
   switch (p.target) {
