@@ -70,6 +70,15 @@ export interface Patient {
   email: string;
   /** One line the physician wants to see every single time. */
   pinned?: string;
+  /**
+   * What Medicare will and will not pay for, for this person.
+   *
+   * Absent for everyone who is not on Part B, which in this practice
+   * is most of the panel. Membership and Part B are different things
+   * and the chart keeps them apart: the membership is what they pay
+   * this practice, and this is what a claim could cover.
+   */
+  medicare?: MedicareStatus;
 }
 
 // -------------------------------------------------------------- problems

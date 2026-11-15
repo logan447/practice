@@ -16,21 +16,77 @@ import { useStore } from '../../lib/store';
 import { Chip, Panel, Empty } from '../../components/ui';
 import { fmtDate } from '../../lib/format';
 import { kindLabel } from '../../lib/clinical';
-import { emLevel, monthlyCareTime, PROGRAM_LABEL } from '../../lib/billing';
+import { emLevel, PROGRAM_LABEL } from '../../lib/billing';
+import { MONTH_STATUS_LABEL } from '../../lib/monthly';
+import { awvEligibility, awvElements, NOT_A_PHYSICAL } from '../../lib/awv';
+import type { CareProgram, MonthStatus } from '../../domain/types';
+
+/** The programmes a month can be evaluated for, in the order they are read. */
+const PROGRAMS: CareProgram[] = ['ccm', 'bhi', 'apcm'];
+const RUNGS: MonthStatus[] = ['recorded', 'threshold', 'requirements', 'ready', 'claimed'];
+
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'];
+
+/** "November 2026" from "2026-11". */
+const monthName = (m: string) => `${MONTHS[Number(m.slice(5, 7)) - 1]} ${m.slice(0, 4)}`;
 
 export function Documentation({ patientId }: { patientId: string }) {
   const st = useStore();
   const encounters = st.encountersFor(patientId).filter((e) => e.status === 'signed');
-  const consents = st.consentsFor(patientId);
   const month = st.now.slice(0, 7);
   const log = st.careLogFor(patientId, month);
   const conditions = st.conditionsFor(patientId);
-  const master = st.masterPlanFor(patientId);
 
-  const programs = [...new Set(log.map((e) => e.program))];
+  const claims = st.claimsFor(patientId);
+  const patient = st.patients.find((p) => p.id === patientId);
+  const ms = patient?.medicare;
+  const awv = ms ? awvEligibility(st.now, ms) : null;
 
   return (
     <div className="stack">
+      {/* ------------------------------------------- the wellness visit */}
+      {/*
+        * Shown only for the people it can apply to. Most of this panel
+        * is a date calculation, and the part that is not is the point:
+        * the element list for a subsequent visit is shorter than the
+        * first one, and building it as a copy over-documents a visit
+        * that is paid less.
+        */}
+      {awv && (
+        <Panel title="Wellness visit"
+          right={<Chip tone={awv.eligible ? 'ok' : 'warn'}>
+            {awv.eligible ? `Due, ${awv.code}` : 'Not yet'}
+          </Chip>}>
+          <p className="small">{awv.reason}</p>
+          {awv.nextEligible && (
+            <p className="small muted">
+              Next billable {fmtDate(awv.nextEligible)}, as {awv.code}.
+            </p>
+          )}
+          <p className="small muted" style={{ marginTop: 8 }}>{NOT_A_PHYSICAL}</p>
+          <ul className="checklist" style={{ marginTop: 10 }}>
+            {awvElements(ms?.awvOn?.length ? 'subsequent' : 'initial').map((el) => (
+              <li key={el.id} className="unmet">
+                <span className="ckmark">·</span>
+                <div>
+                  <div className="cklabel">
+                    {el.label}
+                    {!el.required && <span className="ckopt">at their discretion</span>}
+                    {el.how === 'attested' && <span className="ckopt">you attest</span>}
+                  </div>
+                  <div className="ckevidence">{el.detail}</div>
+                  <div className="ckrule">{el.source}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+          {awv.flags.map((f) => (
+            <p key={f} className="small muted" style={{ marginTop: 8 }}>{f}</p>
+          ))}
+        </Panel>
+      )}
+
       {/* ------------------------------------------------- per encounter */}
       <Panel title="Visits, and what each one supports" flush
         right={<span className="small muted">office E/M</span>}>
@@ -71,114 +127,171 @@ export function Documentation({ patientId }: { patientId: string }) {
               </div>
               <p className="emwhy">
                 Two of three at {lv.mdmLevel} gives {lv.byMdm}. {em.totalMinutes} minutes
-                gives {lv.byTime}. {lv.byMdm === lv.byTime
-                  ? 'Both routes agree.'
-                  : `They differ, so which one was used has to be documented, and it was ${em.selectedBy === 'time' ? 'time' : 'decision making'}.`}
+                gives {lv.byTime}.{' '}
+                {lv.timeUnknown
+                  ? 'The 99213 and 99214 time ranges are CPT content and are not set here, so time cannot settle this visit.'
+                  : lv.agree
+                    ? 'Both routes agree.'
+                    : `They differ, so which one was used has to be documented, and it was ${em.selectedBy === 'time' ? 'time' : 'decision making'}.`}
               </p>
             </div>
           );
         })}
       </Panel>
 
-      {/* ------------------------------------------ care management time */}
-      <Panel title={`Care management time, ${fmtDate(`${month}-01`).slice(3)}`} flush>
-        {log.length === 0 ? <Empty>Nothing logged this month.</Empty> : (
-          <>
-            {programs.map((prog) => {
-              const t = monthlyCareTime(log, prog);
-              return (
-                <div key={prog} className="cmhead">
-                  <strong>{PROGRAM_LABEL[prog]}</strong>
-                  <span className="cmtime">{t.countable} min countable</span>
-                  {t.excluded > 0 && (
-                    <span className="cmex">{t.excluded} min excluded</span>
-                  )}
-                  {t.thresholds.map((th) => (
-                    <Chip key={th.label} tone={th.met ? 'ok' : undefined}>
-                      {th.label} {th.met ? 'met' : `needs ${th.needs} more`}
-                    </Chip>
-                  ))}
-                </div>
-              );
-            })}
-            <table className="rows">
-              <tbody>
-                {log.map((e) => (
-                  <tr key={e.id}>
-                    <td className="small muted" style={{ width: 92 }}>{fmtDate(e.date)}</td>
-                    <td className="num" style={{ width: 60 }}>{e.minutes} min</td>
-                    <td>
-                      <div className="small">{e.activity}</div>
-                      <div className="small muted" style={{ marginTop: 2 }}>
-                        {e.by} &middot; {e.role.replace('-', ' ')}
+      {/* --------------------------------------- the month, as a ladder */}
+      {/*
+        * Four different things, and only the last is a claim: minutes
+        * recorded, the threshold reached, every requirement satisfied,
+        * a physician having looked and agreed. The evaluation stops at
+        * the third. Software that decides a month is billable has made
+        * a billing decision on somebody else's licence.
+        */}
+      {PROGRAMS.map((prog) => {
+        const m = st.monthFor(patientId, prog, month);
+        // A programme nobody consented to and nobody worked on is not
+        // a month with nothing in it. It is a service this patient is
+        // not on, and a list of its unmet requirements would be noise.
+        const started = st.consentsFor(patientId).some((c) => c.program === prog && !c.revoked);
+        if (!started && m.countableMinutes === 0 && m.excludedMinutes === 0) return null;
+        const mandatory = m.checks.filter((c) => c.mandatory);
+        const blocking = mandatory.filter((c) => !c.met);
+        return (
+          <Panel key={prog} title={`${PROGRAM_LABEL[prog]}, ${monthName(month)}`}
+            right={<Chip tone={
+              m.status === 'ready' || m.status === 'claimed' ? 'ok'
+                : m.status === 'requirements' ? 'accent' : 'warn'
+            }>{MONTH_STATUS_LABEL[m.status]}</Chip>}>
+            <div className="ladder">
+              {(['recorded', 'threshold', 'requirements', 'ready', 'claimed'] as const).map((rung) => (
+                <span key={rung}
+                  className={`rung${RUNGS.indexOf(rung) <= RUNGS.indexOf(m.status) ? ' on' : ''}`}>
+                  {MONTH_STATUS_LABEL[rung]}
+                </span>
+              ))}
+            </div>
+
+            <p className="small muted" style={{ margin: '10px 0' }}>
+              {m.countableMinutes} countable minutes
+              {m.excludedMinutes > 0 && `, ${m.excludedMinutes} recorded but not countable`}
+              {m.code && ` · ${m.code}`}
+            </p>
+
+            {m.checks.length === 0 ? (
+              <Empty>
+                No rules are configured for this service yet. See
+                docs/systems/billing-architecture.md.
+              </Empty>
+            ) : (
+              <ul className="checklist">
+                {m.checks.map((c) => (
+                  <li key={c.id} className={c.met ? 'met' : 'unmet'}>
+                    <span className="ckmark">{c.met ? '✓' : '·'}</span>
+                    <div>
+                      <div className="cklabel">
+                        {c.label}
+                        {!c.mandatory && <span className="ckopt">good practice</span>}
                       </div>
-                      {!e.countable && (
-                        <div className="excluded">{e.excludedBecause}</div>
-                      )}
-                    </td>
-                    <td style={{ width: 92 }}>
-                      {e.countable ? <Chip tone="ok">counts</Chip> : <Chip tone="crit">does not</Chip>}
-                    </td>
-                  </tr>
+                      <div className="ckevidence">{c.evidence}</div>
+                      <div className="ckrule">{c.rule}</div>
+                    </div>
+                  </li>
                 ))}
-              </tbody>
-            </table>
-          </>
+              </ul>
+            )}
+
+            <div className="row" style={{ gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+              {m.status === 'claimed' ? (
+                <span className="small muted">A claim has been prepared for this month.</span>
+              ) : m.status === 'ready' ? (
+                <>
+                  <span className="small muted">
+                    Attested by {m.attestedBy} on {fmtDate(m.attestedAt ?? month)}.
+                  </span>
+                  <button className="btn sm" onClick={() => st.prepareClaim(
+                    patientId,
+                    { monthlyServiceId: m.id },
+                    m.code ?? '',
+                    month,
+                    conditions.filter((c) => c.managed).map((c) => c.code).filter(Boolean),
+                  )}>Prepare the claim</button>
+                </>
+              ) : blocking.length === 0 && m.checks.length > 0 ? (
+                <button className="btn sm"
+                  onClick={() => st.attestMonth(patientId, prog, month)}>
+                  I have reviewed this month and it is billable
+                </button>
+              ) : (
+                <span className="small muted">
+                  {blocking.length} requirement{blocking.length === 1 ? '' : 's'} outstanding,
+                  so there is nothing to attest yet.
+                </span>
+              )}
+            </div>
+          </Panel>
+        );
+      })}
+
+      {/* --------------------------------------------- the time entries */}
+      <Panel title={`Time log, ${monthName(month)}`} flush>
+        {log.length === 0 ? <Empty>Nothing logged this month.</Empty> : (
+          <table className="rows">
+            <tbody>
+              {log.map((e) => (
+                <tr key={e.id}>
+                  <td className="small muted" style={{ width: 92 }}>{fmtDate(e.date)}</td>
+                  <td className="num" style={{ width: 60 }}>{e.minutes} min</td>
+                  <td className="small muted" style={{ width: 120 }}>{PROGRAM_LABEL[e.program]}</td>
+                  <td>
+                    <div className="small">{e.activity}</div>
+                    <div className="small muted" style={{ marginTop: 2 }}>
+                      {e.by} &middot; {e.role.replace('-', ' ')}
+                      {e.planUpdated && ' · care plan updated'}
+                    </div>
+                    {!e.countable && <div className="excluded">{e.excludedBecause}</div>}
+                  </td>
+                  <td style={{ width: 92 }}>
+                    {e.countable ? <Chip tone="ok">counts</Chip> : <Chip tone="crit">does not</Chip>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </Panel>
 
-      {/* ---------------------------------------------------- consent */}
-      <Panel title="Consent" flush>
-        {consents.length === 0 ? (
-          <Empty>
-            No consent on file. Care management cannot be billed without it, and it
-            cannot be reconstructed later.
-          </Empty>
-        ) : consents.map((c) => (
-          <div key={c.id} className="listrow" style={{ padding: '12px 16px' }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div className="row" style={{ gap: 8 }}>
-                <strong>{PROGRAM_LABEL[c.program]}</strong>
-                <Chip>{c.method}</Chip>
-                <span className="small muted">{fmtDate(c.date)} &middot; {c.by}</span>
-              </div>
-              <p className="small" style={{ marginTop: 5 }}>{c.note}</p>
-            </div>
-          </div>
-        ))}
-      </Panel>
-
-      {/* ------------------------------------------------- the care plan */}
-      <Panel title="The care plan requirement">
-        <p className="small" style={{ maxWidth: '70ch' }}>
-          Care management programmes require a care plan that is documented, shared
-          with the patient, and reviewed. The living summary is that plan: it is
-          dated, it is organised by problem, and it exports.
-        </p>
-        <div className="row flow" style={{ gap: 8, marginTop: 11 }}>
-          <Chip tone={master ? 'ok' : 'crit'}>
-            {master ? `Updated ${fmtDate(master.updated)}` : 'No summary written'}
-          </Chip>
-          <Chip tone={master?.plan.byProblem && Object.keys(master.plan.byProblem).length > 0 ? 'ok' : 'warn'}>
-            {Object.keys(master?.plan.byProblem ?? {}).length} problems with a written plan
-          </Chip>
-          <Chip tone={master?.plan.followUp ? 'ok' : 'warn'}>
-            {master?.plan.followUp ? 'Follow-up stated' : 'No follow-up interval'}
-          </Chip>
-        </div>
-        <p className="small muted" style={{ marginTop: 11, maxWidth: '70ch' }}>
-          What this screen cannot tell you is whether the plan was actually given to
-          the patient. That is a fact about an event, so it has to be recorded when it
-          happens. The export does it; nothing else does.
-        </p>
-      </Panel>
-
-      <p className="small muted" style={{ maxWidth: '72ch' }}>
-        Everything above is this prototype's reading of published guidance, sourced in
-        docs/systems/documentation-and-billing.md. Rates, thresholds and the rules
-        themselves change yearly. <b>NEEDS-COUNSEL</b> and <b>NEEDS-CPA</b> before any
-        of it supports a claim.
+      {/*
+        * The code that was looked at and declined.
+        *
+        * One sentence rather than a panel of failing checks. A reader
+        * should be able to see that the question was asked, without
+        * every chart carrying the answer at full length.
+        */}
+      <p className="small muted" style={{ padding: '0 2px' }}>
+        Advanced primary care management is not billed here. All three descriptors read
+        {' '}&ldquo;provided by clinical staff&rdquo;, this practice has none, and CMS declined to relax the
+        capabilities for small practices and pointed them back to chronic care management (89 FR 97876).
+        The reasoning is in docs/systems/billing-architecture.md and D-050.
       </p>
+
+      {claims.length > 0 && (
+        <Panel title="Claims prepared" flush>
+          <table className="rows">
+            <tbody>
+              {claims.map((c) => (
+                <tr key={c.id}>
+                  <td className="small muted" style={{ width: 92 }}>{fmtDate(c.createdAt)}</td>
+                  <td><strong>{c.code || 'no code'}</strong></td>
+                  <td className="small muted">{c.period}</td>
+                  <td className="small muted">{c.diagnoses.join(', ')}</td>
+                  <td style={{ width: 92 }}><Chip>{c.status}</Chip></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Panel>
+      )}
+
     </div>
   );
 }

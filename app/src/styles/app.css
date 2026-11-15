@@ -1295,6 +1295,42 @@ textarea.prose:focus {
   margin-top: 4px; border-left: 2px solid var(--crit); padding-left: 8px;
 }
 
+/* the month, as a ladder: four facts, and only the last is a claim */
+.ladder { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0 4px; }
+.rung {
+  font: 500 11px/1 var(--sans); letter-spacing: .01em;
+  padding: 5px 9px; border-radius: 3px; white-space: nowrap;
+  background: var(--panel-2); color: var(--ink-3);
+  border: 1px solid var(--line-2);
+}
+.rung.on { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-line); }
+
+/* one requirement, its evidence, and the rule it came from */
+.checklist { list-style: none; margin: 0; padding: 0; }
+.checklist li {
+  display: flex; gap: 9px; align-items: flex-start;
+  padding: 9px 0; border-top: 1px solid var(--line-2);
+}
+.checklist li:first-child { border-top: 0; }
+.checklist li > div { min-width: 0; }
+.ckmark {
+  flex: none; width: 15px; text-align: center; line-height: 1.45;
+  font-size: 12.5px; color: var(--ink-3);
+}
+.checklist li.met .ckmark { color: var(--ok); }
+.cklabel {
+  font-size: 12.5px; font-weight: 600; color: var(--ink);
+  display: flex; gap: 7px; align-items: baseline; flex-wrap: wrap;
+}
+.checklist li.unmet .cklabel { color: var(--ink-2); }
+.ckopt {
+  font: 500 10px/1 var(--sans); letter-spacing: .05em; text-transform: uppercase;
+  color: var(--ink-3); border: 1px solid var(--line-2); border-radius: 2px;
+  padding: 2px 5px;
+}
+.ckevidence { font-size: 12px; line-height: 1.55; color: var(--ink-2); margin-top: 3px; }
+.ckrule { font-size: 11px; line-height: 1.5; color: var(--ink-3); margin-top: 3px; }
+
 /* lab panels in the drawer */
 .paneldrop { border-bottom: 1px solid var(--line-2); }
 .pdhead {

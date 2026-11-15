@@ -40,7 +40,13 @@ export const patients: Patient[] = [
     sex: 'male', pronouns: 'he/him', membership: 'pro-bono', memberSince: '2025-11-20',
     services: { preventative: true, lifestyle: true },
     photoTone: 2, phone: '(512) 555-0117', email: 'alindqvist@example.com',
-    pinned: 'Hard of hearing. Phone calls do not work. Message or video with captions.'
+    pinned: 'Hard of hearing. Phone calls do not work. Message or video with captions.',
+    // Turned 65 in November 2023 and took Part B then. One welcome
+    // visit, two wellness visits since, the last in March.
+    medicare: {
+      partB: true, partBSince: '2023-11-01', qmb: false,
+      ippeOn: '2023-12-06', awvOn: ['2025-01-22', '2026-03-10'],
+    }
   },
   {
     id: 'p4', name: 'Priya Raghunathan', dob: '1991-02-11', sex: 'female', pronouns: 'she/her',

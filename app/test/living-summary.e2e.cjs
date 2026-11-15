@@ -190,10 +190,10 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   const doc = await p.locator('.drawerbody').textContent();
   ok('each visit records the elements a level rests on', doc.includes('Problems') && doc.includes('Risk'));
   ok('both routes to a level are shown', /gives 992\d\d\./.test(doc));
-  ok('care management time is tracked per month', doc.includes('min countable'));
+  ok('care management time is tracked per month', doc.includes('countable minutes'));
   ok('time spent by software does not count', doc.includes('does not'));
   ok('and says why', doc.includes('not clinical staff time'));
-  ok('consent is its own dated record', doc.includes('verbal'));
+  ok('consent is a requirement with its own evidence', /[Vv]erbal consent/.test(doc));
   ok('it points at where the research came from', doc.includes('NEEDS-COUNSEL'));
   await p.screenshot({path:'v10-documentation.png'});
 

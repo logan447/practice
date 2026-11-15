@@ -13,6 +13,7 @@ import type {
   EmRecord, CareLogEntry, ServiceConsent, LabValue, LifestyleIntervention,
   InstrumentScore,
 } from '../domain/types';
+import { CCM_DISCLOSURES, BHI_DISCLOSURES } from '../lib/monthly';
 
 const P = 'p0';
 
@@ -272,11 +273,17 @@ export const sharonConsents: ServiceConsent[] = [
   {
     id: 'sco1', patientId: P, program: 'ccm', date: '2026-01-20', method: 'verbal',
     by: 'L. DuBose, MD',
+    disclosures: CCM_DISCLOSURES,
     note: 'Explained what care management covers between visits, that only one practice can provide and be paid for it in a calendar month, that there may be cost sharing, and that she can stop at any time. She agreed.',
   },
   {
     id: 'sco2', patientId: P, program: 'bhi', date: '2026-06-18', method: 'verbal',
     by: 'L. DuBose, MD',
+    // Deliberately short of the list. The conversation happened and
+    // two of the four disclosures were not part of it, which is what
+    // the requirement check is for: a consent can be real and still
+    // not be the consent the code asks for.
+    disclosures: BHI_DISCLOSURES.slice(0, 2),
     note: 'Explained behavioural health care management, monthly check-ins, use of a questionnaire to track how things are going, and that she can stop at any time. She agreed.',
   },
 ];

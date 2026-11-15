@@ -34,8 +34,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   const sectionText = async (n) =>
     (await p.locator('.soap').nth(n).textContent()).replace(/\s+/g,' ');
 
-  ok('the demo is three charts, not a crowd',
-    (await p.locator('table.rows tbody tr').count())===3);
+  ok('the demo is four charts, not a crowd',
+    (await p.locator('table.rows tbody tr').count())===4);
 
   // -------------------------------------------------- 1. filled out
   await open('Sharon');

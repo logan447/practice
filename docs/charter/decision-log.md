@@ -990,3 +990,88 @@ questions it answers.
 
 **Revisit when:** the cycle has been run on a real week, or when the
 ambient visit path is folded in.
+
+---
+
+## D-050. Bill 99491 first, hold 99484 and APCM, and never build a workflow around a code
+
+**Date.** 2026-11-15.
+
+**Decision.** The billing architecture is built on chronic care
+management personally performed by the physician (99491 and +99437),
+the wellness visit (G0438 and G0439), office visits with the
+complexity add-on (99212 to 99215 with G2211), and nothing else.
+Behavioural health integration (99484) is encoded and blocked on a
+written answer from the MAC. Advanced primary care management
+(G0556 to G0558) is encoded and blocked on counsel and on two
+capabilities this practice does not have. No staff-dependent workflow
+exists anywhere in the prototype.
+
+**Reasoning.** The research question was whether a solo physician with
+no clinical staff can compliantly deliver each of these. The answers
+are not uniform, and the differences are the whole decision.
+
+99491 exists for exactly this fact pattern. CMS created it "to
+describe situations when the billing practitioner is doing the care
+coordination work that is attributed to clinical staff in CPT code
+99490" (83 FR 59576), and states without qualification that only the
+billing practitioner's own time counts and that the work cannot be
+delegated. There is no staffing question to resolve.
+
+99484 probably works and is not quite provable. CMS says general BHI
+"may be provided solely by the billing practitioner" (BHI FAQ #14,
+5 December 2023; MLN909432, January 2026, p. 11), but has never
+written that the practitioner's own minutes satisfy the twenty-minute
+threshold for that code, which it has written for CCM. Two readings
+survive the published text. A code that depends on which one is right
+is not a code to build a practice's revenue on before asking.
+
+APCM is the opposite shape: no minute counting, which is attractive,
+and a descriptor that says "provided by clinical staff" on all three
+levels, which is not. CMS declined to relax the capabilities for small
+practices and pointed them back to CCM in terms (89 FR 97876). It also
+makes reporting the Value in Primary Care MVP a condition of billing,
+and a practice under the low-volume threshold is left with CMS saying
+it "technically could" bill but "would be unlikely to" (89 FR 97892).
+It pays less for this pattern as well. `REFRESH-AT-RUNWAY`.
+
+**The instruction that shaped the code.** The brief said not to build
+a staff-dependent workflow into the prototype to accommodate a billing
+code. That turned out to settle more than it looked like it would:
+every code the research rejected is one that needs staff, and every
+code it kept is one a physician furnishes personally. The constraint
+and the compliance answer pointed the same way.
+
+**What follows in the chart.** Billing hangs off two objects and
+neither is the living chart: an encounter for a date, a month for a
+calendar month. Both stop short of a conclusion. A month reaches
+"requirements met" and waits for a person to attest. A visit computes
+what the recorded elements imply and does not choose a code.
+
+**Three requirements never pass, by design.** Certified EHR technology
+for CCM, the clinical-staff descriptor for APCM, and the performance
+measurement for APCM are shown as failing mandatory checks rather than
+omitted. They are true facts about a one-physician practice running
+software it wrote itself. A chart that hid them would be the more
+dangerous object, and the certified-record finding in particular is a
+material constraint on this whole project that was not known before
+this research.
+
+**Two numbers stay UNSET.** CMS publishes the 99215 and 99212 time
+thresholds and not the 99213 or 99214 ones, which are the American
+Medical Association's property. The chart says it cannot settle a
+visit on time in that range rather than inventing a number. They go in
+with a CPT licence.
+
+**Still gated.** Whether this practice enrols in Medicare or opts out
+is unsettled (D-039), and a membership that covers what Medicare
+already covers raises beneficiary inducement exposure. Both are
+`NEEDS-COUNSEL` and both sit upstream of everything above. D-039
+guardrail 4b stands: no print or patient-facing piece states how
+Medicare works with the membership until counsel settles it.
+
+**Revisit when:** counsel answers the participation and membership
+questions; the MAC answers on 99484; CMS acts on the CY2026 request
+for information about APCM and prevention; or the practice licenses
+CPT. See `docs/systems/billing-architecture.md` for the full matrix
+and citations.

@@ -30,6 +30,7 @@ import { generatePanel } from '../data/generate';
 import { longitudinal } from '../data/longitudinal';
 import * as sharon from '../data/sharon';
 import * as clinical from '../data/sharon-clinical';
+import * as medicare from '../data/medicare';
 import * as demo from '../data/demo-states';
 import * as contact from '../data/sharon-contact';
 import * as versions from '../data/sharon-versions';
@@ -195,7 +196,7 @@ function migrate(raw: State | null): State | null {
  * designed against only the first hides every empty state; against
  * only the last it never has to hold four years of numbers.
  */
-const DEMO_IDS = ['p0', 'p1', 'p9'];
+const DEMO_IDS = ['p0', 'p1', 'p3', 'p9'];
 
 function demoState(): State {
   const keep = <T extends { patientId: string }>(xs: T[]) =>
@@ -227,10 +228,10 @@ function demoState(): State {
     exams: [...clinical.sharonExams, ...demo.marcusExams],
     studies: [...clinical.sharonStudies, ...demo.marcusStudies],
     emRecords: clinical.sharonEm,
-    careLog: clinical.sharonCareLog,
-    consents: clinical.sharonConsents,
+    careLog: [...clinical.sharonCareLog, ...medicare.arthurCareLog],
+    consents: [...clinical.sharonConsents, ...medicare.arthurConsents],
     checkIns: [...contact.sharonCheckIns, ...demo.marcusCheckIns],
-    scores: clinical.sharonScores,
+    scores: [...clinical.sharonScores, ...medicare.arthurScores],
     attestations: [], claims: [],
     chartVersions: [...versions.sharonVersions],
     infoRequests: [...versions.sharonAsks],
