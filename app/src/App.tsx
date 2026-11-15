@@ -4,6 +4,7 @@ import { NavProvider, useNav } from './lib/nav';
 import { Patients } from './screens/Patients';
 import { Chart } from './screens/Chart';
 import { Encounter } from './screens/Encounter';
+import { Review } from './screens/Review';
 import { FirstRun } from './screens/FirstRun';
 import { NewPatient } from './screens/NewPatient';
 import { Portal } from './portal/Portal';
@@ -115,6 +116,7 @@ function Screen() {
     case 'schedule': return <Schedule />;
     case 'chart': return <Chart patientId={route.patientId} />;
     case 'encounter': return <Encounter encounterId={route.encounterId} />;
+    case 'review': return <Review encounterId={route.encounterId} />;
     case 'portal': return <Portal patientId={route.patientId} initialTab={route.tab} />;
   }
 }

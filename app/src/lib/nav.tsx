@@ -27,6 +27,7 @@ export type Route =
   | { name: 'schedule' }
   | { name: 'chart'; patientId: string }
   | { name: 'encounter'; encounterId: string }
+  | { name: 'review'; encounterId: string }
   | { name: 'portal'; patientId: string; tab?: PortalTab };
 
 interface Nav {

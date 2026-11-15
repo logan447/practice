@@ -105,6 +105,20 @@ export function Rail({ patientId, open, onJump }: {
             Nothing booked. Book one.
           </button>
         )}
+        {/*
+          * The one workflow, in three flavours. Starting any of them
+          * opens the approved chart with what has arrived since it
+          * beside it.
+          */}
+        <div className="row" style={{ gap: 6, flexWrap: 'wrap', margin: '8px 0 4px' }}>
+          {([['follow-up', 'Visit'], ['ccm', 'CCM review'], ['bhi', 'BHI review']] as const)
+            .map(([kind, label]) => (
+              <button key={kind} className="btn ghost sm" onClick={() => {
+                const id = st.openEncounter(patientId, kind);
+                nav.go({ name: 'review', encounterId: id });
+              }}>{label}</button>
+            ))}
+        </div>
         {recent.length === 0 ? <Empty>Nothing on file yet.</Empty> : (
           <div className="railrows">
             {recent.slice(0, 4).map((i) => (

@@ -27,7 +27,9 @@ import { useState } from 'react';
 import { Chip } from '../../components/ui';
 import { useStore } from '../../lib/store';
 import { fmtDate, relative } from '../../lib/format';
+import { useNav } from '../../lib/nav';
 import { livingSubjective } from '../../lib/subjective';
+import type { LivingSubjective } from '../../lib/subjective';
 import type { Clause, Intervention, SourceRef } from '../../lib/subjective';
 import { GOAL_LABEL, ACTION_LABEL } from '../../domain/types';
 import type { CareGoalStatus } from '../../domain/types';
@@ -115,12 +117,25 @@ export function Subjective({ patientId, onOpenSources }: {
   onOpenSources: (focus?: string) => void;
 }) {
   const st = useStore();
+  const nav = useNav();
   const p = st.patient(patientId);
   const conditions = st.conditionsFor(patientId);
   const history = conditions.filter(
     (c) => c.status === 'active' && c.managed !== true,
   );
-  const live = livingSubjective({
+
+  /**
+   * The chart shows the approved version, not the record.
+   *
+   * Everything that has arrived since is real and is kept, and none
+   * of it is here. It is counted on the line below and read inside
+   * the encounter that will incorporate it. A summary that moved
+   * whenever a message landed was a feed; this one changes when a
+   * clinician says so.
+   */
+  const approved = st.currentVersion(patientId);
+  const fresh = st.newSince(patientId);
+  const derived = livingSubjective({
     patientId, now: st.now,
     conditions,
     medications: st.medsFor(patientId),
@@ -136,6 +151,7 @@ export function Subjective({ patientId, onOpenSources }: {
     lifestyle: st.lifestyleFor(patientId),
     orders: st.ordersForPatient(patientId),
   });
+  const live = (approved?.subjective as LivingSubjective | undefined) ?? derived;
 
   if (!p) return null;
 
@@ -171,11 +187,20 @@ export function Subjective({ patientId, onOpenSources }: {
         * was read before the clinical content.
         */}
       <p className="derivedfrom">
+        {approved
+          ? <>Version {approved.version}, approved {relative(approved.approvedAt)} by {approved.approvedBy}.{' '}</>
+          : <>Not yet approved. Drafted from the record.{' '}</>}
         <button className="linkish" onClick={() => onOpenSources()}>
-          {live.sources.length === 0
-            ? 'No records yet. Add a visit, an update or a message'
-            : `${live.sources.length} records, latest ${relative(live.lastSource!.date)}`}
+          {fresh.count === 0
+            ? 'Nothing new since'
+            : `${fresh.count} record${fresh.count === 1 ? '' : 's'} since, not yet incorporated`}
         </button>
+        {fresh.urgent > 0 && <span className="urgentmark">{fresh.urgent} flagged urgent</span>}
+        {' '}
+        <button className="linkish" onClick={() => {
+          const id = st.openEncounter(patientId, 'ccm');
+          nav.go({ name: 'review', encounterId: id });
+        }}>Start a review</button>
       </p>
 
       {/* ------------------------------------------------ problem by problem */}

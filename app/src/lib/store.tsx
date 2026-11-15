@@ -14,12 +14,14 @@ import * as fixtures from '../data/patients';
 import { load, save, wipe, newId } from './persist';
 import { ORIGIN, now as clockNow, setNow, addDays } from './clock';
 import { tick } from './tick';
+import { ENCOUNTER_KINDS } from '../domain/types';
 import type {
   AiDraft, CarePlan, CarePlanGoal, Condition, Encounter, Medication, Order,
   OrderKind, Patient, PatientEntry, PreVisit, PreventionItem, ResultReport,
   ResultSeries, Specialist, Task, VisitNote, Allergy, ChartDocument, MasterPlan,
   VitalsSet, LabPanel, ExamRecord, DiagnosticStudy, EmRecord, CareLogEntry, ProblemCheckIn,
-  PatientUpdate, Message, UpdateRequest, CareGoalStatus,
+  PatientUpdate, Message, UpdateRequest, CareGoalStatus, ChartVersion, InfoRequest,
+  EncounterKind, CareProgram,
   ServiceConsent, LifestyleIntervention,
 } from '../domain/types';
 import { fmtDate } from './format';
@@ -29,6 +31,7 @@ import * as sharon from '../data/sharon';
 import * as clinical from '../data/sharon-clinical';
 import * as demo from '../data/demo-states';
 import * as contact from '../data/sharon-contact';
+import * as versions from '../data/sharon-versions';
 import { resolveDrug } from '../domain/terminology';
 import { recordDiff, type Snapshot } from './audit';
 import { actor as currentActor } from './session';
@@ -76,6 +79,10 @@ interface State {
   messages: Message[];
   /** Questions we sent, so an answer has something to answer. */
   requests: UpdateRequest[];
+  /** The approved living chart, one immutable row per approval. */
+  chartVersions: ChartVersion[];
+  /** What we have asked the patient for, open until answered. */
+  infoRequests: InfoRequest[];
   /** Drafted by the assistant, not yet anybody's words. */
   lifestyle: LifestyleIntervention[];
   /** The clinic's today. Movable, because care is longitudinal. */
@@ -92,6 +99,7 @@ const EMPTY: State = {
   vitals: [], labPanels: [], exams: [], studies: [],
   emRecords: [], careLog: [], consents: [], lifestyle: [],
   checkIns: [], updates: [], messages: [], requests: [],
+  chartVersions: [], infoRequests: [],
   now: ORIGIN, lastEvents: [],
 };
 
@@ -127,7 +135,7 @@ function migrate(raw: State | null): State | null {
     'patientEntries', 'aiDrafts', 'tasks', 'specialists', 'preVisits', 'orders',
     'masterPlans', 'vitals', 'labPanels', 'exams', 'studies', 'emRecords',
     'careLog', 'consents', 'lifestyle', 'checkIns',
-    'updates', 'messages', 'requests',
+    'updates', 'messages', 'requests', 'chartVersions', 'infoRequests',
   ] as (keyof State)[]) fill(k);
   if (!s.now) s.now = ORIGIN;
   if (!Array.isArray(s.lastEvents)) s.lastEvents = [];
@@ -211,6 +219,8 @@ function demoState(): State {
     careLog: clinical.sharonCareLog,
     consents: clinical.sharonConsents,
     checkIns: [...contact.sharonCheckIns, ...demo.marcusCheckIns],
+    chartVersions: [...versions.sharonVersions],
+    infoRequests: [...versions.sharonAsks],
     updates: contact.sharonUpdates,
     messages: contact.sharonMessages,
     requests: contact.sharonRequests,
@@ -283,6 +293,53 @@ interface Store extends State {
   simulateVisit: (patientId: string) => void;
   messagesFor: (id: string) => Message[];
   requestsFor: (id: string) => UpdateRequest[];
+
+  // -------------------------------------------------- the encounter cycle
+  /** The approved chart, or nothing where none has been approved yet. */
+  currentVersion: (patientId: string) => ChartVersion | undefined;
+  versionsFor: (patientId: string) => ChartVersion[];
+  /** Records that have arrived since the last approval. */
+  newSince: (patientId: string) => {
+    updates: PatientUpdate[];
+    messages: Message[];
+    checkIns: ProblemCheckIn[];
+    panels: LabPanel[];
+    vitals: VitalsSet[];
+    encounters: Encounter[];
+    count: number;
+    urgent: number;
+  };
+  infoRequestsFor: (patientId: string, status?: InfoRequest['status']) => InfoRequest[];
+  /** Open a visit, a care management review or a behavioural health review. */
+  openEncounter: (patientId: string, kind: EncounterKind) => string;
+  askPatient: (
+    patientId: string, encounterId: string,
+    about: InfoRequest['about'], ask: string,
+  ) => void;
+  cancelAsk: (id: string) => void;
+  /**
+   * The patient answers what was asked.
+   *
+   * Their answer is a record of theirs, attributed and dated, and it
+   * closes the requests it answers. It does not touch the approved
+   * chart: it waits for the next encounter, which is what makes the
+   * chart a physician-approved document rather than a feed.
+   */
+  answerRequests: (patientId: string, text: string) => void;
+  /**
+   * Sign the encounter and publish the next version of the chart.
+   *
+   * One act, because the physician is doing one thing. It writes the
+   * signed note, freezes the summary as approved, sends the open
+   * requests, and records the time.
+   */
+  approveEncounter: (encounterId: string, opts: {
+    subjective: unknown;
+    goals: Record<string, CareGoalStatus>;
+    plan: ChartVersion['plan'];
+    minutes?: number;
+    noChange?: boolean;
+  }) => void;
   lifestyleFor: (id: string) => LifestyleIntervention[];
   seriesFor: (id: string) => ResultSeries[];
   series: (id: string) => ResultSeries | undefined;
@@ -436,6 +493,35 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       updatesFor: (id) => [...by(s.updates, id)].sort((a, b) => b.date.localeCompare(a.date)),
       messagesFor: (id) => [...by(s.messages, id)].sort((a, b) => b.date.localeCompare(a.date)),
       requestsFor: (id) => [...by(s.requests, id)].sort((a, b) => b.sent.localeCompare(a.sent)),
+
+      currentVersion: (patientId) => [...by(s.chartVersions, patientId)]
+        .sort((a, b) => b.version - a.version)[0],
+      versionsFor: (patientId) => [...by(s.chartVersions, patientId)]
+        .sort((a, b) => b.version - a.version),
+      newSince: (patientId) => {
+        const v = [...by(s.chartVersions, patientId)].sort((a, b) => b.version - a.version)[0];
+        const seen = new Set(v?.incorporated ?? []);
+        const isNew = (x: { id: string; date: string }) =>
+          !seen.has(x.id) && x.date <= s.now;
+        const updates = by(s.updates, patientId).filter(isNew);
+        const messages = by(s.messages, patientId)
+          .filter((x) => isNew(x) && x.from === 'patient');
+        const checkIns = by(s.checkIns, patientId).filter(isNew);
+        const panels = by(s.labPanels, patientId).filter(isNew);
+        const vitals = by(s.vitals, patientId).filter(isNew);
+        const encounters = by(s.encounters, patientId)
+          .filter((e) => e.status === 'signed' && isNew(e) && e.id !== v?.encounterId);
+        return {
+          updates, messages, checkIns, panels, vitals, encounters,
+          count: updates.length + messages.length + panels.length
+            + vitals.length + encounters.length,
+          urgent: messages.filter((m) => m.urgent).length
+            + updates.filter((u) => u.urgent).length,
+        };
+      },
+      infoRequestsFor: (patientId, status) => by(s.infoRequests, patientId)
+        .filter((r) => (status ? r.status === status : true))
+        .sort((a, b) => b.created.localeCompare(a.created)),
       lifestyleFor: (id) => by(s.lifestyle, id),
       seriesFor: (id) => by(s.resultSeries, id),
       clinicalSeriesFor: (id) => by(s.resultSeries, id).filter((x) => x.source !== 'patient'),
@@ -575,6 +661,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           consents: [...demo.consents, ...d.consents],
           checkIns: [...demo.checkIns, ...d.checkIns],
           updates: demo.updates, messages: demo.messages, requests: demo.requests,
+          chartVersions: demo.chartVersions, infoRequests: demo.infoRequests,
           lifestyle: [...demo.lifestyle, ...d.lifestyle],
           now: ORIGIN,
           lastEvents: [],
@@ -1044,6 +1131,154 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         })),
 
       /**
+       * Open an encounter on the approved chart.
+       *
+       * The working copy is the encounter itself: it holds a note
+       * that nobody has signed, and the summary stays frozen until
+       * that signature. Nothing is duplicated, so nothing can get out
+       * of step.
+       */
+      openEncounter: (patientId, kind) => {
+        const id = newId('en');
+        const mins = ENCOUNTER_KINDS.find((k) => k.id === kind)?.mins ?? 30;
+        setS((p) => ({
+          ...p,
+          encounters: [...p.encounters, {
+            id, patientId, date: clockNow(), kind,
+            reason: kind === 'ccm' ? 'Chronic care management review'
+              : kind === 'bhi' ? 'Behavioural health review'
+                : 'Clinical visit',
+            status: 'in-progress', duration: mins,
+            note: {
+              subjective: {
+                oneLiner: '', reason: '', chartReview: '', diagnostics: '',
+                specialists: '', additional: '',
+              },
+              objective: { homeMeasures: '', vitals: '', exam: '' },
+              assessment: { oneLiner: '', overall: '' },
+              plan: { problems: [], overall: '' },
+            },
+          }],
+        }));
+        return id;
+      },
+
+      askPatient: (patientId, encounterId, about, ask) =>
+        setS((p) => ({
+          ...p,
+          infoRequests: [...p.infoRequests, {
+            id: newId('ir'), patientId, encounterId, about, ask,
+            created: clockNow(), status: 'open',
+          }],
+        })),
+
+      answerRequests: (patientId, text) =>
+        setS((p) => {
+          const now = clockNow();
+          const open = p.infoRequests.filter(
+            (r) => r.patientId === patientId && r.status === 'open',
+          );
+          const updId = newId('up');
+          return {
+            ...p,
+            updates: [...p.updates, {
+              id: updId, patientId, date: now,
+              overall: text,
+              feeling: 'same' as const,
+              interval: [],
+              answers: open.map((r) => r.id),
+            }],
+            checkIns: [...p.checkIns, {
+              id: newId('ci'), patientId, updateId: updId, date: now,
+              about: { kind: 'overall' as const },
+              feeling: 'same' as const, text,
+            }],
+            infoRequests: p.infoRequests.map((r) => (open.some((o) => o.id === r.id)
+              ? { ...r, status: 'answered' as const, answeredBy: updId, answeredAt: now }
+              : r)),
+            lastEvents: [...p.lastEvents, `Patient answered ${open.length} request(s) ${now}`],
+          };
+        }),
+
+      cancelAsk: (id) =>
+        setS((p) => ({
+          ...p,
+          infoRequests: p.infoRequests.map(
+            (r) => (r.id === id ? { ...r, status: 'cancelled' as const } : r),
+          ),
+        })),
+
+      approveEncounter: (encounterId, opts) =>
+        setS((p) => {
+          const enc = p.encounters.find((e) => e.id === encounterId);
+          if (!enc) return p;
+          const patientId = enc.patientId;
+          const now = clockNow();
+          const last = p.chartVersions
+            .filter((v) => v.patientId === patientId)
+            .sort((a, b) => b.version - a.version)[0];
+
+          const version: ChartVersion = {
+            id: newId('cv'), patientId,
+            version: (last?.version ?? 0) + 1,
+            approvedAt: now, approvedBy: ME,
+            encounterId,
+            subjective: opts.subjective,
+            goals: opts.goals,
+            plan: opts.plan,
+            noChange: opts.noChange,
+            // Everything on file right now, by id. What arrives after
+            // this is what the next encounter has to read.
+            incorporated: [
+              ...p.updates, ...p.messages, ...p.checkIns, ...p.labPanels,
+              ...p.vitals, ...p.encounters,
+            ].filter((x) => x.patientId === patientId).map((x) => x.id),
+          };
+
+          // Time is recorded against the programme the encounter is
+          // for. A review can be clinically worth doing and not be
+          // billable on its own, so this is a time entry and not a
+          // claim.
+          const program: CareProgram | undefined =
+            enc.kind === 'ccm' ? 'ccm' : enc.kind === 'bhi' ? 'bhi' : undefined;
+          const careLog = program && opts.minutes
+            ? [...p.careLog, {
+              id: newId('cl'), patientId, program,
+              date: now, minutes: opts.minutes,
+              by: ME, role: 'physician' as const, countable: true,
+              activity: `${program === 'ccm' ? 'Care management' : 'Behavioural health'} review: read what had arrived since the last approval, updated the plan and published version ${version.version}.`,
+            }]
+            : p.careLog;
+
+          return {
+            ...p,
+            encounters: p.encounters.map((e) => (e.id === encounterId
+              ? { ...e, status: 'signed' as const, signedAt: now }
+              : e)),
+            chartVersions: [...p.chartVersions, version],
+            // Requests written during the encounter go out with it.
+            infoRequests: p.infoRequests.map((r) => (r.encounterId === encounterId
+              ? { ...r, versionId: version.id }
+              : r)),
+            conditions: p.conditions.map((c) => (opts.goals[c.id]
+              ? { ...c, goal: opts.goals[c.id], goalAssessed: now }
+              : c)),
+            masterPlans: p.masterPlans.some((m) => m.patientId === patientId)
+              ? p.masterPlans.map((m) => (m.patientId === patientId
+                ? { ...m, plan: opts.plan, updated: now, updatedBy: ME }
+                : m))
+              : [...p.masterPlans, {
+                id: newId('mp'), patientId, updated: now, updatedBy: ME,
+                objective: { narrative: '' },
+                assessment: { narrative: '' },
+                plan: opts.plan,
+              }],
+            careLog,
+            lastEvents: [...p.lastEvents, `Chart version ${version.version} approved ${now}`],
+          };
+        }),
+
+      /**
        * Three demo records, so the claim can be checked rather than
        * believed. Each one is an ordinary record of its kind: nothing
        * here writes to the summary, because nothing can. The summary
@@ -1203,6 +1438,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             lifestyle: drop(p.lifestyle),
             checkIns: drop(p.checkIns), updates: drop(p.updates),
             messages: drop(p.messages), requests: drop(p.requests),
+            chartVersions: drop(p.chartVersions), infoRequests: drop(p.infoRequests),
             emRecords: p.emRecords.filter((e) =>
               !p.encounters.some((x) => x.id === e.encounterId && x.patientId === patientId)),
             now: p.now, lastEvents: p.lastEvents,

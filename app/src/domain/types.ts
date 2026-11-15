@@ -254,7 +254,20 @@ export interface CarePlan {
 // ------------------------------------------------------------ encounters
 
 export type EncounterKind =
-  | 'follow-up' | 'annual' | 'acute' | 'paperwork' | 'initial' | 'home';
+  | 'follow-up' | 'annual' | 'acute' | 'paperwork' | 'initial' | 'home'
+  | 'ccm' | 'bhi';
+
+/**
+ * The three encounters that advance the living chart.
+ *
+ * A clinical visit, a chronic care management review and a
+ * behavioural health review are different services with different
+ * documentation, and the same workflow: open on the approved chart,
+ * read what has arrived since, write, ask for what is missing, sign.
+ * Keeping one workflow across all three is what stops the second and
+ * third becoming administrative exercises nobody does.
+ */
+export const REVIEW_KINDS: EncounterKind[] = ['ccm', 'bhi'];
 
 /**
  * Durations are the schedule's unit of truth. The home visit figure is
@@ -269,6 +282,8 @@ export const ENCOUNTER_KINDS: { id: EncounterKind; label: string; mins: number }
   { id: 'paperwork', label: 'Paperwork', mins: 15 },
   { id: 'initial', label: 'Initial visit', mins: 90 },
   { id: 'home', label: 'Home visit', mins: 150 },
+  { id: 'ccm', label: 'Care management review', mins: 20 },
+  { id: 'bhi', label: 'Behavioural health review', mins: 20 },
 ];
 
 export type ExamTemplate = 'in-person' | 'telehealth';
@@ -426,6 +441,95 @@ export interface ProblemCheckIn {
   text: string;
 }
 
+// ------------------------------------------------ the approved chart
+
+/**
+ * WHY THE SUMMARY IS VERSIONED AND NOT DERIVED.
+ *
+ * An earlier version of this prototype computed the whole subjective
+ * from the record every time the chart was opened. Drift became
+ * impossible, which was the point, but so did attribution: the chart
+ * could change because a patient sent a message at eleven at night,
+ * and a clinical summary that moves without a clinician is a feed
+ * rather than a record.
+ *
+ * So the summary is a snapshot of structured state, approved at a
+ * moment by a named person, and the chart renders from the snapshot.
+ * Nothing holds new information back; the chart simply is not reading
+ * it. The synthesis engine still exists and still reads everything,
+ * but it now produces the draft inside an encounter rather than the
+ * page.
+ *
+ * Versions are immutable. The audit trail is a by-product.
+ */
+export interface ChartVersion {
+  id: string;
+  patientId: string;
+  /** 1, 2, 3. Shown as "Version 3". */
+  version: number;
+  approvedAt: string;
+  approvedBy: string;
+  /** The encounter whose approval produced it. */
+  encounterId?: string;
+  /**
+   * The subjective as approved, stored whole.
+   *
+   * Typed loosely on purpose: this is a snapshot of whatever the
+   * renderer takes, and pinning the shape here would mean migrating
+   * every stored version every time the summary gains a field. What
+   * is guaranteed is that it renders.
+   */
+  subjective: unknown;
+  /** Problem statuses as approved, keyed by condition id. */
+  goals: Record<string, CareGoalStatus>;
+  /** The plan as approved. */
+  plan: {
+    byProblem: Record<string, string>;
+    prevention: string;
+    lifestyle: string;
+    followUp: string;
+  };
+  /** Set when the review found nothing to change, which is worth recording. */
+  noChange?: boolean;
+  /**
+   * The ids of every record this version was approved over.
+   *
+   * Membership rather than a date, because dates in this record are
+   * days: an answer that arrives an hour after the version was
+   * approved has the same date as the version, and comparing dates
+   * would swallow it. What is new is what is not in this list.
+   */
+  incorporated: string[];
+}
+
+/**
+ * Something we asked the patient for, tied to what it is about.
+ *
+ * Written during an encounter, sent when it is signed, and closed by
+ * the answer rather than by somebody remembering. An open request is
+ * the most useful thing on a chart between visits: it is the one
+ * piece of the plan that depends on somebody else.
+ */
+export interface InfoRequest {
+  id: string;
+  patientId: string;
+  /** The version whose approval sent it. */
+  versionId?: string;
+  encounterId?: string;
+  about:
+  | { kind: 'condition'; id: string }
+  | { kind: 'prevention'; id: string }
+  | { kind: 'lifestyle'; id: string }
+  | { kind: 'overall' };
+  /** What we asked for, in the words the patient will see. */
+  ask: string;
+  created: string;
+  status: 'open' | 'answered' | 'cancelled';
+  /** The check-in or update that answered it. */
+  answeredBy?: string;
+  answeredAt?: string;
+}
+
 // ------------------------------------------- contact between visits
 
 /**
@@ -513,6 +617,10 @@ export interface PatientUpdate {
   interval?: IntervalEvent[];
   /** What they sent in with it: readings, a photo, a log. */
   attachments?: string[];
+  /** Flagged for review before the next encounter. */
+  urgent?: boolean;
+  /** The request this answers, where it answers one. */
+  answers?: string[];
 }
 
 /** One message in a thread between the patient and the practice. */
@@ -520,6 +628,15 @@ export interface Message {
   id: string;
   patientId: string;
   date: string;
+  /**
+   * Flagged for review before the next encounter.
+   *
+   * Urgency is a property of the record, set by whoever sent it and
+   * raisable by anybody who reads it. Without it, the cost of putting
+   * a physician between new information and the record is paid by the
+   * patient who wrote in about chest pain on a Friday.
+   */
+  urgent?: boolean;
   from: 'patient' | 'practice';
   author: string;
   subject?: string;

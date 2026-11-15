@@ -41,6 +41,61 @@ const TABS: { id: PortalTab; label: string }[] = [
   { id: 'records', label: 'Your records' },
 ];
 
+/**
+ * What the practice has asked for, and the answer.
+ *
+ * The other half of the encounter cycle. When a chart version is
+ * approved, anything the physician wrote down as needed goes out
+ * with it, and the answer comes back as a dated record of the
+ * patient's own rather than as an edit to the summary. Nothing the
+ * patient sends changes the approved chart; it waits for the next
+ * encounter, which is the point.
+ */
+function AskedOfYou({ patientId }: { patientId: string }) {
+  const st = useStore();
+  const open = st.infoRequestsFor(patientId, 'open');
+  const [text, setText] = useState('');
+  const [sent, setSent] = useState(false);
+  const version = st.currentVersion(patientId);
+
+  if (open.length === 0 && !version) return null;
+
+  return (
+    <Panel title="From your doctor">
+      {version && (
+        <p className="small" style={{ marginBottom: 10 }}>
+          Your care plan was updated on {fmtDate(version.approvedAt)}.
+        </p>
+      )}
+      {open.length === 0 ? (
+        <p className="small muted">Nothing is needed from you right now.</p>
+      ) : sent ? (
+        <p className="small">
+          Thank you. Your answer has been added to your record and your doctor
+          will go through it at your next review.
+        </p>
+      ) : (
+        <>
+          <p className="small muted" style={{ marginBottom: 8 }}>
+            {open.length === 1 ? 'One thing' : `${open.length} things`} we would
+            like from you before your next review.
+          </p>
+          <ul className="asklist">
+            {open.map((r) => <li key={r.id} className="asktext">{r.ask}</li>)}
+          </ul>
+          <textarea className="note" style={{ minHeight: 90, marginTop: 10 }}
+            placeholder="Answer in your own words. Anything you tell us is kept as yours."
+            value={text} onChange={(e) => setText(e.target.value)} />
+          <button className="btn sm" style={{ marginTop: 8 }} disabled={!text.trim()}
+            onClick={() => { st.answerRequests(patientId, text.trim()); setSent(true); }}>
+            Send to your doctor
+          </button>
+        </>
+      )}
+    </Panel>
+  );
+}
+
 export function Portal({ patientId, initialTab }: { patientId: string; initialTab?: PortalTab }) {
   const me = useActor();
   const st = useStore();
@@ -108,6 +163,7 @@ export function Portal({ patientId, initialTab }: { patientId: string; initialTa
       {tab === 'home' && (
         <div className="split">
           <div className="stack">
+            <AskedOfYou patientId={patientId} />
             <Panel title="What we are working on">
               {!plan ? (
                 <Empty>

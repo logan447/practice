@@ -943,3 +943,50 @@ it says so and gives the date it is booked for.
 
 **Revisit when:** the chart has been read in a real week, which is
 the only way to find out whether two statuses is too few.
+
+## D-049 The living chart is versioned and physician-approved
+
+**Decided 2026-11-15.** The living summary is a snapshot of
+structured state, approved at a moment by a named person, and the
+chart renders the snapshot. It does not change when records arrive.
+It changes when an encounter is signed. D-047's read-time derivation
+is reversed for the chart and kept for the draft: the synthesis
+engine still reads everything, but it now produces the working copy
+inside an encounter rather than the page.
+
+**Reasoning.** Deriving at read time made drift impossible, which was
+the point, but it also meant the chart could change because a patient
+sent a message at eleven at night. A clinical summary that moves
+without a clinician is a feed, not a record, and it cannot be
+attributed to anybody. Putting a person between new information and
+the record is what makes the document a document.
+
+**What follows.** `ChartVersion` is immutable and holds the approved
+subjective, the problem statuses and the plan. An encounter, of which
+there are now three kinds (clinical visit, CCM review, BHI review),
+opens on the approved version with everything that has arrived since
+beside it, and signing does the rest in one act: freezes the next
+version, preserves the note, sends the information requests, records
+the time. `InfoRequest` is the structured ask; the patient answers in
+the portal and the answer closes it without touching the chart.
+
+**What a version knows is new** is membership, not a date. Dates here
+are days, and an answer that arrives an hour after an approval has
+the same date as the approval; comparing dates swallowed it. Each
+version stores the ids it was approved over.
+
+**The cost, stated.** An approved document can go stale, and the
+people most likely to go a long time without an encounter are the
+ones it matters most for. The count of unincorporated records is on
+the chart and is not optional. The draft is also load-bearing in a
+way it was not before, because a physician reviewing a draft will
+accept more than they would write: it stays conservative, conflicts
+are named rather than resolved, and nothing is pre-accepted.
+
+**Open.** The old visit screen with ambient capture is still a second
+path into an encounter. It should fold into this workflow. See
+`docs/systems/encounter-cycle.md` for the full evaluation and the
+questions it answers.
+
+**Revisit when:** the cycle has been run on a real week, or when the
+ambient visit path is folded in.
