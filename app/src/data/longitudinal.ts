@@ -37,7 +37,7 @@
  * right order of magnitude, not measured rates.
  */
 import type {
-  CareLogEntry, Condition, ConditionTrend, DiagnosticStudy, EmRecord, Encounter, ExamRecord,
+  CareLogEntry, CareGoalStatus, Condition, DiagnosticStudy, EmRecord, Encounter, ExamRecord,
   LabPanel, LabValue, LifestyleDomain, LifestyleIntervention, LifestyleStatus,
   MasterPlan, Medication, MdmLevel, Patient, PreventionItem, ProblemCheckIn,
   CheckInFeeling, OnPlan, ServiceConsent, VitalsSet, PatientUpdate, Message,
@@ -629,31 +629,23 @@ export function longitudinal(panel: Panel, seed = 777): LongitudinalLayer {
       Obesity: officeVitals.length >= 2,
       'Chronic kidney disease, stage 3a': draws >= 2,
     };
-    const fromArc: ConditionTrend = arc === 'improving' ? 'improving'
-      : arc === 'slipping' ? 'worsening' : 'stable';
+    const fromArc: CareGoalStatus = arc === 'slipping' ? 'needs-improvement' : 'at-goal';
     const lastVisitDate = visits[visits.length - 1]?.date;
     for (const c of managed) {
-      if (depth === 'new' || !lastVisitDate) {
-        c.trend = 'not-assessed';
-        continue;
-      }
+      if (depth === 'new' || !lastVisitDate) continue;
       if (governing[c.name]) {
-        c.trend = fromArc;
-        c.trendAssessed = lastVisitDate;
-        c.trendNote = fromArc === 'improving'
-          ? 'Moving the right way on the last two sets of numbers.'
-          : fromArc === 'worsening'
-            ? 'Worse than at the previous review. Needs a change rather than a repeat.'
-            : 'Holding where it was. No change indicated.';
+        c.goal = fromArc;
+        c.goalAssessed = lastVisitDate;
+        c.goalNote = fromArc === 'at-goal'
+          ? 'At target on the last two sets of numbers.'
+          : 'Worse than at the previous review. Needs a change rather than a repeat.';
         continue;
       }
       // No measure of its own. Assessed where somebody plausibly
       // would have, and left honestly unassessed where not.
       if (chance(0.55)) {
-        c.trend = chance(0.6) ? 'stable' : fromArc;
-        c.trendAssessed = lastVisitDate;
-      } else {
-        c.trend = 'not-assessed';
+        c.goal = chance(0.6) ? 'at-goal' : fromArc;
+        c.goalAssessed = lastVisitDate;
       }
     }
 
@@ -1010,10 +1002,10 @@ function buildMaster(i: MasterInput): MasterPlan {
     const mine = meds.filter((m) => m.indication === c.name);
     const parts = [
       mine.length > 0 ? mine.map((m) => `${m.name}${m.dose ? ` ${m.dose}` : ''}`).join(' and ') + '.' : 'No drug treatment for this at the moment.',
-      c.trend === 'worsening' ? 'Needs a change rather than a repeat. One change, reviewed in six weeks.'
-        : c.trend === 'improving' ? 'Keep going as we are. The change is coming from the plan, not from a new drug.'
-          : c.trend === 'stable' ? 'Hold. Review with the next bloods.'
-            : 'Not assessed at the last visit. Needs a look at the next one.',
+      c.goal === 'needs-improvement'
+        ? 'Needs a change rather than a repeat. One change, reviewed in six weeks.'
+        : c.goal === 'at-goal' ? 'Hold. Review with the next bloods.'
+          : 'Not assessed at the last visit. Needs a look at the next one.',
     ];
     byProblem[c.id] = parts.join(' ');
   }

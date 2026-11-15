@@ -129,7 +129,7 @@ export function buildPacket(input: PacketInput): {
         ${para(pr.clauses.map((c) => c.text).join(' '))}
         ${pr.interventions.length > 0
     ? `<ul>${pr.interventions.map((iv) => `<li><b>${esc(iv.label)}:</b> ${esc(iv.status)}${
-      iv.attribution ? ` <i>(${esc(iv.attribution)})</i>` : ''}</li>`).join('')}</ul>`
+      iv.note ? ` <i>(${esc(iv.note)})</i>` : ''}</li>`).join('')}</ul>`
     : ''}`).join('')}
 
       <h3>Objective</h3>

@@ -46,13 +46,13 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('the patient\u2019s own words are in it',
     (await p.locator('.sprob .psum .said').count())>=3);
   ok('and their account of their health overall opens it',
-    sOverall.includes('how things were going overall'));
+    sOverall.startsWith('Patient reports'));
   ok('the objective has vitals, an examination and labs',
     (await p.locator('.vitblock').count())>0
     && (await p.locator('.examrow').count())>0
     && (await p.locator('.bone').count())>0);
-  ok('every problem carries a gauge that is not "not assessed"',
-    !(await p.locator('.gauge').allTextContents()).join('|').includes('Not assessed'));
+  ok('every problem is judged at goal or needing work',
+    !(await p.locator('.goalrow').allTextContents()).join('|').includes('Not assessed'));
   const sPlan = await sectionText(3);
   ok('the plan is written for every problem', !sPlan.includes('No plan written'));
   ok('and the follow-up interval is set',
@@ -66,24 +66,30 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('a problem with nothing from the patient says so',
     mSubj.includes('Nothing on file from the patient about this problem'));
   ok('a drug nobody has asked about says that too',
-    mSubj.includes('Never asked about'));
+    mSubj.includes('adherence not asked about'));
   const mObj = await sectionText(1);
   ok('vitals are there', (await p.locator('.vitblock').count())>0);
   ok('the missing examination is stated, not skipped',
     mObj.includes('No examination documented. Not the same as a normal examination.'));
   ok('the labs that exist are shown', (await p.locator('.bone').count())>0);
-  ok('a problem nobody gauged says "not assessed"',
-    (await p.locator('.gauge').allTextContents()).join('|').includes('Not assessed'));
+  ok('a problem nobody judged says "not assessed"',
+    (await p.locator('.goalrow').allTextContents()).join('|').includes('Not assessed'));
   const mPlan = await sectionText(3);
-  ok('the problems with no plan written say so', mPlan.includes('No plan'));
+  ok('the plan still lists what is being done for each problem',
+    mPlan.includes('Lisinopril') && /Active|Needs attention/.test(mPlan));
 
   // ----------------------------------------------------- 3. empty
   await open('Nina');
   const nSubj = await sectionText(0);
   ok('the subjective says nothing is being managed',
     nSubj.includes('Nothing is being managed here yet'));
-  ok('and says they have not been asked how they are',
-    nSubj.includes('have not been asked'));
+  // Never "they have not been asked": every patient gets a baseline
+  // evaluation, so the only honest empty state is that it has not
+  // happened yet, and it says when it is booked for.
+  ok('and says the intake has not happened yet, with the date it is booked',
+    nSubj.includes('No intake on file yet') && nSubj.includes('First visit booked for'));
+  ok('and never claims nobody asked them anything',
+    !nSubj.includes('have not been asked'));
   const nObj = await sectionText(1);
   ok('no vitals is said out loud', nObj.includes('No vitals recorded'));
   ok('no examination is said out loud',
@@ -91,8 +97,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('no labs is said out loud', nObj.includes('No laboratory results on file'));
   ok('no diagnostics is said out loud', nObj.includes('None on file'));
   const nAss = await sectionText(2);
-  ok('an empty prevention schedule is not called up to date',
-    !nAss.includes('Up to date') && nAss.includes('Nothing scheduled yet'));
+  ok('an empty prevention schedule is not called at goal',
+    !nAss.includes('At goal') && nAss.includes('Nothing scheduled yet'));
   ok('lifestyle says nothing is prescribed', nAss.includes('Nothing prescribed yet'));
   const rail = (await p.locator('.railnotices, .rail, [class*=rail]').first().textContent());
   ok('and the rail has an empty state for each of its sections',

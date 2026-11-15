@@ -907,3 +907,39 @@ prototype and is not a position on what a real practice should do.
 **Revisit when:** the derivation has been read against a real week of
 records, or when the review question has to be answered for anything
 that leaves the building.
+
+## D-048 One status vocabulary, and less of everything else
+
+**Decided 2026-11-15.** Two status systems across the whole chart. A
+category, whether a chronic condition, a preventative service or
+lifestyle medicine, is **at goal** or **needs improvement**. An
+intervention, whether a drug, a lab, a referral, a vaccine or a
+lifestyle prescription, is **active**, **needs attention** or
+**complete**. The four-point improving/stable/worsening/not-assessed
+scale is gone, as are the per-category status words it sat beside.
+
+**Reasoning.** The question a reader asks when scanning a chart is
+whether something needs them. Scales with more points answer a
+question nobody asked while making the page slower to read, and five
+category-specific vocabularies ("taking as prescribed", "struggling",
+"up to date") meant the eye had to learn a new scale in every
+section. The nuance did not disappear: it moved into the sentence
+underneath, where it can be qualified, and into the record behind it.
+
+**What else went.** Citations moved from a line under every paragraph
+to a small mark that opens the records on click. The subjective's
+opening is three sentences in the same shape as a problem summary.
+The objective shows the latest vitals with home readings behind a
+button, and lost its narrative field. The assessment opens with the
+clinical one-liner, composed, and lost its free-text conclusion. The
+plan lost its intent line and its counting badges.
+
+**Also decided.** Every patient gets a baseline history, so the
+intake form now takes what the patient says in their own words and
+writes it as a signed initial history and physical plus their first
+overall answer. The living summary should never open by saying nobody
+has asked them anything; where the intake has genuinely not happened
+it says so and gives the date it is booked for.
+
+**Revisit when:** the chart has been read in a real week, which is
+the only way to find out whether two statuses is too few.

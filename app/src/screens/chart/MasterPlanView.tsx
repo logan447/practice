@@ -72,9 +72,6 @@ function Section({ letter, title, children }: {
   );
 }
 
-const Label = ({ children }: { children: React.ReactNode }) =>
-  <div className="soaplabel">{children}</div>;
-
 export function MasterPlanView({ patientId, onOpen }: {
   patientId: string;
   /** Drawer names, so a section can hand off to the full view. */
@@ -87,8 +84,6 @@ export function MasterPlanView({ patientId, onOpen }: {
   if (!p) return null;
 
   const save = (patch: Partial<MasterPlan>) => st.saveMasterPlan(patientId, patch);
-  const O = mp?.objective ?? { narrative: '' };
-  const A = mp?.assessment ?? { narrative: '' };
   const P = mp?.plan ?? { byProblem: {}, prevention: '', lifestyle: '', followUp: '' };
 
 
@@ -107,12 +102,6 @@ export function MasterPlanView({ patientId, onOpen }: {
         </div>
         <Objective patientId={patientId}
           onOpen={(w) => onOpen(w === 'studies' ? 'results' : w)} />
-        <div style={{ marginTop: 16 }}>
-          <Label>Anything the numbers do not say</Label>
-          <Prose value={O.narrative} rows={3}
-            placeholder="Patterns across the readings, what the trend means, what is missing."
-            onSave={(v) => save({ objective: { narrative: v } })} />
-        </div>
       </section>
 
       {/* ------------------------------------------------- assessment */}
@@ -121,14 +110,7 @@ export function MasterPlanView({ patientId, onOpen }: {
           <span className="letter">A</span>
           <h2>Assessment</h2>
         </div>
-        <Assessment patientId={patientId} prose={
-          <>
-            <Label>In a sentence or two</Label>
-            <Prose value={A.narrative} rows={4}
-              placeholder="Where this patient is, across the problems rather than one at a time."
-              onSave={(v) => save({ assessment: { narrative: v } })} />
-          </>
-        } />
+        <Assessment patientId={patientId} />
       </section>
 
       {/* ------------------------------------------------------- plan */}

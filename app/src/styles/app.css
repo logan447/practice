@@ -1571,3 +1571,74 @@ blockquote.said footer {
   color: var(--ink-3);
 }
 @media (max-width: 900px) { .ivlist .ivd { margin-left: 0; } }
+
+/* ---------------------------------------------- the condensed summary
+ *
+ * One status vocabulary, one accent, and sources behind a mark rather
+ * than along the bottom of every paragraph.
+ */
+.psum.lead { font-size: 15.5px; line-height: 1.68; margin-bottom: 4px; }
+
+.srcwrap { position: relative; display: inline-block; }
+.srcmark {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 15px; height: 15px; margin-left: 3px; vertical-align: 2px;
+  border: 1px solid var(--line); border-radius: 50%; background: var(--panel);
+  color: var(--ink-3); font: 600 10px/1 var(--sans); cursor: pointer;
+  font-style: normal;
+}
+.srcmark:hover { color: var(--accent); border-color: var(--accent-line); }
+.srcpop {
+  position: absolute; z-index: 40; left: 0; top: 20px; width: 300px;
+  display: flex; flex-direction: column;
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 7px; box-shadow: 0 6px 22px rgba(20,30,30,.13); padding: 5px;
+}
+.srcitem {
+  display: flex; gap: 8px; align-items: baseline; width: 100%;
+  background: none; border: 0; padding: 6px 7px; border-radius: 5px;
+  font: inherit; font-size: 12.5px; color: var(--ink-2); cursor: pointer;
+  text-align: left;
+}
+.srcitem:hover { background: var(--panel-2); color: var(--accent); }
+.srcitem .srck {
+  font-size: 10px; text-transform: uppercase; letter-spacing: .05em;
+  color: var(--ink-3); min-width: 62px;
+}
+
+/* One row per intervention, everywhere. */
+.actlist { list-style: none; margin: 8px 0 0; padding: 0; }
+.actrow {
+  display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap;
+  padding: 4px 0; font-size: 13px; color: var(--ink-2);
+}
+.actrow .actl { min-width: 184px; color: var(--ink); }
+.actrow .actn { color: var(--ink-3); font-size: 12.5px; }
+
+/* The assessment's three categories. */
+.oneliner {
+  margin: 0 0 18px; font: 400 15.5px/1.65 var(--serif); color: var(--ink);
+}
+.catblock { margin-bottom: 16px; }
+.cathead { display: flex; align-items: baseline; gap: 10px; margin-bottom: 5px; }
+.cathead h4 {
+  margin: 0; font: 600 11px/1 var(--sans); letter-spacing: .07em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+.catline { margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--ink-2); }
+.goallist { list-style: none; margin: 0; padding: 0; }
+.goalrow { padding: 3px 0; }
+.goalname {
+  display: flex; align-items: baseline; gap: 9px; width: 100%;
+  background: none; border: 0; padding: 3px 0; cursor: pointer; font: inherit;
+  text-align: left;
+}
+.goalname .gn { font-size: 14px; color: var(--ink); font-weight: 500; }
+.goalnote {
+  margin: 0 0 2px; font-size: 12.5px; line-height: 1.5; color: var(--ink-3);
+}
+.goalset { display: flex; gap: 7px; align-items: center; padding: 4px 0 8px; }
+.examrow .echanged {
+  display: inline-block; width: 5px; height: 5px; margin-left: 6px;
+  border-radius: 50%; background: var(--warn); vertical-align: 2px;
+}

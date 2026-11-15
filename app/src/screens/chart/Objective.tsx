@@ -55,7 +55,7 @@ export function Objective({ patientId, onOpen }: {
   const office = vitals.filter((v) => v.source === 'office');
   const home = vitals.filter((v) => v.source === 'home');
   const lastOffice = office[0];
-  const lastHome = home[0];
+
 
   // One fishbone per group, built from the most recent panel in it.
   const latestByGroup = new Map<string, { now: LabPanel; before?: LabPanel }>();
@@ -75,15 +75,25 @@ export function Objective({ patientId, onOpen }: {
   return (
     <div className="soapbody">
       {/* --------------------------------------------------- A. vitals */}
+      {/*
+        * The most recent set, with the one before it in brackets.
+        * Home readings are a series rather than a reading and belong
+        * behind a button: a chart that prints both every time is
+        * answering a question nobody asked at this point in the page.
+        */}
       <div className="derived">
-        <div className="dhead"><span>Vitals</span></div>
-        {!lastOffice && !lastHome ? (
+        <div className="dhead">
+          <span>Vitals</span>
+          {home.length > 0 && (
+            <button className="linkish" onClick={() => onOpen('results')}>
+              Home logs ({home.length})
+            </button>
+          )}
+        </div>
+        {!lastOffice ? (
           <div className="dline muted">No vitals recorded.</div>
         ) : (
-          <div className="vitrow">
-            {lastOffice && <VitalBlock v={lastOffice} label="Office" prev={office[1]} />}
-            {lastHome && <VitalBlock v={lastHome} label="Home" prev={home[1]} home />}
-          </div>
+          <VitalBlock v={lastOffice} label="Office" prev={office[1]} />
         )}
       </div>
 
@@ -92,6 +102,9 @@ export function Objective({ patientId, onOpen }: {
         <div className="dhead">
           <span>Physical examination</span>
           {exam && <span className="small muted">{fmtDate(exam.date)}</span>}
+          {exam && (
+            <button className="linkish" onClick={() => onOpen('notes')}>All exams</button>
+          )}
         </div>
         {!exam ? (
           <div className="dline muted">
@@ -114,9 +127,7 @@ export function Objective({ patientId, onOpen }: {
                     <span className="esys">{f.system}</span>
                     <span className="etext">
                       {f.text}
-                      {changed && (
-                        <span className="ewas">was: {was!.text} ({fmtDate(priorExam!.date)})</span>
-                      )}
+                      {changed && <span className="echanged" title={`was: ${was!.text}`} />}
                     </span>
                   </div>
                 );

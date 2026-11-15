@@ -19,8 +19,8 @@ import type {
   OrderKind, Patient, PatientEntry, PreVisit, PreventionItem, ResultReport,
   ResultSeries, Specialist, Task, VisitNote, Allergy, ChartDocument, MasterPlan,
   VitalsSet, LabPanel, ExamRecord, DiagnosticStudy, EmRecord, CareLogEntry, ProblemCheckIn,
-  PatientUpdate, Message, UpdateRequest,
-  ServiceConsent, ConditionTrend, LifestyleIntervention,
+  PatientUpdate, Message, UpdateRequest, CareGoalStatus,
+  ServiceConsent, LifestyleIntervention,
 } from '../domain/types';
 import { fmtDate } from './format';
 import { generatePanel } from '../data/generate';
@@ -234,13 +234,24 @@ export interface PatientDraft {
   /** Free text, one per line, turned into problems and medicines. */
   conditions: string;
   medicines: string;
+  /**
+   * What they say is going on, in their words, at the baseline
+   * history and physical.
+   *
+   * Every patient gets an initial evaluation, so every chart should
+   * have a subjective from the day they joined. Without it the living
+   * summary opens by saying nobody has asked them anything, which is
+   * true of the data and false of the practice.
+   */
+  story: string;
   /** Book the first visit at the same time, because you always do. */
   bookIntake: boolean;
 }
 
 export const BLANK_PATIENT: PatientDraft = {
   name: '', dob: '', sex: 'female', pronouns: 'she/her', phone: '', email: '',
-  membership: 'standard', pinned: '', conditions: '', medicines: '', bookIntake: true,
+  membership: 'standard', pinned: '', conditions: '', medicines: '',
+  story: '', bookIntake: true,
 };
 
 // ------------------------------------------------------------------ store
@@ -351,14 +362,13 @@ interface Store extends State {
   setProblemPlan: (patientId: string, conditionId: string, text: string) => void;
   setManaged: (conditionId: string, managed: boolean) => void;
   setServices: (patientId: string, services: { preventative: boolean; lifestyle: boolean }) => void;
-  setTrend: (conditionId: string, trend: ConditionTrend, note?: string) => void;
+  setGoal: (conditionId: string, goal: CareGoalStatus, note?: string) => void;
   setLifestyleStatus: (id: string, status: LifestyleIntervention['status']) => void;
   addLifestyle: (
     patientId: string, domain: LifestyleIntervention['domain'],
     prescription: string, forConditions: string[],
   ) => void;
 
-  // the assistant proposes, the clinician disposes
 }
 
 const Ctx = createContext<Store | null>(null);
@@ -533,7 +543,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         // the years behind it: vitals at every visit, lab panels,
         // examinations, imaging, the care management and consent
         // records, and a living summary that is deliberately a few
-        // records out of date. It also stamps the trend on each
+        // records out of date. It also stamps the goal on each
         // managed problem, read off the same arc the numbers follow,
         // so the gauge and the results cannot disagree.
         const d = longitudinal(g);
@@ -624,12 +634,47 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           status: 'scheduled', duration: 90,
         }] : [];
 
+        /**
+         * The baseline history, as a record rather than as a field.
+         *
+         * Every patient gets an initial evaluation, so every chart
+         * should carry a subjective from the day they joined. Written
+         * here as a signed intake note plus their own answer about
+         * their health overall, which is what the living summary
+         * reads. Without it the summary opens by saying nobody has
+         * asked them anything, which is true of the data and false of
+         * the practice.
+         */
+        const story = d.story.trim();
+        const intake: Encounter[] = story ? [{
+          id: newId('en'), patientId: id, date: clockNow(), kind: 'initial',
+          reason: 'Initial history and physical',
+          status: 'signed', duration: 60, signedAt: clockNow(),
+          note: {
+            subjective: {
+              oneLiner: '', reason: 'Baseline evaluation at registration',
+              chartReview: '', diagnostics: '', specialists: '',
+              additional: story,
+            },
+            objective: { homeMeasures: '', vitals: '', exam: '' },
+            assessment: { oneLiner: '', overall: '' },
+            plan: { problems: [], overall: '' },
+          },
+        }] : [];
+        const baseline: ProblemCheckIn[] = story ? [{
+          id: newId('ci'), patientId: id, date: clockNow(),
+          about: { kind: 'overall' },
+          feeling: 'unsure',
+          text: story,
+        }] : [];
+
         setS((p) => ({
           ...p,
           patients: [...p.patients, patient],
           conditions: [...p.conditions, ...conditions],
           medications: [...p.medications, ...medications],
-          encounters: [...p.encounters, ...encounters],
+          encounters: [...p.encounters, ...intake, ...encounters],
+          checkIns: [...p.checkIns, ...baseline],
         }));
         return id;
       },
@@ -968,11 +1013,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         })),
 
       /** The gauge, and the sentence that explains it. */
-      setTrend: (conditionId, trend, note) =>
+      setGoal: (conditionId, goal, note) =>
         setS((p) => ({
           ...p,
           conditions: p.conditions.map((c) => (c.id === conditionId
-            ? { ...c, trend, trendNote: note ?? c.trendNote, trendAssessed: clockNow() }
+            ? { ...c, goal, goalNote: note ?? c.goalNote, goalAssessed: clockNow() }
             : c)),
         })),
 

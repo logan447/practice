@@ -35,19 +35,23 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   const subj = p.locator('.soap').first();
   ok('nothing in the subjective is a text field',
     (await subj.locator('textarea').count())===0);
-  ok('it says what it was built from and that it recomputes',
-    (await subj.locator('.derivedfrom').textContent()).includes('Recomputed every time'));
+  ok('it says how many records it was built from, briefly',
+    /\d+ records, latest/.test(await subj.locator('.derivedfrom').textContent()));
   ok('and the chart no longer advertises a summary to review',
     (await p.locator('.summarybanner').count())===0);
 
   const stext = (await subj.textContent()).replace(/\s+/g,' ');
-  ok('it opens on how the patient says they are doing',
-    stext.includes('how things were going overall'));
-  ok('in their own words, quoted',
-    stext.includes('\u201cBetter than a year ago'));
-  ok('then what the record shows moved',
-    /On the record, A1c 8\.1% in Jan 2026 to 6\.9%/.test(stext));
-  ok('then what is unsettled', stext.includes('Unsettled:'));
+  ok('it opens with what the patient reports, composed',
+    stext.includes('Patient reports things are better overall'));
+  ok('and their priority, in a few words',
+    stext.includes('Their priority:'));
+  ok('then the chart review, as deltas rather than trajectories',
+    /Chart review shows last seen .*A1c down 1\.2%/.test(stext));
+  ok('then what is outstanding', stext.includes('Outstanding:'));
+  ok('and one line handing over to the problems',
+    stext.includes('problems managed here'));
+  ok('four sentences at most in the opening',
+    (await subj.locator('.psum.lead .said, .psum.lead .doc').count())<=4);
 
   const htn = subj.locator('#subj-sc1');
   ok('one block per managed problem', (await subj.locator('.sprob').count())===3);
@@ -57,29 +61,37 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     (await htn.locator('.psum .said').first().textContent()).includes('struggle with'));
   ok('the record is read beside it, in its own voice',
     (await htn.locator('.psum .doc').allTextContents()).join(' ').includes('the record documents'));
-  ok('and the measure carries its trajectory',
-    (await htn.locator('.psum').textContent()).includes('Home readings average'));
+  ok('and the current measure rides along with it',
+    /132\/78 on 30 Oct 2026, home average 125/.test(await htn.locator('.psum').textContent()));
 
-  const ivs = (await htn.locator('.ivlist li').allTextContents()).join(' | ');
+  const ivs = (await htn.locator('.actlist li').allTextContents()).join(' | ');
   ok(`every intervention has a status: ${ivs.slice(0,54)}`,
-    ivs.includes('Lisinopril 20 mg') && ivs.includes('Taking as prescribed'));
-  ok('adherence is attributed to whoever said it', ivs.includes('their report'));
+    ivs.includes('Lisinopril 20 mg') && ivs.includes('Active'));
+  ok('one status vocabulary across every kind of intervention',
+    ['Active','Needs attention','Complete'].some((x)=>ivs.includes(x))
+    && !/Taking as prescribed|Struggling|Achieved/.test(ivs));
   ok('home monitoring is tracked as an intervention', ivs.includes('Home blood pressure'));
   ok('a drug being skipped is called out rather than listed as prescribed',
-    (await subj.locator('#subj-sc3 .ivlist').textContent()).includes('Missing some'));
+    (await subj.locator('#subj-sc3 .actlist').textContent()).includes('missing doses'));
   ok('a drug stopped for a reason stays as context',
     (await subj.locator('#subj-sc2 .psum').allTextContents()).join(' ').toLowerCase()
       .includes('glipizide stopped'));
-  ok('every problem lists the records behind it',
-    (await subj.locator('.psrc').count())===3);
+  ok('sources are behind a mark rather than printed under each paragraph',
+    (await subj.locator('.psrc').count())===0
+    && (await subj.locator('.srcmark').count())>=4);
+  await subj.locator('.sprob .srcmark').first().click(); await p.waitForTimeout(250);
+  ok('and open to the records they came from',
+    (await p.locator('.srcpop .srcitem').count())>0);
+  await subj.locator('.sprob .srcmark').first().click(); await p.waitForTimeout(150);
 
   // ------------------------------------------- 3. objective order
   const sections = await p.locator('.soaphead h2').allTextContents();
   ok(`SOAP in order: ${sections.join(', ')}`,
     sections.join(',')==='Subjective,Objective,Assessment,Plan');
-  ok('vitals distinguish office from home',
+  ok('the most recent vitals only, with home behind a button',
     (await p.locator('.vitblock .vhead').allTextContents()).join('|').includes('Office')
-    && (await p.locator('.vitblock.home').count())>0);
+    && (await p.locator('.vitblock.home').count())===0
+    && (await p.locator('button:has-text("Home logs")').count())===1);
   ok('labs are fishbones', await p.locator('.bone').count()>=4);
   const objText = (await p.locator('.soap').nth(1).textContent());
   ok('the examination comes before the labs',
@@ -88,26 +100,38 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok(`current with previous in brackets: ${bone.replace(/\s+/g,' ').slice(0,46)}`, /\(\d/.test(bone));
   ok('the examination carries its own date', await p.locator('.examrow').count()>0);
 
-  // --------------------------------- 4. assessment as a gauge
-  ok('each managed problem has a status', await p.locator('.gauge').count()===3);
-  const gauges = (await p.locator('.gauge .grow').allTextContents()).join(' ');
-  ok(`statuses are improving/stable/worsening: ${gauges.replace(/\s+/g,' ').slice(0,60)}`,
-    /Improving|Stable|Worsening/.test(gauges));
-  ok('preventative services report up to date or not',
-    (await p.locator('.derived:has-text("Preventative services")').textContent()).includes('outstanding'));
-  ok('lifestyle interventions carry a status',
-    (await p.locator('.derived:has-text("Lifestyle medicine")').textContent()).includes('Struggling'));
+  // ------------------------- 4. the assessment, in one vocabulary
+  const ass = p.locator('.soap').nth(2);
+  ok('it opens with the clinical one-liner',
+    (await ass.locator('.oneliner').textContent())
+      .startsWith('Sharon White is a 60-year-old female with a past medical history of'));
+  ok('and names what we are following them for',
+    (await ass.locator('.oneliner').textContent()).includes('following with our office for'));
+  const cats = await ass.locator('.cathead h4').allTextContents();
+  ok(`three categories, in order: ${cats.join(', ')}`,
+    cats.join(',')==='Chronic conditions,Preventative services,Lifestyle medicine');
+  const goals = (await ass.locator('.goalrow').allTextContents()).join(' | ');
+  ok('each problem is at goal or needs improvement, and nothing else',
+    /At goal/.test(goals) && /Needs improvement/.test(goals)
+    && !/Improving|Stable|Worsening/.test(goals));
+  ok('preventative services carry the same two statuses',
+    /At goal|Needs improvement/.test(
+      await ass.locator('.catblock:has-text("Preventative services")').textContent()));
+  ok('and so does lifestyle medicine',
+    /At goal|Needs improvement/.test(
+      await ass.locator('.catblock:has-text("Lifestyle medicine")').textContent()));
 
   // ------------------------------------- 5. plan follows the gauge
   const plan = await p.locator('.soap').nth(3).textContent();
-  ok('the plan states an intent per problem', plan.includes('Continue and keep pushing'));
-  ok('a stable problem says hold', plan.includes('Hold'));
+  ok('the plan no longer tells you what to intend',
+    !plan.includes('Continue and keep pushing') && !plan.includes('Change course'));
   ok('medicines are coded to the problem they are for',
-    (await p.locator('.problemplan:has-text("Type 2 diabetes") .ppgrid').textContent()).includes('Metformin'));
+    (await p.locator('#problem-sc2 .actlist').textContent()).includes('Metformin'));
   ok('and not to problems they are not for',
-    !(await p.locator('.problemplan:has-text("Mixed hyperlipidemia") .ppgrid').textContent()).includes('Metformin'));
-  ok('preventative orders are in the plan',
-    plan.includes('Screening mammogram'));
+    !(await p.locator('#problem-sc3 .actlist').textContent()).includes('Metformin'));
+  ok('preventative care is its own block with the same statuses',
+    plan.includes('Preventative care') && /Needs attention|Complete/.test(plan));
+  ok('no summary badges counting things', !/\d+ outstanding|\d+ of \d+/.test(plan));
   ok('follow-up moved out of the plan and into the rail',
     !plan.includes('FOLLOW-UP') && (await p.locator('.railhead:has-text("Follow-up")').count())===1);
 
@@ -129,7 +153,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(500);
   const after = (await p.locator('.soap').first().textContent());
   ok('a new patient update changes the summary with no editing step',
-    before!==after && after.includes('14 Nov 2026'));
+    before!==after);
 
   // -------------------------------------------- 7. the packet
   await p.click('.railfoot button:has-text("Export")'); await p.waitForTimeout(700);

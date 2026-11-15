@@ -105,6 +105,17 @@ export function NewPatient() {
           </div>
         </Panel>
 
+        <Panel title="What they say is going on">
+          <textarea className="note" style={{ minHeight: 90 }}
+            placeholder="In their words: what brings them here, what they are worried about, and what they want from us."
+            value={d.story} onChange={(e) => set('story', e.target.value)} />
+          <p className="small muted" style={{ marginTop: 8 }}>
+            The baseline history. This becomes a signed intake note and the
+            first entry in their living summary, so the chart has a subjective
+            from day one rather than saying nobody has asked them anything.
+          </p>
+        </Panel>
+
         <Panel title="What I should always remember">
           <textarea className="note" style={{ minHeight: 70 }}
             placeholder="Night-shift nurse, three on / four off. Any plan has to survive that rota."

@@ -23,44 +23,59 @@
  * nobody should act on quickly, and acting on it quickly is the only
  * reason it exists.
  */
+import { useState } from 'react';
 import { Chip } from '../../components/ui';
 import { useStore } from '../../lib/store';
 import { fmtDate, relative } from '../../lib/format';
 import { livingSubjective } from '../../lib/subjective';
-import type { Clause, Intervention, SourceRef } from '../../lib/subjective';
-import { TREND_LABEL } from '../../domain/types';
-import type { Condition } from '../../domain/types';
+import type { Intervention, SourceRef } from '../../lib/subjective';
+import { GOAL_LABEL, ACTION_LABEL } from '../../domain/types';
+import type { CareGoalStatus } from '../../domain/types';
 
-const trendTone = (t?: Condition['trend']) =>
-  (t === 'worsening' ? 'crit' : t === 'improving' ? 'ok' : t === 'stable' ? undefined : 'warn');
+const goalTone = (g?: CareGoalStatus) => (g === 'at-goal' ? undefined : 'warn');
+const actionTone = (a: Intervention['status']) =>
+  (a === 'needs-attention' ? 'warn' : undefined);
 
-const ivTone = (t: Intervention['tone']) => (t === 'none' ? undefined : t);
-
-/** Patient's words in the serif, the record's in the sans. */
-const Clauses = ({ clauses }: { clauses: Clause[] }) => (
-  <p className="psum">
-    {clauses.map((c, i) => (
-      <span key={i} className={c.voice === 'patient' ? 'said' : 'doc'}>{c.text}{' '}</span>
-    ))}
-  </p>
-);
-
-const Sources = ({ refs, onOpen }: { refs: SourceRef[]; onOpen: () => void }) => {
+/**
+ * Traceability without the footnotes.
+ *
+ * The citations were right and they were also half the text on the
+ * page. A clinical document that lists its sources inline reads like
+ * a paper, and the reader stops seeing them after the second problem.
+ * So: one small mark at the end of the paragraph, nothing by default,
+ * and the records one click away with a way through to the original.
+ */
+const Sources = ({ refs, onOpen }: {
+  refs: SourceRef[];
+  onOpen: (id?: string) => void;
+}) => {
+  const [open, setOpen] = useState(false);
   if (refs.length === 0) return null;
   const seen = new Map<string, SourceRef>();
   for (const r of refs) seen.set(r.id, r);
   const list = [...seen.values()].sort((a, b) => b.date.localeCompare(a.date));
+
   return (
-    <p className="psrc">
-      <button className="linkish" onClick={onOpen}>From</button>{' '}
-      {list.map((r) => r.label).join('; ')}.
-    </p>
+    <span className="srcwrap">
+      <button className="srcmark" aria-label={`${list.length} sources`}
+        title="Where this came from" onClick={() => setOpen((v) => !v)}>i</button>
+      {open && (
+        <span className="srcpop">
+          {list.map((r) => (
+            <button key={r.id} className="srcitem" onClick={() => { setOpen(false); onOpen(r.id); }}>
+              <span className="srck">{r.kind}</span>
+              {r.label}
+            </button>
+          ))}
+        </span>
+      )}
+    </span>
   );
 };
 
 export function Subjective({ patientId, onOpenSources }: {
   patientId: string;
-  onOpenSources: () => void;
+  onOpenSources: (focus?: string) => void;
 }) {
   const st = useStore();
   const p = st.patient(patientId);
@@ -89,8 +104,13 @@ export function Subjective({ patientId, onOpenSources }: {
 
   return (
     <div className="soapbody">
-      {/* ------------------------------------------- overall, 2 to 3 lines */}
-      <Clauses clauses={live.overall} />
+      {/* ------------------------------------------- overall, 3 to 4 lines */}
+      <p className="psum lead">
+        {live.overall.map((c, i) => (
+          <span key={i} className={c.voice === 'patient' ? 'said' : 'doc'}>{c.text}{' '}</span>
+        ))}
+        <Sources refs={live.overallSources} onOpen={onOpenSources} />
+      </p>
 
       {/*
         * How current it is, and how to check it. Deliberately quiet:
@@ -99,13 +119,10 @@ export function Subjective({ patientId, onOpenSources }: {
         * was read before the clinical content.
         */}
       <p className="derivedfrom">
-        Written from {live.sources.length} record{live.sources.length === 1 ? '' : 's'} on file
-        {live.lastSource && `, the most recent ${relative(live.lastSource.date)}`}. Recomputed
-        every time this chart is opened.{' '}
-        <button className="linkish" onClick={onOpenSources}>
+        <button className="linkish" onClick={() => onOpenSources()}>
           {live.sources.length === 0
-            ? 'Add a visit, an update or a message'
-            : 'Read the sources'}
+            ? 'No records yet. Add a visit, an update or a message'
+            : `${live.sources.length} records, latest ${relative(live.lastSource!.date)}`}
         </button>
       </p>
 
@@ -154,29 +171,34 @@ export function Subjective({ patientId, onOpenSources }: {
           <div className="sphead">
             <strong>{pr.name}</strong>
             {pr.code && <span className="ppcode">{pr.code}</span>}
-            <Chip tone={trendTone(pr.trend)}>{TREND_LABEL[pr.trend ?? 'not-assessed']}</Chip>
+            <Chip tone={goalTone(pr.goal)}>
+              {pr.goal ? GOAL_LABEL[pr.goal] : 'Not assessed'}
+            </Chip>
           </div>
 
-          <Clauses clauses={pr.clauses} />
+          <p className="psum">
+            {pr.clauses.map((c, i) => (
+              <span key={i} className={c.voice === 'patient' ? 'said' : 'doc'}>{c.text}{' '}</span>
+            ))}
+            <Sources refs={pr.sources} onOpen={onOpenSources} />
+          </p>
 
           {pr.conflict && <p className="pconflict">{pr.conflict}</p>}
 
           {pr.interventions.length === 0 ? (
             <p className="snone">Nothing is being done about this at the moment.</p>
           ) : (
-            <ul className="ivlist">
+            <ul className="actlist">
               {pr.interventions.map((iv, i) => (
-                <li key={i}>
-                  <span className="ivl">{iv.label}</span>
-                  <Chip tone={ivTone(iv.tone)}>{iv.status}</Chip>
-                  {iv.attribution && <span className="iva">{iv.attribution}</span>}
-                  {iv.detail && <span className="ivd">{iv.detail}</span>}
+                <li key={i} className="actrow">
+                  <span className="actl">{iv.label}</span>
+                  <Chip tone={actionTone(iv.status)}>{ACTION_LABEL[iv.status]}</Chip>
+                  {iv.note && <span className="actn">{iv.note}</span>}
                 </li>
               ))}
             </ul>
           )}
 
-          <Sources refs={pr.sources} onOpen={onOpenSources} />
         </article>
       ))}
     </div>

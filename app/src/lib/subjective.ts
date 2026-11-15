@@ -42,8 +42,10 @@ import { fmtDate } from './format';
 /** Month and year, for the far end of a trajectory. */
 const monthYear = (iso: string) =>
   new Date(`${iso}T12:00:00`).toLocaleString('en-GB', { month: 'short', year: 'numeric' });
-import { medsAbout, specialistsAbout } from '../screens/chart/relate';
+import { medsAbout } from '../screens/chart/relate';
 import { LIFESTYLE_DOMAINS } from '../domain/types';
+import { interventionsFor } from './interventions';
+import type { Intervention } from './interventions';
 
 const DOMAIN_LABEL: Record<string, string> = Object.fromEntries(
   LIFESTYLE_DOMAINS.map((d) => [d.id, d.label]),
@@ -85,7 +87,7 @@ export interface ProblemSummary {
   conditionId: string;
   name: string;
   code: string;
-  trend: Condition['trend'];
+  goal: Condition['goal'];
   /** One or two sentences. Patient's experience first, then the record. */
   clauses: Clause[];
   interventions: Intervention[];
@@ -94,17 +96,7 @@ export interface ProblemSummary {
   conflict?: string;
 }
 
-export interface Intervention {
-  /** What it is, in two or three words. */
-  label: string;
-  /** How it is going, in two or three more. Kept short on purpose. */
-  status: string;
-  /** What was actually asked for, or what is in the way. */
-  detail?: string;
-  tone: 'ok' | 'warn' | 'crit' | 'none';
-  /** Who said so and when, because that is half of what it means. */
-  attribution?: string;
-}
+export type { Intervention } from './interventions';
 
 export interface LivingSubjective {
   overall: Clause[];
@@ -158,72 +150,112 @@ export function livingSubjective(input: SubjectiveInput): LivingSubjective {
 
   const ref = (r: SourceRef): SourceRef => { sources.push(r); return r; };
 
-  // ------------------------------------------------- overall, 2 to 3 lines
+  // ------------------------------------------- overall, three sentences
+  //
+  // The same shape as a problem summary, because a reader who has
+  // learned one shape should not have to learn a second one four
+  // lines later: what the patient reports, what the chart review
+  // shows, then one line handing over to the problems below.
   const overall: Clause[] = [];
   const overallSources: SourceRef[] = [];
 
-  // 1. how they describe their health, in their words.
-  const lastOverall = updates.find((u) => u.overall)
-    ?? (input.checkIns.find((c) => c.about.kind === 'overall')
-      ? undefined : undefined);
-  const overallAnswer = desc(input.checkIns.filter((c) => c.about.kind === 'overall'))[0];
-  if (lastOverall?.overall) {
-    overall.push({
-      voice: 'patient',
-      text: `Asked on ${fmtDate(lastOverall.date)} how things were going overall: \u201c${
-        cap(trimTo(lastOverall.overall, 220))}\u201d`,
-    });
-    overallSources.push(ref({
-      id: lastOverall.id, kind: 'update', date: lastOverall.date,
-      label: `Health update, ${fmtDate(lastOverall.date)}`,
-    }));
-  } else if (overallAnswer) {
-    overall.push({
-      voice: 'patient',
-      text: `In their own words on ${fmtDate(overallAnswer.date)}: \u201c${
-        cap(trimTo(overallAnswer.text, 220))}\u201d`,
-    });
-    overallSources.push(ref({
-      id: overallAnswer.id, kind: 'answer', date: overallAnswer.date,
-      label: `Their answer, ${fmtDate(overallAnswer.date)}`,
-    }));
+  // --- 1. what they report
+  {
+    const lastUpdate = updates.find((u) => u.overall);
+    const overallAnswer = desc(input.checkIns.filter((c) => c.about.kind === 'overall'))[0];
+    const said = lastUpdate?.overall ?? overallAnswer?.text;
+    const feeling = lastUpdate?.feeling ?? overallAnswer?.feeling;
+    const src = lastUpdate
+      ? { id: lastUpdate.id, kind: 'update' as const, date: lastUpdate.date,
+        label: `Health update, ${fmtDate(lastUpdate.date)}` }
+      : overallAnswer
+        ? { id: overallAnswer.id, kind: 'answer' as const, date: overallAnswer.date,
+          label: `Their answer, ${fmtDate(overallAnswer.date)}` }
+        : undefined;
+
+    // What they want is taken from the sentence where they asked for
+    // something, in an update or a message, rather than from a goals
+    // field somebody filled in once a year ago.
+    const asked = askFor(said) ?? askFor(
+      messages.find((m) => m.from === 'patient' && ASK.test(m.body))?.body,
+    );
+    const askSrc = !askFor(said)
+      ? messages.find((m) => m.from === 'patient' && ASK.test(m.body))
+      : undefined;
+
+    if (feeling || said) {
+      overall.push({
+        voice: 'patient',
+        text: `Patient reports ${
+          feeling === 'better' ? 'things are better overall'
+            : feeling === 'worse' ? 'things are worse overall'
+              : feeling === 'unsure' ? 'they are not sure how things are going overall'
+                : 'things are much the same overall'
+        }.${asked ? ` Their priority: ${lower(asked)}.` : ''}`,
+      });
+      if (src) overallSources.push(ref(src));
+      if (askSrc) {
+        overallSources.push(ref({
+          id: askSrc.id, kind: 'message', date: askSrc.date,
+          label: `Message, ${fmtDate(askSrc.date)}`,
+        }));
+      }
+    } else {
+      // No intake on file is a different fact from no answer, and the
+      // chart should say which one it is.
+      const booked = input.encounters.find((e) => e.status !== 'signed');
+      overall.push({
+        voice: 'patient',
+        text: booked
+          ? `No intake on file yet. First visit booked for ${fmtDate(booked.date)}.`
+          : 'No intake on file yet, and nothing booked.',
+      });
+    }
   }
 
-  // 2. what they are working toward, taken from what they have asked for
-  //    rather than from a goals field somebody filled in once.
-  // Only when their own overall answer is missing, because two
-  // paragraphs of patient voice is no longer a summary.
-  const asks = messages.filter((m) => m.from === 'patient'
-    && /would like|want|hoping|can we|could we|rather|ask/i.test(m.body));
-  if (asks[0] && overall.length === 0) {
-    overall.push({
-      voice: 'patient',
-      text: `Raised with us on ${fmtDate(asks[0].date)}: ${trimTo(asks[0].body, 200)}`,
-    });
-    overallSources.push(ref({
-      id: asks[0].id, kind: 'message', date: asks[0].date,
-      label: `Message, ${fmtDate(asks[0].date)}`,
-    }));
+  // --- 2. what the chart review shows
+  {
+    const bits: string[] = [];
+    const lastVisit = desc(input.encounters.filter((e) => e.status === 'signed'))[0];
+    if (lastVisit) {
+      bits.push(`last seen ${fmtDate(lastVisit.date)}`);
+      overallSources.push(ref({
+        id: lastVisit.id, kind: 'visit', date: lastVisit.date,
+        label: `Visit note, ${fmtDate(lastVisit.date)}`,
+      }));
+    }
+    // Deltas rather than from and to, and at most two of them: the
+    // full trajectories are a line away under each problem.
+    const movement = describeMovement(input);
+    if (movement) {
+      bits.push(...movement.deltas.slice(0, 2));
+      overallSources.push(...movement.sources.map(ref));
+    }
+    const open = outstandingBits(input);
+    if (bits.length > 0 || open.length > 0) {
+      overall.push({
+        voice: 'documented',
+        text: `Chart review shows ${list(bits)}${
+          bits.length > 0 && open.length > 0 ? '. Outstanding: ' : open.length > 0 ? 'outstanding ' : ''
+        }${list(open)}.`.replace(/\s+\./g, '.'),
+      });
+    }
   }
 
-  if (overall.length === 0) {
-    overall.push({
-      voice: 'patient',
-      text: 'They have not been asked, or have not answered, how their health is going overall.',
-    });
+  // --- 3. the handover
+  {
+    const behind = managed.filter((c) => (c.goal ?? 'needs-improvement') !== 'at-goal');
+    if (managed.length > 0) {
+      overall.push({
+        voice: 'documented',
+        text: `${cap(countWord(managed.length))} problem${managed.length === 1 ? '' : 's'} managed here${
+          behind.length > 0
+            ? `, ${countWord(behind.length)} needing work: ${list(behind.map((c) => lower(c.name)))}`
+            : ', all at goal'
+        }.`,
+      });
+    }
   }
-
-  // 3. our reading: what has changed since the visit before last.
-  const movement = describeMovement(input);
-  if (movement) {
-    overall.push({ voice: 'documented', text: movement.text });
-    overallSources.push(...movement.sources.map(ref));
-  }
-
-  // 4. and what is not settled. Said last because it is what the visit
-  //    is for, and first in the eye because it is the only warning here.
-  const open = outstanding(input);
-  if (open) overall.push({ voice: 'documented', text: open });
 
   // --------------------------------------------------- problem by problem
   const problems = managed.map((c) => problemSummary(c, input, ref));
@@ -241,9 +273,10 @@ export function livingSubjective(input: SubjectiveInput): LivingSubjective {
 /** What the numbers did, in one sentence, or nothing. */
 function describeMovement(
   input: SubjectiveInput,
-): { text: string; sources: SourceRef[] } | undefined {
+): { text: string; deltas: string[]; sources: SourceRef[] } | undefined {
   const sources: SourceRef[] = [];
   const bits: string[] = [];
+  const deltas: string[] = [];
 
   const series = (key: string, label: string, unit = '') => {
     const hits = desc(input.panels).filter((p) => p.values.some((v) => v.key === key));
@@ -251,7 +284,9 @@ function describeMovement(
     const now = hits[0].values.find((v) => v.key === key)!;
     const then = hits[hits.length - 1].values.find((v) => v.key === key)!;
     if (now.value === then.value) return;
+    const d = Math.round((now.value - then.value) * 10) / 10;
     bits.push(`${label} ${then.value}${unit} in ${monthYear(hits[hits.length - 1].date)} to ${now.value}${unit} on ${fmtDate(hits[0].date)}`);
+    deltas.push(`${label} ${d < 0 ? 'down' : 'up'} ${Math.abs(d)}${unit} to ${now.value}${unit}`);
     sources.push({
       id: hits[0].id, kind: 'result', date: hits[0].date,
       label: `${hits[0].name}, ${fmtDate(hits[0].date)}`,
@@ -266,20 +301,18 @@ function describeMovement(
     const b = office[0];
     if (Math.abs((b.systolic ?? 0) - (a.systolic ?? 0)) >= 5) {
       bits.push(`blood pressure ${a.systolic}/${a.diastolic} to ${b.systolic}/${b.diastolic}`);
+      deltas.push(`blood pressure down to ${b.systolic}/${b.diastolic}`);
       sources.push({
         id: b.id, kind: 'vitals', date: b.date, label: `Vitals, ${fmtDate(b.date)}`,
       });
     }
   }
   if (bits.length === 0) return undefined;
-  return {
-    text: `On the record, ${bits.join(', ')}.`,
-    sources,
-  };
+  return { text: `On the record, ${bits.join(', ')}.`, deltas, sources };
 }
 
-/** The one or two things genuinely unsettled, or nothing. */
-function outstanding(input: SubjectiveInput): string | undefined {
+/** The one or two things genuinely unsettled, as phrases. */
+function outstandingBits(input: SubjectiveInput): string[] {
   const bits: string[] = [];
   const overdue = input.prevention.filter((x) => x.status === 'overdue');
   if (overdue.length > 0) {
@@ -295,8 +328,7 @@ function outstanding(input: SubjectiveInput): string | undefined {
   if (notTaking.length > 0) {
     bits.push(`${notTaking.map((m) => m.name).join(' and ')} not being taken as written`);
   }
-  if (bits.length === 0) return undefined;
-  return `Unsettled: ${bits.join('; ')}.`;
+  return bits;
 }
 
 /**
@@ -376,14 +408,11 @@ function problemSummary(
     const struggle = stuck[0]
       ? lower(DOMAIN_LABEL[stuck[0].domain] ?? stuck[0].domain)
       : undefined;
-    const why = stuck[0]?.barrier;
     const sentence = bits.length > 0
       ? `Patient reports ${bits.join(' ')}${
-        struggle ? `, but continues to struggle with ${struggle}` : ''}.${
-        why ? ` ${oneSentence(why, 110)}.` : ''}`
+        struggle ? `, but continues to struggle with ${struggle}` : ''}.`
       : struggle
-        ? `Patient has told us they are struggling with ${struggle}.${
-          why ? ` ${oneSentence(why, 110)}.` : ''}`
+        ? `Patient has told us they are struggling with ${struggle}.`
         : 'Nothing on file from the patient about this problem.';
     clauses.push({ voice: 'patient', text: sentence });
 
@@ -461,22 +490,26 @@ function problemSummary(
       });
     }
 
-    // The measure itself, as a number, after the reading of it.
-    const trajectory2 = measureLine(c, input);
-    if (trajectory2) {
-      clauses.push({ voice: 'documented', text: trajectory2.text });
-      sources.push(...trajectory2.sources.map(ref));
+    // The current value rides along with the reading rather than
+    // taking a sentence of its own.
+    const current = measureLine(c, input);
+    if (current) {
+      const last = clauses[clauses.length - 1];
+      if (last && last.voice === 'documented') {
+        last.text = `${last.text.replace(/\.$/, '')} (${current.short}).`;
+      } else {
+        clauses.push({ voice: 'documented', text: current.text });
+      }
+      sources.push(...current.sources.map(ref));
     }
   }
 
   let conflict: string | undefined;
   if (answer) {
-    if (c.trend === 'improving' && answer.feeling === 'worse') {
-      conflict = 'The record has this improving and they say it is worse.';
-    } else if (c.trend === 'stable' && answer.feeling === 'worse') {
-      conflict = 'Recorded as stable, reported as worse.';
-    } else if (c.trend === 'worsening' && answer.feeling === 'better') {
-      conflict = 'The numbers are worse and they feel better.';
+    if (c.goal === 'at-goal' && answer.feeling === 'worse') {
+      conflict = 'Recorded as at goal, reported as worse.';
+    } else if (c.goal === 'needs-improvement' && answer.feeling === 'better') {
+      conflict = 'The record has this needing work and they feel better.';
     }
   }
 
@@ -484,15 +517,48 @@ function problemSummary(
     conditionId: c.id,
     name: c.name,
     code: c.code,
-    trend: c.trend,
+    goal: c.goal,
     clauses,
-    interventions: interventionsFor(c, input, ref),
+    interventions: interventionsFor(c, {
+      conditions: input.conditions,
+      medications: input.medications,
+      lifestyle: input.lifestyle,
+      prevention: input.prevention,
+      specialists: input.specialists,
+      orders: input.orders,
+      checkIns: input.checkIns,
+      vitals: input.vitals,
+    }),
     sources,
     conflict,
   };
 }
 
 const lower = (s: string) => (s ? s.charAt(0).toLowerCase() + s.slice(1) : s);
+
+const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
+const countWord = (n: number) => (n <= 10 ? WORDS[n] : String(n));
+
+/**
+ * What they have asked for, taken from the sentence where they ask.
+ *
+ * Their priority is almost never in a goals field. It is one sentence
+ * in an update or a message, and the useful part of it is what comes
+ * after "I would like to" rather than the whole sentence. Anything
+ * this cannot reduce to a short phrase is left out rather than
+ * printed at length, because the opening paragraph is three sentences
+ * and a quotation will always win the space.
+ */
+const ASK = /\b(would like|would rather|want to|hoping|can we|could we|please)\b/i;
+const askFor = (text?: string): string | undefined => {
+  if (!text) return undefined;
+  const hit = text.split(/(?<=[.!?])\s+/).find((x) => ASK.test(x));
+  if (!hit) return undefined;
+  const m = /\b(?:is to|like to|rather|want to|hoping to|can we|could we)\b\s*/i.exec(hit);
+  const rest = (m ? hit.slice(m.index + m[0].length) : hit.replace(/^what\s+(i|we)\s+/i, ''))
+    .replace(/[.!?]\s*$/, '').trim();
+  return rest.length > 4 && rest.length < 90 ? rest : undefined;
+};
 
 /** Change notes usually open with "Stopped <month>"; the sentence already said that. */
 const stripStopped = (s: string) =>
@@ -512,7 +578,7 @@ const list = (xs: string[]): string =>
  */
 function measureLine(
   c: Condition, input: SubjectiveInput,
-): { text: string; movement?: string; sources: SourceRef[] } | undefined {
+): { text: string; short: string; movement?: string; sources: SourceRef[] } | undefined {
   const KEY: Record<string, [string, string, string, boolean]> = {
     'Type 2 diabetes mellitus': ['A1c', 'A1c', '%', true],
     Prediabetes: ['A1c', 'A1c', '%', true],
@@ -527,6 +593,7 @@ function measureLine(
     if (hits.length === 0) {
       return {
         text: `No ${label} on file, which is the measure this problem is judged on.`,
+        short: `no ${label} on file`,
         sources: [],
       };
     }
@@ -538,6 +605,7 @@ function measureLine(
       text: hits.length > 1 && delta !== 0
         ? `${label} ${now.value}${unit} on ${fmtDate(hits[0].date)}, from ${then.value}${unit} in ${monthYear(hits[hits.length - 1].date)}.`
         : `${label} ${now.value}${unit} on ${fmtDate(hits[0].date)}, the only value on file.`,
+      short: `${label} ${now.value}${unit} on ${fmtDate(hits[0].date)}`,
       movement: hits.length > 1 && delta !== 0
         ? `the ${label} ${better ? 'improving' : 'worsening'} by ${Math.abs(delta)}${unit} since ${monthYear(hits[hits.length - 1].date)}`
         : undefined,
@@ -561,6 +629,10 @@ function measureLine(
     return {
       text: `${office[0].systolic}/${office[0].diastolic} in clinic on ${fmtDate(office[0].date)}${
         office[1]?.systolic ? `, from ${office[1].systolic}/${office[1].diastolic}` : ''}.${homeLine}`,
+      short: `${office[0].systolic}/${office[0].diastolic} on ${fmtDate(office[0].date)}${
+        home.length > 0 ? `, home average ${Math.round(
+          home.reduce((a, h) => a + (h.systolic ?? 0), 0) / home.length,
+        )}` : ', no home readings'}`,
       movement: office.length > 1 && Math.abs(drop) >= 5
         ? `the blood pressure ${drop > 0 ? 'down' : 'up'} ${Math.abs(drop)} systolic since ${monthYear(first.date)}`
         : undefined,
@@ -571,111 +643,4 @@ function measureLine(
     };
   }
   return undefined;
-}
-
-/**
- * The status of everything being done about one problem.
- *
- * This is the half of a problem summary that prose keeps losing. A
- * paragraph can say "working on diet and exercise" for two years
- * without anybody noticing that the referral was never booked, and a
- * list cannot.
- */
-function interventionsFor(
-  c: Condition, input: SubjectiveInput, ref: (r: SourceRef) => SourceRef,
-): Intervention[] {
-  const out: Intervention[] = [];
-  const mine = medsAbout(c.name, input.medications.filter((m) => m.status !== 'stopped'));
-
-  for (const m of mine) {
-    const a = m.adherence;
-    out.push({
-      label: `${m.name}${m.dose ? ` ${m.dose}` : ''}`,
-      status: a
-        ? (a.status === 'taking' ? 'Taking as prescribed'
-          : a.status === 'missing-some' ? 'Missing some' : 'Not taking')
-        : 'Never asked about',
-      detail: a?.note ?? (a ? undefined : m.sig),
-      tone: a
-        ? (a.status === 'taking' ? 'ok' : a.status === 'missing-some' ? 'warn' : 'crit')
-        : 'warn',
-      attribution: a ? `${a.by === 'patient' ? 'their report' : 'clinician'}, ${fmtDate(a.reported)}` : undefined,
-    });
-  }
-
-  for (const li of input.lifestyle.filter((x) => x.forConditions.includes(c.id))) {
-    const answer = desc(input.checkIns.filter(
-      (x) => x.about.kind === 'lifestyle' && x.about.id === li.id,
-    ))[0];
-    out.push({
-      label: DOMAIN_LABEL[li.domain] ?? li.domain,
-      status: answer
-        ? (answer.onPlan === 'yes' ? 'Doing it'
-          : answer.onPlan === 'partly' ? 'Partly' : 'Not doing it')
-        : li.status === 'achieved' ? 'Achieved'
-          : li.status === 'struggling' ? 'Struggling'
-            : li.status === 'not-started' ? 'Written, never started'
-              : 'In progress',
-      detail: oneSentence(li.prescription, 90)
-        + (li.barrier ? `. ${oneSentence(li.barrier, 80)}` : ''),
-      tone: li.status === 'achieved' ? 'ok'
-        : li.status === 'struggling' || li.status === 'not-started' ? 'warn' : 'none',
-      attribution: answer
-        ? `their report, ${fmtDate(answer.date)}`
-        : li.reviewed ? `reviewed ${fmtDate(li.reviewed)}` : undefined,
-    });
-    if (answer) {
-      ref({
-        id: answer.id, kind: 'answer', date: answer.date,
-        label: `Their answer about ${li.prescription.split('.')[0]}, ${fmtDate(answer.date)}`,
-      });
-    }
-  }
-
-  // Home monitoring, where it is part of the plan for this problem.
-  if (c.name === 'Essential hypertension' || c.name === 'Type 2 diabetes mellitus') {
-    const home = desc(input.vitals.filter((v) => v.source === 'home'));
-    const label = c.name === 'Essential hypertension' ? 'Home blood pressure' : 'Home glucose';
-    if (c.name === 'Essential hypertension') {
-      out.push({
-        label,
-        status: home.length === 0
-          ? 'Asked for, nothing received'
-          : `${home.length} readings, most recent ${fmtDate(home[0].date)}`,
-        tone: home.length === 0 ? 'warn' : home.length >= 4 ? 'ok' : 'none',
-      });
-    }
-  }
-
-  // Specialists who look after this problem.
-  for (const s of specialistsAbout(c.name, input.specialists)) {
-    out.push({
-      label: `${s.specialty}, ${s.name}`,
-      status: s.outstanding && s.outstanding !== 'None.'
-        ? s.outstanding
-        : s.lastSeen ? `Seen ${fmtDate(s.lastSeen)}. Nothing outstanding.` : 'Referred.',
-      tone: s.outstanding && s.outstanding !== 'None.' ? 'warn' : 'ok',
-    });
-    if (s.lastSeen) {
-      ref({
-        id: s.id, kind: 'specialist', date: s.lastSeen,
-        label: `${s.specialty} letter, ${fmtDate(s.lastSeen)}`,
-      });
-    }
-  }
-
-  // Testing and referrals out for this problem.
-  for (const o of input.orders.filter((x) => x.status !== 'done')) {
-    const t = o.text.toLowerCase();
-    const hit = words(c.name).some((w) => t.includes(w))
-      || mine.some((m) => t.includes(m.name.toLowerCase()));
-    if (!hit) continue;
-    out.push({
-      label: o.text,
-      status: o.status === 'draft' ? 'Written, not sent' : `Out since ${fmtDate(o.created)}`,
-      tone: o.status === 'draft' ? 'warn' : 'none',
-    });
-  }
-
-  return out;
 }

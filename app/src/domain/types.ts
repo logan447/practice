@@ -56,31 +56,42 @@ export interface Patient {
 
 export type ConditionStatus = 'active' | 'resolved' | 'remission';
 
-export type ConditionTrend = 'improving' | 'stable' | 'worsening' | 'not-assessed';
+/**
+ * One status system, used everywhere a category is judged.
+ *
+ * Chronic conditions, preventative services and lifestyle medicine
+ * all answer the same question: is this where we want it, or does it
+ * need work. Four-point scales (improving, stable, worsening, not
+ * assessed) carry more nuance than a chart reader can use at a
+ * glance, and the nuance belongs in the sentence underneath rather
+ * than in the badge. Two states, one visual treatment, applied the
+ * same way in all three categories, so a chart can be scanned for
+ * what needs attention in seconds.
+ */
+export type CareGoalStatus = 'at-goal' | 'needs-improvement';
 
-export const TREND_LABEL: Record<ConditionTrend, string> = {
-  improving: 'Improving',
-  stable: 'Stable',
-  worsening: 'Worsening',
-  'not-assessed': 'Not assessed',
+export const GOAL_LABEL: Record<CareGoalStatus, string> = {
+  'at-goal': 'At goal',
+  'needs-improvement': 'Needs improvement',
 };
 
 /**
- * What the plan for a problem is trying to do, given the gauge.
+ * And one for the things being done about them.
  *
- * Derived rather than chosen, because it is the same decision said
- * twice. A worsening problem needs a change, an improving one needs
- * continuing, a stable one needs holding. The physician can still
- * write whatever they like underneath.
+ * Interventions answer a different question: is this running, does it
+ * need me, or is it finished. The same three states cover a drug, a
+ * lab, a referral, a vaccine and a lifestyle prescription, which is
+ * what makes a plan scannable across categories that would otherwise
+ * each have their own vocabulary.
  */
-export const INTENT_FOR: Record<ConditionTrend, string> = {
-  improving: 'Continue and keep pushing',
-  stable: 'Hold',
-  worsening: 'Change course',
-  'not-assessed': 'Assess',
+export type ActionStatus = 'active' | 'needs-attention' | 'complete';
+
+export const ACTION_LABEL: Record<ActionStatus, string> = {
+  active: 'Active',
+  'needs-attention': 'Needs attention',
+  complete: 'Complete',
 };
 
-/** FHIR: Condition */
 export interface Condition {
   id: string;
   patientId: string;
@@ -96,16 +107,14 @@ export interface Condition {
    */
   managed?: boolean;
   /**
-   * The assessment, as a gauge rather than a paragraph.
+   * Whether this is where we want it, as data rather than prose.
    *
-   * Three states carry almost all of the clinical meaning, and
-   * storing them as data rather than prose is what lets the plan
-   * below know what it is for: hold, push, or change course. The
-   * prose still exists; it sits underneath and explains the gauge.
+   * Absent means nobody has judged it, which is its own finding and
+   * is shown as needing improvement rather than as fine.
    */
-  trend?: ConditionTrend;
-  trendNote?: string;
-  trendAssessed?: string;
+  goal?: CareGoalStatus;
+  goalNote?: string;
+  goalAssessed?: string;
   onset: string;
   resolved?: string;
   /** Short clinical framing, physician-authored. */

@@ -32,9 +32,14 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   await p.fill('input[type="tel"]','(512) 555-0123');
   await p.fill('input[type="email"]','rosa.d@example.com');
   await p.selectOption('select:has(option[value="sliding-scale"])','sliding-scale');
-  await p.fill('textarea >> nth=0','Cares for her mother full time. Appointments have to be early morning.');
-  await p.fill('textarea >> nth=1','High blood pressure\nPrediabetes\nTrouble sleeping');
-  await p.fill('textarea >> nth=2','Amlodipine 5 mg — one tablet each morning\nMetformin 500 mg — twice daily with food');
+  // Every patient gets a baseline history, so the summary has a
+  // subjective from day one.
+  await p.fill('textarea[placeholder*="In their words"]',
+    'Tired all the time and worried about her blood pressure. Wants to avoid going on more tablets than she has to.');
+  await p.fill('textarea[placeholder*="Night-shift nurse"]',
+    'Cares for her mother full time. Appointments have to be early morning.');
+  await p.fill('textarea[placeholder*="High blood pressure"]','High blood pressure\nPrediabetes\nTrouble sleeping');
+  await p.fill('textarea[placeholder*="Lisinopril 10 mg"]','Amlodipine 5 mg — one tablet each morning\nMetformin 500 mg — twice daily with food');
   await p.screenshot({path:'e2e-2-intake.png', fullPage:true});
   await p.click('button:has-text("Create patient")');
   await p.waitForTimeout(400);
