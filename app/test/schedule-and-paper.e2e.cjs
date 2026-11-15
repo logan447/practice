@@ -63,7 +63,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('.topbar .mark'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(450);
   // Booking lives in the visits drawer now, not in the header.
-  await p.click('.railhead .linkish'); await p.waitForTimeout(400);
+  await p.click('.railhead:has-text("Next visit")'); await p.waitForTimeout(400);
   await p.click('.drawer button:has-text("Book a visit")'); await p.waitForTimeout(400);
   ok('booking offers the real visit types with their lengths',
     (await p.locator('.booking').textContent()).includes('150m'));
@@ -124,7 +124,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     await p.click('.topbar .mark'); await p.waitForTimeout(200);
     await p.locator('table.rows tbody tr').nth(i).click(); await p.waitForTimeout(320);
   if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
-    await p.click('.railfoot button:has-text("Documents")'); await p.waitForTimeout(250);
+    await p.click('.railfoot button:has-text("Letters")'); await p.waitForTimeout(250);
     if(await p.locator('button:has-text("Summary")').count()>0) gotSummary=true;
   }
   ok('a signed visit can produce a summary', gotSummary);

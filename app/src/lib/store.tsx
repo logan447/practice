@@ -18,10 +18,14 @@ import type {
   AiDraft, CarePlan, CarePlanGoal, Condition, Encounter, Medication, Order,
   OrderKind, Patient, PatientEntry, PreVisit, PreventionItem, ResultReport,
   ResultSeries, Specialist, Task, VisitNote, Allergy, ChartDocument, MasterPlan,
+  VitalsSet, LabPanel, ExamRecord, DiagnosticStudy, EmRecord, CareLogEntry,
+  ServiceConsent, SummaryProposal, ConditionTrend, LifestyleIntervention,
 } from '../domain/types';
 import { fmtDate } from './format';
+import { propose, applyProposal } from './synthesis';
 import { generatePanel } from '../data/generate';
 import * as sharon from '../data/sharon';
+import * as clinical from '../data/sharon-clinical';
 import { resolveDrug } from '../domain/terminology';
 import { recordDiff, type Snapshot } from './audit';
 import { actor as currentActor } from './session';
@@ -49,6 +53,21 @@ interface State {
   orders: Order[];
   /** One living SOAP document per patient. */
   masterPlans: MasterPlan[];
+  vitals: VitalsSet[];
+  labPanels: LabPanel[];
+  exams: ExamRecord[];
+  studies: DiagnosticStudy[];
+  /**
+   * Kept apart from the summary on purpose. A longitudinal document
+   * cannot answer what happened on a date or in a calendar month,
+   * which is exactly what billing asks.
+   */
+  emRecords: EmRecord[];
+  careLog: CareLogEntry[];
+  consents: ServiceConsent[];
+  /** Drafted by the assistant, not yet anybody's words. */
+  proposals: SummaryProposal[];
+  lifestyle: LifestyleIntervention[];
   /** The clinic's today. Movable, because care is longitudinal. */
   now: string;
   /** What changed the last time the clock moved. */
@@ -60,6 +79,8 @@ const EMPTY: State = {
   resultSeries: [], resultReports: [],
   carePlans: [], encounters: [], prevention: [], patientEntries: [], aiDrafts: [], tasks: [],
   specialists: [], preVisits: [], orders: [], masterPlans: [],
+  vitals: [], labPanels: [], exams: [], studies: [],
+  emRecords: [], careLog: [], consents: [], proposals: [], lifestyle: [],
   now: ORIGIN, lastEvents: [],
 };
 
@@ -102,7 +123,7 @@ function demoState(): State {
     conditions: [...sharon.sharonConditions, ...keep(fixtures.conditions)],
     medications: [...sharon.sharonMeds, ...keep(fixtures.medications)],
     allergies: [],
-    documents: [],
+    documents: sharon.sharonDocuments,
     resultSeries: [...sharon.sharonSeries, ...keep(fixtures.resultSeries)],
     resultReports: [...sharon.sharonReports, ...keep(fixtures.resultReports)],
     carePlans: [sharon.sharonPlan, ...keep(fixtures.carePlans)],
@@ -115,6 +136,15 @@ function demoState(): State {
     preVisits: keep(fixtures.preVisits),
     orders: [...sharon.sharonOrders, ...keep(fixtures.orders)],
     masterPlans: [sharon.sharonMaster],
+    vitals: clinical.sharonVitals,
+    labPanels: clinical.sharonPanels,
+    exams: clinical.sharonExams,
+    studies: clinical.sharonStudies,
+    emRecords: clinical.sharonEm,
+    careLog: clinical.sharonCareLog,
+    consents: clinical.sharonConsents,
+    proposals: [],
+    lifestyle: clinical.sharonLifestyle,
     now: ORIGIN,
     lastEvents: [],
   };
@@ -156,6 +186,15 @@ interface Store extends State {
   allergiesFor: (id: string) => Allergy[];
   documentsFor: (id: string) => ChartDocument[];
   masterPlanFor: (id: string) => MasterPlan | undefined;
+  vitalsFor: (id: string) => VitalsSet[];
+  panelsFor: (id: string) => LabPanel[];
+  examsFor: (id: string) => ExamRecord[];
+  studiesFor: (id: string) => DiagnosticStudy[];
+  emFor: (encounterId: string) => EmRecord | undefined;
+  careLogFor: (id: string, month?: string) => CareLogEntry[];
+  consentsFor: (id: string) => ServiceConsent[];
+  proposalsFor: (id: string) => SummaryProposal[];
+  lifestyleFor: (id: string) => LifestyleIntervention[];
   seriesFor: (id: string) => ResultSeries[];
   series: (id: string) => ResultSeries | undefined;
   reportsFor: (id: string) => ResultReport[];
@@ -234,6 +273,17 @@ interface Store extends State {
   setProblemPlan: (patientId: string, conditionId: string, text: string) => void;
   setManaged: (conditionId: string, managed: boolean) => void;
   setServices: (patientId: string, services: { preventative: boolean; lifestyle: boolean }) => void;
+  setTrend: (conditionId: string, trend: ConditionTrend, note?: string) => void;
+  setLifestyleStatus: (id: string, status: LifestyleIntervention['status']) => void;
+  addLifestyle: (
+    patientId: string, domain: LifestyleIntervention['domain'],
+    prescription: string, forConditions: string[],
+  ) => void;
+
+  // the assistant proposes, the clinician disposes
+  generateProposals: (patientId: string) => number;
+  decideProposal: (id: string, accept: boolean, editedText?: string) => void;
+  clearProposals: (patientId: string) => void;
 }
 
 const Ctx = createContext<Store | null>(null);
@@ -288,6 +338,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       allergiesFor: (id) => by(s.allergies, id),
       documentsFor: (id) => [...by(s.documents, id)].sort((a, b) => b.date.localeCompare(a.date)),
       masterPlanFor: (id) => s.masterPlans.find((m) => m.patientId === id),
+      vitalsFor: (id) => [...by(s.vitals, id)].sort((a, b) => b.date.localeCompare(a.date)),
+      panelsFor: (id) => [...by(s.labPanels, id)].sort((a, b) => b.date.localeCompare(a.date)),
+      examsFor: (id) => [...by(s.exams, id)].sort((a, b) => b.date.localeCompare(a.date)),
+      studiesFor: (id) => [...by(s.studies, id)].sort((a, b) => b.date.localeCompare(a.date)),
+      emFor: (encounterId) => s.emRecords.find((e) => e.encounterId === encounterId),
+      careLogFor: (id, month) => by(s.careLog, id)
+        .filter((e) => !month || e.date.startsWith(month))
+        .sort((a, b) => b.date.localeCompare(a.date)),
+      consentsFor: (id) => by(s.consents, id),
+      proposalsFor: (id) => by(s.proposals, id).filter((p) => p.status === 'pending'),
+      lifestyleFor: (id) => by(s.lifestyle, id),
       seriesFor: (id) => by(s.resultSeries, id),
       clinicalSeriesFor: (id) => by(s.resultSeries, id).filter((x) => x.source !== 'patient'),
       patientSeriesFor: (id) => by(s.resultSeries, id).filter((x) => x.source === 'patient'),
@@ -809,10 +870,126 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           conditions: p.conditions.map((c) => (c.id === conditionId ? { ...c, managed } : c)),
         })),
 
+      /** The gauge, and the sentence that explains it. */
+      setTrend: (conditionId, trend, note) =>
+        setS((p) => ({
+          ...p,
+          conditions: p.conditions.map((c) => (c.id === conditionId
+            ? { ...c, trend, trendNote: note ?? c.trendNote, trendAssessed: clockNow() }
+            : c)),
+        })),
+
+      setLifestyleStatus: (id, status) =>
+        setS((p) => ({
+          ...p,
+          lifestyle: p.lifestyle.map((x) => (x.id === id
+            ? { ...x, status, reviewed: clockNow() } : x)),
+        })),
+
+      addLifestyle: (patientId, domain, prescription, forConditions) =>
+        setS((p) => ({
+          ...p,
+          lifestyle: [...p.lifestyle, {
+            id: newId('li'), patientId, domain, prescription, forConditions,
+            status: 'not-started', started: clockNow(),
+          }],
+        })),
+
       setServices: (patientId, services) =>
         setS((p) => ({
           ...p,
           patients: p.patients.map((x) => (x.id === patientId ? { ...x, services } : x)),
+        })),
+
+      /**
+       * Read the record, propose text, write nothing.
+       *
+       * The proposals land in their own collection. Nothing reaches
+       * the summary until someone accepts it, and accepting is an
+       * event with a name and a date on it.
+       */
+      generateProposals: (patientId) => {
+        const made = propose({
+          patientId, now: s.now,
+          master: s.masterPlans.find((m) => m.patientId === patientId),
+          conditions: by(s.conditions, patientId),
+          medications: by(s.medications, patientId),
+          encounters: by(s.encounters, patientId),
+          exams: by(s.exams, patientId),
+          vitals: by(s.vitals, patientId),
+          panels: by(s.labPanels, patientId),
+          studies: by(s.studies, patientId),
+          specialists: by(s.specialists, patientId),
+          prevention: by(s.prevention, patientId),
+          plan: s.carePlans.find((c) => c.patientId === patientId),
+          entries: by(s.patientEntries, patientId),
+        });
+        setS((p) => ({
+          ...p,
+          proposals: [...p.proposals.filter((x) => x.patientId !== patientId || x.status !== 'pending'), ...made],
+        }));
+        return made.length;
+      },
+
+      decideProposal: (id, accept, editedText) =>
+        setS((p) => {
+          const pr = p.proposals.find((x) => x.id === id);
+          if (!pr) return p;
+          const decided: SummaryProposal = {
+            ...pr,
+            status: accept ? 'accepted' : 'rejected',
+            decidedBy: ME, decidedAt: clockNow(),
+            acceptedText: accept ? (editedText ?? pr.text) : undefined,
+          };
+          const proposals = p.proposals.map((x) => (x.id === id ? decided : x));
+          if (!accept) return { ...p, proposals };
+
+          const existing = p.masterPlans.find((m) => m.patientId === pr.patientId);
+          const base: MasterPlan = existing ?? {
+            id: newId('mp'), patientId: pr.patientId, updated: clockNow(), updatedBy: ME,
+            subjective: { history: '', goals: '', context: '' },
+            objective: { narrative: '' },
+            assessment: { narrative: '' },
+            plan: { byProblem: {}, prevention: '', lifestyle: '', followUp: '' },
+          };
+          const patch = applyProposal(base, decided);
+          if (!patch) return { ...p, proposals };
+
+          const next: MasterPlan = 'problemId' in patch
+            ? {
+              ...base,
+              plan: {
+                ...base.plan,
+                byProblem: {
+                  ...base.plan.byProblem,
+                  [patch.problemId]: base.plan.byProblem[patch.problemId]
+                    ? `${patch.text}\n\n${base.plan.byProblem[patch.problemId]}`
+                    : patch.text,
+                },
+              },
+              updated: clockNow(), updatedBy: ME,
+            }
+            : {
+              ...base, ...patch,
+              subjective: { ...base.subjective, ...patch.subjective },
+              objective: { ...base.objective, ...patch.objective },
+              assessment: { ...base.assessment, ...patch.assessment },
+              plan: { ...base.plan, ...patch.plan },
+              updated: clockNow(), updatedBy: ME,
+            };
+
+          return {
+            ...p, proposals,
+            masterPlans: existing
+              ? p.masterPlans.map((m) => (m.patientId === pr.patientId ? next : m))
+              : [...p.masterPlans, next],
+          };
+        }),
+
+      clearProposals: (patientId) =>
+        setS((p) => ({
+          ...p,
+          proposals: p.proposals.filter((x) => x.patientId !== patientId || x.status !== 'pending'),
         })),
 
       markDocumentReviewed: (docId) =>
@@ -835,6 +1012,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             aiDrafts: drop(p.aiDrafts), tasks: drop(p.tasks),
             specialists: drop(p.specialists), preVisits: drop(p.preVisits),
             orders: drop(p.orders), masterPlans: drop(p.masterPlans),
+            vitals: drop(p.vitals), labPanels: drop(p.labPanels), exams: drop(p.exams),
+            studies: drop(p.studies), careLog: drop(p.careLog), consents: drop(p.consents),
+            proposals: drop(p.proposals), lifestyle: drop(p.lifestyle),
+            emRecords: p.emRecords.filter((e) =>
+              !p.encounters.some((x) => x.id === e.encounterId && x.patientId === patientId)),
             now: p.now, lastEvents: p.lastEvents,
           };
         }),

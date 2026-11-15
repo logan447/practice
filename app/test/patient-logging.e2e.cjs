@@ -64,7 +64,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('.srow:has-text("L. DuBose")'); await p.waitForTimeout(500);
   await p.click('text=Marcus Reyes'); await p.waitForTimeout(450);
   if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
-  await p.click('.railfoot button:has-text("Results")'); await p.waitForTimeout(350);
+  await p.click('.railhead:has-text("Labs and vitals")'); await p.waitForTimeout(350);
   ok('results keeps patient data separate', await p.locator('text=Patient-measured, not clinic-measured').isVisible());
   await p.screenshot({path:'t-5-results.png', fullPage:true});
 
@@ -77,7 +77,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.goto(U,{waitUntil:'networkidle'}); await p.waitForTimeout(600);
   await p.click('text=Marcus Reyes'); await p.waitForTimeout(500);
   if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
-  await p.click('.railfoot button:has-text("Results")'); await p.waitForTimeout(400);
+  await p.click('.railhead:has-text("Labs and vitals")'); await p.waitForTimeout(400);
   ok('patient-logged data survives reload', await p.locator('text=Patient-measured, not clinic-measured').isVisible());
 
   const over=await p.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth+1);

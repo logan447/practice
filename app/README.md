@@ -653,3 +653,110 @@ header as "No allergies recorded" on every chart. The minimal header
 dropped them, which was wrong: allergies are read at every prescribing
 decision. They are back as one quiet line, rendered only when there
 are any, so most charts still say nothing.
+
+## The living summary
+
+The chart's middle column is now one document that stays current with
+the record, rather than a care plan somebody has to remember to edit.
+
+### What makes it safe enough to be useful
+
+`src/lib/synthesis.ts` reads the record and proposes text. It never
+writes. Three rules:
+
+- **It cites.** Every proposal carries the record ids and dates it was
+  built from, shown beside the text.
+- **It separates what the chart documents from what it inferred.**
+  "A1c 6.9 on 29 Oct, down from 8.1 on 20 Jan" is in the record.
+  "Control is improving without a sulfonylurea" is a reading of it.
+  Both are offered; the second is labelled and sits under its own
+  heading saying so.
+- **It does not fill gaps.** A measure never taken is reported as not
+  taken. There is a proposal type for exactly this, *What the record
+  does not say*, because the dangerous failure for a summariser is not
+  getting a number wrong, it is rendering silence as normal.
+
+The chart opens saying how far behind the summary is: *"9 records added
+since the summary was written: visit on 30 Oct 2026, …"*. Drafting is
+one button, review is a drawer, and accepting is an event with a name
+and a date on it.
+
+### Assessment is a gauge, not a paragraph
+
+Each managed problem carries `trend`: improving, stable, worsening, or
+not assessed. Almost all the clinical meaning of an assessment is in
+that one word, and storing it as data is what lets the plan underneath
+know what it is for. `INTENT_FOR` derives it: worsening → change
+course, improving → continue and keep pushing, stable → hold.
+
+Preventative services report up to date or not, and on what. Lifestyle
+interventions are **coded**, not prose: one of six domains, the actual
+prescription, the problems it targets, a status, and the barrier when
+there is one. "Discussed diet and exercise" is not a plan and is not
+billable as one.
+
+### Objective, reordered
+
+Vitals (office and home kept apart, never averaged), then the labs as
+fishbones showing current with previous in brackets, then the
+examination **on the date it was performed**, then other diagnostics.
+Trends moved to the right panel. When the last examination predates the
+last visit the screen says so, because an examination carried forward
+is a false record and copied-forward normals are the most common thing
+an auditor finds.
+
+### The rail
+
+Seven fixed sections on every chart, in the same order, with empty
+states rather than disappearing: Next visit, Current plan, Medicines,
+Labs and vitals, Specialists, Pending orders, Follow-up. Current plan
+sits second because the plan is what a chart is usually opened for.
+Each section opens a drawer holding every record behind it.
+
+### Export is a packet, not a cover page
+
+Seven sections in one dated document: the summary in SOAP order, then
+every signed note, then specialist letters, then labs as they were
+resulted, then imaging and procedures, then prevention, then every
+file received including the ones that could not be read. Print gives a
+real PDF; the FHIR bundle is offered beside it. The cover page states
+precedence: *if the two ever disagree, the notes are the record.*
+
+## Documentation and billing
+
+Researched before building, because the answer changed the data model.
+Full writeup with sources in
+`docs/systems/documentation-and-billing.md`.
+
+**The finding: a longitudinal summary cannot carry billing
+documentation.** The summary answers "where is this patient now".
+Billing asks what happened on a date (office E/M) and what was done in
+a calendar month (care management). Neither survives a document that is
+continuously rewritten. So three records are kept apart:
+
+| Record | Answers |
+|---|---|
+| Signed encounter note | what happened on a date, never edited after signing |
+| `EmRecord` | the elements a level rests on: problems, data, risk, time |
+| `CareLogEntry` + `ServiceConsent` | what was done this month, and whether consent exists |
+
+`lib/billing.ts` computes what the recorded elements imply by both
+routes and shows them. It does not pick a code. A chart that silently
+assigns 99214 has made a billing decision on someone else's licence.
+
+**The rule that matters most:** time spent by software is not clinical
+staff time. `CareLogEntry.countable` is a stored judgement, and an
+automated entry carries `countable: false` with a reason on screen. A
+programme that counts a model's drafting minutes is building an
+overpayment one month at a time.
+
+**Where the summary legitimately does double duty:** every programme
+requires a care plan that is documented, shared and reviewed. The
+summary is that plan. What it cannot know is whether it was actually
+given to the patient, so the export records an event when it produces
+a packet.
+
+Sources are secondary (coding-education and vendor sites, which
+disagreed with each other on rates and described two codes wrongly).
+`NEEDS-COUNSEL` `NEEDS-CPA` before any of it supports a claim, and this
+direct-pay practice may never bill any of it.

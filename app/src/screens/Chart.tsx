@@ -28,41 +28,32 @@ import { recordRead, record } from '../lib/audit';
 import { practiceSummary, demographicLine } from '../lib/clinical';
 import { Drawer } from '../components/Drawer';
 import { MasterPlanView } from './chart/MasterPlanView';
-import { RightRail } from './chart/RightRail';
+import { Rail } from './chart/Rail';
+import { VisitsDrawer } from './chart/VisitsDrawer';
+import {
+  DRAWER_TITLES, ResultsDrawer, StudiesDrawer, FollowUpDrawer, OrdersDrawer,
+  type ChartDrawer,
+} from './chart/drawers';
+import { Documentation } from './chart/Documentation';
+import { ExportDrawer } from './chart/ExportDrawer';
+import { Proposals } from './chart/Proposals';
+import { staleSince } from '../lib/synthesis';
 import { MedsTab } from './chart/MedsTab';
-import { ResultsTab } from './chart/ResultsTab';
 import { PreventionTab } from './chart/PreventionTab';
+import { PaperTab } from './chart/PaperTab';
 import { NotesTab } from './chart/NotesTab';
 import { SpecialistsTab } from './chart/SpecialistsTab';
 import { RecordsTab } from './chart/RecordsTab';
-import { PaperTab } from './chart/PaperTab';
 import { HistoryTab } from './chart/HistoryTab';
 import { PlanTab } from './chart/PlanTab';
 import { QualityStrip } from '../components/Quality';
 import { findIssues } from '../lib/dataQuality';
 
-type DrawerName =
-  | null | 'meds' | 'results' | 'prevention' | 'specialists' | 'notes'
-  | 'records' | 'paper' | 'history' | 'goals' | 'details';
-
-const TITLES: Record<string, { title: string; sub?: string }> = {
-  meds: { title: 'Medicines', sub: 'Stopped drugs stay, with the reason' },
-  results: { title: 'Results' },
-  prevention: { title: 'Prevention' },
-  specialists: { title: 'Specialists', sub: 'Co-management fails at the handoff' },
-  notes: { title: 'Visit notes', sub: 'As they were signed' },
-  records: { title: 'Allergies and outside records' },
-  paper: { title: 'Documents' },
-  history: { title: 'Who did what' },
-  goals: { title: 'Shared care plan', sub: 'What the patient sees in their portal' },
-  details: { title: 'Patient details' },
-};
-
 export function Chart({ patientId }: { patientId: string }) {
   const st = useStore();
   const nav = useNav();
   const me = useActor();
-  const [drawer, setDrawer] = useState<DrawerName>(null);
+  const [drawer, setDrawer] = useState<ChartDrawer>(null);
 
   useEffect(() => { markChartOpen(); }, [patientId]);
 
@@ -97,16 +88,25 @@ export function Chart({ patientId }: { patientId: string }) {
   const allergies = st.allergiesFor(p.id);
   const { managed, services } = practiceSummary(p, conditions);
 
+  /** Has the record moved since the summary was written? */
+  const stale = staleSince({
+    patientId: p.id, now: st.now,
+    master: st.masterPlanFor(p.id),
+    conditions, medications: st.medsFor(p.id),
+    encounters: st.encountersFor(p.id),
+    exams: st.examsFor(p.id), vitals: st.vitalsFor(p.id),
+    panels: st.panelsFor(p.id), studies: st.studiesFor(p.id),
+    specialists: st.specialistsFor(p.id), prevention: st.preventionFor(p.id),
+    plan: st.planFor(p.id), entries: st.entriesFor(p.id),
+  });
+  const pending = st.proposalsFor(p.id);
+
   const issues = findIssues({
     patient: p, allPatients: st.patients, medications: st.medsFor(p.id),
     allergies, conditions,
     series: st.seriesFor(p.id), documents: st.documentsFor(p.id),
   });
 
-  /** The sentence, assembled from the two structured lists. */
-  const doing: string[] = [];
-  if (managed.length > 0) doing.push('__problems__');
-  doing.push(...services);
 
   return (
     <div className="chart">
@@ -135,26 +135,15 @@ export function Chart({ patientId }: { patientId: string }) {
             )}
           </p>
 
-          {doing.length > 0 && (
+          {(managed.length > 0 || services.length > 0) && (
             <p className="csum">
-              Following with our office for{' '}
-              {doing.map((part, i) => (
-                <span key={part}>
-                  {i > 0 && (i === doing.length - 1 ? (doing.length > 2 ? ', and ' : ' and ') : ', ')}
-                  {part === '__problems__' ? (
-                    <>
-                      management of{' '}
-                      {managed.map((c, j) => (
-                        <span key={c.id}>
-                          {j > 0 && ' '}
-                          <span className="dx on">{c.name}</span>
-                        </span>
-                      ))}
-                    </>
-                  ) : part}
-                </span>
+              <span className="lead">Following for management of</span>
+              {managed.map((c) => (
+                <span key={c.id} className="dx on" title={c.code}>{c.name}</span>
               ))}
-              .
+              {services.map((sv) => (
+                <span key={sv} className="dx svc">{sv}</span>
+              ))}
             </p>
           )}
 
@@ -177,25 +166,64 @@ export function Chart({ patientId }: { patientId: string }) {
             </p>
           )}
 
-          {p.pinned && <p className="cpin">{p.pinned}</p>}
         </header>
+
+        {/*
+          * The one standing invitation on the chart.
+          *
+          * Shown only when the record has moved since the summary was
+          * written. Nothing is generated until it is asked for, and
+          * nothing generated reaches the summary without review.
+          */}
+        {stale.count > 0 && (
+          <div className="summarybanner">
+            <span>
+              <b>{stale.count}</b> record{stale.count > 1 ? 's' : ''} added since the summary
+              was written: {stale.what.slice(0, 3).join(', ')}
+              {stale.what.length > 3 && `, and ${stale.what.length - 3} more`}.
+            </span>
+            <span className="spacer" />
+            <button className="btn sm" onClick={() => {
+              st.generateProposals(p.id);
+              setDrawer('review');
+            }}>
+              Draft an update
+            </button>
+          </div>
+        )}
+
+        {pending.length > 0 && stale.count === 0 && (
+          <div className="summarybanner">
+            <span><b>{pending.length}</b> proposed change{pending.length > 1 ? 's' : ''} waiting for review.</span>
+            <span className="spacer" />
+            <button className="btn sm" onClick={() => setDrawer('review')}>Review</button>
+          </div>
+        )}
 
         {issues.length > 0 && (
           <QualityStrip issues={issues} onGo={(t) => setDrawer(
-            t === 'plan' ? 'goals' : (t as DrawerName))} />
+            t === 'plan' ? 'plan' : t === 'notes' ? 'visits' : (t as ChartDrawer))} />
         )}
 
         {/* -------------------------------------------- the workspace */}
         <div className="workspace">
-          <MasterPlanView patientId={p.id} onOpen={(w) => setDrawer(w)} />
+          <MasterPlanView patientId={p.id} onOpen={(w) => setDrawer(
+            w === 'notes' ? 'visits' : (w as ChartDrawer))} />
           <div>
-            <RightRail patientId={p.id} />
+            <Rail patientId={p.id} open={setDrawer}
+              onJump={(cid) => {
+                const el = document.getElementById(`problem-${cid}`);
+                el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                el?.classList.add('flash');
+                setTimeout(() => el?.classList.remove('flash'), 1400);
+              }} />
             <nav className="railfoot">
               {([
-                ['goals', 'Shared plan'], ['results', 'Results'], ['meds', 'Medicines'],
-                ['prevention', 'Prevention'], ['records', 'Records'], ['paper', 'Documents'],
+                ['export', 'Export'], ['letters', 'Letters'],
+                ['documentation', 'Documentation'], ['prevention', 'Prevention'],
+                ['studies', 'Imaging'], ['records', 'Records'],
                 ['history', 'History'], ['details', 'Details'],
-              ] as [DrawerName, string][]).map(([k, label]) => (
+              ] as [ChartDrawer, string][]).map(([k, label]) => (
                 <button key={k} className="linkish" onClick={() => setDrawer(k)}>{label}</button>
               ))}
             </nav>
@@ -204,19 +232,26 @@ export function Chart({ patientId }: { patientId: string }) {
       </div>
 
       <Drawer open={drawer !== null} wide
-        title={drawer ? TITLES[drawer].title : ''}
-        sub={drawer ? TITLES[drawer].sub : undefined}
+        title={drawer ? (DRAWER_TITLES[drawer]?.title ?? '') : ''}
+        sub={drawer ? DRAWER_TITLES[drawer]?.sub : undefined}
         onClose={() => setDrawer(null)}>
+        {drawer === 'visits' && <VisitsDrawer patientId={p.id} onDone={() => setDrawer(null)} />}
+        {drawer === 'plan' && <PlanTab patientId={p.id} />}
         {drawer === 'meds' && <MedsTab patientId={p.id} />}
-        {drawer === 'results' && <ResultsTab patientId={p.id} />}
-        {drawer === 'prevention' && <PreventionTab patientId={p.id} />}
+        {drawer === 'results' && <ResultsDrawer patientId={p.id} />}
         {drawer === 'specialists' && <SpecialistsTab patientId={p.id} />}
-        {drawer === 'notes' && <NotesTab patientId={p.id} />}
+        {drawer === 'orders' && <OrdersDrawer patientId={p.id} />}
+        {drawer === 'followup' && <FollowUpDrawer patientId={p.id} />}
+        {drawer === 'studies' && <StudiesDrawer patientId={p.id} />}
+        {drawer === 'prevention' && <PreventionTab patientId={p.id} />}
+        {drawer === 'letters' && <PaperTab patientId={p.id} />}
         {drawer === 'records' && <RecordsTab patientId={p.id} />}
-        {drawer === 'paper' && <PaperTab patientId={p.id} />}
+        {drawer === 'documentation' && <Documentation patientId={p.id} />}
+        {drawer === 'export' && <ExportDrawer patientId={p.id} />}
         {drawer === 'history' && <HistoryTab patientId={p.id} />}
-        {drawer === 'goals' && <PlanTab patientId={p.id} />}
         {drawer === 'details' && <Details patientId={p.id} />}
+        {drawer === 'notes' && <NotesTab patientId={p.id} />}
+        {drawer === 'review' && <Proposals patientId={p.id} onDone={() => setDrawer(null)} />}
       </Drawer>
     </div>
   );
@@ -241,6 +276,12 @@ function Details({ patientId }: { patientId: string }) {
   return (
     <div className="stack">
       <section className="panel"><div className="body">
+        {p.pinned && (
+          <>
+            <div className="soaplabel">Remember</div>
+            <p style={{ marginBottom: 14 }}>{p.pinned}</p>
+          </>
+        )}
         <div className="soaplabel">Contact</div>
         <p>{p.phone}</p>
         <p>{p.email}</p>

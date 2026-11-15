@@ -43,7 +43,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   await p.click('button:has-text("Chart")'); await p.waitForTimeout(500);
   if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
-  await p.click('.railfoot button:has-text("Results")'); await p.waitForTimeout(500);
+  await p.click('.railhead:has-text("Labs and vitals")'); await p.waitForTimeout(500);
   ok('ordered lab came back unreviewed', await p.locator('text=Not yet reviewed').first().isVisible());
   await p.screenshot({path:'v5-results.png', fullPage:true});
 

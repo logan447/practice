@@ -30,7 +30,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     await p.click('.topbar .mark'); await p.waitForTimeout(200);
     await p.locator('table.rows tbody tr').nth(i).click(); await p.waitForTimeout(300);
   if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
-    await p.click('.railfoot button:has-text("Medicines")'); await p.waitForTimeout(250);
+    await p.click('.railhead:has-text("Medicines")'); await p.waitForTimeout(250);
     if(await p.locator('.ixbox.bad').count()>0) found=true;
   }
   ok('an inherited list already has interactions on it', found);
@@ -63,8 +63,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('.topbar .mark'); await p.waitForTimeout(300);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(400);
   // Adding a problem lives in the Plan section now, not the header.
-  await p.locator('.addproblem').scrollIntoViewIfNeeded();
-  await p.click('.addproblem'); await p.waitForTimeout(300);
+  await p.locator('.addproblem:has-text("Problem")').scrollIntoViewIfNeeded();
+  await p.click('.addproblem:has-text("Problem")'); await p.waitForTimeout(300);
   await p.fill('input[placeholder="Type a diagnosis"]','gout'); await p.waitForTimeout(400);
   const g = await p.locator('.picker .prow').first().textContent();
   ok(`ICD-10-CM search works: ${g.slice(0,36)}`, /M1[0A]/.test(g));
@@ -102,7 +102,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(180);
     await p.click('.topbar .mark'); await p.waitForTimeout(200);
     await p.locator('table.rows tbody tr').nth(i).click(); await p.waitForTimeout(320);
-    await p.click('.railfoot button:has-text("Shared plan")'); await p.waitForTimeout(320);
+    await p.click('.railhead:has-text("Current plan")'); await p.waitForTimeout(320);
     if(await p.locator('.drawer .chip:has-text("Draft")').count()>0) draft=true;
   }
   ok('found a plan still in draft', draft);

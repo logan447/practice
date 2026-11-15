@@ -42,7 +42,11 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   // 3 — landed in chart
   ok('lands on the new chart', await p.locator('h1:has-text("Rosa Delgado")').isVisible());
 
-  ok('the pinned reminder is in the header', await p.locator('.cpin').isVisible());
+  // The reminder moved out of the clinical header into Details.
+  await p.click('.railfoot button:has-text("Details")'); await p.waitForTimeout(400);
+  ok('the pinned reminder is kept, out of the clinical header',
+    (await p.locator('.drawerbody').textContent()).includes('Cares for her mother full time'));
+  await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
   ok('reported conditions present in the history', await p.locator('.chead .dx:has-text("Trouble sleeping")').isVisible());
   ok('but not yet something we manage',
     (await p.locator('.csum').textContent().catch(()=>'')).includes('Trouble sleeping')===false);
@@ -51,7 +55,7 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
 
   // 4 — medicines parsed from free text
   if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
-  await p.click('.railfoot button:has-text("Medicines")'); await p.waitForTimeout(350);
+  await p.click('.railhead:has-text("Medicines")'); await p.waitForTimeout(350);
   await p.waitForTimeout(250);
   ok('medicine name parsed', await p.locator('.drawer >> text=Amlodipine 5 mg').first().isVisible());
   ok('sig parsed', await p.locator('.drawer >> text=one tablet each morning').first().isVisible());
@@ -72,7 +76,7 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
 
   // 5 — care plan
   if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
-  await p.click('.railfoot button:has-text("Shared plan")');
+  await p.click('.railhead:has-text("Current plan")');
   await p.waitForTimeout(300);
   ok('empty plan prompts to start', await p.locator('text=No care plan yet').first().isVisible());
   await p.fill('.drawer textarea','Get the blood pressure down without adding a second tablet, and protect her sleep.');
@@ -109,7 +113,7 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(450);
   await p.waitForTimeout(400);
   if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
-  await p.click('.railfoot button:has-text("Shared plan")');
+  await p.click('.railhead:has-text("Current plan")');
   await p.waitForTimeout(300);
   await p.click('button:has-text("Sign and share")');
   await p.waitForTimeout(350);

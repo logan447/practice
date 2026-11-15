@@ -219,9 +219,11 @@ export interface Summary {
 export function practiceSummary(p: Patient, conditions: Condition[]): Summary {
   const managed = conditions.filter((c) => c.managed && c.status !== 'resolved');
   const svc = p.services ?? { preventative: true, lifestyle: true };
+  // Tags, not prose. Each service is a coded category of its own, and
+  // the header shows it the same way it shows a diagnosis.
   const services = [
-    svc.preventative ? 'preventative services' : '',
-    svc.lifestyle ? 'lifestyle medicine services' : '',
+    svc.preventative ? 'Preventative Services' : '',
+    svc.lifestyle ? 'Lifestyle Medicine' : '',
   ].filter(Boolean);
   return { managed, services, empty: managed.length === 0 && services.length === 0 };
 }

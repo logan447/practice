@@ -99,7 +99,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.fill('input[aria-label="Search patients"]','Essential hypertens'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(500);
   if (await p.locator('.nextvisit:not(.empty)').count()===0) {
-    await p.click('.railhead .linkish'); await p.waitForTimeout(350);
+    await p.click('.railhead:has-text("Next visit")'); await p.waitForTimeout(350);
     await p.click('.drawer button:has-text("Book a visit")'); await p.waitForTimeout(350);
     await p.click('.booking button:has-text("Follow-up")'); await p.waitForTimeout(250);
     await p.waitForTimeout(200);

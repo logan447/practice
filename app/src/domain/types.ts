@@ -56,6 +56,30 @@ export interface Patient {
 
 export type ConditionStatus = 'active' | 'resolved' | 'remission';
 
+export type ConditionTrend = 'improving' | 'stable' | 'worsening' | 'not-assessed';
+
+export const TREND_LABEL: Record<ConditionTrend, string> = {
+  improving: 'Improving',
+  stable: 'Stable',
+  worsening: 'Worsening',
+  'not-assessed': 'Not assessed',
+};
+
+/**
+ * What the plan for a problem is trying to do, given the gauge.
+ *
+ * Derived rather than chosen, because it is the same decision said
+ * twice. A worsening problem needs a change, an improving one needs
+ * continuing, a stable one needs holding. The physician can still
+ * write whatever they like underneath.
+ */
+export const INTENT_FOR: Record<ConditionTrend, string> = {
+  improving: 'Continue and keep pushing',
+  stable: 'Hold',
+  worsening: 'Change course',
+  'not-assessed': 'Assess',
+};
+
 /** FHIR: Condition */
 export interface Condition {
   id: string;
@@ -71,6 +95,17 @@ export interface Condition {
    * different lists and most charts conflate them.
    */
   managed?: boolean;
+  /**
+   * The assessment, as a gauge rather than a paragraph.
+   *
+   * Three states carry almost all of the clinical meaning, and
+   * storing them as data rather than prose is what lets the plan
+   * below know what it is for: hold, push, or change course. The
+   * prose still exists; it sits underneath and explains the gauge.
+   */
+  trend?: ConditionTrend;
+  trendNote?: string;
+  trendAssessed?: string;
   onset: string;
   resolved?: string;
   /** Short clinical framing, physician-authored. */
@@ -468,4 +503,260 @@ export interface Task {
   due: string;
   urgent: boolean;
   done: boolean;
+}
+
+// -------------------------------------------------- lifestyle medicine
+
+/**
+ * The six areas lifestyle medicine actually works in.
+ *
+ * Coded rather than free text so that an intervention can be
+ * tracked, reviewed and reported like any other treatment. A plan
+ * that says "discussed diet and exercise" is not a plan, and it is
+ * not billable as one either.
+ */
+export type LifestyleDomain =
+  | 'nutrition' | 'activity' | 'sleep' | 'stress' | 'connection' | 'substances';
+
+export const LIFESTYLE_DOMAINS: { id: LifestyleDomain; label: string }[] = [
+  { id: 'nutrition', label: 'Nutrition' },
+  { id: 'activity', label: 'Physical activity' },
+  { id: 'sleep', label: 'Sleep' },
+  { id: 'stress', label: 'Stress' },
+  { id: 'connection', label: 'Social connection' },
+  { id: 'substances', label: 'Substances' },
+];
+
+export type LifestyleStatus = 'not-started' | 'active' | 'achieved' | 'struggling';
+
+export const LIFESTYLE_STATUS_LABEL: Record<LifestyleStatus, string> = {
+  'not-started': 'Not started',
+  active: 'In progress',
+  achieved: 'Achieved',
+  struggling: 'Struggling',
+};
+
+export interface LifestyleIntervention {
+  id: string;
+  patientId: string;
+  domain: LifestyleDomain;
+  /** What was actually prescribed, in terms the patient would recognise. */
+  prescription: string;
+  /** Which problems this is aimed at. */
+  forConditions: string[];
+  status: LifestyleStatus;
+  started: string;
+  reviewed?: string;
+  /** What is getting in the way, when something is. */
+  barrier?: string;
+}
+
+// ------------------------------------------------------------- vitals
+
+/**
+ * One set of vitals, taken at one time, in one place.
+ *
+ * Office and home are kept apart and never averaged together. They
+ * answer different questions, they disagree systematically, and a
+ * chart that merges them loses the only interesting thing about
+ * having both.
+ */
+export interface VitalsSet {
+  id: string;
+  patientId: string;
+  date: string;
+  source: 'office' | 'home';
+  encounterId?: string;
+  systolic?: number;
+  diastolic?: number;
+  heartRate?: number;
+  weightLb?: number;
+  bmi?: number;
+  temperatureF?: number;
+  spo2?: number;
+  respRate?: number;
+  note?: string;
+}
+
+// -------------------------------------------------------------- labs
+
+export type LabGroup = 'cbc' | 'bmp' | 'cmp' | 'lipid' | 'metabolic' | 'thyroid' | 'other';
+
+export interface LabValue {
+  /** Short label as it appears in a fishbone, e.g. "Na", "A1c". */
+  key: string;
+  name: string;
+  value: number;
+  unit: string;
+  refLow?: number;
+  refHigh?: number;
+  flag: ResultFlag;
+}
+
+/**
+ * A panel as it was resulted, kept together.
+ *
+ * Fishbones are drawn from panels rather than from loose analytes
+ * because the shape only means anything when the values came back
+ * together on one draw.
+ */
+export interface LabPanel {
+  id: string;
+  patientId: string;
+  date: string;
+  group: LabGroup;
+  name: string;
+  /** Where it was done, when that is not this practice. */
+  from?: string;
+  values: LabValue[];
+}
+
+// ---------------------------------------------------------- the exam
+
+/**
+ * A physical examination as performed on a date.
+ *
+ * Never carried forward. An examination that was not done on the day
+ * is not a finding, and a chart that reprints last month's normal
+ * exam under today's date is producing a false record, which is both
+ * a clinical problem and the single most common audit finding in
+ * copied-forward notes.
+ */
+export interface ExamRecord {
+  id: string;
+  patientId: string;
+  encounterId: string;
+  date: string;
+  by: string;
+  /** System, finding. Compared against the previous exam to show change. */
+  findings: { system: string; text: string }[];
+}
+
+// -------------------------------------------------- other diagnostics
+
+export interface DiagnosticStudy {
+  id: string;
+  patientId: string;
+  date: string;
+  kind: 'imaging' | 'procedure' | 'cardiac' | 'screening' | 'other';
+  name: string;
+  from?: string;
+  /** The reported impression, verbatim where it came from outside. */
+  impression: string;
+  significant: boolean;
+}
+
+// ------------------------------------------- documentation and billing
+
+/**
+ * WHY THESE ARE SEPARATE FROM THE LIVING SUMMARY.
+ *
+ * The longitudinal summary says where the patient is now. Billing
+ * asks a different question: what happened on a particular date, and
+ * what was done in a particular calendar month. Neither can be
+ * reconstructed from a document that is continuously rewritten.
+ *
+ * So an encounter keeps its signed note and its own record of the
+ * decision making and the time, care management keeps a per-month
+ * time log, and consent is its own dated record. See
+ * docs/systems/documentation-and-billing.md for what each service
+ * actually requires and where that came from. NEEDS-COUNSEL and
+ * NEEDS-CPA before any of this supports a claim.
+ */
+
+export type MdmLevel = 'straightforward' | 'low' | 'moderate' | 'high';
+
+/**
+ * The elements an office E/M level is selected from.
+ *
+ * Current AMA guidance selects the level either by medical decision
+ * making, where two of the three elements must meet the level, or by
+ * total time on the date of the encounter. Both are captured because
+ * the correct answer is whichever is higher, and that cannot be
+ * decided without recording both.
+ */
+export interface EmRecord {
+  encounterId: string;
+  /** Condition ids addressed at this visit, not the whole problem list. */
+  problemsAddressed: string[];
+  /** What was reviewed or ordered, each counted once. */
+  dataReviewed: string[];
+  problemsLevel: MdmLevel;
+  dataLevel: MdmLevel;
+  riskLevel: MdmLevel;
+  /** Minutes on the date of the encounter, face to face and not. */
+  totalMinutes: number;
+  /** What the physician chose, and why. Never set automatically. */
+  selectedBy?: 'mdm' | 'time';
+  code?: '99212' | '99213' | '99214' | '99215';
+}
+
+export type CareProgram = 'ccm' | 'bhi' | 'apcm' | 'preventive' | 'lifestyle';
+
+/**
+ * One block of time, by one person, on one day.
+ *
+ * Countable is a judgement, not a calculation. Time a model spent is
+ * not clinical staff time, and recording it as though it were is the
+ * fastest way to turn a care management programme into an
+ * overpayment. The flag is here so that distinction is in the data
+ * rather than in somebody's memory.
+ */
+export interface CareLogEntry {
+  id: string;
+  patientId: string;
+  program: CareProgram;
+  date: string;
+  minutes: number;
+  by: string;
+  role: 'physician' | 'clinical-staff' | 'non-clinical' | 'automated';
+  activity: string;
+  countable: boolean;
+  /** Present when not countable: why. */
+  excludedBecause?: string;
+}
+
+export interface ServiceConsent {
+  id: string;
+  patientId: string;
+  program: CareProgram;
+  date: string;
+  method: 'verbal' | 'written';
+  by: string;
+  /** What the patient was told. The part audits ask for. */
+  note: string;
+  revoked?: string;
+}
+
+// ------------------------------------------------- synthesis proposals
+
+/**
+ * A proposed change to the living summary.
+ *
+ * Generated from the record, never written into it. Two things make
+ * this safe enough to be useful: every proposal carries the record
+ * ids it was built from, and every one is labelled as either
+ * something the chart documents or something the model inferred.
+ * Nothing becomes part of the summary without a clinician accepting
+ * it, and accepting is an event with a name and a date on it.
+ */
+export type ProposalKind = 'documented' | 'interpretation';
+
+export interface SummaryProposal {
+  id: string;
+  patientId: string;
+  /** Dotted path into the master plan, e.g. "plan.byProblem.sc2". */
+  target: string;
+  targetLabel: string;
+  kind: ProposalKind;
+  /** The text proposed for that section. */
+  text: string;
+  /** What it was built from: record ids and dates, shown on screen. */
+  basis: string[];
+  generated: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  decidedBy?: string;
+  decidedAt?: string;
+  /** What the clinician actually saved, when they edited it first. */
+  acceptedText?: string;
 }

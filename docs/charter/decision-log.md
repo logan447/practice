@@ -733,3 +733,59 @@ measurements, overdue prevention, and a populated master plan.
 questions are whether prose that saves on blur is right for a document
 this long, and whether a single plan per patient holds up for someone
 with ten problems rather than three.
+
+---
+
+## D-043 — The summary is living, and billing records are kept apart from it
+
+**Decided 2026-11-15, owner direction, during the EMR prototype build.**
+
+The chart's central document becomes a living longitudinal summary
+that stays current with the record, rather than a care plan somebody
+edits by hand. Research into documentation requirements came first,
+because it changed the data model: see
+`docs/systems/documentation-and-billing.md`.
+
+**A longitudinal summary cannot carry billing documentation.** The
+summary answers where the patient is now. Office E/M asks what
+happened on a date; care management asks what was done in a calendar
+month. Neither survives a document that is continuously rewritten. The
+prototype therefore keeps the signed encounter note, a per-encounter
+record of the elements a level rests on, and a per-month care
+management time log with its own consent records, as three separate
+things. The summary does exactly one piece of double duty: it
+satisfies the care plan element those programmes require, because it
+is dated, organised by coded problem, reassessed per problem, and
+exportable.
+
+**The assistant proposes and never writes.** Every proposal carries
+the record ids it was built from, and is labelled as either something
+the chart documents or something the assistant read into it.
+Acceptance is an event with a name and a date. There is a proposal
+type for what the record does *not* say, because rendering silence as
+normal is the dangerous failure mode for a summariser, not getting a
+number wrong.
+
+**Time spent by software is not clinical staff time.** Care log
+entries carry a stored `countable` judgement and automated entries are
+excluded with the reason shown. Counting a model's minutes toward a
+care management threshold would build an overpayment one month at a
+time.
+
+**Assessment becomes a gauge per problem** (improving, stable,
+worsening, not assessed) from which the plan's intent is derived.
+Lifestyle interventions are coded to one of six domains with a
+prescription, target problems, status and barrier, so they can be
+tracked and reported like any other treatment.
+
+**Export is a complete packet**, not a cover page: summary, then every
+signed note, then specialist letters, labs as resulted, imaging,
+prevention, and every file received including the ones that could not
+be read. The cover states that the notes are the record if the two
+disagree.
+
+**Revisit when:** the design has been used for a week, or counsel
+settles the payer posture. The open questions are whether a single
+living summary holds up for a patient with ten problems rather than
+three, and whether the proposal review stays read rather than
+becoming a button people click through.

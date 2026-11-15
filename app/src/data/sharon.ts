@@ -9,7 +9,7 @@
  */
 import type {
   Patient, Condition, Medication, ResultSeries, ResultReport, CarePlan,
-  Encounter, PreventionItem, Specialist, Order, MasterPlan, Task,
+  Encounter, PreventionItem, Specialist, Order, MasterPlan, Task, ChartDocument,
 } from '../domain/types';
 
 const MD = { author: 'clinician' as const, by: 'L. DuBose, MD', recorded: '2026-06-18' };
@@ -28,14 +28,20 @@ export const sharon: Patient = {
 export const sharonConditions: Condition[] = [
   { id: 'sc1', patientId: 'p0', name: 'Essential hypertension', code: 'I10',
     status: 'active', managed: true, onset: '2016-08-03',
+    trend: 'improving', trendAssessed: '2026-10-30',
+    trendNote: '158/88 in January to 132/78 in October, and home readings lower still. Not yet at target in clinic.',
     note: 'Two agents. Home readings run lower than clinic.',
     provenance: SRC('Hill Country Clinic records', '2026-01-20') },
   { id: 'sc2', patientId: 'p0', name: 'Type 2 diabetes mellitus', code: 'E11.9',
     status: 'active', managed: true, onset: '2019-11-14',
+    trend: 'improving', trendAssessed: '2026-10-30',
+    trendNote: 'A1c 8.1 to 6.9 in nine months, achieved by removing a drug rather than adding one.',
     note: 'A1c 8.1 at transfer. Falling since. No insulin.',
     provenance: SRC('Hill Country Clinic records', '2026-01-20') },
   { id: 'sc3', patientId: 'p0', name: 'Mixed hyperlipidemia', code: 'E78.2',
     status: 'active', managed: true, onset: '2016-08-03',
+    trend: 'stable', trendAssessed: '2026-10-30',
+    trendNote: 'LDL 78 on atorvastatin 40 mg, below the 100 threshold since June.',
     provenance: SRC('Hill Country Clinic records', '2026-01-20') },
   // History, not managed here. The distinction is what the header is for.
   { id: 'sc4', patientId: 'p0', name: 'Hypothyroidism', code: 'E03.9',
@@ -182,7 +188,70 @@ export const sharonPlan: CarePlan = {
   provenance: MD,
 };
 
+
+/**
+ * Earlier visits, from before and around the transfer of care.
+ *
+ * Here so the longitudinal summary has a history to compress rather
+ * than a single note to restate.
+ */
+const EARLIER: Encounter[] = [
+  { id: 'se0', patientId: 'p0', date: '2025-01-14', start: 9 * 60, kind: 'follow-up',
+    reason: 'Records request and first conversation.',
+    status: 'signed', duration: 30, signedAt: '2025-01-14',
+    note: {
+      subjective: {
+        oneLiner: '', reason: 'Wanted to know what a membership practice would actually do differently.',
+        chartReview: '', diagnostics: '', specialists: '',
+        additional: 'Not yet a member. Came for a free conversation. Three conditions, all managed at Hill Country, all at the same doses for years. Says visits there are ten minutes and she leaves with a printout she does not read.',
+      },
+      objective: { homeMeasures: '', vitals: 'BP 162/94. Weight 218 lb.', exam: '' },
+      assessment: { oneLiner: '', overall: 'Not a clinical encounter. Blood pressure today is well above target and she did not know it.' },
+      plan: { problems: [], overall: 'Gave her the blood pressure reading in writing and told her to take it to Hill Country. Invited her to join when she is ready.' },
+    } },
+  { id: 'se01', patientId: 'p0', date: '2025-06-10', start: 14 * 60, kind: 'follow-up',
+    reason: 'Second conversation.',
+    status: 'signed', duration: 30, signedAt: '2025-06-10',
+    note: {
+      subjective: {
+        oneLiner: '', reason: 'Came back. Mother had a fall in March and she is now the main carer.',
+        chartReview: '', diagnostics: '', specialists: '',
+        additional: 'Hill Country added amlodipine in March. She is taking it. Her mother fell and she is there three evenings a week now. Says she has stopped cooking for herself.',
+      },
+      objective: { homeMeasures: '', vitals: 'BP 154/90. Weight 215 lb.', exam: '' },
+      assessment: { oneLiner: '', overall: 'Circumstances changed more than the medicine did. The carer role is going to shape everything.' },
+      plan: { problems: [], overall: 'No clinical plan. She will think about joining after the summer.' },
+    } },
+  { id: 'se15', patientId: 'p0', date: '2026-04-14', start: 11 * 60, kind: 'follow-up',
+    reason: 'Three month review after transfer.',
+    status: 'signed', duration: 30, signedAt: '2026-04-14',
+    note: {
+      subjective: {
+        oneLiner: '', reason: 'First review since joining.',
+        chartReview: '', diagnostics: '', specialists: '',
+        additional: 'Taking everything as written. Has started reading the numbers herself and asked what the A1c target should be. Walking twice a week. Two episodes of feeling shaky in the evening that she had not mentioned before.',
+      },
+      objective: { homeMeasures: '', vitals: 'BP 146/86. Weight 207 lb.', exam: '' },
+      assessment: { oneLiner: '', overall: 'A1c 7.6, down from 8.1. Moving. The shakiness needs attention before it becomes the reason she stops trying.' },
+      plan: { problems: [], overall: 'Explained hypoglycaemia and what to do. Asked her to note when it happens. Continue current medicines. Repeat A1c in two months.' },
+    } },
+  { id: 'se25', patientId: 'p0', date: '2026-08-26', start: 15 * 60, kind: 'acute',
+    reason: 'Ankle swelling.',
+    status: 'signed', duration: 20, signedAt: '2026-08-26',
+    note: {
+      subjective: {
+        oneLiner: '', reason: 'Both ankles swelling by the evening since about June.',
+        chartReview: '', diagnostics: '', specialists: '',
+        additional: 'Worse on the days she is at her mother\u2019s and on her feet. No breathlessness, no orthopnoea, no chest pain. Shoes still fit in the morning.',
+      },
+      objective: { homeMeasures: '', vitals: 'BP 136/80. Weight 201 lb.', exam: 'Trace pitting oedema to mid-shin, both sides. Chest clear. No raised JVP.' },
+      assessment: { oneLiner: '', overall: 'Dependent oedema, almost certainly amlodipine. No features of heart failure. She would rather keep the blood pressure control than lose the ankles, for now.' },
+      plan: { problems: [], overall: 'Explained the cause. Agreed to review the amlodipine dose at the next visit once the home readings have a longer run. Nothing added.' },
+    } },
+];
+
 export const sharonEncounters: Encounter[] = [
+  ...EARLIER,
   { id: 'se1', patientId: 'p0', date: '2026-01-20', start: 9 * 60, kind: 'initial',
     reason: 'Transfer of care. Full history, medicines, and what she wants to work on.',
     status: 'signed', duration: 90, signedAt: '2026-01-20',
@@ -230,6 +299,34 @@ export const sharonEncounters: Encounter[] = [
     reason: 'Annual physical', status: 'scheduled', duration: 75 },
 ];
 
+/**
+ * What arrived from elsewhere, in the three states files arrive in.
+ *
+ * One read cleanly, one is a scan nobody has typed up, and one came
+ * through as a fax that would not parse. All three go in the packet,
+ * because a receiving clinician needs to know the third one exists
+ * even though we cannot tell them what is in it.
+ */
+export const sharonDocuments: ChartDocument[] = [
+  {
+    id: 'sdoc1', patientId: 'p0', title: 'Endocrinology clinic letter',
+    date: '2026-02-03', from: 'Capital Family Practice', kind: 'consult',
+    status: 'parsed', reviewed: true,
+    text: 'Thank you for referring Mrs White. Thyroid function is stable on levothyroxine 88 mcg and I would not change it. Her diabetes is well within primary care scope and I am happy for you to lead on it. Annual TSH is sufficient. I will not routinely review her.',
+  },
+  {
+    id: 'sdoc2', patientId: 'p0', title: 'Ophthalmology report',
+    date: '2025-10-02', from: 'Travis County Health', kind: 'imaging',
+    status: 'scanned', reviewed: false,
+  },
+  {
+    id: 'sdoc3', patientId: 'p0', title: 'Outside records, transfer bundle',
+    date: '2026-01-20', from: 'Hill Country Clinic', kind: 'other',
+    status: 'failed', reviewed: false,
+    text: 'W\u00c5\u00ddTE, SH\u00c5RON  DOB //// 04/12/66 ////  ME\u00d0S: lisinopril 2O mg\u2026 <<FAX OCR CONFIDENCE 0.28>>',
+  },
+];
+
 export const sharonOrders: Order[] = [
   { id: 'so1', patientId: 'p0', kind: 'imaging', text: 'Screening mammogram, bilateral',
     goalId: 'sg4', status: 'placed', created: '2026-10-30' },
@@ -248,27 +345,34 @@ export const sharonTasks: Task[] = [
     due: '2026-11-20', urgent: false, done: false },
 ];
 
+/**
+ * The summary as it stood after the June visit.
+ *
+ * Deliberately older than the October results and the October visit,
+ * because that is the normal state of a longitudinal document: the
+ * record moves and the summary lags. The chart opens saying so.
+ */
 export const sharonMaster: MasterPlan = {
-  id: 'smp1', patientId: 'p0', updated: '2026-10-30', updatedBy: 'L. DuBose, MD',
+  id: 'smp1', patientId: 'p0', updated: '2026-06-20', updatedBy: 'L. DuBose, MD',
   subjective: {
     history: 'Hypertension and hyperlipidemia since 2016, type 2 diabetes since 2019, all managed elsewhere until she transferred here in January 2026 with an A1c of 8.1. Hypothyroidism held by endocrinology, stable for years. Knee osteoarthritis limits how much walking is realistic.',
     goals: 'She wants to stay off insulin, and she wants to understand her own numbers rather than be told they are fine. Her words in January: "nobody has ever shown me what any of it means."',
     context: 'Caring for her mother three evenings a week since 2024. That is the fixed constraint every plan has had to fit around, and it is why glipizide came off in June after two evening hypoglycaemic episodes. The four evenings she is at home are the ones worth planning with.',
   },
   objective: {
-    narrative: 'Home readings run eight to ten points below clinic, consistently enough to plan on. Feet examined June 2026, sensation intact. No retinopathy at the last dilated examination in October 2025.',
+    narrative: 'Feet examined 18 June 2026, sensation intact. No retinopathy at the last dilated examination in October 2025. She has just started taking her own blood pressure at home; not enough readings yet to say how they compare with clinic.',
   },
   assessment: {
-    narrative: 'All three managed problems are moving in the right direction and none has needed insulin or a fourth agent. The diabetes is the one doing the work: A1c 8.1 to 6.9 in nine months, achieved by removing a drug rather than adding one. Blood pressure is at target on home readings and arguably over-treated in clinic. The real outstanding risk on this chart is not metabolic. It is a mammogram two years overdue.',
+    narrative: 'A1c 7.4 on 16 June, down from 8.1 in January, on metformin alone since glipizide came off. Blood pressure 138/82 in clinic, better than January but not yet at target. LDL 96, below 100 for the first time. The outstanding risk on this chart is not metabolic: the mammogram is eighteen months overdue.',
   },
   plan: {
     byProblem: {
-      sc1: 'Lisinopril 20 mg and amlodipine 5 mg. Home systolic averaging 125. Review whether amlodipine can come down at the next visit, since ankle swelling is her main complaint about it.',
-      sc2: 'Metformin 1000 mg twice daily and empagliflozin 10 mg. No sulfonylurea, deliberately. Repeat A1c in three months. Foot examination done June, eye examination due.',
-      sc3: 'Atorvastatin 40 mg. LDL 78, below the 100 threshold and tracking towards 70. No change.',
+      sc1: 'Lisinopril 20 mg and amlodipine 5 mg. 138/82 in clinic on 18 June. Asked her to start checking at home twice a week so we can see whether the clinic number is the real one.',
+      sc2: 'Metformin 1000 mg twice daily. Glipizide stopped 18 June after two evening hypoglycaemic episodes while caring for her mother. Empagliflozin 10 mg started the same day for glycaemic control and kidney protection. Repeat A1c in four months.',
+      sc3: 'Atorvastatin 40 mg. LDL 96 on 16 June, under 100 for the first time. No change.',
     },
-    prevention: 'Mammogram overdue by two years. Order sent 30 October with the three nearest places that open on a Saturday. Diabetic eye examination due, referral sent. Baseline bone density due before the end of the year. Colonoscopy current to 2034. Influenza vaccine given October.',
+    prevention: 'Mammogram overdue since March. She has agreed twice and not booked it. Diabetic eye examination due October. Colonoscopy current to 2034 after two adenomas removed in 2024. Baseline bone density not yet done.',
     lifestyle: 'Twenty minutes of walking after dinner on the four evenings she is at home, which is the version of this that survives her week. Knees are the limit, not motivation. Evening meals on her mother’s nights are the other half of the problem and we have not solved that yet.',
-    followUp: 'Three months, with bloods done beforehand. Sooner if the mammogram finds anything.',
+    followUp: 'Four months, with A1c, lipids and a metabolic panel done beforehand.',
   },
 };
