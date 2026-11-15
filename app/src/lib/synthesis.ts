@@ -344,10 +344,20 @@ export function applyProposal(
   master: MasterPlan | undefined, p: SummaryProposal,
 ): Partial<MasterPlan> | { problemId: string; text: string } | null {
   const text = p.acceptedText ?? p.text;
-  const S = master?.subjective ?? { history: '', byProblem: {}, goals: '', context: '' };
+  const S = {
+    history: master?.subjective?.history ?? '',
+    byProblem: master?.subjective?.byProblem ?? {},
+    goals: master?.subjective?.goals ?? '',
+    context: master?.subjective?.context ?? '',
+  };
   const A = master?.assessment ?? { narrative: '' };
   const O = master?.objective ?? { narrative: '' };
-  const P = master?.plan ?? { byProblem: {}, prevention: '', lifestyle: '', followUp: '' };
+  const P = {
+    byProblem: master?.plan?.byProblem ?? {},
+    prevention: master?.plan?.prevention ?? '',
+    lifestyle: master?.plan?.lifestyle ?? '',
+    followUp: master?.plan?.followUp ?? '',
+  };
 
   if (p.target.startsWith('plan.byProblem.')) {
     return { problemId: p.target.replace('plan.byProblem.', ''), text };

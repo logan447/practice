@@ -1438,3 +1438,26 @@ blockquote.said footer {
 .ppnone {
   margin: 2px 0 0; font-size: 13px; line-height: 1.55; color: var(--ink-3);
 }
+
+/* ------------------------------------------------------------ the crash
+ *
+ * Deliberately plain, and deliberately not styled like the rest of the
+ * app. If the app's own styles are what broke, this still has to read.
+ */
+.crash {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  padding: 40px 20px; background: var(--bg, #f4f6f6);
+}
+.crashbox {
+  max-width: 560px; background: #fff; border: 1px solid #dde3e2;
+  border-radius: 10px; padding: 28px 30px;
+}
+.crashbox h1 { margin: 0 0 14px; font-size: 22px; }
+.crashbox p { margin: 0 0 14px; font-size: 14.5px; line-height: 1.65; color: #44514f; }
+.crashwhy {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12.5px !important; color: #a52f2a !important;
+  background: #fae9e7; border-radius: 6px; padding: 10px 12px;
+  overflow-wrap: anywhere;
+}
+.crashwhere { display: block; margin-top: 6px; color: #6b7876; }

@@ -194,7 +194,16 @@ export function Subjective({ patientId, master, onSave, onReview }: {
     + panels.length + vitals.length + checkIns.length;
 
   const svc = p?.services ?? { preventative: true, lifestyle: true };
-  const S = master?.subjective ?? { history: '', byProblem: {}, goals: '', context: '' };
+  // Defaulted field by field rather than as a whole object: a summary
+  // saved before a field existed has the object but not the field, and
+  // reading through the gap is what takes the screen down.
+  const sub = master?.subjective;
+  const S = {
+    history: sub?.history ?? '',
+    byProblem: sub?.byProblem ?? {},
+    goals: sub?.goals ?? '',
+    context: sub?.context ?? '',
+  };
   const saveStatement = (v: string) => onSave({ subjective: { ...S, history: v } });
   const saveReview = (key: string, v: string) =>
     onSave({ subjective: { ...S, byProblem: { ...S.byProblem, [key]: v } } });

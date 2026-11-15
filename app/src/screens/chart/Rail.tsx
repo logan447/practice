@@ -104,7 +104,7 @@ export function Rail({ patientId, open, onJump }: {
         ) : (
           <div className="planlist">
             {managed.map((c) => {
-              const text = master?.plan.byProblem[c.id] ?? '';
+              const text = master?.plan?.byProblem?.[c.id] ?? '';
               const firstLine = text.split('\n').find((l) => l.trim()) ?? '';
               return (
                 <button key={c.id} className="planrow" onClick={() => onJump(c.id)}>

@@ -169,7 +169,12 @@ export function Plan({ patientId, master, onSetProblem, prose }: {
   const lifestyle = st.lifestyleFor(patientId);
   const p = st.patient(patientId);
   const svc = p?.services ?? { preventative: true, lifestyle: true };
-  const P = master?.plan ?? { byProblem: {}, prevention: '', lifestyle: '', followUp: '' };
+  const P = {
+    byProblem: master?.plan?.byProblem ?? {},
+    prevention: master?.plan?.prevention ?? '',
+    lifestyle: master?.plan?.lifestyle ?? '',
+    followUp: master?.plan?.followUp ?? '',
+  };
 
   /** Orders that are prevention rather than problem-directed. */
   const preventiveOrders = orders.filter((o) =>

@@ -144,7 +144,7 @@ export function buildPacket(input: PacketInput): {
       <h3>Plan</h3>
       ${managed.map((c) => `
         <h4>${esc(c.name)}${c.code ? ` <span class="dim">${c.code}</span>` : ''}</h4>
-        ${para(master?.plan.byProblem[c.id])}`).join('')}
+        ${para(master?.plan?.byProblem?.[c.id])}`).join('')}
       <h4>Preventative care</h4>${para(master?.plan.prevention)}
       <h4>Lifestyle medicine</h4>${para(master?.plan.lifestyle)}
       <h4>Follow-up</h4>${para(master?.plan.followUp)}

@@ -90,12 +90,60 @@ const EMPTY: State = {
 };
 
 /**
- * Persisted state from before the note was structured. Old notes were
- * four strings; keep the words rather than drop the patient's history.
+ * Saved state from an older version of this prototype.
+ *
+ * The state lives in the browser, so every shape change meets records
+ * written before it. Two rules here, both learned the hard way.
+ *
+ * Fill forward, never assume. A collection or a nested field added
+ * after a record was saved is missing from that record, and reading
+ * through it throws during render, which in React means the whole
+ * tree unmounts and the person gets a blank page with no route back.
+ * So every field this file knows about is defaulted here, at the one
+ * point where saved data enters.
+ *
+ * Keep the words. A migration that drops a paragraph because its
+ * container changed shape has destroyed clinical content to save
+ * itself some work.
  */
 function migrate(raw: State | null): State | null {
   if (!raw) return null;
   const s: State = { ...EMPTY, ...raw };
+
+  // Collections added later. A key that is present but null counts as
+  // missing, which `{...EMPTY, ...raw}` on its own does not catch.
+  const fill = <K extends keyof State>(k: K) => {
+    if (!Array.isArray(s[k])) (s as unknown as Record<string, unknown>)[k as string] = [];
+  };
+  for (const k of [
+    'patients', 'conditions', 'medications', 'allergies', 'documents',
+    'resultSeries', 'resultReports', 'carePlans', 'encounters', 'prevention',
+    'patientEntries', 'aiDrafts', 'tasks', 'specialists', 'preVisits', 'orders',
+    'masterPlans', 'vitals', 'labPanels', 'exams', 'studies', 'emRecords',
+    'careLog', 'consents', 'proposals', 'lifestyle', 'checkIns',
+  ] as (keyof State)[]) fill(k);
+  if (!s.now) s.now = ORIGIN;
+  if (!Array.isArray(s.lastEvents)) s.lastEvents = [];
+
+  // The living summary gained a chart review per problem. A plan saved
+  // before that has no `byProblem` under `subjective`, and the
+  // subjective section reads straight through it.
+  s.masterPlans = s.masterPlans.map((m) => ({
+    ...m,
+    subjective: {
+      ...{ history: '', goals: '', context: '' },
+      ...(m.subjective ?? {}),
+      byProblem: m.subjective?.byProblem ?? {},
+    },
+    objective: { narrative: m.objective?.narrative ?? '' },
+    assessment: { narrative: m.assessment?.narrative ?? '' },
+    plan: {
+      ...{ prevention: '', lifestyle: '', followUp: '' },
+      ...(m.plan ?? {}),
+      byProblem: m.plan?.byProblem ?? {},
+    },
+  }));
+
   s.encounters = (s.encounters ?? []).map((e) => {
     const n = e.note as unknown;
     if (!n || typeof (n as VisitNote).subjective === 'object') return e;
