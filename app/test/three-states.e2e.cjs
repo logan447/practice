@@ -24,18 +24,21 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.goto(U,{waitUntil:'networkidle'}); await p.waitForTimeout(300);
   await p.evaluate(()=>localStorage.clear());
   await p.reload({waitUntil:'networkidle'}); await p.waitForTimeout(400);
-  await p.click('button:has-text("Load 3 examples")'); await p.waitForTimeout(800);
+  await p.click('button:has-text("Load the day")'); await p.waitForTimeout(800);
 
   const open = async (name) => {
-    await p.click('.topbar .mark'); await p.waitForTimeout(250);
+    await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(350);
     await p.fill('input[aria-label="Search patients"]',name); await p.waitForTimeout(350);
     await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(600);
   };
   const sectionText = async (n) =>
     (await p.locator('.soap').nth(n).textContent()).replace(/\s+/g,' ');
 
-  ok('the demo is four charts, not a crowd',
-    (await p.locator('table.rows tbody tr').count())===4);
+  ok('the day opens on the day, not on a directory',
+    (await p.locator('.daylist .dayrow').count())===5);
+  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
+  ok('the demo is five charts, not a crowd',
+    (await p.locator('table.rows tbody tr').count())===5);
 
   // -------------------------------------------------- 1. filled out
   await open('Sharon');
@@ -43,8 +46,10 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok(`the overall summary is derived: "${sOverall.slice(0,40)}..."`, sOverall.length>60);
   ok('every managed problem is summarised',
     (await p.locator('.sprob .psum').count())>=3);
-  ok('every problem leads on what the patient reports',
-    (await p.locator('.sprob .psum').count())>=6);
+  ok('each problem is one paragraph, not a split into testimony and findings',
+    (await p.locator('.sprob .psum').count())===(await p.locator('.sprob').count()));
+  ok('and the chart review is not announced in the middle of it',
+    !(await p.locator('.soapbody').first().textContent()).includes('Chart review:'));
   ok('and their account of their health overall opens it',
     sOverall.startsWith('Patient reports'));
   ok('the objective has vitals, an examination and labs',

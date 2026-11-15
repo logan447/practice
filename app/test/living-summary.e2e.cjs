@@ -18,7 +18,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.goto(U,{waitUntil:'networkidle'});
   await p.evaluate(()=>localStorage.clear());
   await p.reload({waitUntil:'networkidle'}); await p.waitForTimeout(400);
-  await p.click('button:has-text("Load 3 examples")'); await p.waitForTimeout(800);
+  await p.click('button:has-text("Load the day")'); await p.waitForTimeout(800);
+  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
   await p.click('text=Sharon White'); await p.waitForTimeout(700);
 
   // -------------------------------------------------- 1. the header
@@ -68,9 +69,11 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('what the patient reports leads the problem, composed not quoted',
     htnText[0].startsWith('Patient reports'));
   ok('and names what they are struggling with', htnText[0].includes('struggle with'));
-  ok('the chart review follows and is labelled rather than set differently',
-    htnText[1].startsWith('Chart review:')
-    && (await htn.locator('.psum .said, .psum .doc').count())===0);
+  ok('the problem is one paragraph, not two',
+    htnText.length===1
+    && (await htn.locator('.psum .said, .psum .doc, .psum .runin').count())===0);
+  ok('and what the record shows is in it rather than announced separately',
+    !htnText[0].includes('Chart review:') && htnText[0].length>120);
   ok('and the current measure rides along with it',
     /132\/78 on 30 Oct 2026, home average/.test(htnText.join(' ')));
 
@@ -112,11 +115,13 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // ------------------------- 4. the assessment, in one vocabulary
   const ass = p.locator('.soap').nth(2);
-  ok('it opens with the clinical one-liner',
-    (await ass.locator('.oneliner').textContent())
-      .startsWith('Sharon White is a 60-year-old female with a past medical history of'));
+  const line = await ass.locator('.oneliner').textContent();
+  ok(`it opens with the clinical one-liner: "${line.slice(0,40)}..."`,
+    /^60F with PMH of /.test(line));
+  ok('in shorthand rather than long form', line.includes('HTN') && line.includes('T2DM'));
   ok('and names what we are following them for',
-    (await ass.locator('.oneliner').textContent()).includes('following with our office for'));
+    line.includes('following with our office for management of')
+    && line.includes('preventative services') && line.includes('lifestyle medicine'));
   const cats = await ass.locator('.cathead h4').allTextContents();
   ok(`three categories, in order: ${cats.join(', ')}`,
     cats.join(',')==='Chronic conditions,Preventative services,Lifestyle medicine');

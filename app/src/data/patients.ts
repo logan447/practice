@@ -281,10 +281,10 @@ export const carePlans: CarePlan[] = [
 ];
 
 export const encounters: Encounter[] = [
-  { id: 'e1', patientId: 'p1', date: '2026-11-14', kind: 'follow-up',
+  { id: 'e1', patientId: 'p1', date: '2026-11-14', kind: 'visit', legacyKind: 'follow-up',
     reason: 'Six-month review. Labs back. Wants to discuss stopping lisinopril.',
     status: 'scheduled', duration: 45 },
-  { id: 'e2', patientId: 'p1', date: '2026-09-02', kind: 'follow-up', reason: 'Interim review',
+  { id: 'e2', patientId: 'p1', date: '2026-09-02', kind: 'visit', legacyKind: 'follow-up', reason: 'Interim review',
     status: 'signed', duration: 40, signedAt: '2026-09-02',
     note: {
       subjective: {
@@ -318,7 +318,7 @@ export const encounters: Encounter[] = [
         overall: 'Home BP twice weekly for four weeks, bring the log. Repeat A1c and lipids in November. Hold lisinopril unchanged until then. Agreed to revisit the taper at that visit.',
       },
     } },
-  { id: 'e3', patientId: 'p1', date: '2026-05-04', kind: 'annual', reason: 'Annual review',
+  { id: 'e3', patientId: 'p1', date: '2026-05-04', kind: 'visit', legacyKind: 'annual', reason: 'Annual review',
     status: 'signed', duration: 75, signedAt: '2026-05-04',
     note: {
       subjective: {
@@ -342,11 +342,11 @@ export const encounters: Encounter[] = [
         overall: 'Stop metformin by agreement and retest in 6 weeks. Continue everything else.',
       },
     } },
-  { id: 'e4', patientId: 'p3', date: '2026-11-18', kind: 'follow-up',
+  { id: 'e4', patientId: 'p3', date: '2026-11-18', kind: 'visit', legacyKind: 'follow-up',
     reason: 'Potassium 5.3 and eGFR down. Needs review this week.', status: 'scheduled', duration: 30 },
-  { id: 'e5', patientId: 'p2', date: '2026-11-14', kind: 'follow-up',
+  { id: 'e5', patientId: 'p2', date: '2026-11-14', kind: 'visit', legacyKind: 'follow-up',
     reason: 'Three-month check. Sleep anchor not holding.', status: 'scheduled', duration: 30 },
-  { id: 'e6', patientId: 'p4', date: '2026-11-14', kind: 'initial',
+  { id: 'e6', patientId: 'p4', date: '2026-11-14', kind: 'visit', legacyKind: 'initial',
     reason: 'First full visit. Records from previous practice received.', status: 'scheduled', duration: 90 },
 ];
 

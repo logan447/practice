@@ -1,13 +1,14 @@
 /**
- * The cycle, start to finish.
+ * The cycle, start to finish, from the day.
  *
- * Approved chart, new information arrives, encounter, review, ask,
- * sign, patient answers, next encounter reads the answer. The whole
- * claim of the design is that each of those steps is visible and that
- * nothing skips a physician, so this walks all of them.
+ * Approved care plan, new information arrives, encounter, reconcile,
+ * ask, approve, patient answers, next encounter reads the answer. The
+ * whole claim of the design is that each of those steps is visible
+ * and that nothing skips a physician, so this walks all of them, and
+ * it starts where the physician starts: the schedule.
  *
  * The assertion that matters most is the negative one: the approved
- * chart does not move when records arrive. Everything else in the
+ * care plan does not move when records arrive. Everything else in the
  * workflow exists to make that safe rather than merely true.
  */
 const {chromium}=require('playwright');
@@ -23,7 +24,20 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.goto(U,{waitUntil:'networkidle'}); await p.waitForTimeout(300);
   await p.evaluate(()=>localStorage.clear());
   await p.reload({waitUntil:'networkidle'}); await p.waitForTimeout(400);
-  await p.click('button:has-text("Load 3 examples")'); await p.waitForTimeout(700);
+  await p.click('button:has-text("Load the day")'); await p.waitForTimeout(700);
+
+  // ------------------------------------------- 0. the day is the way in
+  ok('the morning opens on the day, not a patient list',
+    (await p.locator('.daylist .dayrow').count())===5);
+  const kinds = (await p.locator('.dayrow .dkind').allTextContents()).join(' ');
+  ok('and it holds two kinds of activity and no others',
+    /Visit/.test(kinds) && /Care plan review/.test(kinds)
+    && !/CCM|BHI|Annual|Acute|Paperwork/.test(kinds));
+  ok('each row says whether anything is waiting to be reconciled',
+    (await p.locator('.dayrow:has-text("Sharon") .chip').allTextContents())
+      .some((t)=>/to reconcile|Nothing new/.test(t)));
+
+  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
   await p.fill('input[aria-label="Search patients"]','Sharon'); await p.waitForTimeout(350);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(800);
 
@@ -31,16 +45,19 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   const line = await p.locator('.derivedfrom').textContent();
   ok(`the chart is a version, not a feed: ${line.replace(/\s+/g,' ').slice(0,46)}`,
     /Version 1, approved/.test(line));
-  ok('and says what has arrived that it has not incorporated',
-    /3 records since, not yet incorporated/.test(line));
+  ok(`and says what has arrived that it has not incorporated: "${
+    (line.match(/\d+ records? since[^.]*/)||[''])[0]}"`,
+    /\d+ records? since, not yet incorporated/.test(line));
   const before = await p.locator('.soap').first().textContent();
   ok('the approved chart does not contain the unincorporated records',
     !before.includes('podiatrist') && !before.includes('urgent care place'));
 
   // --------------------------------------------- 3. open a review
-  await p.click('button:has-text("CCM review")'); await p.waitForTimeout(800);
+  await p.click('button:has-text("Care plan review")'); await p.waitForTimeout(800);
   ok('the review opens on the approved version',
     (await p.locator('.page-head').textContent()).includes('opened on version 1'));
+  ok('and it is the same document, not a note about it',
+    (await p.locator('.panel:has-text("Living care plan, working copy")').count())===1);
   const tray = await p.locator('.panel:has-text("New since version")').textContent();
   ok('with everything new beside it', tray.includes('Health update'));
   ok('including what they said happened since the last visit',
@@ -59,14 +76,23 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.waitForTimeout(300);
   ok('a new request can be written during the encounter',
     (await p.locator('.askrow').count())===openAsks+1);
-  ok('and the review records its own time',
-    (await p.locator('.panel:has-text("Time on this review")').count())===1);
+  ok('and the encounter records its own time, measured not typed',
+    (await p.locator('.panel:has-text("This encounter")').count())===1
+    && (await p.locator('.panel:has-text("This encounter")').textContent())
+      .includes('Running since this opened'));
+  ok('a scheduled hour is not treated as billable by itself',
+    (await p.locator('.panel:has-text("This encounter")').textContent())
+      .includes('not by itself billable time'));
 
   // --------------------------------------------------- 6. sign it
-  ok('signing is one action, and it says what it will publish',
-    (await p.locator('.reviewgrid button:has-text("Sign")').textContent())
+  ok('approving is one action, and it says what it will publish',
+    (await p.locator('.reviewgrid button:has-text("Approve")').textContent())
       .includes('publish version 2'));
-  await p.click('.reviewgrid button:has-text("Sign")'); await p.waitForTimeout(800);
+  await p.click('.reviewgrid button:has-text("Approve")'); await p.waitForTimeout(900);
+  ok('and it returns to the day', await p.locator('.daylist').isVisible());
+  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
+  await p.fill('input[aria-label="Search patients"]','Sharon'); await p.waitForTimeout(350);
+  await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(800);
   const after = await p.locator('.derivedfrom').textContent();
   ok('the chart advances to the next version', /Version 2, approved today/.test(after));
   ok('and nothing is left unincorporated', /Nothing new since/.test(after));
@@ -98,7 +124,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   const back = await p.locator('.derivedfrom').textContent();
   ok('the answer does not change the approved chart',
     /Version 2, approved today/.test(back) && /1 record since/.test(back));
-  await p.click('button:has-text("CCM review")'); await p.waitForTimeout(800);
+  await p.click('button:has-text("Care plan review")'); await p.waitForTimeout(800);
   const tray2 = await p.locator('.panel:has-text("New since version")').textContent();
   ok('it waits in the next encounter instead', tray2.includes('124 to 128'));
   ok('and what it answered is shown as answered',

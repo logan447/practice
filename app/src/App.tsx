@@ -4,13 +4,14 @@ import { NavProvider, useNav } from './lib/nav';
 import { Patients } from './screens/Patients';
 import { Chart } from './screens/Chart';
 import { Encounter } from './screens/Encounter';
-import { Review } from './screens/Review';
 import { FirstRun } from './screens/FirstRun';
 import { NewPatient } from './screens/NewPatient';
 import { Portal } from './portal/Portal';
 import { Metrics } from './screens/Metrics';
 import { Audit } from './screens/Audit';
 import { Schedule } from './screens/Schedule';
+import { Today } from './screens/Today';
+import { Inbox } from './screens/Inbox';
 import { ActorControl } from './components/SignIn';
 import { useActor } from './lib/session';
 import { can } from './lib/permissions';
@@ -33,7 +34,7 @@ function TopBar() {
   return (
     <header className="topbar">
       <button className="mark" onClick={() => nav.reset(clinician
-        ? { name: 'patients' }
+        ? { name: 'today' }
         : { name: 'portal', patientId: me.patientId ?? '' })}>
         Direct Lifestyle Medicine
         <small>{clinician ? 'Clinical record' : 'Your health record'}</small>
@@ -42,7 +43,10 @@ function TopBar() {
       <span className="spacer" />
       {st.hasData && clinician && (
         <>
-          <button className="btn quiet sm" onClick={() => nav.go({ name: 'schedule' })}>Schedule</button>
+          <button className="btn quiet sm" onClick={() => nav.go({ name: 'today' })}>Today</button>
+          <InboxButton />
+          <button className="btn quiet sm" onClick={() => nav.go({ name: 'patients' })}>Patients</button>
+          <button className="btn quiet sm" onClick={() => nav.go({ name: 'schedule' })}>Capacity</button>
           <button className="btn quiet sm" onClick={() => nav.go({ name: 'audit' })}>Log</button>
           <button className="btn quiet sm" onClick={() => nav.go({ name: 'metrics' })}>Usage</button>
           <button className="btn quiet sm" title="Command palette"
@@ -60,6 +64,22 @@ function TopBar() {
       <ActorControl />
       <ResetControl />
     </header>
+  );
+}
+
+/** The inbox, with how much is waiting in it. */
+function InboxButton() {
+  const nav = useNav();
+  const st = useStore();
+  const waiting = st.inbox().filter((x) => !x.triage);
+  const urgent = waiting.filter((x) => x.urgent).length;
+  return (
+    <button className="btn quiet sm" onClick={() => nav.go({ name: 'inbox' })}>
+      Inbox
+      {waiting.length > 0 && (
+        <span className={`inboxcount${urgent > 0 ? ' urgent' : ''}`}>{waiting.length}</span>
+      )}
+    </button>
   );
 }
 
@@ -109,6 +129,8 @@ function Screen() {
   }
 
   switch (route.name) {
+    case 'today': return <Today />;
+    case 'inbox': return <Inbox />;
     case 'patients': return <Patients />;
     case 'new-patient': return <NewPatient />;
     case 'metrics': return <Metrics />;
@@ -116,7 +138,6 @@ function Screen() {
     case 'schedule': return <Schedule />;
     case 'chart': return <Chart patientId={route.patientId} />;
     case 'encounter': return <Encounter encounterId={route.encounterId} />;
-    case 'review': return <Review encounterId={route.encounterId} />;
     case 'portal': return <Portal patientId={route.patientId} initialTab={route.tab} />;
   }
 }

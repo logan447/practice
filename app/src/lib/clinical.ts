@@ -18,6 +18,62 @@ import { age, fmtDate } from './format';
 
 const SEX_WORD: Record<string, string> = { female: 'female', male: 'male' };
 
+/**
+ * Standard clinical shorthand, where there is a standard one.
+ *
+ * A one-liner is read in about a second and abbreviations are what
+ * make that possible: "60F with PMH of HTN, T2DM and HLD" carries the
+ * same information as the long form and costs a quarter of the eye
+ * movement. These are the ordinary ones a physician writes by hand.
+ *
+ * The fallback matters more than the list. Anything not here keeps
+ * its full name rather than being shortened by guesswork, because an
+ * invented abbreviation in a clinical summary is worse than a long
+ * one: the reader cannot tell it was invented.
+ */
+const ABBREV: [RegExp, string][] = [
+  [/essential hypertension|^hypertension/i, 'HTN'],
+  [/type 2 diabetes/i, 'T2DM'],
+  [/type 1 diabetes/i, 'T1DM'],
+  [/prediabetes/i, 'prediabetes'],
+  [/hyperlipid|dyslipid|hypercholesterol/i, 'HLD'],
+  [/chronic kidney disease.*(stage\s*\d\w*)/i, 'CKD $1'],
+  [/chronic kidney disease/i, 'CKD'],
+  [/coronary artery disease/i, 'CAD'],
+  [/heart failure.*preserved/i, 'HFpEF'],
+  [/heart failure.*reduced/i, 'HFrEF'],
+  [/atrial fibrillation/i, 'AF'],
+  [/obstructive sleep apn/i, 'OSA'],
+  [/chronic obstructive pulmonary/i, 'COPD'],
+  [/^asthma/i, 'asthma'],
+  [/osteoarthritis/i, 'OA'],
+  [/rheumatoid arthritis/i, 'RA'],
+  [/gastroesophageal reflux|gastro-oesophageal reflux/i, 'GERD'],
+  [/major depress|depressive disorder/i, 'depression'],
+  [/generali[sz]ed anxiety/i, 'GAD'],
+  [/hypothyroid/i, 'hypothyroidism'],
+  [/metabolic syndrome/i, 'metabolic syndrome'],
+  [/iron deficiency/i, 'iron deficiency'],
+  [/obesity/i, 'obesity'],
+];
+
+/**
+ * The shorthand for a diagnosis, or the diagnosis unchanged.
+ *
+ * Returns the abbreviation outright rather than substituting inside
+ * the name. Substituting leaves the tail behind, which is how
+ * "Mixed hyperlipidemia" became "Mixed HLDemia": a string that looks
+ * like a real abbreviation and is not one.
+ */
+export function abbrev(name: string): string {
+  for (const [re, short] of ABBREV) {
+    const m = name.match(re);
+    if (m) return short.replace('$1', (m[1] ?? '').trim());
+  }
+  return name.replace(/,.*$/, '').trim();
+}
+
+
 /** Join with commas and a final "and". */
 function list(items: string[]): string {
   if (items.length === 0) return '';

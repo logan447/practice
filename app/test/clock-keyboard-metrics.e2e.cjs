@@ -8,7 +8,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   const errs=[]; p.on('pageerror',e=>errs.push(String(e)));
   p.on('console',m=>{if(m.type()==='error')errs.push(m.text());});
   await p.goto(U,{waitUntil:'networkidle'}); await p.waitForTimeout(300);
-  await p.click('button:has-text("Load 3 examples")'); await p.waitForTimeout(500);
+  await p.click('button:has-text("Load the day")'); await p.waitForTimeout(500);
 
   ok('clock shows the clinic date', await p.locator('.clockbar .date').isVisible());
   const d0 = await p.locator('.clockbar .date').textContent();
@@ -29,9 +29,14 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('button:has-text("Add order")'); await p.waitForTimeout(400);
   ok('lab order placed', (await p.locator('text=A1c and lipid panel').count())>0);
 
-  // sign with the keyboard
-  await p.keyboard.press('Meta+Enter'); await p.waitForTimeout(600);
-  ok('cmd-Enter signs the note', (await p.locator('text=Signed').count())>0);
+  // approve with the keyboard. Approving leaves the encounter, so
+  // landing back on the day is the evidence that it took.
+  await p.keyboard.press('Meta+Enter'); await p.waitForTimeout(900);
+  ok('cmd-Enter approves the encounter and returns to the day',
+    await p.locator('.daylist').isVisible());
+  // Whether it published is checked on the chart below, where the
+  // version line is. Landing back on the day is only evidence that
+  // the key did something.
   await p.screenshot({path:'v5-signed.png', fullPage:true});
 
   // advance time: the lab should come back
@@ -41,8 +46,15 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('what changed is reported', await p.locator('.clockflash').isVisible());
   await p.screenshot({path:'v5-advanced.png'});
 
-  await p.click('button:has-text("Chart")'); await p.waitForTimeout(500);
+  // Back into the chart by way of the patient list. The day is the
+  // way in now, so a chart is somewhere you go rather than somewhere
+  // an encounter leaves you.
+  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
+  await p.fill('input[aria-label="Search patients"]','Marcus'); await p.waitForTimeout(350);
+  await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(600);
   if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
+  ok('the approval published a version of the care plan',
+    /Version \d+, approved/.test(await p.locator('.derivedfrom').textContent()));
   await p.click('.railhead:has-text("Labs and vitals")'); await p.waitForTimeout(500);
   ok('ordered lab came back unreviewed', await p.locator('text=Not yet reviewed').first().isVisible());
   await p.screenshot({path:'v5-results.png', fullPage:true});

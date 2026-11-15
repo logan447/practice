@@ -77,11 +77,11 @@ export function Schedule() {
     <div className="wrap wide">
       <div className="page-head row" style={{ alignItems: 'flex-end' }}>
         <div style={{ flex: 1 }}>
-          <h1>Schedule</h1>
+          <h1>Capacity</h1>
           <div className="sub">
             {y.hoursPerWeek} hours a week for {y.weeksWorked} weeks, Monday to Friday,
             with about three months a year away. Every number on this page comes from a
-            logged decision or is marked as an assumption.
+            logged decision or is marked as an assumption. The day itself is on Today.
           </div>
         </div>
         <button className="btn ghost" onClick={() => nav.back()}>Back</button>
@@ -99,7 +99,7 @@ export function Schedule() {
         )}
         <span className="spacer" />
         <span className="small muted">
-          {days.reduce((a, d) => a + d.booked.length, 0)} visits this week,{' '}
+          {days.reduce((a, d) => a + d.booked.length, 0)} booked this week,{' '}
           {Math.round(days.reduce((a, d) => a + d.totalMinutes, 0) / 6) / 10} hours with admin
         </span>
       </div>

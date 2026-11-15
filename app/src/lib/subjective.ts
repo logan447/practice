@@ -151,6 +151,10 @@ const oneSentence = (text: string, max = 120): string => {
     .replace(/[.;,\s]+$/, '');
 };
 
+/** First letter up. Used where a clause became a sentence. */
+const sentence = (text: string): string =>
+  (text.length === 0 ? text : text[0].toUpperCase() + text.slice(1));
+
 const trimTo = (text: string, max = 260): string => {
   const clean = text.replace(/\s+/g, ' ').trim();
   if (clean.length <= max) return clean;
@@ -243,13 +247,49 @@ export function livingSubjective(input: SubjectiveInput): LivingSubjective {
         });
       }
     } else {
+      /**
+       * Nothing reported, which is not the same as nothing known.
+       *
+       * A patient who has been seen three times and simply has not
+       * filled in a questionnaire since has an account of themselves:
+       * it is in the last visit's note, in their words, written down
+       * by the person who heard them say it. Claiming "no intake on
+       * file" over the top of that was the chart calling its own
+       * records nothing, and it was the first line a physician read.
+       *
+       * So the genuinely empty case is now narrow: never seen, and
+       * nothing said.
+       */
+      const lastSeen = desc(input.encounters.filter(
+        (e) => e.status === 'signed'
+          && ((e.note?.subjective.additional ?? '').trim().length > 0
+            || (e.note?.subjective.reason ?? '').trim().length > 0),
+      ))[0];
       const booked = input.encounters.find((e) => e.status !== 'signed');
-      overall.push({
-        voice: 'patient',
-        text: booked
-          ? `No intake on file yet. First visit booked for ${fmtDate(booked.date)}.`
-          : 'No intake on file yet, and nothing booked.',
-      });
+
+      if (lastSeen) {
+        const words = (lastSeen.note?.subjective.additional
+          ?? lastSeen.note?.subjective.reason ?? '').trim();
+        overall.push({
+          voice: 'patient',
+          text: `At the visit on ${fmtDate(lastSeen.date)}: ${lower(trimTo(words, 240))}`,
+        });
+        overall.push({
+          voice: 'patient',
+          text: 'Nothing reported since.',
+        });
+        overallSources.push(ref({
+          id: lastSeen.id, kind: 'visit', date: lastSeen.date,
+          label: `Visit note, ${fmtDate(lastSeen.date)}`,
+        }));
+      } else {
+        overall.push({
+          voice: 'patient',
+          text: booked
+            ? `No intake on file yet. First visit booked for ${fmtDate(booked.date)}.`
+            : 'No intake on file yet, and nothing booked.',
+        });
+      }
     }
   }
 
@@ -390,8 +430,13 @@ function problemSummary(
         .map((m) => ({ ...m, date: m.stopped ?? m.started })),
     )[0];
     if (stopped) {
-      bits.push(`${lower(stopped.name)} stopped in ${monthYear(stopped.date)} after ${
-        lower(oneSentence(stripStopped(stopped.changeNote ?? ''), 110))}`);
+      const why = lower(oneSentence(stripStopped(stopped.changeNote ?? ''), 110));
+      // The note often already starts with its own preposition ("by
+      // agreement", "because the numbers held"). Adding "after" in
+      // front of one produced "stopped in June after by agreement".
+      const joined = /^(by|after|because|when|once|following|due to|on|since)\b/i.test(why)
+        ? why : `after ${why}`;
+      bits.push(`${lower(stopped.name)} stopped in ${monthYear(stopped.date)} ${joined}`);
     }
 
     // The direction of the measure, in words rather than a reading.
@@ -419,15 +464,15 @@ function problemSummary(
       }
     }
 
+    // Sentences, not continuations. These used to run on after a
+    // "Chart review:" label; the label is gone and the clause now has
+    // to stand on its own in the paragraph.
     if (bits.length > 0) {
-      clauses.push({
-        voice: 'documented',
-        text: `${list(bits)}.`,
-      });
+      clauses.push({ voice: 'documented', text: `${sentence(list(bits))}.` });
     } else {
       clauses.push({
         voice: 'documented',
-        text: 'nothing in the notes on file speaks to this problem directly. It has been carried rather than worked on.',
+        text: 'Nothing in the notes on file speaks to this problem directly. It has been carried rather than worked on.',
       });
     }
 
@@ -439,7 +484,7 @@ function problemSummary(
       if (last && last.voice === 'documented') {
         last.text = `${last.text.replace(/\.$/, '')} (${current.short}).`;
       } else {
-        clauses.push({ voice: 'documented', text: current.text });
+        clauses.push({ voice: 'documented', text: sentence(current.text) });
       }
       sources.push(...current.sources.map(ref));
     }
@@ -634,9 +679,9 @@ function preventionSummary(
   clauses.push({
     voice: 'documented',
     text: behind.length === 0
-      ? 'everything on the schedule is current.'
-      : `${list(behind.map((x) => `${lower(x.name)} ${x.status}${
-        x.lastDone ? `, last done ${monthYear(x.lastDone)}` : ', never done here'}`))}.`,
+      ? 'Everything on the schedule is current.'
+      : `${sentence(list(behind.map((x) => `${lower(x.name)} ${x.status}${
+        x.lastDone ? `, last done ${monthYear(x.lastDone)}` : ', never done here'}`)))}.`,
   });
 
   return {
@@ -689,8 +734,8 @@ function lifestyleSummary(
     voice: 'documented',
     text: stuck.length === 0
       ? `${input.lifestyle.length} prescription${input.lifestyle.length === 1 ? '' : 's'}, all running.`
-      : `${list(stuck.map((x) => `${lower(DOMAIN_LABEL[x.domain] ?? x.domain)} ${
-        x.status === 'not-started' ? 'never started' : 'not going as prescribed'}`))}.`,
+      : `${sentence(list(stuck.map((x) => `${lower(DOMAIN_LABEL[x.domain] ?? x.domain)} ${
+        x.status === 'not-started' ? 'never started' : 'not going as prescribed'}`)))}.`,
   });
 
   return {

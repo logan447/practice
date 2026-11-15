@@ -23,14 +23,40 @@ import type {
   VitalsSet, LabPanel, ExamRecord, DiagnosticStudy, EmRecord, CareLogEntry, ProblemCheckIn,
   PatientUpdate, Message, UpdateRequest, CareGoalStatus, ChartVersion, InfoRequest,
   EncounterKind, CareProgram, InstrumentScore, InstrumentId, Claim, MonthlyService,
-  ServiceConsent, LifestyleIntervention,
+  ServiceConsent, LifestyleIntervention, Triage, TriageChoice, LegacyEncounterKind,
+  VisitSetting,
 } from '../domain/types';
+import { LEGACY_KIND } from '../domain/types';
+import { inbox as buildInbox, type InboxItem } from './inbox';
+import { dayStatus, WORKING_YEAR } from '../domain/schedule';
+
+/**
+ * The first slot on a day that nothing already occupies.
+ *
+ * Crude on purpose: a solo practice's diary is a column, and anything
+ * cleverer here would be a scheduling engine nobody asked for. It
+ * only has to be right enough that two things do not land on top of
+ * each other when a review is brought forward.
+ */
+function nextFreeStart(encounters: Encounter[], day: string): number {
+  const taken = encounters
+    .filter((e) => e.date === day && e.start != null)
+    .map((e) => [e.start!, e.start! + (e.duration ?? 30)] as const)
+    .sort((a, b) => a[0] - b[0]);
+  let at = WORKING_YEAR.dayStart;
+  for (const [from, to] of taken) {
+    if (at + 30 <= from) return at;
+    at = Math.max(at, to);
+  }
+  return Math.min(at, WORKING_YEAR.dayEnd - 30);
+}
 import { fmtDate } from './format';
 import { generatePanel } from '../data/generate';
 import { longitudinal } from '../data/longitudinal';
 import * as sharon from '../data/sharon';
 import * as clinical from '../data/sharon-clinical';
 import * as medicare from '../data/medicare';
+import * as day from '../data/day';
 import * as demo from '../data/demo-states';
 import * as contact from '../data/sharon-contact';
 import * as versions from '../data/sharon-versions';
@@ -96,6 +122,12 @@ interface State {
   claims: Claim[];
   /** Drafted by the assistant, not yet anybody's words. */
   lifestyle: LifestyleIntervention[];
+  /**
+   * What was decided about each record that arrived between
+   * encounters. Never a change to the care plan: a triage row records
+   * that somebody read something and what they chose to do about it.
+   */
+  triage: Triage[];
   /** The clinic's today. Movable, because care is longitudinal. */
   now: string;
   /** What changed the last time the clock moved. */
@@ -111,6 +143,7 @@ const EMPTY: State = {
   emRecords: [], careLog: [], consents: [], lifestyle: [],
   checkIns: [], updates: [], messages: [], requests: [],
   scores: [], chartVersions: [], infoRequests: [], attestations: [], claims: [],
+  triage: [],
   now: ORIGIN, lastEvents: [],
 };
 
@@ -147,7 +180,7 @@ function migrate(raw: State | null): State | null {
     'masterPlans', 'vitals', 'labPanels', 'exams', 'studies', 'emRecords',
     'careLog', 'consents', 'lifestyle', 'checkIns',
     'updates', 'messages', 'requests', 'scores', 'chartVersions', 'infoRequests',
-    'attestations', 'claims',
+    'attestations', 'claims', 'triage',
   ] as (keyof State)[]) fill(k);
   if (!s.now) s.now = ORIGIN;
   if (!Array.isArray(s.lastEvents)) s.lastEvents = [];
@@ -166,13 +199,28 @@ function migrate(raw: State | null): State | null {
     },
   }));
 
+  // Nine kinds became two. A stored encounter keeps what it was
+  // called, because the old word is often the only record of what
+  // sort of hour it was, and loses it as a scheduling category.
   s.encounters = (s.encounters ?? []).map((e) => {
+    const k = e.kind as string;
+    if (k !== 'visit' && k !== 'review') {
+      const legacy = (k === 'intake' ? 'initial' : k) as LegacyEncounterKind;
+      return {
+        ...e,
+        kind: LEGACY_KIND[legacy] ?? 'visit',
+        legacyKind: legacy,
+        setting: e.setting ?? (legacy === 'home' ? 'home' : 'in-person'),
+      };
+    }
+    return e;
+  }).map((e) => {
     const n = e.note as unknown;
     if (!n || typeof (n as VisitNote).subjective === 'object') return e;
     const old = n as { subjective: string; objective: string; assessment: string; plan: string };
     return {
       ...e,
-      kind: (e.kind as string) === 'intake' ? 'initial' : e.kind,
+      kind: e.kind,
       note: {
         subjective: {
           oneLiner: '', reason: '', chartReview: '', diagnostics: '', specialists: '',
@@ -196,7 +244,7 @@ function migrate(raw: State | null): State | null {
  * designed against only the first hides every empty state; against
  * only the last it never has to hold four years of numbers.
  */
-const DEMO_IDS = ['p0', 'p1', 'p3', 'p9'];
+const DEMO_IDS = ['p0', 'p1', 'p2', 'p3', 'p9'];
 
 function demoState(): State {
   const keep = <T extends { patientId: string }>(xs: T[]) =>
@@ -214,7 +262,10 @@ function demoState(): State {
     resultSeries: [...sharon.sharonSeries, ...keep(fixtures.resultSeries)],
     resultReports: [...sharon.sharonReports, ...keep(fixtures.resultReports)],
     carePlans: [sharon.sharonPlan, ...keep(fixtures.carePlans)],
-    encounters: [...sharon.sharonEncounters, ...keep(fixtures.encounters), ...demo.ninaEncounters],
+    encounters: [
+      ...sharon.sharonEncounters, ...keep(fixtures.encounters), ...demo.ninaEncounters,
+      ...day.todaySchedule,
+    ],
     prevention: [...sharon.sharonPrevention, ...keep(fixtures.prevention)],
     patientEntries: keep(fixtures.patientEntries),
     aiDrafts: keep(fixtures.aiDrafts),
@@ -223,7 +274,7 @@ function demoState(): State {
     preVisits: keep(fixtures.preVisits),
     orders: [...sharon.sharonOrders, ...keep(fixtures.orders)],
     masterPlans: [sharon.sharonMaster, demo.marcusMaster],
-    vitals: [...clinical.sharonVitals, ...demo.marcusVitals],
+    vitals: [...clinical.sharonVitals, ...demo.marcusVitals, ...day.weekendVitals],
     labPanels: [...clinical.sharonPanels, ...demo.marcusPanels],
     exams: [...clinical.sharonExams, ...demo.marcusExams],
     studies: [...clinical.sharonStudies, ...demo.marcusStudies],
@@ -232,11 +283,11 @@ function demoState(): State {
     consents: [...clinical.sharonConsents, ...medicare.arthurConsents],
     checkIns: [...contact.sharonCheckIns, ...demo.marcusCheckIns],
     scores: [...clinical.sharonScores, ...medicare.arthurScores],
-    attestations: [], claims: [],
+    attestations: [], claims: [], triage: [],
     chartVersions: [...versions.sharonVersions],
     infoRequests: [...versions.sharonAsks],
     updates: contact.sharonUpdates,
-    messages: contact.sharonMessages,
+    messages: [...contact.sharonMessages, ...day.weekendMessages],
     requests: contact.sharonRequests,
     lifestyle: [...clinical.sharonLifestyle, ...demo.marcusLifestyle],
     now: ORIGIN,
@@ -370,7 +421,38 @@ interface Store extends State {
     planUpdated?: boolean;
     problems?: string[];
     noChange?: boolean;
+    /** The signed note. Kept as it was signed, beside the new version. */
+    note?: VisitNote;
+    setting?: VisitSetting;
+    wellness?: boolean;
   }) => void;
+
+  // --------------------------------------------------- the day, and the inbox
+  /** Everything booked on one day, in time order, visits and reviews alike. */
+  dayList: (iso?: string) => Encounter[];
+  /** Everything waiting to be read, across the whole panel. */
+  inbox: () => InboxItem[];
+  /** What was decided about one arriving record, where anything was. */
+  triageOf: (recordId: string) => Triage | undefined;
+  /**
+   * Record a decision about an arriving record. Never changes the
+   * care plan: that only moves when an encounter is approved.
+   */
+  triageRecord: (
+    patientId: string, recordId: string, choice: TriageChoice,
+    opts?: { reply?: string; encounterId?: string },
+  ) => void;
+  /**
+   * Bring a review forward, or make one, for today.
+   *
+   * Returns the encounter to open. If something is already booked and
+   * not yet signed, it is moved rather than duplicated, because two
+   * reviews for the same patient in the same week is how a schedule
+   * stops being believable.
+   */
+  expediteReview: (patientId: string) => string;
+  /** Book a visit on the first clinic day with room, and return it. */
+  bookSoonVisit: (patientId: string, reason: string) => string;
   lifestyleFor: (id: string) => LifestyleIntervention[];
   seriesFor: (id: string) => ResultSeries[];
   series: (id: string) => ResultSeries | undefined;
@@ -532,6 +614,33 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         .sort((a, b) => b.version - a.version)[0],
       versionsFor: (patientId) => [...by(s.chartVersions, patientId)]
         .sort((a, b) => b.version - a.version),
+      /**
+       * The day, in time order.
+       *
+       * Both activities on one list, because the physician's morning
+       * is one list. Anything already signed stays on it: a day you
+       * have half finished should still show you what you did.
+       */
+      dayList: (iso) => {
+        const day = iso ?? s.now;
+        return s.encounters
+          .filter((e) => e.date === day && e.status !== 'signed')
+          .concat(s.encounters.filter((e) => e.date === day && e.status === 'signed'))
+          .sort((a, b) => (a.start ?? 9 * 60) - (b.start ?? 9 * 60));
+      },
+
+      inbox: () => {
+        const seen = new Set<string>();
+        for (const v of s.chartVersions) for (const id of v.incorporated) seen.add(id);
+        return buildInbox({
+          messages: s.messages, updates: s.updates, panels: s.labPanels,
+          studies: s.studies, vitals: s.vitals, triage: s.triage,
+          now: s.now, since: addDays(s.now, -14), incorporated: seen,
+        });
+      },
+
+      triageOf: (recordId) => s.triage.find((t) => t.recordId === recordId),
+
       newSince: (patientId) => {
         const v = [...by(s.chartVersions, patientId)].sort((a, b) => b.version - a.version)[0];
         const seen = new Set(v?.incorporated ?? []);
@@ -775,7 +884,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         });
 
         const encounters: Encounter[] = d.bookIntake ? [{
-          id: newId('en'), patientId: id, date: clockNow(), kind: 'initial',
+          id: newId('en'), patientId: id, date: clockNow(),
+          kind: 'visit', legacyKind: 'initial', setting: 'in-person',
           reason: 'First full visit. History, medicines, habits, and what they want to work on.',
           status: 'scheduled', duration: 90,
         }] : [];
@@ -793,7 +903,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
          */
         const story = d.story.trim();
         const intake: Encounter[] = story ? [{
-          id: newId('en'), patientId: id, date: clockNow(), kind: 'initial',
+          id: newId('en'), patientId: id, date: clockNow(),
+          kind: 'visit', legacyKind: 'initial', setting: 'in-person',
           reason: 'Initial history and physical',
           status: 'signed', duration: 60, signedAt: clockNow(),
           note: {
@@ -1197,6 +1308,85 @@ export function StoreProvider({ children }: { children: ReactNode }) {
        * that signature. Nothing is duplicated, so nothing can get out
        * of step.
        */
+      triageRecord: (patientId, recordId, choice, opts) =>
+        setS((p) => ({
+          ...p,
+          triage: [
+            ...p.triage.filter((t) => t.recordId !== recordId),
+            {
+              id: newId('tr'), patientId, recordId, choice,
+              at: clockNow(), by: ME,
+              reply: opts?.reply, encounterId: opts?.encounterId,
+            },
+          ],
+          // Acknowledging something is a message to the patient, and
+          // the patient should be able to see it in their own record
+          // rather than be told it happened.
+          messages: opts?.reply
+            ? [...p.messages, {
+              id: newId('ms'), patientId, date: clockNow(),
+              from: 'practice' as const, author: ME,
+              subject: 'About what you sent in',
+              body: opts.reply,
+            }]
+            : p.messages,
+          lastEvents: [...p.lastEvents, `Triaged ${recordId}: ${choice}`],
+        })),
+
+      expediteReview: (patientId) => {
+        const existing = s.encounters.find(
+          (e) => e.patientId === patientId && e.kind === 'review' && e.status !== 'signed',
+        );
+        if (existing) {
+          if (existing.date !== s.now) {
+            setS((p) => ({
+              ...p,
+              encounters: p.encounters.map((e) => (e.id === existing.id
+                ? { ...e, date: clockNow(), reason: 'Care plan review, brought forward' }
+                : e)),
+              lastEvents: [...p.lastEvents, `Review moved to ${clockNow()}`],
+            }));
+          }
+          return existing.id;
+        }
+        const id = newId('en');
+        setS((p) => ({
+          ...p,
+          encounters: [...p.encounters, {
+            id, patientId, date: clockNow(), kind: 'review' as const,
+            reason: 'Care plan review, brought forward',
+            status: 'scheduled' as const, duration: 60,
+            start: nextFreeStart(p.encounters, clockNow()),
+          }],
+          lastEvents: [...p.lastEvents, `Review added ${clockNow()}`],
+        }));
+        return id;
+      },
+
+      bookSoonVisit: (patientId, reason) => {
+        const id = newId('en');
+        setS((p) => {
+          // The next clinic day with room. A visit booked for a day
+          // the practice is not open is not a booking.
+          let day = addDays(clockNow(), 1);
+          for (let i = 0; i < 21; i++) {
+            if (dayStatus(day).status === 'clinic') break;
+            day = addDays(day, 1);
+          }
+          return {
+            ...p,
+            encounters: [...p.encounters, {
+              id, patientId, date: day, kind: 'visit' as const,
+              setting: 'in-person' as const,
+              reason, status: 'scheduled' as const, duration: 30,
+              start: nextFreeStart(p.encounters, day),
+            }],
+            lastEvents: [...p.lastEvents, `Visit booked ${day}`],
+          };
+        });
+        return id;
+      },
+
       openEncounter: (patientId, kind) => {
         const id = newId('en');
         const mins = ENCOUNTER_KINDS.find((k) => k.id === kind)?.mins ?? 30;
@@ -1204,9 +1394,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           ...p,
           encounters: [...p.encounters, {
             id, patientId, date: clockNow(), kind,
-            reason: kind === 'ccm' ? 'Chronic care management review'
-              : kind === 'bhi' ? 'Behavioural health review'
-                : 'Clinical visit',
+            ...(kind === 'visit' ? { setting: 'in-person' as const } : {}),
+            reason: kind === 'review'
+              ? 'Care plan review'
+              : 'Visit',
             status: 'in-progress', duration: mins,
             note: {
               subjective: {
@@ -1319,8 +1510,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           // for. A review can be clinically worth doing and not be
           // billable on its own, so this is a time entry and not a
           // claim.
+          // A care plan review is physician time spent on this
+          // patient's chronic care between visits. Recording it is not
+          // the same as claiming it: whether the month qualifies is a
+          // separate question with its own requirements, and the
+          // answer is never "an hour was scheduled".
           const program: CareProgram | undefined =
-            enc.kind === 'ccm' ? 'ccm' : enc.kind === 'bhi' ? 'bhi' : undefined;
+            enc.kind === 'review' ? 'ccm' : undefined;
           const careLog = program && opts.minutes
             ? [...p.careLog, {
               id: newId('cl'), patientId, program,
@@ -1329,7 +1525,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
               encounterId,
               problems: opts.problems,
               planUpdated: opts.planUpdated,
-              activity: `${program === 'ccm' ? 'Care management' : 'Behavioural health'} review: read what had arrived since the last approval${
+              activity: `Care plan review: read what had arrived since the last approval${
                 opts.planUpdated ? ', updated the care plan' : ''
               } and published version ${version.version}.`,
             }]
@@ -1337,8 +1533,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
           return {
             ...p,
+            // Two outputs from one act. The note is what happened in
+            // this encounter and never changes again; the version is
+            // where the patient now stands. Neither is typed twice.
             encounters: p.encounters.map((e) => (e.id === encounterId
-              ? { ...e, status: 'signed' as const, signedAt: now }
+              ? {
+                ...e,
+                status: 'signed' as const,
+                signedAt: now,
+                note: opts.note ?? e.note,
+                minutes: opts.minutes ?? e.minutes,
+                setting: opts.setting ?? e.setting,
+                wellness: opts.wellness ?? e.wellness,
+              }
               : e)),
             chartVersions: [...p.chartVersions, version],
             // Requests written during the encounter go out with it.
@@ -1477,7 +1684,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           return {
             ...p,
             encounters: [...p.encounters, {
-              id, patientId, date, kind: 'follow-up' as const,
+              id, patientId, date, kind: 'visit' as const,
+              legacyKind: 'follow-up' as const, setting: 'in-person' as const,
               reason: 'Interim review',
               status: 'signed' as const, duration: 30, signedAt: date,
               note: {
@@ -1524,6 +1732,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             checkIns: drop(p.checkIns), updates: drop(p.updates),
             messages: drop(p.messages), requests: drop(p.requests),
             scores: drop(p.scores), attestations: drop(p.attestations),
+            triage: drop(p.triage),
             claims: drop(p.claims),
             chartVersions: drop(p.chartVersions), infoRequests: drop(p.infoRequests),
             emRecords: p.emRecords.filter((e) =>

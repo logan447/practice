@@ -723,8 +723,13 @@ kbd {
   color: var(--ink-3); font-size: 10px; display: block;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.wdvisit.k-home { border-left-color: var(--warn); background: var(--warn-soft); }
-.wdvisit.k-initial { border-left-color: var(--info, var(--accent)); }
+/*
+ * Two activities, two weights. A review is physician time with
+ * nobody in the room, so it reads quieter than a visit on the week
+ * grid: the thing to notice at a glance is how much of the week has
+ * somebody in it.
+ */
+.wdvisit.k-review { border-left-color: var(--line); background: var(--panel-2); }
 .wdempty {
   position: absolute; inset: 0; display: flex; align-items: center;
   justify-content: center; font-size: 11.5px; color: var(--ink-3);
@@ -1710,3 +1715,92 @@ blockquote.said footer {
 }
 .askrow .asktext { font-size: 13.5px; line-height: 1.55; color: var(--ink); }
 .urgentmark { color: var(--crit); margin-left: 6px; }
+
+/* ================================================= the day, and the inbox */
+/*
+ * One list, two kinds of row, and a count. Nothing here is a
+ * dashboard: the morning is a column of the next six hours, and the
+ * only decoration that earns its place is the mark that says
+ * something has arrived since the plan was last approved.
+ */
+.daylist { display: flex; flex-direction: column; gap: 6px; }
+
+.dayrow {
+  display: grid;
+  grid-template-columns: 58px auto 1fr auto auto;
+  align-items: center; gap: 13px;
+  width: 100%; text-align: left;
+  padding: 12px 15px;
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 7px; cursor: pointer; font: inherit; color: inherit;
+}
+.dayrow:hover { border-color: var(--accent-line); background: var(--panel-2); }
+.dayrow.done { opacity: .62; }
+.dtime { font: 600 13.5px/1 var(--sans); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.dwho { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.dname { font-weight: 600; font-size: 14px; }
+.dreason {
+  font-size: 12px; color: var(--ink-3);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.dkind { display: flex; align-items: center; gap: 8px; }
+.dnew {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 3px;
+  min-width: 128px;
+}
+
+.inboxbar {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 10px 15px; margin-bottom: 12px;
+  background: var(--warn-soft); border: 1px solid var(--line);
+  border-radius: 7px; font: inherit; color: var(--ink); cursor: pointer;
+  text-align: left;
+}
+.inboxbar > span:first-child { flex: 1; font-size: 13px; }
+
+.inboxcount {
+  display: inline-block; margin-left: 6px; padding: 1px 6px;
+  border-radius: 9px; background: var(--line); color: var(--ink-2);
+  font: 600 10.5px/1.5 var(--sans);
+}
+.inboxcount.urgent { background: var(--crit-soft); color: var(--crit); }
+
+.inboxrow {
+  padding: 13px 15px; background: var(--panel);
+  border: 1px solid var(--line); border-radius: 7px;
+}
+.inboxrow.urgent { border-left: 3px solid var(--crit); }
+.irhead { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+.irwho { font-weight: 600; font-size: 13.5px; }
+.irbody { font-size: 13px; line-height: 1.6; color: var(--ink-2); margin: 9px 0 11px; }
+.iracts { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.irdone { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+.irhelp {
+  margin-top: 11px; padding-top: 10px; border-top: 1px solid var(--line-2);
+}
+.irhelp p { font-size: 12px; line-height: 1.6; color: var(--ink-2); margin: 0 0 7px; }
+.irhelp p:last-child { margin-bottom: 0; }
+
+/* ------------------------------------------- the encounter working copy */
+.wsec {
+  font: 600 10.5px/1 var(--sans); letter-spacing: .08em; text-transform: uppercase;
+  color: var(--ink-3); margin: 18px 0 8px;
+  padding-top: 12px; border-top: 1px solid var(--line-2);
+}
+.wsec:first-of-type { border-top: 0; padding-top: 0; }
+.wfield { margin-top: 9px; }
+.wflabel {
+  display: flex; align-items: baseline; gap: 8px;
+  font: 500 11.5px/1.4 var(--sans); color: var(--ink-3); margin-bottom: 4px;
+}
+.markchip {
+  font: 500 10px/1 var(--sans); letter-spacing: .04em;
+  color: var(--accent); background: var(--accent-soft);
+  border: 1px solid var(--accent-line); border-radius: 2px; padding: 2px 5px;
+}
+.wellrow {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 12.5px; line-height: 1.55; color: var(--ink-2);
+}
+.wellrow input { margin-top: 3px; }
+.newitem.done { opacity: .5; }

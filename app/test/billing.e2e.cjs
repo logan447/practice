@@ -21,10 +21,13 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.goto(U,{waitUntil:'networkidle'}); await p.waitForTimeout(300);
   await p.evaluate(()=>localStorage.clear());
   await p.reload({waitUntil:'networkidle'}); await p.waitForTimeout(400);
-  await p.click('button:has-text("Load 3 examples")'); await p.waitForTimeout(700);
+  await p.click('button:has-text("Load the day")'); await p.waitForTimeout(700);
 
   // ------------------------------------------- a Medicare patient
-  await p.fill('input[aria-label="Search patients"]','Lindqvist'); await p.waitForTimeout(350);
+  await p.click('.topbar button:has-text(\"Patients\")'); await p.waitForTimeout(400);
+
+  // ------------------------------------------- a Medicare patient
+  await p.fill('input[aria-label=\"Search patients\"]','Lindqvist'); await p.waitForTimeout(350);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(700);
   await p.click('.railfoot button:has-text("Documentation")'); await p.waitForTimeout(700);
   const doc=(await p.locator('.drawerbody').textContent()).replace(/\s+/g,' ');
@@ -78,7 +81,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // --------------------------------------- the visit, on another chart
   await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(300);
-  await p.click('.topbar .mark'); await p.waitForTimeout(250);
+  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(350);
   await p.fill('input[aria-label="Search patients"]','Sharon'); await p.waitForTimeout(350);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(700);
   await p.click('.railfoot button:has-text("Documentation")'); await p.waitForTimeout(700);

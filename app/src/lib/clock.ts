@@ -12,7 +12,15 @@
  * clock through context rather than rely on render order.
  */
 
-export const ORIGIN = '2026-11-14';
+/**
+ * A Monday, deliberately.
+ *
+ * The prototype opens on the day's schedule, so the day it opens on
+ * has to be one the practice actually works. It used to be a
+ * Saturday, which meant the first thing anybody saw was a full clinic
+ * on a day the working year says is closed.
+ */
+export const ORIGIN = '2026-11-16';
 
 let current = ORIGIN;
 

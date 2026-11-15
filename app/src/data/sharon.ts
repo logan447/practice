@@ -215,7 +215,7 @@ export const sharonPlan: CarePlan = {
  * than a single note to restate.
  */
 const EARLIER: Encounter[] = [
-  { id: 'se0', patientId: 'p0', date: '2025-01-14', start: 9 * 60, kind: 'follow-up',
+  { id: 'se0', patientId: 'p0', date: '2025-01-14', start: 9 * 60, kind: 'visit', legacyKind: 'follow-up',
     reason: 'Records request and first conversation.',
     status: 'signed', duration: 30, signedAt: '2025-01-14',
     note: {
@@ -228,7 +228,7 @@ const EARLIER: Encounter[] = [
       assessment: { oneLiner: '', overall: 'Not a clinical encounter. Blood pressure today is well above target and she did not know it.' },
       plan: { problems: [], overall: 'Gave her the blood pressure reading in writing and told her to take it to Hill Country. Invited her to join when she is ready.' },
     } },
-  { id: 'se01', patientId: 'p0', date: '2025-06-10', start: 14 * 60, kind: 'follow-up',
+  { id: 'se01', patientId: 'p0', date: '2025-06-10', start: 14 * 60, kind: 'visit', legacyKind: 'follow-up',
     reason: 'Second conversation.',
     status: 'signed', duration: 30, signedAt: '2025-06-10',
     note: {
@@ -241,7 +241,7 @@ const EARLIER: Encounter[] = [
       assessment: { oneLiner: '', overall: 'Circumstances changed more than the medicine did. The carer role is going to shape everything.' },
       plan: { problems: [], overall: 'No clinical plan. She will think about joining after the summer.' },
     } },
-  { id: 'se15', patientId: 'p0', date: '2026-04-14', start: 11 * 60, kind: 'follow-up',
+  { id: 'se15', patientId: 'p0', date: '2026-04-14', start: 11 * 60, kind: 'visit', legacyKind: 'follow-up',
     reason: 'Three month review after transfer.',
     status: 'signed', duration: 30, signedAt: '2026-04-14',
     note: {
@@ -254,7 +254,7 @@ const EARLIER: Encounter[] = [
       assessment: { oneLiner: '', overall: 'A1c 7.6, down from 8.1. Moving. The shakiness needs attention before it becomes the reason she stops trying.' },
       plan: { problems: [], overall: 'Explained hypoglycaemia and what to do. Asked her to note when it happens. Continue current medicines. Repeat A1c in two months.' },
     } },
-  { id: 'se25', patientId: 'p0', date: '2026-08-26', start: 15 * 60, kind: 'acute',
+  { id: 'se25', patientId: 'p0', date: '2026-08-26', start: 15 * 60, kind: 'visit', legacyKind: 'acute',
     reason: 'Ankle swelling.',
     status: 'signed', duration: 20, signedAt: '2026-08-26',
     note: {
@@ -271,7 +271,7 @@ const EARLIER: Encounter[] = [
 
 export const sharonEncounters: Encounter[] = [
   ...EARLIER,
-  { id: 'se1', patientId: 'p0', date: '2026-01-20', start: 9 * 60, kind: 'initial',
+  { id: 'se1', patientId: 'p0', date: '2026-01-20', start: 9 * 60, kind: 'visit', legacyKind: 'initial',
     reason: 'Transfer of care. Full history, medicines, and what she wants to work on.',
     status: 'signed', duration: 90, signedAt: '2026-01-20',
     note: {
@@ -285,7 +285,7 @@ export const sharonEncounters: Encounter[] = [
       assessment: { oneLiner: '', overall: 'Three linked problems, none at target, and a care situation that has to be designed around rather than ignored.' },
       plan: { problems: [], overall: 'Full panel today. Start by explaining the numbers. Change nothing yet.' },
     } },
-  { id: 'se2', patientId: 'p0', date: '2026-06-18', start: 10 * 60 + 30, kind: 'follow-up',
+  { id: 'se2', patientId: 'p0', date: '2026-06-18', start: 10 * 60 + 30, kind: 'visit', legacyKind: 'follow-up',
     reason: 'Review of diabetes control after two hypoglycaemic episodes.',
     status: 'signed', duration: 30, signedAt: '2026-06-18',
     note: {
@@ -298,7 +298,7 @@ export const sharonEncounters: Encounter[] = [
       assessment: { oneLiner: '', overall: 'Glipizide hypoglycaemia in the context of irregular evening meals. The drug is the wrong fit for her week, not the dose.' },
       plan: { problems: [], overall: 'Stop glipizide. Start empagliflozin 10 mg. Recheck A1c in four months.' },
     } },
-  { id: 'se3', patientId: 'p0', date: '2026-10-30', start: 14 * 60, kind: 'follow-up',
+  { id: 'se3', patientId: 'p0', date: '2026-10-30', start: 14 * 60, kind: 'visit', legacyKind: 'follow-up',
     reason: 'Results review.',
     status: 'signed', duration: 30, signedAt: '2026-10-30',
     note: {
@@ -312,9 +312,9 @@ export const sharonEncounters: Encounter[] = [
       plan: { problems: [], overall: 'Continue. Mammogram order sent. Eye examination due.' },
     } },
   // ahead
-  { id: 'se4', patientId: 'p0', date: '2026-11-17', start: 11 * 60, kind: 'follow-up',
+  { id: 'se4', patientId: 'p0', date: '2026-11-17', start: 11 * 60, kind: 'visit', legacyKind: 'follow-up',
     reason: 'Three month review', status: 'scheduled', duration: 30 },
-  { id: 'se5', patientId: 'p0', date: '2027-01-19', start: 9 * 60, kind: 'annual',
+  { id: 'se5', patientId: 'p0', date: '2027-01-19', start: 9 * 60, kind: 'visit', legacyKind: 'annual',
     reason: 'Annual physical', status: 'scheduled', duration: 75 },
 ];
 

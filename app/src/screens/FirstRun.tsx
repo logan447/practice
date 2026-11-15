@@ -41,17 +41,16 @@ export function FirstRun() {
 
         <section className="panel">
           <div className="body">
-            <h2 style={{ fontSize: 17 }}>Load three worked examples</h2>
+            <h2 style={{ fontSize: 17 }}>Load a worked day</h2>
             <p className="small muted" style={{ margin: '8px 0 16px' }}>
-              The same chart in three states, because a structure can only be
-              judged against all of them. Sharon White is complete: two years,
-              every section written. Marcus Reyes is half written, which is
-              what charts actually look like. Nina Alvarado joined last week
-              and has nothing on file. All fictional, and you can clear them
-              at any time.
+              Five charts in different states, and a Monday booked across them:
+              three care plan reviews, two visits, and a weekend of messages and
+              readings waiting in the inbox. Sharon White is complete, Marcus
+              Reyes is half written, Nina Alvarado joined last week with nothing
+              on file. All fictional, and you can clear them at any time.
             </p>
-            <button className="btn ghost" onClick={() => { st.loadDemo(); nav.reset({ name: 'patients' }); }}>
-              Load 3 examples
+            <button className="btn ghost" onClick={() => { st.loadDemo(); nav.reset({ name: 'today' }); }}>
+              Load the day
             </button>
           </div>
         </section>

@@ -39,39 +39,40 @@ const actionTone = (a: Intervention['status']) =>
   (a === 'needs-attention' ? 'warn' : undefined);
 
 /**
- * One voice on the page, with the chart review named.
+ * One paragraph per problem, in one voice.
  *
- * Setting the patient's words in a different face was a mistake:
- * typography that encodes meaning has to be learned, and a clinical
- * document that mixes two faces in one paragraph reads as two
- * documents. The distinction still matters, so it is made in words
- * instead. What the patient reports comes first and says so; the
- * chart review follows and is labelled. Same font, same size, same
- * colour throughout.
+ * This has now been through three forms and the third is the right
+ * one. Setting the patient's words in a different face was wrong:
+ * typography that encodes meaning has to be learned, and a document
+ * that mixes two faces in a paragraph reads as two documents.
+ * Labelling the second half "Chart review" was better but still
+ * wrong: it split one clinical picture into testimony and findings
+ * and made the reader assemble them, every problem, every time.
+ *
+ * What a physician actually wants to read is a sentence about how the
+ * person is and a sentence about what the record shows, in that
+ * order, as prose. "Feeling well without dizziness or headaches. Home
+ * readings have generally improved." Provenance has not been lost:
+ * every clause still knows whose voice it is, and the sources are one
+ * click away at the end. It is simply not announced in the middle of
+ * the paragraph any more.
  */
 function Body({ clauses, sources, onOpen }: {
   clauses: Clause[];
   sources: SourceRef[];
   onOpen: (focus?: string) => void;
 }) {
-  const said = clauses.filter((c) => c.voice === 'patient');
-  const chart = clauses.filter((c) => c.voice === 'documented');
+  // Patient first, record second, which is the order a clinician
+  // reads in and the order `livingSubjective` already composes.
+  const said = clauses.filter((c) => c.voice === 'patient').map((c) => c.text);
+  const chart = clauses.filter((c) => c.voice === 'documented').map((c) => c.text);
+  const text = [...said, ...chart].join(' ').trim();
+  if (!text) return null;
   return (
-    <>
-      {said.length > 0 && (
-        <p className="psum">
-          {said.map((c) => c.text).join(' ')}
-          {chart.length === 0 && <Sources refs={sources} onOpen={onOpen} />}
-        </p>
-      )}
-      {chart.length > 0 && (
-        <p className="psum">
-          <span className="runin">Chart review:</span>{' '}
-          {chart.map((c) => c.text).join(' ')}
-          <Sources refs={sources} onOpen={onOpen} />
-        </p>
-      )}
-    </>
+    <p className="psum">
+      {text}
+      <Sources refs={sources} onOpen={onOpen} />
+    </p>
   );
 }
 
@@ -198,9 +199,9 @@ export function Subjective({ patientId, onOpenSources }: {
         {fresh.urgent > 0 && <span className="urgentmark">{fresh.urgent} flagged urgent</span>}
         {' '}
         <button className="linkish" onClick={() => {
-          const id = st.openEncounter(patientId, 'ccm');
-          nav.go({ name: 'review', encounterId: id });
-        }}>Start a review</button>
+          const id = st.openEncounter(patientId, 'review');
+          nav.go({ name: 'encounter', encounterId: id });
+        }}>Start a care plan review</button>
       </p>
 
       {/* ------------------------------------------------ problem by problem */}

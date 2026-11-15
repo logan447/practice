@@ -169,7 +169,7 @@ export const nina: Patient = {
  */
 export const ninaEncounters: Encounter[] = [
   {
-    id: 'ne1', patientId: 'p9', date: '2026-11-24', start: 9 * 60, kind: 'initial',
+    id: 'ne1', patientId: 'p9', date: '2026-11-24', start: 9 * 60, kind: 'visit', legacyKind: 'initial',
     reason: 'First visit. Nothing sent through yet.',
     status: 'scheduled', duration: 90,
   },

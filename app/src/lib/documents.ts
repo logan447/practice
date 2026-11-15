@@ -109,7 +109,7 @@ ${[
     ours.length > 0 ? `WHAT I AM GOING TO DO\n\n${bullet(ours)}` : '',
   ].filter(Boolean).join('\n\n')}${mine.length || ours.length ? '\n\n' : ''}WHEN TO COME BACK
 
-${e.kind === 'initial'
+${e.legacyKind === 'initial'
     ? 'We will meet again soon to finish setting up your plan.'
     : 'Come back when we agreed, or sooner if you need to.'}
 
@@ -436,7 +436,7 @@ export function fhirBundle(input: {
       fullUrl: `urn:uuid:${e.id}`,
       resource: {
         resourceType: 'Encounter', id: e.id, subject, status: 'finished',
-        class: { code: e.kind === 'home' ? 'HH' : 'AMB' },
+        class: { code: e.setting === 'home' ? 'HH' : 'AMB' },
         type: [{ text: kindLabel(e.kind) }],
         period: { start: e.date, end: e.date },
         reasonCode: [{ text: e.reason }],

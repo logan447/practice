@@ -449,7 +449,7 @@ export function longitudinal(panel: Panel, seed = 777): LongitudinalLayer {
         heartRate: Math.round(between(60, 88)),
         weightLb: wt,
         bmi: Math.round((703 * wt) / (heightIn * heightIn) * 10) / 10,
-        ...(visit.kind !== 'follow-up' || chance(0.4)
+        ...(visit.legacyKind !== 'follow-up' || chance(0.4)
           ? {
             temperatureF: Math.round(between(97.4, 98.9) * 10) / 10,
             spo2: Math.round(has('Obstructive sleep apnea') || has('Asthma') ? between(93, 97) : between(96, 99)),
@@ -510,7 +510,7 @@ export function longitudinal(panel: Panel, seed = 777): LongitudinalLayer {
       const panelFrom = fromOutside ? pick(OUTSIDE) : undefined;
 
       const made: LabPanel[] = [];
-      if (visit.kind !== 'follow-up' || chance(0.55)) {
+      if (visit.legacyKind !== 'follow-up' || chance(0.55)) {
         made.push(cbc(id('lb'), p.id, date, between(4.5, 9.8), between(11.4, 15.2), between(170, 360)));
       }
       made.push(cmp(id('lb'), p.id, date, {
@@ -936,7 +936,7 @@ interface MasterInput {
   conds: Condition[];
   managed: Condition[];
   meds: Medication[];
-  visits: { id: string; date: string; kind: string }[];
+  visits: { id: string; date: string; legacyKind: string }[];
   encounters: Encounter[];
   checkIns: ProblemCheckIn[];
   prevention: PreventionItem[];

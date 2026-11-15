@@ -111,11 +111,11 @@ export function Rail({ patientId, open, onJump }: {
           * beside it.
           */}
         <div className="row" style={{ gap: 6, flexWrap: 'wrap', margin: '8px 0 4px' }}>
-          {([['follow-up', 'Visit'], ['ccm', 'CCM review'], ['bhi', 'BHI review']] as const)
+          {([['visit', 'Visit'], ['review', 'Care plan review']] as const)
             .map(([kind, label]) => (
               <button key={kind} className="btn ghost sm" onClick={() => {
                 const id = st.openEncounter(patientId, kind);
-                nav.go({ name: 'review', encounterId: id });
+                nav.go({ name: 'encounter', encounterId: id });
               }}>{label}</button>
             ))}
         </div>

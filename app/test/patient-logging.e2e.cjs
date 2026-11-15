@@ -9,8 +9,10 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   p.on('console',m=>{if(m.type()==='error')errs.push(m.text());});
 
   await p.goto(U,{waitUntil:'networkidle'}); await p.waitForTimeout(300);
-  await p.click('button:has-text("Load 3 examples")'); await p.waitForTimeout(500);
-  await p.click('text=Marcus Reyes'); await p.waitForTimeout(400);
+  await p.click('button:has-text("Load the day")'); await p.waitForTimeout(500);
+  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
+  await p.locator('table.rows tbody tr:has-text("Marcus Reyes")').first().click();
+  await p.waitForTimeout(500);
   if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
   await p.click('.railfoot button:has-text("Details")'); await p.waitForTimeout(350);
   await p.click('.drawer button:has-text("Sign in as them")'); await p.waitForTimeout(500);
@@ -62,7 +64,9 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
   await p.click('.whoami'); await p.waitForTimeout(250);
   await p.click('.srow:has-text("L. DuBose")'); await p.waitForTimeout(500);
-  await p.click('text=Marcus Reyes'); await p.waitForTimeout(450);
+  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
+  await p.locator('table.rows tbody tr:has-text("Marcus Reyes")').first().click();
+  await p.waitForTimeout(600);
   if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
   await p.click('.railhead:has-text("Labs and vitals")'); await p.waitForTimeout(350);
   ok('results keeps patient data separate', await p.locator('text=Patient-measured, not clinic-measured').isVisible());
@@ -75,7 +79,9 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // persistence
   await p.goto(U,{waitUntil:'networkidle'}); await p.waitForTimeout(600);
-  await p.click('text=Marcus Reyes'); await p.waitForTimeout(500);
+  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
+  await p.locator('table.rows tbody tr:has-text("Marcus Reyes")').first().click();
+  await p.waitForTimeout(600);
   if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
   await p.click('.railhead:has-text("Labs and vitals")'); await p.waitForTimeout(400);
   ok('patient-logged data survives reload', await p.locator('text=Patient-measured, not clinic-measured').isVisible());

@@ -22,7 +22,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // ---------------------------------------------- 1. a real panel
   ok('first run offers a full panel', await p.locator('button:has-text("Load 120 patients")').isVisible());
-  await p.click('button:has-text("Load 120 patients")'); await p.waitForTimeout(1200);
+  await p.click('button:has-text("Load 120 patients")'); await p.waitForTimeout(1400);
+  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(500);
 
   const sub = await p.locator('.page-head .sub').first().textContent();
   const count = Number((sub.match(/(\d+) members/)||[])[1]);
@@ -62,7 +63,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   let allergyHeader = await p.locator('.callergy').count()>0;
   for(let i=0;i<10 && !allergyHeader;i++){
     if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
-    await p.click('.topbar .mark'); await p.waitForTimeout(200);
+    await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(250);
     await p.locator('table.rows tbody tr').nth(i).click(); await p.waitForTimeout(300);
     allergyHeader = await p.locator('.callergy').count()>0;
   }
@@ -72,12 +73,12 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // an unreadable outside record, found by walking the panel
   let foundGarble=false;
   if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
-  await p.click('.topbar .mark'); await p.waitForTimeout(400);
+  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
   await p.click('button:has-text("Needs reconciling")'); await p.waitForTimeout(400);
   const n = Math.min(await p.locator('table.rows tbody tr').count(), 14);
   for (let i=0;i<n && !foundGarble;i++){
   if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
-    await p.click('.topbar .mark'); await p.waitForTimeout(250);
+    await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(250);
     await p.click('button:has-text("Needs reconciling")'); await p.waitForTimeout(250);
     await p.locator('table.rows tbody tr').nth(i).click(); await p.waitForTimeout(350);
     if (await p.locator('.railfoot button:has-text("Records")').count()===0) continue;
@@ -95,43 +96,35 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // a patient with hypertension, so the whole scripted visit lands
   if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
-  await p.click('.topbar .mark'); await p.waitForTimeout(400);
+  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
   await p.fill('input[aria-label="Search patients"]','Essential hypertens'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(500);
-  if (await p.locator('.nextvisit:not(.empty)').count()===0) {
-    await p.click('.railhead:has-text("Encounters")'); await p.waitForTimeout(350);
-    await p.click('.drawer button:has-text("Book a visit")'); await p.waitForTimeout(350);
-    await p.click('.booking button:has-text("Follow-up")'); await p.waitForTimeout(250);
-    await p.waitForTimeout(200);
-    // Walk forward until the day can take it. The screen offers the
-    // next one that fits whatever the reason this one cannot.
-    for (let k=0;k<4 && await p.locator('.booking .slots button').count()===0;k++) {
-      await p.click('.booking button:has-text("Next day it fits")', {timeout:3000}).catch(()=>{});
-      await p.waitForTimeout(350);
-    }
-    await p.locator('.booking .slots button').first().click(); await p.waitForTimeout(800);
-    // Booking leaves you in the chart; the new visit is in the rail.
-    if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
-    await p.waitForTimeout(300);
-    await p.click('.nextvisit'); await p.waitForTimeout(700);
-  } else {
-    await p.click('.nextvisit'); await p.waitForTimeout(700);
-  }
-  ok('a visit is open', await p.locator('h2:has-text("Subjective")').isVisible());
+  // Start a visit from the chart rather than booking one. The two
+  // activities are startable from the Encounters block, which is the
+  // path a physician uses when somebody turns up.
+  await p.click('.railhead:has-text("Encounters")'); await p.waitForTimeout(300);
+  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
+  await p.waitForTimeout(250);
+  await p.click('.railbody button:has-text("Visit"), .rail button:has-text("Visit")');
+  await p.waitForTimeout(800);
+
+  ok('a visit is open, on the care plan rather than a blank note',
+    (await p.locator('.panel:has-text("Living care plan, working copy")').count())===1);
 
   ok('capture says it is fallible', (await p.locator('button:has-text("Capture:")').textContent()).includes('fallible'));
 
   await p.click('button:has-text("Start listening")');
   await p.waitForTimeout(13600);
 
-  const hist = await p.locator('textarea').nth(5).inputValue();
+  const narrative = p.locator('.wfield textarea').first();
+  const hist = await narrative.inputValue();
   ok('drafted history arrived', hist.length>60);
   ok('the draft fabricated a review of systems', hist.includes('Denies chest pain'));
   ok('the draft swapped the side', hist.includes('Left knee'));
 
   /** Every field value in the visit, concatenated. */
   const allFields = () => p.evaluate(() =>
-    Array.from(document.querySelectorAll('.visit textarea, .visit input'))
+    Array.from(document.querySelectorAll('.reviewgrid textarea, .reviewgrid input'))
       .map((el) => el.value).join(' \n '));
 
   const fields = await allFields();
@@ -153,7 +146,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // now fix two of them, the way a physician reading the draft would
   const fixed = hist.replace('Left knee','Right knee').replace(' Denies chest pain, shortness of breath and palpitations.','');
-  await p.locator('textarea').nth(5).fill(fixed); await p.waitForTimeout(300);
+  await narrative.fill(fixed); await p.waitForTimeout(300);
 
   await p.click('button:has-text("Check the draft")'); await p.waitForTimeout(400);
   const score1 = await p.locator('.draftcheck .score').textContent();
@@ -165,9 +158,11 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // sign, and the record keeps the score
   await p.click('.draftcheck button:has-text("Hide")'); await p.waitForTimeout(200);
-  await p.click('button:has-text("Sign note")'); await p.waitForTimeout(700);
-  ok('the check reappears at signature', await p.locator('.draftcheck').isVisible());
-  ok('it changes tense once signed', await p.locator('h2:has-text("What went into the record")').isVisible());
+  await p.click('.reviewgrid button:has-text("Approve")'); await p.waitForTimeout(800);
+  ok('the check reappears at approval, before the screen changes',
+    await p.locator('.draftcheck').isVisible());
+  ok('it changes tense once approved',
+    await p.locator('h2:has-text("What went into the record")').isVisible());
   ok('the missed ones are marked signed', await p.locator('.dcrow.miss .chip:has-text("Signed")').count()===5);
   await p.screenshot({path:'v6-signed.png'});
 

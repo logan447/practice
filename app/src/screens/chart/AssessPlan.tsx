@@ -29,7 +29,8 @@
 import { useState } from 'react';
 import { useStore } from '../../lib/store';
 import { Chip } from '../../components/ui';
-import { fmtDate } from '../../lib/format';
+import { fmtDate, age } from '../../lib/format';
+import { abbrev } from '../../lib/clinical';
 import { interventionsFor } from '../../lib/interventions';
 import type { Intervention } from '../../lib/interventions';
 import {
@@ -53,26 +54,36 @@ export function ActionRow({ iv }: { iv: Intervention }) {
 }
 
 /** The sentence a physician would say out loud about this patient. */
+/**
+ * The one-liner, in the form a physician would write it.
+ *
+ * "60F with PMH of HTN, T2DM and HLD, following with our office for
+ * management of HTN, T2DM, preventative services and lifestyle
+ * medicine." Two facts in one line: everything they carry, and the
+ * subset this practice has taken on. The second half is the one that
+ * is usually missing from a chart and the one that decides what the
+ * rest of this document is about.
+ */
 export function oneLiner(p: Patient, conditions: Condition[]): string {
-  const age = Math.floor(
-    (Date.now() - Date.parse(p.dob)) / 31557600000,
-  );
-  const sex = p.sex === 'female' ? 'female' : p.sex === 'male' ? 'male' : 'patient';
+  const years = age(p.dob);
+  const sex = p.sex === 'female' ? 'F' : p.sex === 'male' ? 'M' : '';
   const history = conditions.filter((c) => c.status !== 'resolved');
   const managed = history.filter((c) => c.managed);
   const svc = p.services ?? { preventative: true, lifestyle: true };
-  const following = [
-    ...managed.map((c) => c.name.toLowerCase()),
+
+  const list = (xs: string[]) =>
+    (xs.length === 0 ? 'nothing recorded'
+      : xs.length === 1 ? xs[0]
+        : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
+
+  const pmh = list([...new Set(history.map((c) => abbrev(c.name)))]);
+  const following = list([
+    ...new Set(managed.map((c) => abbrev(c.name))),
     ...(svc.preventative ? ['preventative services'] : []),
     ...(svc.lifestyle ? ['lifestyle medicine'] : []),
-  ];
-  const list = (xs: string[]) =>
-    (xs.length <= 1 ? (xs[0] ?? 'nothing recorded')
-      : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
+  ]);
 
-  return `${p.name} is a ${age}-year-old ${sex} with a past medical history of ${
-    list(history.map((c) => c.name.toLowerCase()))
-  }, following with our office for ${list(following)}.`;
+  return `${years}${sex} with PMH of ${pmh}, following with our office for management of ${following}.`;
 }
 
 // ------------------------------------------------------------ assessment

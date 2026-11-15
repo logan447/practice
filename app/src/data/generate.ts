@@ -19,7 +19,9 @@
 import type {
   Allergy, CarePlan, ChartDocument, Condition, Encounter, Medication, Patient,
   PreventionItem, ResultPoint, ResultReport, ResultSeries, Specialist, Task,
+  LegacyEncounterKind,
 } from '../domain/types';
+import { LEGACY_KIND } from '../domain/types';
 import { addDays, ORIGIN } from '../lib/clock';
 import { dayStatus, WORKING_YEAR } from '../domain/schedule';
 
@@ -411,7 +413,7 @@ export interface Panel {
   /** Keyed by patient id. */
   depth: Record<string, Depth>;
   /** Signed visits per patient, oldest first, for the clinical layer. */
-  visits: Record<string, { id: string; date: string; kind: Encounter['kind'] }[]>;
+  visits: Record<string, { id: string; date: string; legacyKind: LegacyEncounterKind }[]>;
   conditions: Condition[];
   medications: Medication[];
   allergies: Allergy[];
@@ -678,11 +680,15 @@ export function generatePanel(n = 120, seed = 20261114): Panel {
         : depth === 'established' ? 5 + Math.floor(r() * 5)
           : 11 + Math.floor(r() * 12);
     /** Visit dates, oldest first, so the lab and vitals series can follow them. */
-    const visitDates: { id: string; date: string; kind: Encounter['kind'] }[] = [];
+    const visitDates: { id: string; date: string; legacyKind: LegacyEncounterKind }[] = [];
     for (let v = 0; v < visits; v++) {
       const isFirst = v === visits - 1;
-      const kind: Encounter['kind'] = isFirst ? 'initial' : chance(0.16) ? 'annual' : 'follow-up';
-      const mins = kind === 'initial' ? 90 : kind === 'annual' ? 75 : 30;
+      // Every one of these is a visit. What differs is how long it
+      // took and what was covered, which is why the old vocabulary
+      // survives here as a shape for the generated record and not as
+      // something anybody books.
+      const legacyKind: LegacyEncounterKind = isFirst ? 'initial' : chance(0.16) ? 'annual' : 'follow-up';
+      const mins = legacyKind === 'initial' ? 90 : legacyKind === 'annual' ? 75 : 30;
       // Spread across the tenure rather than landing at random, with
       // enough jitter that the intervals are not identical.
       const span = Math.max(tenureDays - 14, 30);
@@ -690,15 +696,16 @@ export function generatePanel(n = 120, seed = 20261114): Panel {
       const slot = place(addDays(ORIGIN, -Math.max(2, back)), mins, false);
       if (!slot) continue;
       const date = slot.date;
-      const reason = kind === 'initial' ? 'First visit'
-        : kind === 'annual' ? 'Annual physical'
+      const reason = legacyKind === 'initial' ? 'First visit'
+        : legacyKind === 'annual' ? 'Annual physical'
           : pick(['Routine review', 'Medication review', 'Results review', 'New symptom']);
       const line = lineFor(v);
       const eid = id('en');
-      visitDates.push({ id: eid, date, kind });
+      visitDates.push({ id: eid, date, legacyKind });
       out.encounters.push({
         id: eid, patientId: pid, date, start: slot.start,
-        kind,
+        kind: LEGACY_KIND[legacyKind], legacyKind,
+        setting: 'in-person',
         reason,
         status: 'signed', duration: mins, signedAt: date,
         note: {
@@ -742,17 +749,19 @@ export function generatePanel(n = 120, seed = 20261114): Panel {
     // --- the next visit, for some. A panel with nothing booked in it
     //     is a panel nobody is running.
     if (chance(depth === 'new' ? 0.8 : 0.42)) {
-      const kind = chance(0.12) ? 'annual'
+      const legacyKind: LegacyEncounterKind = chance(0.12) ? 'annual'
         : chance(0.1) ? 'acute'
           : chance(0.1) ? 'home' : 'follow-up';
-      const mins = kind === 'annual' ? 75 : kind === 'acute' ? 20 : kind === 'home' ? 150 : 30;
+      const mins = legacyKind === 'annual' ? 75 : legacyKind === 'acute' ? 20 : legacyKind === 'home' ? 150 : 30;
       // Inside four weeks. A diary that thins out to nothing after the
       // first fortnight is not what a running practice looks like.
       const slot = place(addDays(ORIGIN, Math.floor(between(1, 28))), mins);
       if (slot) {
         out.encounters.push({
-          id: id('en'), patientId: pid, date: slot.date, start: slot.start, kind,
-          reason: kind === 'home'
+          id: id('en'), patientId: pid, date: slot.date, start: slot.start,
+          kind: LEGACY_KIND[legacyKind], legacyKind,
+          setting: legacyKind === 'home' ? 'home' as const : 'in-person' as const,
+          reason: legacyKind === 'home'
             ? 'Home visit'
             : pick(['Routine review', 'Medication review', 'Results review', 'Annual physical']),
           status: 'scheduled', duration: mins,

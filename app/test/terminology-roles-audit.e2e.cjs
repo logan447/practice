@@ -21,13 +21,14 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   p.on('console',m=>{if(m.type()==='error')errs.push(m.text());});
   await p.goto(U,{waitUntil:'networkidle'}); await p.waitForTimeout(300);
   await p.click('button:has-text("Load 120 patients")'); await p.waitForTimeout(1400);
+  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(500);
 
   // ------------------------------------------------ 1. real codes
   // find a chart with interactions already on the list
   let found=false;
   for(let i=0;i<30 && !found;i++){
   if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
-    await p.click('.topbar .mark'); await p.waitForTimeout(200);
+    await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(250);
     await p.locator('table.rows tbody tr').nth(i).click(); await p.waitForTimeout(300);
   if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
     await p.click('.railhead:has-text("Medicines")'); await p.waitForTimeout(250);
@@ -60,7 +61,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // an uncoded problem is called out as uncheckable
   if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
-  await p.click('.topbar .mark'); await p.waitForTimeout(300);
+  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(300);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(400);
   // Adding a problem lives in the Plan section now, not the header.
   await p.locator('.addproblem:has-text("Problem")').scrollIntoViewIfNeeded();
@@ -100,7 +101,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   let draft=false;
   for(let i=0;i<24 && !draft;i++){
     if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(180);
-    await p.click('.topbar .mark'); await p.waitForTimeout(200);
+    await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(250);
     await p.locator('table.rows tbody tr').nth(i).click(); await p.waitForTimeout(320);
     await p.click('.railhead:has-text("Current plan")'); await p.waitForTimeout(320);
     if(await p.locator('.drawer .chip:has-text("Draft")').count()>0) draft=true;

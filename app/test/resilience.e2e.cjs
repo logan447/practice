@@ -27,7 +27,7 @@ const OLD = {
     subjective:{history:'Written by a version that stored this.',goals:'',context:''},
     objective:{narrative:''},assessment:{narrative:''},
     plan:{byProblem:{},prevention:'',lifestyle:'',followUp:''}}],
-  now:'2026-11-14',
+  now:'2026-11-16',
 };
 
 (async()=>{
@@ -39,6 +39,7 @@ const OLD = {
   // ------------------------------------- 1. state from an older version
   await p.evaluate((raw)=>localStorage.setItem('dlm-emr-v1',JSON.stringify(raw)), OLD);
   await p.goto(U,{waitUntil:'networkidle'}); await p.waitForTimeout(500);
+  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
   ok('the panel still loads', (await p.locator('table.rows tbody tr').count())===1);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(700);
   ok('the chart draws rather than going blank',
@@ -60,9 +61,10 @@ const OLD = {
       membership:'standard',memberSince:'2026-01-20',photoTone:0,phone:'x',email:'x'}],
     conditions:[{id:'sc1',patientId:'p0',name:null,code:'I10',status:'active',
       managed:true,onset:'2016-08-03'}],
-    now:'2026-11-14',
+    now:'2026-11-16',
   })));
   await p.goto(U,{waitUntil:'networkidle'}); await p.waitForTimeout(400);
+  await p.click('.topbar button:has-text("Patients")').catch(()=>{}); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr').first().click().catch(()=>{});
   await p.waitForTimeout(700);
   ok('a crash is a screen, not a white page',

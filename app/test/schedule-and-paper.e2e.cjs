@@ -25,7 +25,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('button:has-text("Load 120 patients")'); await p.waitForTimeout(1500);
 
   // ----------------------------------------------- 1. the week
-  await p.click('.topbar button:has-text("Schedule")'); await p.waitForTimeout(700);
+  await p.click('.topbar button:has-text("Capacity")'); await p.waitForTimeout(700);
   ok('the schedule opens', await p.locator('h1:has-text("Schedule")').isVisible());
   ok('visits are on the grid', await p.locator('.wdvisit').count()>5);
   ok('weekends are not clinic days', await p.locator('.wday.weekend').count()===2);
@@ -60,7 +60,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // ----------------------------------------- 3. booking collides
   if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
-  await p.click('.topbar .mark'); await p.waitForTimeout(400);
+  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(450);
   // Booking lives in the visits drawer now, not in the header.
   await p.click('.railhead:has-text("Encounters")'); await p.waitForTimeout(400);
@@ -82,11 +82,17 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // back to a clinic day, pick the longest visit, and check slots shrink
   await p.click('.booking button:has-text("Today")'); await p.waitForTimeout(200);
   for(let i=0;i<2;i++){ await p.click('.booking button:has-text("→")'); await p.waitForTimeout(120); }
-  await p.click('.booking button:has-text("Acute concern")'); await p.waitForTimeout(250);
+  // Two activities and no more. A visit is half an hour, a care plan
+  // review is a full one, and the longer one fits in fewer places.
+  const kinds = (await p.locator('.booking .kinds button').allTextContents())
+    .map((t)=>t.replace(/\s*\d+m$/,'').trim());
+  ok(`booking offers two activities and no others: ${kinds.join(', ')}`,
+    kinds.length===2 && kinds.join(',')==='Visit,Care plan review');
+  await p.click('.booking button:has-text("Visit")'); await p.waitForTimeout(250);
   const shortSlots = await p.locator('.booking .slots button').count();
-  await p.click('.booking button:has-text("Home visit")'); await p.waitForTimeout(250);
+  await p.click('.booking button:has-text("Care plan review")'); await p.waitForTimeout(250);
   const longSlots = await p.locator('.booking .slots button').count();
-  ok(`a 150 minute visit has fewer places to go than a 20 minute one (${longSlots} vs ${shortSlots})`,
+  ok(`an hour has fewer places to go than half an hour (${longSlots} vs ${shortSlots})`,
     longSlots < shortSlots);
   await p.screenshot({path:'v8-booking.png'});
 
@@ -112,16 +118,16 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('and the new visit is in the rail',
     (await p.locator('.rail').textContent()).includes('Home visit')
     || await p.locator('.nextvisit:not(.empty)').count()>0);
-  await p.click('.topbar button:has-text("Schedule")'); await p.waitForTimeout(700);
+  await p.click('.topbar button:has-text("Capacity")'); await p.waitForTimeout(700);
   ok('the home visit is on the grid', await p.locator('.wdvisit.k-home').count()>0);
 
   // ------------------------------------------- 4. paper
   if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
-  await p.click('.topbar .mark'); await p.waitForTimeout(400);
+  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
   let gotSummary=false;
   for(let i=0;i<14 && !gotSummary;i++){
   if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
-    await p.click('.topbar .mark'); await p.waitForTimeout(200);
+    await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(200);
     await p.locator('table.rows tbody tr').nth(i).click(); await p.waitForTimeout(320);
   if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
     await p.click('.railfoot button:has-text("Letters")'); await p.waitForTimeout(250);

@@ -40,7 +40,7 @@ export function Booking({ patientId, onBooked, onCancel }: {
   onCancel: () => void;
 }) {
   const st = useStore();
-  const [kind, setKind] = useState<EncounterKind>('follow-up');
+  const [kind, setKind] = useState<EncounterKind>('visit');
   const [day, setDay] = useState(st.now);
 
   const spec = ENCOUNTER_KINDS.find((k) => k.id === kind)!;
@@ -64,8 +64,8 @@ export function Booking({ patientId, onBooked, onCancel }: {
 
   return (
     <div className="booking">
-      <div className="row flow" style={{ gap: 7 }}>
-        <span className="eyebrow" style={{ alignSelf: 'center' }}>Visit type</span>
+      <div className="row flow kinds" style={{ gap: 7 }}>
+        <span className="eyebrow" style={{ alignSelf: 'center' }}>Activity</span>
         {ENCOUNTER_KINDS.map((k) => (
           <button key={k.id} className={`btn sm ${kind === k.id ? '' : 'ghost'}`}
             onClick={() => setKind(k.id)}>

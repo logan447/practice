@@ -282,42 +282,56 @@ export interface CarePlan {
 
 // ------------------------------------------------------------ encounters
 
-export type EncounterKind =
+/**
+ * Two activities, and nothing else on the schedule.
+ *
+ * There used to be nine kinds here: follow-up, annual, acute,
+ * paperwork, initial, home, care management review, behavioural
+ * health review, wellness visit. Every one of them was a real
+ * distinction and none of them belonged on a calendar. A solo
+ * physician opening the day does not want to know which billing
+ * family an hour falls into; they want to know whether the patient
+ * will be in the room.
+ *
+ * So the schedule carries the one difference that changes how the
+ * hour is spent, and everything else became a property of the
+ * encounter: whether it was by video, whether the wellness elements
+ * were covered, how long it took. A service is something you
+ * establish during the encounter, not something you book.
+ */
+export type EncounterKind = 'visit' | 'review';
+
+/** The old vocabulary, kept only so stored records can be read. */
+export type LegacyEncounterKind =
   | 'follow-up' | 'annual' | 'acute' | 'paperwork' | 'initial' | 'home'
   | 'ccm' | 'bhi' | 'awv';
 
 /**
- * The three encounters that advance the living chart.
+ * Everything that used to be a kind, mapped to what it is now.
  *
- * A clinical visit, a chronic care management review and a
- * behavioural health review are different services with different
- * documentation, and the same workflow: open on the approved chart,
- * read what has arrived since, write, ask for what is missing, sign.
- * Keeping one workflow across all three is what stops the second and
- * third becoming administrative exercises nobody does.
+ * Care management and behavioural health reviews were always the same
+ * act of work and are now one activity. Everything with the patient
+ * present is a visit.
  */
-export const REVIEW_KINDS: EncounterKind[] = ['ccm', 'bhi'];
+export const LEGACY_KIND: Record<LegacyEncounterKind, EncounterKind> = {
+  'follow-up': 'visit', annual: 'visit', acute: 'visit', paperwork: 'visit',
+  initial: 'visit', home: 'visit', awv: 'visit', ccm: 'review', bhi: 'review',
+};
 
-/**
- * Durations are the schedule's unit of truth. The home visit figure is
- * sourced: working-model.md §4 puts it at about two to two and a half
- * hours including travel, which is why it is the appointment that
- * decides what else a day can hold.
- */
 export const ENCOUNTER_KINDS: { id: EncounterKind; label: string; mins: number }[] = [
-  { id: 'follow-up', label: 'Follow-up', mins: 30 },
-  { id: 'annual', label: 'Annual physical', mins: 75 },
-  { id: 'acute', label: 'Acute concern', mins: 20 },
-  { id: 'paperwork', label: 'Paperwork', mins: 15 },
-  { id: 'initial', label: 'Initial visit', mins: 90 },
-  { id: 'home', label: 'Home visit', mins: 150 },
-  { id: 'ccm', label: 'Care management review', mins: 20 },
-  { id: 'bhi', label: 'Behavioural health review', mins: 20 },
-  // Kept apart from 'annual' on purpose. A Medicare wellness visit and
-  // a routine annual physical are different services with different
-  // required elements, and only one of them is a Medicare benefit.
-  { id: 'awv', label: 'Medicare wellness visit', mins: 45 },
+  { id: 'visit', label: 'Visit', mins: 30 },
+  // An hour, because the whole care plan is read in it. The number is
+  // a scheduling assumption, not a billing threshold, and the two
+  // must not be allowed to become the same number by habit.
+  { id: 'review', label: 'Care plan review', mins: 60 },
 ];
+
+/** How the room was arranged, which is not what kind of activity it was. */
+export type VisitSetting = 'in-person' | 'telehealth' | 'home';
+
+export const SETTING_LABEL: Record<VisitSetting, string> = {
+  'in-person': 'In person', telehealth: 'Telehealth', home: 'At home',
+};
 
 export type ExamTemplate = 'in-person' | 'telehealth';
 
@@ -377,6 +391,45 @@ export interface Encounter {
   duration?: number; // minutes
   note?: VisitNote;
   signedAt?: string;
+  /** Visits only. Absent on a review, which has no room. */
+  setting?: VisitSetting;
+  /**
+   * The wellness elements were covered in this visit.
+   *
+   * Set during the encounter and never when booking it. A wellness
+   * visit is a thing that happened, and booking one in advance is how
+   * a practice ends up documenting elements to fit a slot.
+   */
+  wellness?: boolean;
+  /** What this encounter was called before the two activities. */
+  legacyKind?: LegacyEncounterKind;
+  /** Minutes the physician actually spent, measured rather than typed. */
+  minutes?: number;
+}
+
+/**
+ * What was done with a record that arrived between encounters.
+ *
+ * Reading something is not the same as acting on it, and the chart
+ * has to be able to tell them apart. An acknowledged record has been
+ * seen and deliberately left for the next encounter. An untriaged one
+ * has not been seen at all. Both are still waiting to be incorporated
+ * into the care plan, and neither has changed it.
+ */
+export type TriageChoice = 'acknowledged' | 'expedited' | 'booked';
+
+export interface Triage {
+  id: string;
+  patientId: string;
+  /** The record this is about: a message, an update, a result, a letter. */
+  recordId: string;
+  choice: TriageChoice;
+  at: string;
+  by: string;
+  /** What the patient was told, where they were told anything. */
+  reply?: string;
+  /** The encounter this was pushed to, where one was moved or made. */
+  encounterId?: string;
 }
 
 // ------------------------------------------------- the longitudinal plan
