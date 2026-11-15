@@ -94,11 +94,12 @@ export function Chart({ patientId }: { patientId: string }) {
 
   const conditions = st.conditionsFor(p.id);
   const history = conditions.filter((c) => c.status !== 'resolved');
+  const allergies = st.allergiesFor(p.id);
   const { managed, services } = practiceSummary(p, conditions);
 
   const issues = findIssues({
     patient: p, allPatients: st.patients, medications: st.medsFor(p.id),
-    allergies: st.allergiesFor(p.id), conditions,
+    allergies, conditions,
     series: st.seriesFor(p.id), documents: st.documentsFor(p.id),
   });
 
@@ -154,6 +155,25 @@ export function Chart({ patientId }: { patientId: string }) {
                 </span>
               ))}
               .
+            </p>
+          )}
+
+          {/*
+            * The one clinical fact that goes back in a minimal header.
+            * Allergies are read at every prescribing decision, and a
+            * chart that hides them behind a drawer has optimised the
+            * wrong thing. Silent when there are none, which is most
+            * charts, so it costs nothing when it has nothing to say.
+            */}
+          {allergies.length > 0 && (
+            <p className="callergy">
+              <span className="lab">Allergies</span>
+              {allergies.map((a) => (
+                <span key={a.id} className={`alg${a.severity === 'severe' ? ' bad' : ''}`}
+                  title={a.reaction ?? undefined}>
+                  {a.substance}
+                </span>
+              ))}
             </p>
           )}
 

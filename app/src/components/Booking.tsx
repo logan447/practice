@@ -50,8 +50,11 @@ export function Booking({ patientId, onBooked, onCancel }: {
   const verdict = dayStatus(day);
   const open = slots(day, spec.mins, bookedOn(day));
   const load = dayLoad(day, bookedOn(day));
+  // Offered whenever this day cannot take the visit, for any reason.
+  // A screen that says "not a clinic day" and stops has told you the
+  // problem and left you to find the answer by clicking forward.
   const next = open.length === 0
-    ? nextOpen(addDays(day, 1), spec.mins, bookedOn)
+    ? nextOpen(day, spec.mins, bookedOn)
     : undefined;
 
   const book = (start: number) => {
@@ -87,7 +90,14 @@ export function Booking({ patientId, onBooked, onCancel }: {
       </div>
 
       {verdict.status !== 'clinic' ? (
-        <p className="bookwhy">{verdict.why}</p>
+        <>
+          <p className="bookwhy">{verdict.why}</p>
+          {next && (
+            <button className="btn sm" style={{ marginTop: 9 }} onClick={() => setDay(next.iso)}>
+              Next day it fits: {fmtDate(next.iso)} at {hhmm(next.start)}
+            </button>
+          )}
+        </>
       ) : open.length === 0 ? (
         <>
           <p className="bookwhy">

@@ -1064,3 +1064,11 @@ textarea.prose:focus {
   border: 1px solid var(--accent-line); border-radius: 7px;
   background: var(--panel-2); padding: 12px 13px; max-width: 420px;
 }
+.callergy {
+  display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+  margin: 10px 0 0; font-size: 13.5px;
+}
+.callergy .lab { color: var(--ink-3); }
+.callergy .alg { color: var(--ink-2); }
+.callergy .alg.bad { color: var(--crit); font-weight: 600; }
+.callergy .alg + .alg::before { content: ', '; color: var(--ink-3); }

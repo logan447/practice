@@ -57,7 +57,16 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('each item is specific', await p.locator('.qrow .qtitle').count()>0);
   const firstIssue = await p.locator('.qrow .qtitle').first().textContent();
   ok(`issue named: ${firstIssue.slice(0,54)}`, firstIssue.length>10);
-  ok('allergies are in the header', await p.locator('.meta.allergy').count()>0);
+  // The header carries allergies when there are any and says nothing
+  // when there are not, so this looks for a chart that has some.
+  let allergyHeader = await p.locator('.callergy').count()>0;
+  for(let i=0;i<10 && !allergyHeader;i++){
+    if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
+    await p.click('.topbar .mark'); await p.waitForTimeout(200);
+    await p.locator('table.rows tbody tr').nth(i).click(); await p.waitForTimeout(300);
+    allergyHeader = await p.locator('.callergy').count()>0;
+  }
+  ok('allergies are in the header where there are any', allergyHeader);
   await p.screenshot({path:'v6-quality.png'});
 
   // an unreadable outside record, found by walking the panel
@@ -93,16 +102,18 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     await p.click('.railhead .linkish'); await p.waitForTimeout(350);
     await p.click('.drawer button:has-text("Book a visit")'); await p.waitForTimeout(350);
     await p.click('.booking button:has-text("Follow-up")'); await p.waitForTimeout(250);
-    await p.click('.booking button:has-text("Today")', {timeout:2000}).catch(()=>{});
     await p.waitForTimeout(200);
-    if (await p.locator('.booking .slots button').count()===0) {
-      await p.click('.booking button:has-text("Next day it fits")', {timeout:2000}).catch(()=>{});
-      await p.waitForTimeout(300);
+    // Walk forward until the day can take it. The screen offers the
+    // next one that fits whatever the reason this one cannot.
+    for (let k=0;k<4 && await p.locator('.booking .slots button').count()===0;k++) {
+      await p.click('.booking button:has-text("Next day it fits")', {timeout:3000}).catch(()=>{});
+      await p.waitForTimeout(350);
     }
     await p.locator('.booking .slots button').first().click(); await p.waitForTimeout(800);
-    if (await p.locator('h1:has-text("Schedule")').count()>0) {
-      await p.click('.wdvisit'); await p.waitForTimeout(600);
-    }
+    // Booking leaves you in the chart; the new visit is in the rail.
+    if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
+    await p.waitForTimeout(300);
+    await p.click('.nextvisit'); await p.waitForTimeout(700);
   } else {
     await p.click('.nextvisit'); await p.waitForTimeout(700);
   }

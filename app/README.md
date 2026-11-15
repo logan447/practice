@@ -628,3 +628,28 @@ side of the chart. Deleted rather than renamed around.
 
 The global Escape handler called `nav.back()` from anywhere, so
 closing a drawer also navigated out of the chart.
+
+### Three gaps the redesign surfaced in older work
+
+Rewriting the chart moved the test suites off their old selectors,
+which is how these turned up.
+
+**Duplicate therapy was only checked on the saved list.** Adding a
+third NSAID to a list that already had two was silent, because the
+duplicate-therapy pass ran only when no candidate drug was being
+typed. It now runs in both directions, and the candidate version says
+"already on naproxen, meloxicam", which is the single most useful
+thing to know before prescribing and the one a checker that waits for
+the row to be saved cannot tell you in time.
+
+**Booking gave up on a non-clinic day.** The screen said "not a clinic
+day" and stopped. The "next day it fits" offer existed only for a
+clinic day that happened to be full, so a Saturday was a dead end. It
+is now offered whenever the chosen day cannot take the visit, for any
+reason.
+
+**Allergies went back into the header.** They had been in the old
+header as "No allergies recorded" on every chart. The minimal header
+dropped them, which was wrong: allergies are read at every prescribing
+decision. They are back as one quiet line, rendered only when there
+are any, so most charts still say nothing.

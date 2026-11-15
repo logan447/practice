@@ -344,18 +344,46 @@ const DUPLICATE_CLASSES: { atc: string; label: string; why: string }[] = [
   { atc: 'A10BA', label: 'biguanide', why: 'Two entries for metformin is a duplicate, and taken as written it is a double dose.' },
 ];
 
-function duplicates(resolved: { raw: string; label: string; d: RxConcept | undefined }[]): Alert[] {
+type Resolved = { raw: string; label: string; d: RxConcept | undefined };
+
+/**
+ * Two of the same thing.
+ *
+ * Runs in both directions. On the whole list it says what is already
+ * duplicated. On a drug being typed it says "they are on one of these
+ * already", which is the single most useful thing to know before
+ * prescribing and the one a checker that only looks at saved rows
+ * cannot tell you until it is too late.
+ */
+function duplicates(resolved: Resolved[], candidate?: Resolved): Alert[] {
   const out: Alert[] = [];
   for (const c of DUPLICATE_CLASSES) {
-    const hits = resolved.filter((r) => r.d?.atc.some((x) => x.id.startsWith(c.atc)));
-    // same ingredient twice is a reconciliation problem, not a
-    // duplicate-therapy one, and the chart already says so elsewhere
-    const distinct = [...new Map(hits.map((h) => [h.d!.rxcui, h])).values()];
-    if (distinct.length < 2) continue;
+    const inClass = (r: Resolved) => r.d?.atc.some((x) => x.id.startsWith(c.atc));
+    // The same ingredient twice is a reconciliation problem rather than
+    // a duplicate-therapy one, and the chart says so elsewhere.
+    const existing = [...new Map(
+      resolved.filter(inClass).map((h) => [h.d!.rxcui, h]),
+    ).values()];
+
+    if (candidate) {
+      if (!inClass(candidate)) continue;
+      const others = existing.filter((h) => h.d!.rxcui !== candidate.d?.rxcui);
+      if (others.length === 0) continue;
+      out.push({
+        id: `dupc-${c.atc}`, kind: 'duplicate', severity: 'serious',
+        subject: candidate.label,
+        against: `already on ${others.map((h) => h.label).join(', ')}`,
+        effect: `That would be ${others.length + 1} ${c.label}s at once.`,
+        basis: c.why,
+      });
+      continue;
+    }
+
+    if (existing.length < 2) continue;
     out.push({
       id: `dup-${c.atc}`, kind: 'duplicate', severity: 'serious',
-      subject: `${distinct.length} ${c.label}s on the list at once`,
-      against: distinct.map((h) => h.label).join(', '),
+      subject: `${existing.length} ${c.label}s on the list at once`,
+      against: existing.map((h) => h.label).join(', '),
       effect: 'Two drugs doing the same job.',
       basis: c.why,
     });
@@ -492,7 +520,7 @@ export function check(input: CheckInput): Alert[] {
     }
   }
 
-  if (!candidate) out.push(...duplicates(resolved));
+  out.push(...(candidate ? duplicates(resolved, subjects[0]) : duplicates(resolved)));
 
   const order: Record<Severity, number> = { avoid: 0, serious: 1, monitor: 2 };
   return collapse(out).sort((a, b) => order[a.severity] - order[b.severity]);
