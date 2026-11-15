@@ -24,7 +24,7 @@ const OLD = {
   conditions:[{id:'sc1',patientId:'p0',name:'Essential hypertension',code:'I10',
     status:'active',managed:true,onset:'2016-08-03'}],
   masterPlans:[{id:'smp1',patientId:'p0',updated:'2026-06-20',updatedBy:'L. DuBose, MD',
-    subjective:{history:'Written by the previous version.',goals:'',context:''},
+    subjective:{history:'Written by a version that stored this.',goals:'',context:''},
     objective:{narrative:''},assessment:{narrative:''},
     plan:{byProblem:{},prevention:'',lifestyle:'',followUp:''}}],
   now:'2026-11-14',
@@ -43,10 +43,10 @@ const OLD = {
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(700);
   ok('the chart draws rather than going blank',
     (await p.locator('.chead h1').textContent())==='Sharon White');
-  ok('the summary written by the older version is kept, not dropped',
-    (await p.locator('textarea.statement').inputValue())==='Written by the previous version.');
-  ok('the problem renders with an empty chart review rather than throwing',
-    (await p.locator('#subj-sc1 textarea.sreview').inputValue())==='');
+  ok('the subjective still derives from whatever records survived',
+    (await p.locator('.soap').first().locator('.psum').first().textContent()).length>20);
+  ok('the problem renders rather than throwing',
+    (await p.locator('#subj-sc1').count())===1);
   ok('and every other section drew too',
     (await p.locator('.soap').count())===4);
   ok('no uncaught error reached the page', errs.length===0);

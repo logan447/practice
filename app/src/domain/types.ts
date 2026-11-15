@@ -137,6 +137,21 @@ export interface Medication {
   indication?: string;
   /** Why it was stopped or changed; the part most EMRs lose. */
   changeNote?: string;
+  /**
+   * Whether it is actually being taken, as last reported.
+   *
+   * Not a field most records have, and the omission is the point: a
+   * medicine list says what was prescribed, and the only thing that
+   * matters clinically is what is being swallowed. Stored with who
+   * said so and when, because "taking it" from the patient in March
+   * and "taking it" assumed by us in November are different facts.
+   */
+  adherence?: {
+    status: 'taking' | 'missing-some' | 'not-taking';
+    reported: string;
+    by: 'patient' | 'clinician';
+    note?: string;
+  };
   provenance: Provenance;
 }
 
@@ -325,30 +340,6 @@ export interface MasterPlan {
   patientId: string;
   updated: string;
   updatedBy: string;
-  subjective: {
-    /**
-     * The opening statement: where the work stands today, across
-     * everything. One short paragraph, no heading above it, because
-     * this is the first thing read and a label in front of it only
-     * delays the reading.
-     */
-    history: string;
-    /**
-     * Chart review per problem, keyed by condition id, and by
-     * `prevention:<id>` and `lifestyle:<id>` for the services.
-     *
-     * This is the longitudinal half of each problem's subjective: how
-     * it has been going across the notes on file. The patient's own
-     * words sit beside it rather than inside it, and the two are
-     * never merged, because one is a clinician's reading of the
-     * record and the other is testimony.
-     */
-    byProblem: Record<string, string>;
-    /** Theirs, in their words. */
-    goals: string;
-    /** What matters from previous visits. */
-    context: string;
-  };
   objective: {
     /** Anything the measures and results do not already say. */
     narrative: string;
@@ -408,6 +399,8 @@ export interface ProblemCheckIn {
   patientId: string;
   /** The visit it was sent in before, where there was one. */
   encounterId?: string;
+  /** The update it was part of, so answers stay together. */
+  updateId?: string;
   date: string;
   /**
    * What it is about. A condition id, a prevention item id, a
@@ -422,6 +415,73 @@ export interface ProblemCheckIn {
   onPlan?: OnPlan;
   /** Their words, verbatim. Never edited here. */
   text: string;
+}
+
+// ------------------------------------------- contact between visits
+
+/**
+ * An encounter is not only a visit.
+ *
+ * Most of what we learn about a patient on a membership model arrives
+ * between appointments: an answer to a question we sent, a message
+ * about a side effect, a note that the walking has stopped. If only
+ * visits are records, all of that is either lost or buried in a
+ * thread, and the longitudinal summary is built from six data points
+ * a year instead of sixty.
+ *
+ * So anything that tells us something about how the patient is doing
+ * is a dated, attributable record, and the summary reads all of them.
+ * What separates the kinds is not importance, it is who wrote it and
+ * whether anybody signed it, and both of those stay visible.
+ */
+
+/** A question we sent, so that an answer has something to answer. */
+export interface UpdateRequest {
+  id: string;
+  patientId: string;
+  sent: string;
+  sentBy: string;
+  /** What we asked, in the words the patient saw. */
+  prompt: string;
+  /** Condition ids the question is about, where it is about any. */
+  about: string[];
+  answeredOn?: string;
+}
+
+/**
+ * A health update the patient submitted.
+ *
+ * Either prompted by a request or sent on their own. The per problem
+ * answers live in ProblemCheckIn and point back here, so one update
+ * is one record with several answers inside it rather than a handful
+ * of loose rows with the same date.
+ */
+export interface PatientUpdate {
+  id: string;
+  patientId: string;
+  date: string;
+  requestId?: string;
+  /** Their words about their health overall, where they wrote any. */
+  overall?: string;
+  /** How they said things were going overall. */
+  feeling?: CheckInFeeling;
+  /** What they sent in with it: readings, a photo, a log. */
+  attachments?: string[];
+}
+
+/** One message in a thread between the patient and the practice. */
+export interface Message {
+  id: string;
+  patientId: string;
+  date: string;
+  from: 'patient' | 'practice';
+  author: string;
+  subject?: string;
+  body: string;
+  /** Conditions it is about, where it is about any. */
+  about?: string[];
+  /** Threading, so a reply sits with what it replies to. */
+  replyTo?: string;
 }
 
 // ------------------------------------------------------- before the visit
@@ -802,35 +862,3 @@ export interface ServiceConsent {
   revoked?: string;
 }
 
-// ------------------------------------------------- synthesis proposals
-
-/**
- * A proposed change to the living summary.
- *
- * Generated from the record, never written into it. Two things make
- * this safe enough to be useful: every proposal carries the record
- * ids it was built from, and every one is labelled as either
- * something the chart documents or something the model inferred.
- * Nothing becomes part of the summary without a clinician accepting
- * it, and accepting is an event with a name and a date on it.
- */
-export type ProposalKind = 'documented' | 'interpretation';
-
-export interface SummaryProposal {
-  id: string;
-  patientId: string;
-  /** Dotted path into the master plan, e.g. "plan.byProblem.sc2". */
-  target: string;
-  targetLabel: string;
-  kind: ProposalKind;
-  /** The text proposed for that section. */
-  text: string;
-  /** What it was built from: record ids and dates, shown on screen. */
-  basis: string[];
-  generated: string;
-  status: 'pending' | 'accepted' | 'rejected';
-  decidedBy?: string;
-  decidedAt?: string;
-  /** What the clinician actually saved, when they edited it first. */
-  acceptedText?: string;
-}

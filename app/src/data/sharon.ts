@@ -59,21 +59,39 @@ export const sharonConditions: Condition[] = [
 export const sharonMeds: Medication[] = [
   { id: 'sm1', patientId: 'p0', name: 'Lisinopril', rxcui: '29046', dose: '20 mg',
     sig: 'One tablet each morning', started: '2016-08-10', status: 'active',
-    indication: 'Essential hypertension', provenance: MD },
+    indication: 'Essential hypertension',
+    adherence: { status: 'taking', reported: '2026-11-12', by: 'patient' },
+    provenance: MD },
   { id: 'sm2', patientId: 'p0', name: 'Amlodipine', rxcui: '17767', dose: '5 mg',
     sig: 'One tablet each morning', started: '2022-03-02', status: 'active',
-    indication: 'Essential hypertension', provenance: MD },
+    indication: 'Essential hypertension',
+    adherence: { status: 'taking', reported: '2026-09-28', by: 'patient' },
+    provenance: MD },
   { id: 'sm3', patientId: 'p0', name: 'Metformin', rxcui: '6809', dose: '1000 mg',
     sig: 'One tablet twice daily with food', started: '2019-11-20', status: 'active',
-    indication: 'Type 2 diabetes mellitus', provenance: MD },
+    indication: 'Type 2 diabetes mellitus',
+    adherence: {
+      status: 'taking', reported: '2026-07-22', by: 'patient',
+      note: 'Taken with food since the stomach upset in the spring.',
+    },
+    provenance: MD },
   { id: 'sm4', patientId: 'p0', name: 'Empagliflozin', rxcui: '1545653', dose: '10 mg',
     sig: 'One tablet each morning', started: '2026-06-18', status: 'active',
     indication: 'Type 2 diabetes mellitus',
     changeNote: 'Added June 2026 for glycaemic control and kidney protection.',
+    adherence: {
+      status: 'taking', reported: '2026-07-22', by: 'patient',
+      note: 'Passing water more often, which she was warned about.',
+    },
     provenance: MD },
   { id: 'sm5', patientId: 'p0', name: 'Atorvastatin', rxcui: '83367', dose: '40 mg',
     sig: 'One tablet at night', started: '2016-08-10', status: 'active',
-    indication: 'Mixed hyperlipidemia', provenance: MD },
+    indication: 'Mixed hyperlipidemia',
+    adherence: {
+      status: 'missing-some', reported: '2026-11-12', by: 'patient',
+      note: 'Skipping some weeks on purpose, to see whether she feels any different.',
+    },
+    provenance: MD },
   { id: 'sm6', patientId: 'p0', name: 'Levothyroxine', rxcui: '10582', dose: '88 mcg',
     sig: 'One tablet on an empty stomach', started: '2011-03-01', status: 'active',
     indication: 'Hypothyroidism', provenance: SRC('Endocrinology', '2026-01-20') },
@@ -147,7 +165,8 @@ export const sharonSpecialists: Specialist[] = [
     outstanding: 'None.' },
   { id: 'ss2', patientId: 'p0', name: 'Dr. Omar Haddad', specialty: 'Ophthalmology',
     practice: 'Travis County Health', phone: '(512) 555-0342', lastSeen: '2025-10-02',
-    findings: 'No retinopathy at the last examination.',
+    findings: 'No retinopathy at the last examination, both eyes.',
+    recommendations: 'Annual dilated examination while the A1c is above 7. Sooner if any visual change.',
     outstanding: 'This year’s dilated examination is not booked.' },
 ];
 
@@ -354,20 +373,6 @@ export const sharonTasks: Task[] = [
  */
 export const sharonMaster: MasterPlan = {
   id: 'smp1', patientId: 'p0', updated: '2026-06-20', updatedBy: 'L. DuBose, MD',
-  subjective: {
-    // The opening statement. No heading in front of it, because it is
-    // the first thing read.
-    history: 'Three problems managed here since she transferred in January 2026, all three moving the right way: the A1c is down 1.2 points, the blood pressure is down 26 systolic, and the LDL is under 100 for the first time. One drug came off rather than went on. The work left is not metabolic. The mammogram is eighteen months overdue, the eye examination is due, and the evening meals on her mother\u2019s nights are the half of the lifestyle plan we have not solved.',
-    byProblem: {
-      sc1: 'Chart review: 158/88 at transfer in January on lisinopril 10 alone. Amlodipine added in April, lisinopril to 20 in June. 132/78 in October. Asked in June to start checking at home and has done so since September; those readings run six to eight points lower than clinic. No cough, no ankle swelling she has noticed, though trace oedema has been on the examination since June.',
-      sc2: 'Chart review: A1c 8.1 in January, 7.6 in April, 7.4 in June, 6.9 in October. Glipizide stopped in June after two evening hypoglycaemic episodes on her mother\u2019s nights; empagliflozin started the same day. The fall since has come with one fewer drug, not one more. UACR 42 in January, 19 in October. Feet examined in June, sensation intact.',
-      sc3: 'Chart review: LDL 134 in January on atorvastatin 20, 96 in June after the dose went to 40, 78 in October. She read about statins over the summer and asked to understand the reasoning rather than stop it. No muscle symptoms at any visit.',
-      'prevention:sp1': 'Chart review: last mammogram March 2024, so eighteen months overdue. Agreed to book it in January, in June and again in October. Has not booked it. What is actually in the way has not been written down anywhere.',
-      'prevention:sp3': 'Chart review: last dilated examination October 2025, reported as no retinopathy. Due since October. Referral sent 30 October, appointment not yet confirmed.',
-    },
-    goals: 'She wants to stay off insulin, and she wants to understand her own numbers rather than be told they are fine. Her words in January: "nobody has ever shown me what any of it means."',
-    context: 'Caring for her mother three evenings a week since 2024. That is the fixed constraint every plan has had to fit around, and it is why glipizide came off in June after two evening hypoglycaemic episodes. The four evenings she is at home are the ones worth planning with.',
-  },
   objective: {
     narrative: 'Feet examined 18 June 2026, sensation intact. No retinopathy at the last dilated examination in October 2025. She has just started taking her own blood pressure at home; not enough readings yet to say how they compare with clinic.',
   },

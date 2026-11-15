@@ -40,10 +40,10 @@ import type {
   CareLogEntry, Condition, ConditionTrend, DiagnosticStudy, EmRecord, Encounter, ExamRecord,
   LabPanel, LabValue, LifestyleDomain, LifestyleIntervention, LifestyleStatus,
   MasterPlan, Medication, MdmLevel, Patient, PreventionItem, ProblemCheckIn,
-  CheckInFeeling, OnPlan, ServiceConsent, VitalsSet,
+  CheckInFeeling, OnPlan, ServiceConsent, VitalsSet, PatientUpdate, Message,
+  UpdateRequest,
 } from '../domain/types';
 import { addDays, ORIGIN } from '../lib/clock';
-import { composeStatement } from '../lib/synthesis';
 import type { Depth, Panel } from './generate';
 
 // ------------------------------------------------------------- random
@@ -69,6 +69,9 @@ export interface LongitudinalLayer {
   careLog: CareLogEntry[];
   consents: ServiceConsent[];
   checkIns: ProblemCheckIn[];
+  updates: PatientUpdate[];
+  messages: Message[];
+  requests: UpdateRequest[];
 }
 
 /** The direction a patient's numbers are moving overall. */
@@ -272,6 +275,74 @@ const SAID_OVERALL: Record<CheckInFeeling, string[]> = {
   ],
 };
 
+/**
+ * What people write in about.
+ *
+ * Messages are where the clinically useful thing usually arrives
+ * first: the side effect, the thing they read, the week the plan fell
+ * apart. Each one here carries a reply, because a message with no
+ * answer in the record is its own finding and should be rare rather
+ * than the default.
+ */
+interface Topic { subject: string; body: string; reply: string }
+
+const MESSAGE_GENERAL: Topic[] = [
+  {
+    subject: 'Question about the tablets',
+    body: 'The pharmacy gave me a different looking box this month and I want to check it is the same thing before I take it.',
+    reply: 'It is the same medicine from a different maker, so it is safe to take. Keep the box and bring it to the next visit if anything about it worries you.',
+  },
+  {
+    subject: 'Away for three weeks',
+    body: 'I am away from the sixth and I will run out of two of the tablets while I am gone. Can something be sent ahead.',
+    reply: 'Yes. I have sent a longer supply to your usual pharmacy. Collect it before you travel rather than after.',
+  },
+  {
+    subject: 'A bad few weeks',
+    body: 'I have not kept up with any of it. Work has been relentless and I would rather tell you now than pretend at the appointment.',
+    reply: 'Thank you for saying so, that is more useful than a tidy answer. We will start from where things actually are rather than where the plan said they would be.',
+  },
+];
+
+const MESSAGE_ABOUT = (name: string): Topic[] => {
+  const byName: Record<string, Topic[]> = {
+    'Essential hypertension': [{
+      subject: 'Home readings',
+      body: 'I have been taking it at home like you asked. The numbers are lower than the ones in your office and I do not know which to believe.',
+      reply: 'Yours, mostly. Clinic readings run higher for a lot of people. Keep going and bring the log; we will treat the home numbers.',
+    }, {
+      subject: 'Dizzy standing up',
+      body: 'I have been light headed when I get up quickly, mostly in the mornings. It passes after a few seconds.',
+      reply: 'That can happen when the pressure is well controlled. Stand slowly, and if it keeps happening we will look at the morning dose rather than put up with it.',
+    }],
+    'Type 2 diabetes mellitus': [{
+      subject: 'Low sugar in the evenings',
+      body: 'Twice this fortnight I have come over shaky and sweaty before dinner. It passed after something sweet.',
+      reply: 'Tell me the times and what you had eaten. That sounds like a low and it usually means a dose is doing more than it should at that hour.',
+    }, {
+      subject: 'The new tablet',
+      body: 'I am passing water far more often since the new one started. Is that expected or should I stop it.',
+      reply: 'Expected, and it settles for most people in a few weeks. Do not stop it; tell me if it is still like this at the next visit.',
+    }],
+    'Mixed hyperlipidemia': [{
+      subject: 'Something I read about statins',
+      body: 'A friend sent me an article saying these do very little for people my age. I have not stopped it but I would like to understand the reasoning.',
+      reply: 'A fair question and worth a proper answer. Let us go through your actual numbers at the next visit and decide together rather than from an article about a different group.',
+    }],
+    'Major depressive disorder': [{
+      subject: 'Not great',
+      body: 'Worse again over the last fortnight. Not dangerous, just flat, and I did not want to wait until the appointment to say so.',
+      reply: 'I am glad you wrote. Let us bring the appointment forward rather than wait. Nothing changes in the meantime.',
+    }],
+    Osteoarthritis: [{
+      subject: 'The walking',
+      body: 'I have stopped the evening walks. The knees have been bad since the weather turned and I did not want you to think I had given up.',
+      reply: 'That is useful and it is not giving up. Two days is better than five on paper and none in practice. We will find something the knees will take.',
+    }],
+  };
+  return byName[name] ?? MESSAGE_GENERAL;
+};
+
 const BARRIERS = [
   'Shift pattern makes the evenings unpredictable.',
   'Knees hurt by the end of it. Managing two or three days rather than five.',
@@ -291,6 +362,7 @@ export function longitudinal(panel: Panel, seed = 777): LongitudinalLayer {
   const out: LongitudinalLayer = {
     vitals: [], labPanels: [], exams: [], studies: [], masterPlans: [],
     lifestyle: [], emRecords: [], careLog: [], consents: [], checkIns: [],
+    updates: [], messages: [], requests: [],
   };
 
   let n = 0;
@@ -727,12 +799,30 @@ export function longitudinal(panel: Panel, seed = 777): LongitudinalLayer {
         return roll < 0.2 ? 'better' : roll < 0.72 ? 'same' : roll < 0.88 ? 'worse' : 'unsure';
       };
       const onPlan = (): OnPlan => (chance(0.42) ? 'yes' : chance(0.65) ? 'partly' : 'no');
+
+      // The answers arrive as one update, prompted by one question, so
+      // the chart has a record to open rather than loose rows.
+      const reqId = id('rq');
+      const updId = id('up');
+      out.requests.push({
+        id: reqId, patientId: p.id, sent: addDays(sentOn, -2), sentBy: 'L. DuBose, MD',
+        prompt: 'Before we meet: how is each of these going, and are you managing the plan we agreed?',
+        about: managed.map((c) => c.id),
+        answeredOn: sentOn,
+      });
+      const overallFeel = feel();
+      out.updates.push({
+        id: updId, patientId: p.id, date: sentOn, requestId: reqId,
+        feeling: overallFeel,
+        overall: chance(0.82) ? pick(SAID_OVERALL[overallFeel]) : undefined,
+      });
       for (const c of managed) {
         // Somebody who answers four of six is the normal case.
         if (chance(0.22)) continue;
         const f = feel();
         out.checkIns.push({
-          id: id('ci'), patientId: p.id, encounterId: anchorVisit.id, date: sentOn,
+          id: id('ci'), patientId: p.id, encounterId: anchorVisit.id, updateId: updId,
+          date: sentOn,
           about: { kind: 'condition', id: c.id },
           feeling: f, onPlan: onPlan(), text: pick(SAID[f]),
         });
@@ -742,7 +832,8 @@ export function longitudinal(panel: Panel, seed = 777): LongitudinalLayer {
         const f: CheckInFeeling = li.status === 'achieved' ? 'better'
           : li.status === 'struggling' ? 'worse' : li.status === 'not-started' ? 'unsure' : 'same';
         out.checkIns.push({
-          id: id('ci'), patientId: p.id, encounterId: anchorVisit.id, date: sentOn,
+          id: id('ci'), patientId: p.id, encounterId: anchorVisit.id, updateId: updId,
+          date: sentOn,
           about: { kind: 'lifestyle', id: li.id },
           feeling: f,
           onPlan: li.status === 'achieved' ? 'yes' : li.status === 'not-started' ? 'no' : 'partly',
@@ -752,7 +843,8 @@ export function longitudinal(panel: Panel, seed = 777): LongitudinalLayer {
       for (const item of (prevBy.get(p.id) ?? []).filter((x) => x.status !== 'current')) {
         if (!chance(0.4)) continue;
         out.checkIns.push({
-          id: id('ci'), patientId: p.id, encounterId: anchorVisit.id, date: sentOn,
+          id: id('ci'), patientId: p.id, encounterId: anchorVisit.id, updateId: updId,
+          date: sentOn,
           about: { kind: 'prevention', id: item.id },
           feeling: 'unsure',
           onPlan: 'no',
@@ -764,12 +856,37 @@ export function longitudinal(panel: Panel, seed = 777): LongitudinalLayer {
           ]),
         });
       }
+      // Messages, which is where most of what matters arrives.
+      const msgs = depth === 'new' ? (chance(0.3) ? 1 : 0)
+        : depth === 'establishing' ? Math.floor(r() * 3)
+          : depth === 'established' ? 1 + Math.floor(r() * 3)
+            : 2 + Math.floor(r() * 4);
+      for (let k = 0; k < msgs; k++) {
+        const about = managed[Math.floor(r() * Math.max(managed.length, 1))];
+        const when = addDays(ORIGIN, -Math.floor(between(4, 240)));
+        const topic = about ? pick(MESSAGE_ABOUT(about.name)) : pick(MESSAGE_GENERAL);
+        const mid = id('ms');
+        out.messages.push({
+          id: mid, patientId: p.id, date: when, from: 'patient', author: p.name,
+          subject: topic.subject, about: about ? [about.id] : [],
+          body: topic.body,
+        });
+        if (chance(0.78)) {
+          out.messages.push({
+            id: id('ms'), patientId: p.id, date: addDays(when, chance(0.6) ? 0 : 1),
+            from: 'practice', author: 'L. DuBose, MD', replyTo: mid,
+            subject: `Re: ${topic.subject}`, about: about ? [about.id] : [],
+            body: topic.reply,
+          });
+        }
+      }
+
       if (chance(0.82)) {
-        const f = feel();
         out.checkIns.push({
-          id: id('ci'), patientId: p.id, encounterId: anchorVisit.id, date: sentOn,
+          id: id('ci'), patientId: p.id, encounterId: anchorVisit.id, updateId: updId,
+          date: sentOn,
           about: { kind: 'overall' },
-          feeling: f, text: pick(SAID_OVERALL[f]),
+          feeling: overallFeel, text: pick(SAID_OVERALL[overallFeel]),
         });
       }
     }
@@ -817,23 +934,7 @@ interface MasterInput {
   chance: (p: number) => boolean;
 }
 
-const GOAL_LINES = [
-  'Wants to stay off insulin, and wants to understand the numbers rather than be told they are fine.',
-  'Wants the medicine list as short as it can honestly be.',
-  'Wants to be able to do the stairs at work without stopping.',
-  'Wants to get to the grandchildren’s age without a stroke, which is how it was put.',
-  'Wants one change at a time. Has been overwhelmed by a plan before and said so.',
-  'Wants to keep working the shifts. Everything else fits around that.',
-];
 
-const CONTEXT_LINES = [
-  'Shift work, three on and four off. Any plan has to survive that rota.',
-  'Caring for a parent three evenings a week. That is the fixed constraint every plan has had to fit around.',
-  'Drives for a living. Eating happens at the wheel unless it is planned the night before.',
-  'Away for work a week in four. The weeks at home are the ones worth planning with.',
-  'Lost a job in the spring and the insurance with it. Cost is part of every decision here.',
-  'Two young children. Appointments need to be short and the plan needs to be simple.',
-];
 
 /**
  * The summary, written from the record rather than from a template
@@ -868,91 +969,6 @@ function buildMaster(i: MasterInput): MasterPlan {
     if (!panel) return undefined;
     return { v: panel.values.find((x) => x.key === key)!, date: panel.date };
   };
-
-  // ------------------------------------------------------- subjective
-  //
-  // The opening statement first: where the work stands today across
-  // everything, in one paragraph with no heading over it. Then a
-  // chart review per problem, built from that problem's own measure,
-  // its own drug history and the notes that actually mentioned it.
-  // The opening paragraph is written by the same function the live
-  // synthesis uses, over only the records the summary is supposed to
-  // know about. That is what makes the staleness real: the paragraph
-  // is a correct summary of the chart as it stood, and the records
-  // that arrived since are exactly what the review step will offer.
-  const composed = composeStatement({
-    patientId: p.id, now: updated, master: undefined,
-    conditions: i.conds, medications: meds,
-    encounters: i.encounters.filter((e) => e.date <= updated),
-    exams: known(exams), vitals: known(vitals), panels: kPanels,
-    studies: known(studies), specialists: [], prevention,
-    entries: [], checkIns: i.checkIns.filter((c) => c.date <= updated),
-    lifestyle,
-  });
-  const history = composed?.text ?? '';
-
-  // One chart review per problem, from that problem's own record.
-  const MEASURE: Record<string, string> = {
-    'Type 2 diabetes mellitus': 'A1c',
-    Prediabetes: 'A1c',
-    'Mixed hyperlipidemia': 'LDL',
-    'Chronic kidney disease, stage 3a': 'eGFR',
-  };
-  const notesAbout = (c: Condition) => {
-    const terms = [
-      ...c.name.toLowerCase().split(/[\s,]+/).filter((w) => w.length > 4),
-      ...meds.filter((m) => m.indication === c.name).map((m) => m.name.toLowerCase()),
-    ];
-    return byDateDesc(i.encounters).filter((e) => {
-      const t = `${e.note?.subjective.additional ?? ''}`.toLowerCase();
-      return terms.some((term) => t.includes(term));
-    });
-  };
-
-  const byProblemS: Record<string, string> = {};
-  for (const c of managed) {
-    const parts: string[] = [];
-    const key = MEASURE[c.name];
-    if (key) {
-      const nowV = kVal(key);
-      const thenV = kVal(key, Math.max(1, kPanels.filter((x) => x.values.some((v) => v.key === key)).length - 1));
-      if (nowV && thenV && thenV.date !== nowV.date) {
-        parts.push(`${key} ${thenV.v.value} in ${short(thenV.date)} to ${nowV.v.value} in ${short(nowV.date)}.`);
-      } else if (nowV) {
-        parts.push(`${key} ${nowV.v.value} on ${fmt(nowV.date)}, the only value on file.`);
-      } else {
-        parts.push(`No ${key} on file for this.`);
-      }
-    } else if (c.name === 'Essential hypertension' && kOffice.length >= 2) {
-      const a = kOffice[kOffice.length - 1];
-      const b = kOffice[0];
-      parts.push(`${a.systolic}/${a.diastolic} in ${short(a.date)} to ${b.systolic}/${b.diastolic} in ${short(b.date)}.`);
-    } else if (c.name === 'Obesity' && kOffice.length >= 2) {
-      const a = kOffice[kOffice.length - 1];
-      const b = kOffice[0];
-      parts.push(`Weight ${a.weightLb} lb in ${short(a.date)}, ${b.weightLb} lb in ${short(b.date)}.`);
-    }
-    const mine = meds.filter((m) => m.indication === c.name);
-    if (mine.length > 0) {
-      parts.push(`On ${mine.map((m) => `${m.name}${m.dose ? ` ${m.dose}` : ''}`).join(' and ')} since ${short(mine[0].started)}.`);
-    }
-    const said = notesAbout(c)[0];
-    if (said) parts.push(`${fmt(said.date)}: ${said.note?.subjective.additional}`);
-    if (parts.length === 0) {
-      parts.push('Nothing in the notes on file speaks to this problem directly. It has been carried rather than reviewed.');
-    }
-    byProblemS[c.id] = parts.join(' ');
-  }
-  for (const item of prevention.filter((x) => x.status !== 'current')) {
-    byProblemS[`prevention:${item.id}`] = item.lastDone
-      ? `Last done ${fmt(item.lastDone)}.${item.dueBy ? ` Due ${fmt(item.dueBy)}.` : ''} ${item.status === 'overdue' ? 'Overdue since then and not booked.' : 'Not yet booked.'}`
-      : `Never done in this chart.${item.dueBy ? ` Due ${fmt(item.dueBy)}.` : ''}`;
-  }
-  for (const li of lifestyle) {
-    byProblemS[`lifestyle:${li.id}`] = `Prescribed ${fmt(li.started)}.${
-      li.reviewed ? ` Reviewed ${fmt(li.reviewed)}.` : ' Not reviewed since.'
-    }${li.barrier ? ` ${li.barrier}` : ''}`;
-  }
 
   // ------------------------------------------------------- objective
   const lastExam = byDateDesc(exams)[0];
@@ -1017,12 +1033,6 @@ function buildMaster(i: MasterInput): MasterPlan {
 
   return {
     id: `mp-${p.id}`, patientId: p.id, updated, updatedBy: 'L. DuBose, MD',
-    subjective: {
-      history,
-      byProblem: byProblemS,
-      goals: i.pick(GOAL_LINES),
-      context: p.pinned ?? (i.chance(0.55) ? i.pick(CONTEXT_LINES) : ''),
-    },
     objective: { narrative: objective },
     assessment: { narrative: assessment },
     plan: { byProblem, prevention: prevention_, lifestyle: lifestyleText, followUp },
@@ -1032,6 +1042,3 @@ function buildMaster(i: MasterInput): MasterPlan {
 const fmt = (iso: string) => new Date(iso + 'T12:00:00')
   .toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
-/** Month and year, for a trajectory that spans several of them. */
-const short = (iso: string) => new Date(iso + 'T12:00:00')
-  .toLocaleString('en-GB', { month: 'short', year: 'numeric' });

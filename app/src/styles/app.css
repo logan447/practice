@@ -1461,3 +1461,106 @@ blockquote.said footer {
   overflow-wrap: anywhere;
 }
 .crashwhere { display: block; margin-top: 6px; color: #6b7876; }
+
+/* --------------------------------------------- the derived subjective
+ *
+ * Voice is carried by the face rather than by a label on every clause:
+ * what the patient said is set in the serif this app uses for their
+ * words everywhere else, what the record documents is set in the sans.
+ */
+.psum { margin: 0 0 9px; font-size: 14.5px; line-height: 1.68; color: var(--ink-2); }
+.psum .said { font-family: var(--serif); font-size: 15px; color: var(--ink); }
+.psum .doc { color: var(--ink-2); }
+.soapbody > .psum:first-child {
+  font-size: 16px; line-height: 1.7; margin-bottom: 10px;
+}
+.soapbody > .psum:first-child .said { font-size: 16.5px; }
+
+.derivedfrom {
+  margin: 0 0 22px; font-size: 12.5px; line-height: 1.6; color: var(--ink-3);
+}
+.psrc { margin: 6px 0 0; font-size: 12px; line-height: 1.55; color: var(--ink-3); }
+.pconflict {
+  margin: 0 0 9px; font-size: 13px; line-height: 1.55; color: var(--warn);
+  border-left: 2px solid var(--warn); padding-left: 9px;
+}
+
+/* The status of everything being done about one problem. */
+.ivlist { list-style: none; margin: 8px 0 0; padding: 0; }
+.ivlist li {
+  display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+  padding: 4px 0; border-top: 1px solid var(--line-2); font-size: 13px;
+}
+.ivlist li:first-child { border-top: 0; }
+.ivlist .ivl { min-width: 190px; color: var(--ink); font-weight: 500; }
+.ivlist .iva { color: var(--ink-3); font-size: 11.5px; }
+
+/* ------------------------------------------------------ the timeline */
+.tl { display: flex; flex-direction: column; }
+.tlitem { border-top: 1px solid var(--line-2); padding: 2px 0 9px; }
+.tlhead {
+  display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; width: 100%;
+  background: none; border: 0; padding: 9px 0 4px; cursor: pointer; text-align: left;
+  font: inherit;
+}
+.tlhead .tldate { font-size: 12px; color: var(--ink-3); min-width: 86px; }
+.tlhead .tltitle { font-weight: 600; color: var(--ink); font-size: 13.5px; }
+.tlhead .tlby { font-size: 12px; color: var(--ink-3); }
+.tlhead .tlwhen { margin-left: auto; font-size: 11.5px; color: var(--ink-3); }
+.tlprev {
+  margin: 0 0 0 95px; font-size: 13px; line-height: 1.55; color: var(--ink-3);
+}
+.recbody { margin: 4px 0 0 95px; font-size: 13.5px; line-height: 1.6; color: var(--ink-2); }
+.recbody p { margin: 0 0 7px; }
+.recbody .said { font-family: var(--serif); font-size: 14.5px; color: var(--ink); }
+.recmeta { font-size: 12px; color: var(--ink-3); margin-bottom: 7px; }
+.recask {
+  background: var(--panel-2); border-left: 2px solid var(--accent-line);
+  padding: 7px 10px; border-radius: 0 6px 6px 0;
+}
+.reply { margin-top: 10px; padding-left: 12px; border-left: 2px solid var(--line); }
+.anslist { list-style: none; margin: 6px 0 0; padding: 0; }
+.anslist li {
+  display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+  padding: 6px 0; border-top: 1px solid var(--line-2);
+}
+.anslist .ansfor { font-weight: 600; color: var(--ink); min-width: 170px; font-size: 13px; }
+.anslist .anstext {
+  flex: 1 1 100%; font-family: var(--serif); font-size: 14px; color: var(--ink);
+}
+
+/* The rail's compact version of the same list. */
+.tlrow {
+  display: flex; align-items: baseline; gap: 8px; width: 100%;
+  background: none; border: 0; padding: 5px 0; cursor: pointer; text-align: left;
+  font: inherit; border-top: 1px solid var(--line-2);
+}
+.tlrow .tlk {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em;
+  color: var(--ink-3); min-width: 74px;
+}
+.tlrow .tlt {
+  flex: 1; font-size: 12.5px; color: var(--ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.tlrow .tld { font-size: 11.5px; color: var(--ink-3); }
+.tlrow:hover .tlt { color: var(--accent); }
+
+/* Simulation, labelled as simulation. */
+.simbox {
+  margin-top: 22px; padding: 14px 16px; border: 1px dashed var(--line);
+  border-radius: 8px; background: var(--panel-2);
+}
+.simbox h4 { margin: 0 0 4px; font-size: 13px; }
+.simbox p { margin: 0 0 10px; }
+
+.srclist { list-style: none; margin: 14px 0 0; padding: 0; }
+.srclist li {
+  display: flex; align-items: baseline; gap: 10px;
+  padding: 7px 0; border-top: 1px solid var(--line-2); font-size: 13px;
+}
+.srclist .srck {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em;
+  color: var(--ink-3); min-width: 76px;
+}
+.drawerlead { margin: 0 0 6px; font-size: 13.5px; line-height: 1.6; color: var(--ink-2); }

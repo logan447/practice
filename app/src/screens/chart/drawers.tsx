@@ -16,11 +16,15 @@ import type { LabPanel } from '../../domain/types';
 export type ChartDrawer =
   | null
   | 'visits' | 'plan' | 'meds' | 'results' | 'specialists' | 'orders' | 'followup'
-  | 'studies' | 'records' | 'documentation' | 'export' | 'details' | 'review'
-  | 'notes' | 'history' | 'prevention' | 'letters';
+  | 'studies' | 'records' | 'documentation' | 'export' | 'details'
+  | 'encounters' | 'notes' | 'history' | 'prevention' | 'letters';
 
 export const DRAWER_TITLES: Record<string, { title: string; sub?: string }> = {
   visits: { title: 'Visits', sub: 'Every encounter, and the notes as signed' },
+  encounters: {
+    title: 'Encounters',
+    sub: 'Visits, updates, messages, letters and results, newest first',
+  },
   plan: { title: 'Shared care plan', sub: 'What the patient sees in their portal' },
   meds: { title: 'Medicines', sub: 'Stopped drugs stay, with the reason' },
   results: { title: 'Labs and vitals', sub: 'Every panel and every reading' },
@@ -32,7 +36,6 @@ export const DRAWER_TITLES: Record<string, { title: string; sub?: string }> = {
   documentation: { title: 'Documentation and billing', sub: 'What a biller or an auditor would ask for' },
   export: { title: 'Export the record' },
   details: { title: 'Patient details' },
-  review: { title: 'Review the summary update', sub: 'Nothing here is in the record yet' },
   notes: { title: 'Visit notes' },
   history: { title: 'Who did what' },
   prevention: { title: 'Prevention' },

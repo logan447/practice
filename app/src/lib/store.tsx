@@ -19,15 +19,16 @@ import type {
   OrderKind, Patient, PatientEntry, PreVisit, PreventionItem, ResultReport,
   ResultSeries, Specialist, Task, VisitNote, Allergy, ChartDocument, MasterPlan,
   VitalsSet, LabPanel, ExamRecord, DiagnosticStudy, EmRecord, CareLogEntry, ProblemCheckIn,
-  ServiceConsent, SummaryProposal, ConditionTrend, LifestyleIntervention,
+  PatientUpdate, Message, UpdateRequest,
+  ServiceConsent, ConditionTrend, LifestyleIntervention,
 } from '../domain/types';
 import { fmtDate } from './format';
-import { propose, applyProposal } from './synthesis';
 import { generatePanel } from '../data/generate';
 import { longitudinal } from '../data/longitudinal';
 import * as sharon from '../data/sharon';
 import * as clinical from '../data/sharon-clinical';
 import * as demo from '../data/demo-states';
+import * as contact from '../data/sharon-contact';
 import { resolveDrug } from '../domain/terminology';
 import { recordDiff, type Snapshot } from './audit';
 import { actor as currentActor } from './session';
@@ -69,8 +70,13 @@ interface State {
   consents: ServiceConsent[];
   /** The patient's own words on each problem, sent in before a visit. */
   checkIns: ProblemCheckIn[];
+  /** Health updates the patient submitted, prompted or otherwise. */
+  updates: PatientUpdate[];
+  /** Messages between the patient and the practice. */
+  messages: Message[];
+  /** Questions we sent, so an answer has something to answer. */
+  requests: UpdateRequest[];
   /** Drafted by the assistant, not yet anybody's words. */
-  proposals: SummaryProposal[];
   lifestyle: LifestyleIntervention[];
   /** The clinic's today. Movable, because care is longitudinal. */
   now: string;
@@ -84,8 +90,8 @@ const EMPTY: State = {
   carePlans: [], encounters: [], prevention: [], patientEntries: [], aiDrafts: [], tasks: [],
   specialists: [], preVisits: [], orders: [], masterPlans: [],
   vitals: [], labPanels: [], exams: [], studies: [],
-  emRecords: [], careLog: [], consents: [], proposals: [], lifestyle: [],
-  checkIns: [],
+  emRecords: [], careLog: [], consents: [], lifestyle: [],
+  checkIns: [], updates: [], messages: [], requests: [],
   now: ORIGIN, lastEvents: [],
 };
 
@@ -120,7 +126,8 @@ function migrate(raw: State | null): State | null {
     'resultSeries', 'resultReports', 'carePlans', 'encounters', 'prevention',
     'patientEntries', 'aiDrafts', 'tasks', 'specialists', 'preVisits', 'orders',
     'masterPlans', 'vitals', 'labPanels', 'exams', 'studies', 'emRecords',
-    'careLog', 'consents', 'proposals', 'lifestyle', 'checkIns',
+    'careLog', 'consents', 'lifestyle', 'checkIns',
+    'updates', 'messages', 'requests',
   ] as (keyof State)[]) fill(k);
   if (!s.now) s.now = ORIGIN;
   if (!Array.isArray(s.lastEvents)) s.lastEvents = [];
@@ -130,11 +137,6 @@ function migrate(raw: State | null): State | null {
   // subjective section reads straight through it.
   s.masterPlans = s.masterPlans.map((m) => ({
     ...m,
-    subjective: {
-      ...{ history: '', goals: '', context: '' },
-      ...(m.subjective ?? {}),
-      byProblem: m.subjective?.byProblem ?? {},
-    },
     objective: { narrative: m.objective?.narrative ?? '' },
     assessment: { narrative: m.assessment?.narrative ?? '' },
     plan: {
@@ -208,8 +210,10 @@ function demoState(): State {
     emRecords: clinical.sharonEm,
     careLog: clinical.sharonCareLog,
     consents: clinical.sharonConsents,
-    checkIns: [...clinical.sharonCheckIns, ...demo.marcusCheckIns],
-    proposals: [],
+    checkIns: [...contact.sharonCheckIns, ...demo.marcusCheckIns],
+    updates: contact.sharonUpdates,
+    messages: contact.sharonMessages,
+    requests: contact.sharonRequests,
     lifestyle: [...clinical.sharonLifestyle, ...demo.marcusLifestyle],
     now: ORIGIN,
     lastEvents: [],
@@ -261,7 +265,13 @@ interface Store extends State {
   consentsFor: (id: string) => ServiceConsent[];
   /** Newest first. */
   checkInsFor: (id: string) => ProblemCheckIn[];
-  proposalsFor: (id: string) => SummaryProposal[];
+  updatesFor: (id: string) => PatientUpdate[];
+  /** Demo affordances: add a record and watch the subjective move. */
+  simulateUpdate: (patientId: string) => void;
+  simulateMessage: (patientId: string) => void;
+  simulateVisit: (patientId: string) => void;
+  messagesFor: (id: string) => Message[];
+  requestsFor: (id: string) => UpdateRequest[];
   lifestyleFor: (id: string) => LifestyleIntervention[];
   seriesFor: (id: string) => ResultSeries[];
   series: (id: string) => ResultSeries | undefined;
@@ -349,9 +359,6 @@ interface Store extends State {
   ) => void;
 
   // the assistant proposes, the clinician disposes
-  generateProposals: (patientId: string) => number;
-  decideProposal: (id: string, accept: boolean, editedText?: string) => void;
-  clearProposals: (patientId: string) => void;
 }
 
 const Ctx = createContext<Store | null>(null);
@@ -416,7 +423,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         .sort((a, b) => b.date.localeCompare(a.date)),
       consentsFor: (id) => by(s.consents, id),
       checkInsFor: (id) => [...by(s.checkIns, id)].sort((a, b) => b.date.localeCompare(a.date)),
-      proposalsFor: (id) => by(s.proposals, id).filter((p) => p.status === 'pending'),
+      updatesFor: (id) => [...by(s.updates, id)].sort((a, b) => b.date.localeCompare(a.date)),
+      messagesFor: (id) => [...by(s.messages, id)].sort((a, b) => b.date.localeCompare(a.date)),
+      requestsFor: (id) => [...by(s.requests, id)].sort((a, b) => b.sent.localeCompare(a.sent)),
       lifestyleFor: (id) => by(s.lifestyle, id),
       seriesFor: (id) => by(s.resultSeries, id),
       clinicalSeriesFor: (id) => by(s.resultSeries, id).filter((x) => x.source !== 'patient'),
@@ -555,6 +564,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           careLog: [...demo.careLog, ...d.careLog],
           consents: [...demo.consents, ...d.consents],
           checkIns: [...demo.checkIns, ...d.checkIns],
+          updates: demo.updates, messages: demo.messages, requests: demo.requests,
           lifestyle: [...demo.lifestyle, ...d.lifestyle],
           now: ORIGIN,
           lastEvents: [],
@@ -858,8 +868,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           const existing = p.masterPlans.find((m) => m.patientId === enc.patientId);
           const base: MasterPlan = existing ?? {
             id: newId('mp'), patientId: enc.patientId, updated: clockNow(), updatedBy: ME,
-            subjective: { history: '', byProblem: {}, goals: '', context: '' },
-            objective: { narrative: '' },
+                    objective: { narrative: '' },
             assessment: { narrative: '' },
             plan: { byProblem: {}, prevention: '', lifestyle: '', followUp: '' },
           };
@@ -911,14 +920,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           const existing = p.masterPlans.find((m) => m.patientId === patientId);
           const base: MasterPlan = existing ?? {
             id: newId('mp'), patientId, updated: clockNow(), updatedBy: ME,
-            subjective: { history: '', byProblem: {}, goals: '', context: '' },
-            objective: { narrative: '' },
+                    objective: { narrative: '' },
             assessment: { narrative: '' },
             plan: { byProblem: {}, prevention: '', lifestyle: '', followUp: '' },
           };
           const next: MasterPlan = {
             ...base, ...patch,
-            subjective: { ...base.subjective, ...patch.subjective },
             objective: { ...base.objective, ...patch.objective },
             assessment: { ...base.assessment, ...patch.assessment },
             plan: { ...base.plan, ...patch.plan },
@@ -937,8 +944,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           const existing = p.masterPlans.find((m) => m.patientId === patientId);
           const base: MasterPlan = existing ?? {
             id: newId('mp'), patientId, updated: clockNow(), updatedBy: ME,
-            subjective: { history: '', byProblem: {}, goals: '', context: '' },
-            objective: { narrative: '' },
+                    objective: { narrative: '' },
             assessment: { narrative: '' },
             plan: { byProblem: {}, prevention: '', lifestyle: '', followUp: '' },
           };
@@ -993,97 +999,130 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         })),
 
       /**
-       * Read the record, propose text, write nothing.
-       *
-       * The proposals land in their own collection. Nothing reaches
-       * the summary until someone accepts it, and accepting is an
-       * event with a name and a date on it.
+       * Three demo records, so the claim can be checked rather than
+       * believed. Each one is an ordinary record of its kind: nothing
+       * here writes to the summary, because nothing can. The summary
+       * is derived, so adding a record is the only way to change it,
+       * which is the property being demonstrated.
        */
-      generateProposals: (patientId) => {
-        const made = propose({
-          patientId, now: s.now,
-          master: s.masterPlans.find((m) => m.patientId === patientId),
-          conditions: by(s.conditions, patientId),
-          medications: by(s.medications, patientId),
-          encounters: by(s.encounters, patientId),
-          exams: by(s.exams, patientId),
-          vitals: by(s.vitals, patientId),
-          panels: by(s.labPanels, patientId),
-          studies: by(s.studies, patientId),
-          specialists: by(s.specialists, patientId),
-          prevention: by(s.prevention, patientId),
-          plan: s.carePlans.find((c) => c.patientId === patientId),
-          entries: by(s.patientEntries, patientId),
-          checkIns: by(s.checkIns, patientId),
-          lifestyle: by(s.lifestyle, patientId),
-        });
-        setS((p) => ({
-          ...p,
-          proposals: [...p.proposals.filter((x) => x.patientId !== patientId || x.status !== 'pending'), ...made],
-        }));
-        return made.length;
-      },
-
-      decideProposal: (id, accept, editedText) =>
+      simulateUpdate: (patientId) =>
         setS((p) => {
-          const pr = p.proposals.find((x) => x.id === id);
-          if (!pr) return p;
-          const decided: SummaryProposal = {
-            ...pr,
-            status: accept ? 'accepted' : 'rejected',
-            decidedBy: ME, decidedAt: clockNow(),
-            acceptedText: accept ? (editedText ?? pr.text) : undefined,
-          };
-          const proposals = p.proposals.map((x) => (x.id === id ? decided : x));
-          if (!accept) return { ...p, proposals };
-
-          const existing = p.masterPlans.find((m) => m.patientId === pr.patientId);
-          const base: MasterPlan = existing ?? {
-            id: newId('mp'), patientId: pr.patientId, updated: clockNow(), updatedBy: ME,
-            subjective: { history: '', byProblem: {}, goals: '', context: '' },
-            objective: { narrative: '' },
-            assessment: { narrative: '' },
-            plan: { byProblem: {}, prevention: '', lifestyle: '', followUp: '' },
-          };
-          const patch = applyProposal(base, decided);
-          if (!patch) return { ...p, proposals };
-
-          const next: MasterPlan = 'problemId' in patch
-            ? {
-              ...base,
-              plan: {
-                ...base.plan,
-                byProblem: {
-                  ...base.plan.byProblem,
-                  [patch.problemId]: base.plan.byProblem[patch.problemId]
-                    ? `${patch.text}\n\n${base.plan.byProblem[patch.problemId]}`
-                    : patch.text,
-                },
-              },
-              updated: clockNow(), updatedBy: ME,
-            }
-            : {
-              ...base, ...patch,
-              subjective: { ...base.subjective, ...patch.subjective },
-              objective: { ...base.objective, ...patch.objective },
-              assessment: { ...base.assessment, ...patch.assessment },
-              plan: { ...base.plan, ...patch.plan },
-              updated: clockNow(), updatedBy: ME,
-            };
-
+          const managed = p.conditions.filter(
+            (c) => c.patientId === patientId && c.managed && c.status === 'active',
+          );
+          const date = clockNow();
+          const reqId = newId('rq');
+          const updId = newId('up');
+          const SAID = [
+            'Worse this month, if I am honest. The routine went when my shifts changed and I have not got it back.',
+            'Better. Whatever we changed last time, it has made a difference I can feel.',
+            'About the same. Nothing has got worse, which after the summer I will take.',
+          ];
+          const feel = (['worse', 'better', 'same'] as const);
+          const which = Math.floor(Math.random() * 3);
           return {
-            ...p, proposals,
-            masterPlans: existing
-              ? p.masterPlans.map((m) => (m.patientId === pr.patientId ? next : m))
-              : [...p.masterPlans, next],
+            ...p,
+            requests: [...p.requests, {
+              id: reqId, patientId, sent: addDays(date, -2), sentBy: ME,
+              prompt: 'Before we meet: how is each of these going, and are you managing the plan we agreed?',
+              about: managed.map((c) => c.id),
+              answeredOn: date,
+            }],
+            updates: [...p.updates, {
+              id: updId, patientId, date, requestId: reqId,
+              feeling: feel[which], overall: SAID[which],
+            }],
+            checkIns: [
+              ...p.checkIns,
+              ...managed.map((c) => ({
+                id: newId('ci'), patientId, updateId: updId, date,
+                about: { kind: 'condition' as const, id: c.id },
+                feeling: feel[which],
+                onPlan: (which === 0 ? 'no' : which === 1 ? 'yes' : 'partly') as 'no' | 'yes' | 'partly',
+                text: which === 0
+                  ? `I have not kept up with the plan for the ${c.name.toLowerCase()}. I would rather say so now than at the visit.`
+                  : which === 1
+                    ? `The ${c.name.toLowerCase()} feels better managed than it did. I am doing what we agreed.`
+                    : `No change with the ${c.name.toLowerCase()}. Doing most of it, not all of it.`,
+              })),
+              {
+                id: newId('ci'), patientId, updateId: updId, date,
+                about: { kind: 'overall' as const },
+                feeling: feel[which], text: SAID[which],
+              },
+            ],
+            lastEvents: [...p.lastEvents, `Health update received ${date}`],
           };
         }),
 
-      clearProposals: (patientId) =>
-        setS((p) => ({
-          ...p,
-          proposals: p.proposals.filter((x) => x.patientId !== patientId || x.status !== 'pending'),
-        })),
+      simulateMessage: (patientId) =>
+        setS((p) => {
+          const date = clockNow();
+          const first = p.medications.find(
+            (m) => m.patientId === patientId && m.status === 'active',
+          );
+          const id = newId('ms');
+          const drug = first?.name ?? 'the new tablet';
+          return {
+            ...p,
+            messages: [...p.messages, {
+              id, patientId, date, from: 'patient' as const,
+              author: p.patients.find((x) => x.id === patientId)?.name ?? 'The patient',
+              subject: `Side effect from the ${drug.toLowerCase()}`,
+              about: first?.indication
+                ? p.conditions.filter((c) => c.patientId === patientId && c.name === first.indication)
+                  .map((c) => c.id)
+                : [],
+              body: `Since about a fortnight ago I have had a dry cough that will not shift, worse at night. A friend said it can be the ${drug.toLowerCase()}. I have not stopped it but I would like to know whether I should.`,
+            }],
+            ...(first
+              ? {
+                medications: p.medications.map((m) => (m.id === first.id
+                  ? {
+                    ...m,
+                    adherence: {
+                      status: 'taking' as const, reported: date, by: 'patient' as const,
+                      note: 'Still taking it, but asking whether to stop.',
+                    },
+                  }
+                  : m)),
+              }
+              : {}),
+            lastEvents: [...p.lastEvents, `Message received ${date}`],
+          };
+        }),
+
+      simulateVisit: (patientId) =>
+        setS((p) => {
+          const date = clockNow();
+          const managed = p.conditions.filter(
+            (c) => c.patientId === patientId && c.managed && c.status === 'active',
+          );
+          const named = managed[0]?.name ?? 'the problem list';
+          const id = newId('en');
+          return {
+            ...p,
+            encounters: [...p.encounters, {
+              id, patientId, date, kind: 'follow-up' as const,
+              reason: 'Interim review',
+              status: 'signed' as const, duration: 30, signedAt: date,
+              note: {
+                subjective: {
+                  oneLiner: '', reason: 'Interim review',
+                  chartReview: '', diagnostics: '', specialists: '',
+                  additional: `Came in about the ${named.toLowerCase()}. Says the last change has been easier to live with than the one before it, and that the evenings are still the hard part.`,
+                },
+                objective: { homeMeasures: '', vitals: '', exam: '' },
+                assessment: {
+                  oneLiner: '',
+                  overall: `${named} is the problem doing the most work at the moment. One change rather than three, reviewed in six weeks.`,
+                },
+                plan: { problems: [], overall: 'Continue. Repeat bloods before the next visit.' },
+              },
+            }],
+            lastEvents: [...p.lastEvents, `Visit signed ${date}`],
+          };
+        }),
 
       markDocumentReviewed: (docId) =>
         setS((p) => ({
@@ -1107,8 +1146,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             orders: drop(p.orders), masterPlans: drop(p.masterPlans),
             vitals: drop(p.vitals), labPanels: drop(p.labPanels), exams: drop(p.exams),
             studies: drop(p.studies), careLog: drop(p.careLog), consents: drop(p.consents),
-            proposals: drop(p.proposals), lifestyle: drop(p.lifestyle),
-            checkIns: drop(p.checkIns),
+            lifestyle: drop(p.lifestyle),
+            checkIns: drop(p.checkIns), updates: drop(p.updates),
+            messages: drop(p.messages), requests: drop(p.requests),
             emRecords: p.emRecords.filter((e) =>
               !p.encounters.some((x) => x.id === e.encounterId && x.patientId === patientId)),
             now: p.now, lastEvents: p.lastEvents,

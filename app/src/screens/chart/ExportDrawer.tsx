@@ -15,6 +15,7 @@ import { useMemo, useState } from 'react';
 import { useStore } from '../../lib/store';
 import { Panel, Chip } from '../../components/ui';
 import { buildPacket } from '../../lib/packet';
+import { livingSubjective } from '../../lib/subjective';
 import { fhirBundle } from '../../lib/documents';
 import { download } from '../../components/DocView';
 import { fmtDate } from '../../lib/format';
@@ -42,6 +43,23 @@ export function ExportDrawer({ patientId }: { patientId: string }) {
     prevention: st.preventionFor(patientId),
     documents: st.documentsFor(patientId),
     plan: st.planFor(patientId),
+    // Derived here too, so the packet and the screen cannot disagree.
+    subjective: livingSubjective({
+      patientId, now: st.now,
+      conditions: st.conditionsFor(patientId),
+      medications: st.medsFor(patientId),
+      encounters: st.encountersFor(patientId),
+      updates: st.updatesFor(patientId),
+      messages: st.messagesFor(patientId),
+      checkIns: st.checkInsFor(patientId),
+      specialists: st.specialistsFor(patientId),
+      panels: st.panelsFor(patientId),
+      vitals: st.vitalsFor(patientId),
+      studies: st.studiesFor(patientId),
+      prevention: st.preventionFor(patientId),
+      lifestyle: st.lifestyleFor(patientId),
+      orders: st.ordersForPatient(patientId),
+    }),
     today: st.now,
   } : null), [p, st, patientId]);
 

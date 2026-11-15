@@ -873,3 +873,37 @@ says so. A `three-states` suite pins all of it.
 
 **Revisit when:** the structure is tried on a ten problem chart, which
 is the fill state none of the three covers.
+
+## D-047 The subjective is derived, and the review queue is removed
+
+**Decided 2026-11-15.** The subjective is computed from the record at
+read time and stored nowhere. The summary-document model, in which a
+synthesis step proposed edits that a physician accepted into a saved
+summary, is removed from the chart along with its review drawer and
+its proposal records. `MasterPlan` no longer has a subjective at all.
+
+**Reasoning.** The value of a living summary is that it maintains
+itself. A stored summary with a review queue in front of it is another
+record to keep current, which is the thing the design was meant to
+abolish, and in use the queue read as the primary call to action on
+the chart. Deriving removes the drift problem completely: the summary
+cannot disagree with the record because it is a reading of it.
+
+**What follows from it.** An encounter is now any dated, attributable
+contact: visits, health updates the patient submits, messages, letters
+and results. Three new record types carry that (`UpdateRequest`,
+`PatientUpdate`, `Message`), medicines carry a reported adherence
+status rather than an assumed one, and the rail's first section is
+Encounters rather than Next visit. The Encounters drawer holds every
+source record with its original text, and carries three demo buttons
+that add a record of each kind so the derivation can be watched
+working.
+
+**What is still open.** What physician review should mean for a
+derived summary. The current answer is that it is read rather than
+approved, and that every sentence is traceable. That is adequate for a
+prototype and is not a position on what a real practice should do.
+
+**Revisit when:** the derivation has been read against a real week of
+records, or when the review question has to be answered for anything
+that leaves the building.

@@ -136,15 +136,6 @@ export const marcusCheckIns: ProblemCheckIn[] = [
  */
 export const marcusMaster: MasterPlan = {
   id: 'mmp1', patientId: 'p1', updated: '2026-09-02', updatedBy: 'L. DuBose, MD',
-  subjective: {
-    history: 'Four problems managed here since September 2025, across two visits, two moving the right way and two never gauged. The A1c is down 0.3 points since May and the blood pressure is down 8 systolic. Nothing has come off the list yet, which is the thing he is asking for. The work left is not in the numbers: the influenza vaccine is overdue, the CPAP prescription was written in September and never started, and the sleep apnoea and the lipids have not been assessed at a visit.',
-    byProblem: {
-      c2: 'Chart review: 142/88 at intake in September 2025 on lisinopril 10 from the previous practice. 134/84 in May, 126/78 in September. He has asked at both visits about stopping it. Agreed in September that three months of home readings under 130 would make that a reasonable thing to try, and he has not sent any readings in.',
-      c1: 'Chart review: A1c 6.4 at intake, 6.1 in May, 5.8 in November. Metformin was started at intake and he stopped it himself in the spring without telling us; the fall since has happened without it.',
-    },
-    goals: 'He wants to come off the blood pressure medicine if the numbers hold. That is his goal, and the plan has been built around testing it rather than talking him out of it.',
-    context: '',
-  },
   objective: { narrative: '' },
   assessment: {
     narrative: 'Prediabetes is back in the normal range off metformin, which is the result he wanted and the one he achieved himself. Blood pressure has been under 130 at every reading this year on a single agent. The case for a supervised taper is reasonable; the case for doing it without home readings is not.',

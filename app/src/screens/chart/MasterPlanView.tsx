@@ -78,7 +78,7 @@ const Label = ({ children }: { children: React.ReactNode }) =>
 export function MasterPlanView({ patientId, onOpen }: {
   patientId: string;
   /** Drawer names, so a section can hand off to the full view. */
-  onOpen: (what: 'meds' | 'results' | 'prevention' | 'specialists' | 'notes' | 'review') => void;
+  onOpen: (what: 'meds' | 'results' | 'prevention' | 'specialists' | 'notes' | 'encounters') => void;
 }) {
   const st = useStore();
   const p = st.patient(patientId);
@@ -96,8 +96,7 @@ export function MasterPlanView({ patientId, onOpen }: {
     <div className="master">
       {/* ------------------------------------------------- subjective */}
       <Section letter="S" title="Subjective">
-        <Subjective patientId={patientId} master={mp} onSave={save}
-          onReview={() => { st.generateProposals(patientId); onOpen('review'); }} />
+        <Subjective patientId={patientId} onOpenSources={() => onOpen('encounters')} />
       </Section>
 
       {/* -------------------------------------------------- objective */}

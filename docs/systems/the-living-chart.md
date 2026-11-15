@@ -18,35 +18,36 @@ and they are never rewritten. The living document sits above them and
 answers a different question: given everything on file, where are we
 now.
 
+## Derived, not stored
+
+Nothing in the subjective is saved anywhere. It is computed from the
+record every time the chart is opened, and recomputed the moment a new
+record arrives. There is no summary document, no draft, and no review
+queue, because there is nothing to review: the summary cannot drift
+out of date with the chart, since it is not a copy of the chart but a
+reading of it.
+
+This replaces the earlier design, in which the summary was a stored
+document that a synthesis step proposed edits to and a physician
+accepted. That workflow put a queue of work in front of a document
+whose entire value was that it maintained itself. What review should
+look like on a derived summary is an open question, deliberately left
+open; the current answer is that the physician reads it, and every
+sentence is traceable to the record behind it.
+
+## What it reads
+
+Signed visit notes. Health updates the patient submitted, prompted or
+not. Messages between the patient and the practice. Per problem
+answers to the questions we send. Specialist letters, with what they
+found and what they advised. Lab panels, vitals, and the status of
+every intervention.
+
+An encounter is not only a visit. On a membership model most of what
+is learned arrives between appointments, and a record that only counts
+appointments is built from six data points a year rather than sixty.
+
 ## Three sources, never merged
-
-Every problem on the chart is described from three places, and the
-screen keeps them apart on purpose.
-
-**The chart review** is a clinician's reading of the notes across
-time. It is prose, physician-authored, editable in place. It is the
-only one of the three that a person writes.
-
-**The composed measures** are built from the structured record at read
-time: the labs, the vitals, the dates. They are never typed, so they
-cannot go stale, and each carries the previous value beside it because
-a number without its predecessor is not yet information. A problem
-with no measure of its own says so. Silence is reported as silence,
-never rendered as normal.
-
-**The patient's own words** come from a check-in sent before each
-visit, one question per problem: how is this going, and are you doing
-the plan as we wrote it. Kept verbatim, attributed, dated, never
-merged into the paragraph above them.
-
-The reason for keeping the third apart from the first is the whole
-argument for having it. A longitudinal subjective written only from
-visit notes is a clinician's account of a patient's account, filtered
-twice, and updated only on the days we happened to see them. When the
-gauge says improving and the patient says worse, the disagreement is
-the most useful thing on the screen, and merging the two sources into
-one paragraph is exactly how it disappears. The synthesis step calls
-these clashes out by name rather than leaving them to be noticed.
 
 ## What is on the page, in order
 
@@ -54,12 +55,12 @@ these clashes out by name rather than leaving them to be noticed.
    what the practice is following for management, and the service tags
    (preventative, lifestyle). Nothing else. No reminders, no counts,
    no actions.
-2. **Subjective.** One opening statement, unlabelled, saying where the
-   work stands across everything. Then one block per managed problem,
-   per outstanding preventative service, and per lifestyle
-   prescription, each carrying its chart review, its measures, the
-   patient's words, any relevant specialist comment, and what is
-   outstanding for it. Last, their account of their health overall.
+2. **Subjective.** Two or three sentences on how the patient
+   describes their health, what the record shows has moved, and what
+   is unsettled. Then one block per active problem: one or two
+   sentences combining their account with what the visits document and
+   what the measure did, then the status of every intervention for
+   that problem, each attributed to whoever last reported it.
 3. **Objective.** Vitals, office and home kept apart. The physical
    examination, dated to the day it was performed and flagged when it
    predates the last visit. Key labs as fishbones. Other diagnostics.
@@ -75,19 +76,20 @@ goes from the name to the problem list to the first line of the
 subjective, and anything in that path is read before the clinical
 content and remembered instead of it.
 
-## Keeping it current
+## How it updates
 
-Nothing is generated until it is asked for, and nothing generated
-reaches the document without a physician accepting it.
+A physician signs a note, or a patient sends an update, or a message
+arrives. That record joins the longitudinal record. The next render of
+the chart reflects it. There is no step in between.
 
-The chart counts the records that have arrived since the summary was
-last touched, including the patient's own answers. Asking for a draft
-produces proposals, each one carrying the record ids it was built from
-and labelled either as something the chart documents or as something
-the assistant read into it. Accepting is an event with a name and a
-date on it. There is a proposal for what the record does not say,
-because the dangerous failure for a summariser is not getting a number
-wrong, it is rendering an absence as a normal finding.
+The Encounters panel holds every source record, newest first, and each
+one opens to its original text. The subjective says beneath itself how
+many records it was built from and when the most recent arrived, and
+every problem lists the records behind it.
+
+Three demo buttons in that panel add a record of each kind, so the
+claim can be checked rather than believed: add a patient update and
+the summary changes, with nothing edited and nothing accepted.
 
 ## What this does not do
 

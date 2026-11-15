@@ -23,6 +23,7 @@ import type {
   Specialist, VitalsSet,
 } from '../domain/types';
 import { fmtDate } from './format';
+import type { LivingSubjective } from './subjective';
 import { kindLabel } from './clinical';
 import { age } from './format';
 
@@ -41,6 +42,8 @@ export interface PacketInput {
   prevention: PreventionItem[];
   documents: ChartDocument[];
   plan?: CarePlan;
+  /** The subjective as derived, so the packet cannot disagree with the chart. */
+  subjective: LivingSubjective;
   today: string;
 }
 
@@ -113,16 +116,21 @@ export function buildPacket(input: PacketInput): {
     <section>
       <h2>Summary of care, in SOAP order</h2>
       <p class="dim">
-        A living summary, last updated ${master ? fmtDate(master.updated) : 'never'}${
-  master ? ` by ${esc(master.updatedBy)}` : ''}. It describes where this patient
-        is now. The signed notes that follow are what happened on each date. If
-        the two ever disagree, the notes are the record.
+        The summary below is derived from the records in this packet, on the
+        date it was produced. It describes where this patient is now. The
+        signed notes that follow are what happened on each date. If the two
+        ever disagree, the notes are the record.
       </p>
 
       <h3>Subjective</h3>
-      <h4>History and what is ongoing</h4>${para(master?.subjective.history)}
-      <h4>What the patient wants</h4>${para(master?.subjective.goals)}
-      <h4>Context that carries forward</h4>${para(master?.subjective.context)}
+      ${para(input.subjective.overall.map((c) => c.text).join(' '))}
+      ${input.subjective.problems.map((pr) => `
+        <h4>${esc(pr.name)}</h4>
+        ${para(pr.clauses.map((c) => c.text).join(' '))}
+        ${pr.interventions.length > 0
+    ? `<ul>${pr.interventions.map((iv) => `<li><b>${esc(iv.label)}:</b> ${esc(iv.status)}${
+      iv.attribution ? ` <i>(${esc(iv.attribution)})</i>` : ''}</li>`).join('')}</ul>`
+    : ''}`).join('')}
 
       <h3>Objective</h3>
       ${office[0] ? `<p><b>Most recent office vitals, ${fmtDate(office[0].date)}:</b>

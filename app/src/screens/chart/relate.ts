@@ -57,6 +57,41 @@ export const specialistsAbout = (
   return specialists.filter((s) => re.test(s.specialty));
 };
 
+// ------------------------------------------------------- medicines
+
+const STOP = new Set(['with', 'now', 'and', 'the', 'type', 'from', 'for', 'disease', 'disorder']);
+
+const terms = (s: string): Set<string> => new Set(
+  s.toLowerCase().split(/[^a-z0-9]+/)
+    .filter((w) => w.length >= 4 && !STOP.has(w)),
+);
+
+/**
+ * Which medicines are for which problem, when the indication is free text.
+ *
+ * An indication field is almost never the diagnosis as coded. It says
+ * "Hypertension" against "Essential hypertension", "Post-PCI" against
+ * "Coronary artery disease, post-PCI", and "Shift-work sleep" against
+ * an insomnia code. Matching on equality drops all of those on the
+ * floor, and a problem-based chart that shows no medicines against a
+ * problem being treated is worse than one with no join at all.
+ *
+ * So: exact match first, then a shared significant word. Where a drug
+ * matches nothing it stays unattached rather than being filed under a
+ * guess, because a medicine shown against the wrong problem is a
+ * clinical error and an unattached one is only an untidy list.
+ */
+export function medsAbout(conditionName: string, meds: Medication[]): Medication[] {
+  const want = terms(conditionName);
+  return meds.filter((m) => {
+    if (!m.indication) return false;
+    if (m.indication === conditionName) return true;
+    const got = terms(m.indication);
+    for (const w of got) if (want.has(w)) return true;
+    return false;
+  });
+}
+
 // ------------------------------------------------------------ orders
 
 /** Orders that are screening or referral rather than problem-directed. */

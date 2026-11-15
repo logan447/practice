@@ -11,7 +11,6 @@
 import type {
   VitalsSet, LabPanel, ExamRecord, DiagnosticStudy,
   EmRecord, CareLogEntry, ServiceConsent, LabValue, LifestyleIntervention,
-  ProblemCheckIn,
 } from '../domain/types';
 
 const P = 'p0';
@@ -325,61 +324,5 @@ export const sharonLifestyle: LifestyleIntervention[] = [
     forConditions: [], status: 'not-started',
     started: '2026-06-18',
     barrier: 'Her brother has offered twice. She has not taken him up on it.',
-  },
-];
-
-// ------------------------------------------------- what she said first
-
-/**
- * Sharon's answers, sent in two days before the next visit.
- *
- * One per problem, one per lifestyle prescription she was asked
- * about, one about the mammogram, and one about her health overall.
- * Her words are kept verbatim and never merged into the chart review
- * beside them, because on two of these problems she and the chart
- * disagree and the disagreement is the useful part.
- */
-export const sharonCheckIns: ProblemCheckIn[] = [
-  {
-    id: 'sci1', patientId: P, encounterId: 'se4', date: '2026-11-12',
-    about: { kind: 'condition', id: 'sc1' },
-    feeling: 'better', onPlan: 'yes',
-    text: 'Better. The home readings are the thing that changed it for me. I can see what it does when I take it late and when I do not.',
-  },
-  {
-    id: 'sci2', patientId: P, encounterId: 'se4', date: '2026-11-12',
-    about: { kind: 'condition', id: 'sc2' },
-    feeling: 'better', onPlan: 'partly',
-    text: 'The number is better and I am pleased with that. The evenings at my mother’s are still a write-off. I eat whatever is in the house at nine o’clock.',
-  },
-  {
-    id: 'sci3', patientId: P, encounterId: 'se4', date: '2026-11-12',
-    about: { kind: 'condition', id: 'sc3' },
-    feeling: 'unsure', onPlan: 'partly',
-    text: 'I do not know about this one. I read that the statin may not be doing much at my age and I have skipped it some weeks to see if I felt different. I did not.',
-  },
-  {
-    id: 'sci4', patientId: P, encounterId: 'se4', date: '2026-11-12',
-    about: { kind: 'prevention', id: 'sp1' },
-    feeling: 'unsure', onPlan: 'no',
-    text: 'I know. My sister had hers and they called her back and it was nothing but it took three weeks. I would rather not have three weeks of that right now.',
-  },
-  {
-    id: 'sci5', patientId: P, encounterId: 'se4', date: '2026-11-12',
-    about: { kind: 'lifestyle', id: 'li1' },
-    feeling: 'worse', onPlan: 'partly',
-    text: 'The walking is the knees, not the wanting. Two evenings is what I can do. Four was never going to happen and I should have said so in January.',
-  },
-  {
-    id: 'sci6', patientId: P, encounterId: 'se4', date: '2026-11-12',
-    about: { kind: 'lifestyle', id: 'li3' },
-    feeling: 'unsure', onPlan: 'no',
-    text: 'Nothing has changed here. I do not know what I would even cook on those nights.',
-  },
-  {
-    id: 'sci7', patientId: P, encounterId: 'se4', date: '2026-11-12',
-    about: { kind: 'overall' },
-    feeling: 'better',
-    text: 'Better than a year ago, and I understand it now, which is the part I wanted. What I would like from this visit is to stop adding things. Four tablets is enough. If one of them can go, I would like to talk about which.',
   },
 ];

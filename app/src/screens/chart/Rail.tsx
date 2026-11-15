@@ -23,6 +23,8 @@ import { kindLabel } from '../../lib/clinical';
 import { hhmm } from '../../domain/schedule';
 import { ORDER_KINDS } from '../../domain/types';
 import type { ChartDrawer } from './drawers';
+import { TIMELINE_LABEL } from '../../lib/timeline';
+import { useTimeline } from './Encounters';
 
 const ORDER_LABEL = Object.fromEntries(ORDER_KINDS.map((k) => [k.id, k.label]));
 
@@ -60,6 +62,8 @@ export function Rail({ patientId, open, onJump }: {
   const ahead = encounters.filter((e) => e.status !== 'signed')
     .sort((a, b) => a.date.localeCompare(b.date));
   const next = ahead[0];
+  // Everything that has actually happened, of any kind.
+  const recent = useTimeline(patientId).filter((i) => i.kind !== 'booked');
   const master = st.masterPlanFor(patientId);
   const conditions = st.conditionsFor(patientId);
   const managed = conditions.filter((c) => c.managed && c.status === 'active');
@@ -80,8 +84,14 @@ export function Rail({ patientId, open, onJump }: {
 
   return (
     <aside className="rail">
-      {/* -------------------------------------------------- next visit */}
-      <Block title="Next visit" onOpen={() => open('visits')}>
+      {/* --------------------------------------------------- encounters */}
+      {/*
+        * Encounters, not "next visit". On a membership model most of
+        * what is learned arrives between appointments, and a panel
+        * that shows only the next appointment teaches you that the
+        * rest is somewhere else.
+        */}
+      <Block title="Encounters" count={recent.length} onOpen={() => open('encounters')}>
         {next ? (
           <button className="nextvisit" onClick={() => nav.go({ name: 'encounter', encounterId: next.id })}>
             <div className="nvdate">
@@ -94,6 +104,20 @@ export function Rail({ patientId, open, onJump }: {
           <button className="nextvisit empty" onClick={() => open('visits')}>
             Nothing booked. Book one.
           </button>
+        )}
+        {recent.length === 0 ? <Empty>Nothing on file yet.</Empty> : (
+          <div className="railrows">
+            {recent.slice(0, 4).map((i) => (
+              <button key={i.id} className="tlrow" onClick={() => open('encounters')}>
+                <span className="tlk">{TIMELINE_LABEL[i.kind]}</span>
+                <span className="tlt">{i.title}</span>
+                <span className="tld">{relative(i.date)}</span>
+              </button>
+            ))}
+            {recent.length > 4 && (
+              <div className="railmore2">+{recent.length - 4} more</div>
+            )}
+          </div>
         )}
       </Block>
 

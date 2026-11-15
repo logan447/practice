@@ -31,44 +31,44 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     (await p.locator('.csum .dx.svc').allTextContents()).join('|')==='Preventative Services|Lifestyle Medicine');
   ok('no pinned note in the header', await p.locator('.cpin').count()===0);
 
-  // ----------------------------------------- 2. the summary lags
-  ok('the chart says the summary is behind the record, in the rail',
-    await p.locator('.railnotices .summarybanner').isVisible());
-  ok('and nothing sits between the header and the subjective',
-    await p.locator('.chartinner > .summarybanner, .chartinner > .quality').count()===0);
-  const banner = await p.locator('.summarybanner').textContent();
-  ok(`it names what is new: ${banner.replace(/\s+/g,' ').slice(0,52)}`,
-    /records added since the summary/.test(banner));
-
-  // ------------------------- 2b. the subjective, three sources at once
+  // ------------------- 2. the subjective is derived, not maintained
   const subj = p.locator('.soap').first();
+  ok('nothing in the subjective is a text field',
+    (await subj.locator('textarea').count())===0);
+  ok('it says what it was built from and that it recomputes',
+    (await subj.locator('.derivedfrom').textContent()).includes('Recomputed every time'));
+  ok('and the chart no longer advertises a summary to review',
+    (await p.locator('.summarybanner').count())===0);
+
   const stext = (await subj.textContent()).replace(/\s+/g,' ');
-  ok('it opens with a statement and no label over it',
-    (await subj.locator('.soaplabel').count())===0
-    && (await subj.locator('textarea.statement').inputValue()).startsWith('Three problems'));
-  ok('one block per managed problem, then the services',
-    (await subj.locator('.sprob').count())>=3+2);
+  ok('it opens on how the patient says they are doing',
+    stext.includes('how things were going overall'));
+  ok('in their own words, quoted',
+    stext.includes('\u201cBetter than a year ago'));
+  ok('then what the record shows moved',
+    /On the record, A1c 8\.1% in Jan 2026 to 6\.9%/.test(stext));
+  ok('then what is unsettled', stext.includes('Unsettled:'));
+
   const htn = subj.locator('#subj-sc1');
-  ok('the chart review is prose we can edit',
-    (await htn.locator('textarea.sreview').inputValue()).startsWith('Chart review:'));
-  ok('the numbers are composed, current beside previous',
-    (await htn.locator('.snum').allTextContents()).join('|').includes('was 136/80'));
-  ok('home and clinic readings are both there and kept apart',
-    (await htn.locator('.snum').allTextContents()).join('|').toLowerCase().includes('home bp'));
-  ok('the patient\u2019s own words are quoted, not paraphrased',
-    (await htn.locator('blockquote.said p').textContent()).startsWith('Better. The home readings'));
-  ok('and carry how they said it was going',
-    (await htn.locator('blockquote.said footer').textContent()).includes('Doing the plan'));
-  ok('a specialist comment lands on the problem it is about',
-    (await subj.locator('#subj-sc2 .sspec').textContent()).includes('Ophthalmology'));
-  ok('and not on the ones it is not',
-    (await htn.locator('.sspec').count())===0);
-  ok('orders outstanding sit with their problem',
-    (await subj.locator('#subj-sp1 .sord').textContent()).includes('Screening mammogram'));
-  ok('an unanswered problem says so rather than reading as fine',
-    stext.includes('Not answered before this visit'));
-  ok('their health overall comes last',
-    stext.lastIndexOf('Their health overall') > stext.indexOf('Physical activity'));
+  ok('one block per managed problem', (await subj.locator('.sprob').count())===3);
+  ok('the patient\u2019s words lead the problem',
+    (await htn.locator('.psum .said').first().textContent()).startsWith('Better. The home readings'));
+  ok('the visit note is summarised beside them, dated',
+    (await htn.locator('.psum .doc').allTextContents()).join(' ').includes('26 Aug 2026'));
+  ok('and the measure carries its trajectory',
+    (await htn.locator('.psum').textContent()).includes('Home readings average'));
+
+  const ivs = (await htn.locator('.ivlist li').allTextContents()).join(' | ');
+  ok(`every intervention has a status: ${ivs.slice(0,54)}`,
+    ivs.includes('Lisinopril 20 mg') && ivs.includes('Taking as prescribed'));
+  ok('adherence is attributed to whoever said it', ivs.includes('their report'));
+  ok('home monitoring is tracked as an intervention', ivs.includes('Home blood pressure'));
+  ok('a drug being skipped is called out rather than listed as prescribed',
+    (await subj.locator('#subj-sc3 .ivlist').textContent()).includes('Missing some'));
+  ok('a drug stopped for a reason stays as context',
+    (await subj.locator('#subj-sc2 .psum').textContent()).includes('Glipizide'));
+  ok('every problem lists the records behind it',
+    (await subj.locator('.psrc').count())===3);
 
   // ------------------------------------------- 3. objective order
   const sections = await p.locator('.soaphead h2').allTextContents();
@@ -108,28 +108,25 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('follow-up moved out of the plan and into the rail',
     !plan.includes('FOLLOW-UP') && (await p.locator('.railhead:has-text("Follow-up")').count())===1);
 
-  // ------------------------------------------ 6. the review step
-  await p.click('.railnotices .summarybanner button'); await p.waitForTimeout(700);
-  const n = await p.locator('.proposal').count();
-  ok(`the assistant proposes (${n})`, n>4);
-  ok('interpretations are marked as such',
-    await p.locator('.proposal.interpretation').count()>0);
-  ok('and separated from what the record documents',
-    (await p.locator('.drawerbody').textContent()).includes('Read into the record'));
-  ok('every proposal shows what it was built from',
-    await p.locator('.pbasis').count()===n);
-  const pbody = await p.locator('.drawerbody').textContent();
-  ok('the draft pulls on the patient\u2019s own answers, cited as such',
-    /Patient answer sci\d/.test(pbody));
-  ok('and on the notes, cited separately',
-    /Encounter se\d/.test(pbody));
-  const before = await p.locator('.proposal').count();
-  await p.locator('.proposal button:has-text("Accept")').first().click();
-  await p.waitForTimeout(400);
-  ok('accepting removes it from review', await p.locator('.proposal').count()===before-1);
+  // ------------------------------- 6. the sources, and adding to them
+  await p.click('.derivedfrom button'); await p.waitForTimeout(700);
+  const tl = await p.locator('.tlitem').count();
+  ok(`every record is here to open (${tl})`, tl>=20);
+  const drawer = (await p.locator('.drawerbody').textContent()).replace(/\s+/g,' ');
+  ok('visits, updates, messages, letters and results together',
+    ['Visit','Health update','Message','Specialist letter','Results']
+      .every((k)=>drawer.includes(k)));
+  ok('a message the patient sent is readable in full',
+    drawer.includes('shaky and sweaty') || drawer.includes('A friend sent me an article'));
+
+  // the claim: add a record, the summary moves, nothing was edited
+  const before = (await p.locator('.soap').first().textContent());
+  await p.click('button:has-text("A health update from the patient")');
+  await p.waitForTimeout(600);
   await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(500);
-  ok('and the summary is now dated today',
-    (await p.locator('.masterfoot').first().textContent()).includes('today'));
+  const after = (await p.locator('.soap').first().textContent());
+  ok('a new patient update changes the summary with no editing step',
+    before!==after && after.includes('14 Nov 2026'));
 
   // -------------------------------------------- 7. the packet
   await p.click('.railfoot button:has-text("Export")'); await p.waitForTimeout(700);

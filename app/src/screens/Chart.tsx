@@ -36,8 +36,7 @@ import {
 } from './chart/drawers';
 import { Documentation } from './chart/Documentation';
 import { ExportDrawer } from './chart/ExportDrawer';
-import { Proposals } from './chart/Proposals';
-import { staleSince } from '../lib/synthesis';
+import { EncountersDrawer } from './chart/Encounters';
 import { MedsTab } from './chart/MedsTab';
 import { PreventionTab } from './chart/PreventionTab';
 import { PaperTab } from './chart/PaperTab';
@@ -87,20 +86,6 @@ export function Chart({ patientId }: { patientId: string }) {
   const history = conditions.filter((c) => c.status !== 'resolved');
   const allergies = st.allergiesFor(p.id);
   const { managed, services } = practiceSummary(p, conditions);
-
-  /** Has the record moved since the summary was written? */
-  const stale = staleSince({
-    patientId: p.id, now: st.now,
-    master: st.masterPlanFor(p.id),
-    conditions, medications: st.medsFor(p.id),
-    encounters: st.encountersFor(p.id),
-    exams: st.examsFor(p.id), vitals: st.vitalsFor(p.id),
-    panels: st.panelsFor(p.id), studies: st.studiesFor(p.id),
-    specialists: st.specialistsFor(p.id), prevention: st.preventionFor(p.id),
-    plan: st.planFor(p.id), entries: st.entriesFor(p.id),
-    checkIns: st.checkInsFor(p.id), lifestyle: st.lifestyleFor(p.id),
-  });
-  const pending = st.proposalsFor(p.id);
 
   const issues = findIssues({
     patient: p, allPatients: st.patients, medications: st.medsFor(p.id),
@@ -175,57 +160,19 @@ export function Chart({ patientId }: { patientId: string }) {
             w === 'notes' ? 'visits' : (w as ChartDrawer))} />
           <div>
             {/*
-              * Notices live in the right column.
-              *
-              * They were under the header, between the name and the
-              * summary, which is the one place on this screen that has
-              * to stay clear: the eye goes from the name to the problem
-              * list to the first line of the subjective, and anything
-              * in that path is read before the clinical content and
-              * remembered instead of it. These still have to be seen,
-              * so they sit at the top of the rail where the other
-              * standing state is.
+              * Only the one notice now: what in this chart needs
+              * reconciling. The summary used to advertise itself here
+              * with a count of unreviewed records and a button to
+              * draft an update, which turned a document that keeps
+              * itself current into a queue of work. It derives from
+              * the record continuously; there is nothing to review.
               */}
-            <div className="railnotices">
-          {/*
-            * The one standing invitation on the chart.
-            *
-            * Shown only when the record has moved since the summary was
-            * written. Nothing is generated until it is asked for, and
-            * nothing generated reaches the summary without review.
-            */}
-          {stale.count > 0 && (
-            <div className="summarybanner">
-              <span>
-                <b>{stale.count}</b> record{stale.count > 1 ? 's' : ''}{' '}
-                {st.masterPlanFor(p.id)
-                  ? 'added since the summary was written'
-                  : 'on file, and nothing in the summary yet'}: {stale.what.slice(0, 3).join(', ')}
-                {stale.what.length > 3 && `, and ${stale.what.length - 3} more`}.
-              </span>
-              <span className="spacer" />
-              <button className="btn sm" onClick={() => {
-                st.generateProposals(p.id);
-                setDrawer('review');
-              }}>
-                Draft an update
-              </button>
-            </div>
-          )}
-
-          {pending.length > 0 && stale.count === 0 && (
-            <div className="summarybanner">
-              <span><b>{pending.length}</b> proposed change{pending.length > 1 ? 's' : ''} waiting for review.</span>
-              <span className="spacer" />
-              <button className="btn sm" onClick={() => setDrawer('review')}>Review</button>
-            </div>
-          )}
-
-          {issues.length > 0 && (
-            <QualityStrip issues={issues} onGo={(t) => setDrawer(
-              t === 'plan' ? 'plan' : t === 'notes' ? 'visits' : (t as ChartDrawer))} />
-          )}
-            </div>
+            {issues.length > 0 && (
+              <div className="railnotices">
+                <QualityStrip issues={issues} onGo={(t) => setDrawer(
+                  t === 'plan' ? 'plan' : t === 'notes' ? 'visits' : (t as ChartDrawer))} />
+              </div>
+            )}
             <Rail patientId={p.id} open={setDrawer}
               onJump={(cid) => {
                 const el = document.getElementById(`problem-${cid}`);
@@ -267,7 +214,9 @@ export function Chart({ patientId }: { patientId: string }) {
         {drawer === 'history' && <HistoryTab patientId={p.id} />}
         {drawer === 'details' && <Details patientId={p.id} />}
         {drawer === 'notes' && <NotesTab patientId={p.id} />}
-        {drawer === 'review' && <Proposals patientId={p.id} onDone={() => setDrawer(null)} />}
+        {drawer === 'encounters' && (
+          <EncountersDrawer patientId={p.id} onDone={() => setDrawer(null)} />
+        )}
       </Drawer>
     </div>
   );

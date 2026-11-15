@@ -39,14 +39,14 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // -------------------------------------------------- 1. filled out
   await open('Sharon');
-  const sStatement = await p.locator('textarea.statement').inputValue();
-  ok(`the statement is written: "${sStatement.slice(0,40)}..."`, sStatement.length>200);
-  ok('every managed problem has a chart review',
-    (await p.locator('.sprob textarea.sreview').evaluateAll(
-      (els)=>els.filter((e)=>e.value.trim().length>0).length))>=3);
-  ok('the patient answered before the visit', (await p.locator('blockquote.said').count())>=4);
-  ok('and answered about their health overall',
-    (await p.locator('.soverall blockquote.said').count())===1);
+  const sOverall = (await p.locator('.soap').first().locator('.psum').first().textContent());
+  ok(`the overall summary is derived: "${sOverall.slice(0,40)}..."`, sOverall.length>200);
+  ok('every managed problem is summarised',
+    (await p.locator('.sprob .psum').count())>=3);
+  ok('the patient\u2019s own words are in it',
+    (await p.locator('.sprob .psum .said').count())>=3);
+  ok('and their account of their health overall opens it',
+    sOverall.includes('how things were going overall'));
   ok('the objective has vitals, an examination and labs',
     (await p.locator('.vitblock').count())>0
     && (await p.locator('.examrow').count())>0
@@ -60,17 +60,14 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // ------------------------------------------------- 2. part filled
   await open('Marcus');
-  const mStatement = await p.locator('textarea.statement').inputValue();
-  ok('the statement is written here too', mStatement.length>200);
-  const reviews = await p.locator('.sprob textarea.sreview').evaluateAll(
-    (els)=>els.map((e)=>e.value.trim().length>0));
-  ok(`some problems are reviewed and some are not (${reviews.filter(Boolean).length} of ${reviews.length})`,
-    reviews.some(Boolean) && reviews.some((x)=>!x));
+  const mOverall = (await p.locator('.soap').first().locator('.psum').first().textContent());
+  ok('there is still an overall summary, from fewer records', mOverall.length>60);
   const mSubj = await sectionText(0);
-  ok('an unanswered problem says so rather than reading as fine',
-    mSubj.includes('Not answered before this visit'));
-  ok('and so does the missing overall answer',
-    (await p.locator('.soverall').textContent()).includes('No overall answer on file'));
+  ok('a problem with nothing said about it says so',
+    mSubj.includes('carried rather than worked on')
+    || mSubj.includes('Nothing on file speaks to this problem'));
+  ok('a drug nobody has asked about says that too',
+    mSubj.includes('Adherence never asked about'));
   const mObj = await sectionText(1);
   ok('vitals are there', (await p.locator('.vitblock').count())>0);
   ok('the missing examination is stated, not skipped',
@@ -83,11 +80,11 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // ----------------------------------------------------- 3. empty
   await open('Nina');
-  ok('the statement is empty and offers to be drafted or left alone',
-    (await p.locator('textarea.statement').inputValue()).trim()==='');
   const nSubj = await sectionText(0);
   ok('the subjective says nothing is being managed',
     nSubj.includes('Nothing is being managed here yet'));
+  ok('and says they have not been asked how they are',
+    nSubj.includes('have not been asked'));
   const nObj = await sectionText(1);
   ok('no vitals is said out loud', nObj.includes('No vitals recorded'));
   ok('no examination is said out loud',
