@@ -232,14 +232,14 @@ export function Schedule() {
 
 
       <div className="grid g3">
-        <Panel title="Hours the year has" eyebrow="D-018">
+        <Panel title="Hours the year has" eyebrow="D-051">
           <div className="metric">
             <span className="v num">{cap.yearHours}</span>
             <span className="u">hours</span>
           </div>
           <p className="small muted" style={{ marginTop: 8 }}>
-            {y.hoursPerWeek} hours a week times {y.weeksWorked} weeks. This is the figure
-            the ~$100k after-tax target was built on, not a measurement.
+            {y.hoursPerWeek} hours a week times {y.weeksWorked} working weeks, which is
+            eight months open and four closed. A decision, not a measurement.
           </p>
         </Panel>
 
@@ -263,7 +263,7 @@ export function Schedule() {
           <p className="small muted" style={{ marginTop: 8 }}>
             {cap.yearHours - cap.messagingHours} usable hours divided by the sourced
             {' '}{y.hoursPerPatientLow} to {y.hoursPerPatientHigh} hours per patient per year.
-            D-018 targets about {cap.targetPanel}. Break-even is {cap.breakEven}.
+            D-051 targets {cap.targetPanel}. Break-even is {cap.breakEven}.
           </p>
         </Panel>
       </div>
@@ -271,7 +271,7 @@ export function Schedule() {
       <Panel title="The arithmetic disagrees with the target" style={{ marginTop: 16 }}>
         <p style={{ fontSize: 14, maxWidth: '74ch' }}>
           This model says the year can carry {cap.panelAtLow} to {cap.panelAtHigh} adults.
-          D-018 targets about {cap.targetPanel}. Those are not the same number, and the
+          D-051 targets {cap.targetPanel}. Those are not the same number, and the
           difference is about {cap.unexplainedHours} hours a year, which is roughly{' '}
           {Math.round((cap.unexplainedHours / y.weeksWorked) * 10) / 10} hours a week.
         </p>

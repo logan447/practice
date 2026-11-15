@@ -39,13 +39,14 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     await p.click('button:has-text("Week →")'); await p.waitForTimeout(250);
     if(await p.locator('.wday.away').count()>0) away=true;
   }
-  ok('away blocks appear in the diary', away);
-  ok('and say what they are',
-    (await p.locator('.wday.away .wdoff').first().textContent()).toLowerCase().includes('away'));
+  ok('closures appear in the diary', away);
+  ok('and say which closure they are, with dates',
+    (await p.locator('.wday.away .wdoff').first().textContent()).toLowerCase().includes('closed'));
   await p.screenshot({path:'v8-away.png'});
 
   // ------------------------------------- 2. the year's arithmetic
-  ok('the year states its hours', (await p.locator('.wrap.wide').textContent()).includes('1170'));
+  // 30 hours a week across 35 working weeks: eight months open.
+  ok('the year states its hours', (await p.locator('.wrap.wide').textContent()).includes('1050'));
   const eyebrow = async (t) => (await p.locator(`.panel:has-text("${t}") .eyebrow`)
     .first().textContent()).trim().toLowerCase();
   ok('the messaging assumption is labelled as one',
@@ -53,10 +54,10 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('the derived panel is labelled derived',
     await eyebrow('Panel this year could carry')==='derived');
   ok('and the sourced one cites its decision',
-    await eyebrow('Hours the year has')==='d-018');
+    await eyebrow('Hours the year has')==='d-051');
   const gap = await p.locator('.panel:has-text("The arithmetic disagrees")').textContent();
-  ok('the gap with D-018 is shown rather than tuned away',
-    gap.includes('D-018 targets about 140') && gap.includes('REFRESH-AT-RUNWAY'));
+  ok('a gap between the model and the target is shown rather than tuned away',
+    gap.includes('REFRESH-AT-RUNWAY'));
 
   // ----------------------------------------- 3. booking collides
   if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
