@@ -465,6 +465,35 @@ export interface UpdateRequest {
  * is one record with several answers inside it rather than a handful
  * of loose rows with the same date.
  */
+/**
+ * What happened since we last saw them, in their words.
+ *
+ * The interval history is the half of a pre-visit report that a
+ * chronic disease questionnaire always misses. Somebody can be doing
+ * well on every problem on the list and have spent a night in an
+ * emergency department, started seeing a podiatrist, or finished a
+ * course of antibiotics nobody told us about. Asked as structured
+ * items rather than as a free text box, because "anything else?"
+ * reliably returns nothing.
+ */
+export type IntervalKind =
+  | 'acute' | 'illness' | 'hospital' | 'urgent-care' | 'specialist';
+
+export const INTERVAL_LABEL: Record<IntervalKind, string> = {
+  acute: 'New problem',
+  illness: 'Illness',
+  hospital: 'Hospital stay',
+  'urgent-care': 'Urgent care',
+  specialist: 'New specialist',
+};
+
+export interface IntervalEvent {
+  kind: IntervalKind;
+  /** What they said happened, in their words. */
+  text: string;
+  date?: string;
+}
+
 export interface PatientUpdate {
   id: string;
   patientId: string;
@@ -474,6 +503,14 @@ export interface PatientUpdate {
   overall?: string;
   /** How they said things were going overall. */
   feeling?: CheckInFeeling;
+  /**
+   * What has happened since the last visit.
+   *
+   * An empty array is an answer: they were asked and there was
+   * nothing. Undefined means they were not asked, which is a
+   * different fact and is shown as one.
+   */
+  interval?: IntervalEvent[];
   /** What they sent in with it: readings, a photo, a log. */
   attachments?: string[];
 }

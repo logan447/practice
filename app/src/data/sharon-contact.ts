@@ -46,18 +46,32 @@ export const sharonUpdates: PatientUpdate[] = [
   {
     id: 'su1', patientId: P, date: '2026-07-22', requestId: 'sr1',
     feeling: 'better',
+    interval: [],
     overall: 'the mornings are easier than they were. No shaky episodes since the tablet came off, not one. I did not realise how much I had been planning around them until they stopped.',
   },
   {
     id: 'su2', patientId: P, date: '2026-09-28', requestId: 'sr2',
     feeling: 'same',
     overall: 'I bought the cuff. I have been doing it twice a week like you said. The numbers look lower than the ones in your office and I do not know what to make of that.',
+    interval: [],
     attachments: ['Photograph of a handwritten log, four readings'],
   },
   {
     id: 'su3', patientId: P, date: '2026-11-12', requestId: 'sr3',
     feeling: 'better',
     overall: 'better than a year ago, and I understand it now, which is the part I wanted. What I would like from this visit is to stop adding things. Four tablets is enough. If one of them can go, I would like to talk about which.',
+    // The interval history, which is the part a chronic disease
+    // questionnaire would have missed entirely.
+    interval: [
+      {
+        kind: 'urgent-care', date: '2026-10-11',
+        text: 'Went to the urgent care place on the ring road for a chest infection. They gave me a week of antibiotics and I finished them.',
+      },
+      {
+        kind: 'specialist', date: '2026-09-30',
+        text: 'Started seeing a podiatrist for my mother and asked her about my own feet while I was there. She said they were fine.',
+      },
+    ],
   },
 ];
 

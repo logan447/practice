@@ -28,13 +28,50 @@ import { Chip } from '../../components/ui';
 import { useStore } from '../../lib/store';
 import { fmtDate, relative } from '../../lib/format';
 import { livingSubjective } from '../../lib/subjective';
-import type { Intervention, SourceRef } from '../../lib/subjective';
+import type { Clause, Intervention, SourceRef } from '../../lib/subjective';
 import { GOAL_LABEL, ACTION_LABEL } from '../../domain/types';
 import type { CareGoalStatus } from '../../domain/types';
 
 const goalTone = (g?: CareGoalStatus) => (g === 'at-goal' ? undefined : 'warn');
 const actionTone = (a: Intervention['status']) =>
   (a === 'needs-attention' ? 'warn' : undefined);
+
+/**
+ * One voice on the page, with the chart review named.
+ *
+ * Setting the patient's words in a different face was a mistake:
+ * typography that encodes meaning has to be learned, and a clinical
+ * document that mixes two faces in one paragraph reads as two
+ * documents. The distinction still matters, so it is made in words
+ * instead. What the patient reports comes first and says so; the
+ * chart review follows and is labelled. Same font, same size, same
+ * colour throughout.
+ */
+function Body({ clauses, sources, onOpen }: {
+  clauses: Clause[];
+  sources: SourceRef[];
+  onOpen: (focus?: string) => void;
+}) {
+  const said = clauses.filter((c) => c.voice === 'patient');
+  const chart = clauses.filter((c) => c.voice === 'documented');
+  return (
+    <>
+      {said.length > 0 && (
+        <p className="psum">
+          {said.map((c) => c.text).join(' ')}
+          {chart.length === 0 && <Sources refs={sources} onOpen={onOpen} />}
+        </p>
+      )}
+      {chart.length > 0 && (
+        <p className="psum">
+          <span className="runin">Chart review:</span>{' '}
+          {chart.map((c) => c.text).join(' ')}
+          <Sources refs={sources} onOpen={onOpen} />
+        </p>
+      )}
+    </>
+  );
+}
 
 /**
  * Traceability without the footnotes.
@@ -104,13 +141,28 @@ export function Subjective({ patientId, onOpenSources }: {
 
   return (
     <div className="soapbody">
-      {/* ------------------------------------------- overall, 3 to 4 lines */}
+      {/* ------------------------- overall: what the patient reports, only */}
       <p className="psum lead">
-        {live.overall.map((c, i) => (
-          <span key={i} className={c.voice === 'patient' ? 'said' : 'doc'}>{c.text}{' '}</span>
-        ))}
+        {live.overall.map((c) => c.text).join(' ')}
         <Sources refs={live.overallSources} onOpen={onOpenSources} />
       </p>
+
+      {/*
+        * The interval history as rows rather than a sentence. Asked as
+        * separate items before every visit, so it is read as separate
+        * items rather than buried in a clause.
+        */}
+      {live.interval.length > 0 && (
+        <ul className="intlist">
+          {live.interval.map((r, i) => (
+            <li key={i}>
+              <span className="intk">{r.label}</span>
+              {r.date && <span className="intd">{fmtDate(r.date)}</span>}
+              <span className="intt">{r.text}</span>
+            </li>
+          ))}
+        </ul>
+      )}
 
       {/*
         * How current it is, and how to check it. Deliberately quiet:
@@ -166,6 +218,8 @@ export function Subjective({ patientId, onOpenSources }: {
         </div>
       )}
 
+      {live.categories.length > 0 && live.problems.length === 0 ? null : null}
+
       {live.problems.map((pr) => (
         <article key={pr.conditionId} className="sprob" id={`subj-${pr.conditionId}`}>
           <div className="sphead">
@@ -176,12 +230,7 @@ export function Subjective({ patientId, onOpenSources }: {
             </Chip>
           </div>
 
-          <p className="psum">
-            {pr.clauses.map((c, i) => (
-              <span key={i} className={c.voice === 'patient' ? 'said' : 'doc'}>{c.text}{' '}</span>
-            ))}
-            <Sources refs={pr.sources} onOpen={onOpenSources} />
-          </p>
+          <Body clauses={pr.clauses} sources={pr.sources} onOpen={onOpenSources} />
 
           {pr.conflict && <p className="pconflict">{pr.conflict}</p>}
 
@@ -199,6 +248,36 @@ export function Subjective({ patientId, onOpenSources }: {
             </ul>
           )}
 
+        </article>
+      ))}
+
+      {/*
+        * Preventative services and lifestyle medicine, in the same
+        * shape and after the problems. They are things we are working
+        * on, the patient has an account of how they are going, and
+        * that account is usually the only place the real obstacle is
+        * written down.
+        */}
+      {live.categories.map((cat) => (
+        <article key={cat.key} className="sprob" id={`subj-${cat.key}`}>
+          <div className="sphead">
+            <strong>{cat.name}</strong>
+            <Chip tone={goalTone(cat.goal)}>{GOAL_LABEL[cat.goal]}</Chip>
+          </div>
+
+          <Body clauses={cat.clauses} sources={cat.sources} onOpen={onOpenSources} />
+
+          {cat.interventions.length > 0 && (
+            <ul className="actlist">
+              {cat.interventions.map((iv, i) => (
+                <li key={i} className="actrow">
+                  <span className="actl">{iv.label}</span>
+                  <Chip tone={actionTone(iv.status)}>{ACTION_LABEL[iv.status]}</Chip>
+                  {iv.note && <span className="actn">{iv.note}</span>}
+                </li>
+              ))}
+            </ul>
+          )}
         </article>
       ))}
     </div>

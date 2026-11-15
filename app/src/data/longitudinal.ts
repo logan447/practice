@@ -343,6 +343,24 @@ const MESSAGE_ABOUT = (name: string): Topic[] => {
   return byName[name] ?? MESSAGE_GENERAL;
 };
 
+/**
+ * What turns up in the interval history.
+ *
+ * All of it is the sort of thing that happens to a patient and never
+ * reaches the chart, which is the reason for asking.
+ */
+const INTERVAL_POOL: { kind: 'acute' | 'illness' | 'hospital' | 'urgent-care' | 'specialist'; text: string }[] = [
+  { kind: 'urgent-care', text: 'Went to urgent care one evening for a cough that would not shift. They gave me antibiotics.' },
+  { kind: 'urgent-care', text: 'Twisted my ankle on the step and had it looked at. Not broken.' },
+  { kind: 'illness', text: 'Had the flu for most of a fortnight in the autumn. Did not take anything for it.' },
+  { kind: 'illness', text: 'A stomach bug went through the house. I could not keep the tablets down for two days.' },
+  { kind: 'hospital', text: 'One night in hospital after I fainted at work. They said it was dehydration.' },
+  { kind: 'specialist', text: 'Started seeing a physiotherapist privately for my shoulder.' },
+  { kind: 'specialist', text: 'Saw a dermatologist about a mole. They took it off and said it was nothing.' },
+  { kind: 'acute', text: 'A rash on both forearms that came and went over about three weeks.' },
+  { kind: 'acute', text: 'Headaches most mornings for a month. They have settled now.' },
+];
+
 const BARRIERS = [
   'Shift pattern makes the evenings unpredictable.',
   'Knees hurt by the end of it. Managing two or three days rather than five.',
@@ -807,6 +825,13 @@ export function longitudinal(panel: Panel, seed = 777): LongitudinalLayer {
         id: updId, patientId: p.id, date: sentOn, requestId: reqId,
         feeling: overallFeel,
         overall: chance(0.82) ? pick(SAID_OVERALL[overallFeel]) : undefined,
+        // Asked every time, so the answer is either something or an
+        // explicit nothing. A third of panels have something.
+        interval: chance(0.34)
+          ? [pick(INTERVAL_POOL)].map((e) => ({
+            ...e, date: addDays(sentOn, -Math.floor(between(5, 70))),
+          }))
+          : [],
       });
       for (const c of managed) {
         // Somebody who answers four of six is the normal case.

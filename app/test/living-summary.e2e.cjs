@@ -43,26 +43,35 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   const stext = (await subj.textContent()).replace(/\s+/g,' ');
   ok('it opens with what the patient reports, composed',
     stext.includes('Patient reports things are better overall'));
-  ok('and their priority, in a few words',
-    stext.includes('Their priority:'));
-  ok('then the chart review, as deltas rather than trajectories',
-    /Chart review shows last seen .*A1c down 1\.2%/.test(stext));
-  ok('then what is outstanding', stext.includes('Outstanding:'));
-  ok('and one line handing over to the problems',
-    stext.includes('problems managed here'));
-  ok('four sentences at most in the opening',
-    (await subj.locator('.psum.lead .said, .psum.lead .doc').count())<=4);
+  ok('and their priority, in a few words', stext.includes('Their priority:'));
+  ok('no chart review in the opening paragraph',
+    !(await subj.locator('.psum.lead').textContent()).includes('Chart review'));
+  ok('and nothing outstanding there either',
+    !(await subj.locator('.psum.lead').textContent()).includes('Outstanding'));
+  const interval = (await subj.locator('.intlist li').allTextContents()).join(' | ');
+  ok(`the interval history is asked and listed: ${interval.slice(0,48)}`,
+    (await subj.locator('.intlist li').count())===2);
+  ok('with the kind of event named', interval.includes('Urgent care')
+    && interval.includes('New specialist'));
+  ok('preventative services are summarised too, after the problems',
+    (await subj.locator('#subj-prevention').count())===1);
+  ok('and so is lifestyle medicine',
+    (await subj.locator('#subj-lifestyle').count())===1);
+  ok('both in the same shape as a problem',
+    (await subj.locator('#subj-prevention .psum').first().textContent()).startsWith('Patient reports'));
 
   const htn = subj.locator('#subj-sc1');
-  ok('one block per managed problem', (await subj.locator('.sprob').count())===3);
+  ok('one block per managed problem, then the two service categories',
+    (await subj.locator('.sprob').count())===5);
+  const htnText = (await htn.locator('.psum').allTextContents());
   ok('what the patient reports leads the problem, composed not quoted',
-    (await htn.locator('.psum .said').first().textContent()).startsWith('Patient reports'));
-  ok('and names what they are struggling with',
-    (await htn.locator('.psum .said').first().textContent()).includes('struggle with'));
-  ok('the record is read beside it, in its own voice',
-    (await htn.locator('.psum .doc').allTextContents()).join(' ').includes('the record documents'));
+    htnText[0].startsWith('Patient reports'));
+  ok('and names what they are struggling with', htnText[0].includes('struggle with'));
+  ok('the chart review follows and is labelled rather than set differently',
+    htnText[1].startsWith('Chart review:')
+    && (await htn.locator('.psum .said, .psum .doc').count())===0);
   ok('and the current measure rides along with it',
-    /132\/78 on 30 Oct 2026, home average 125/.test(await htn.locator('.psum').textContent()));
+    /132\/78 on 30 Oct 2026, home average 125/.test(htnText.join(' ')));
 
   const ivs = (await htn.locator('.actlist li').allTextContents()).join(' | ');
   ok(`every intervention has a status: ${ivs.slice(0,54)}`,

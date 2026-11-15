@@ -1468,13 +1468,10 @@ blockquote.said footer {
  * what the patient said is set in the serif this app uses for their
  * words everywhere else, what the record documents is set in the sans.
  */
-.psum { margin: 0 0 9px; font-size: 14.5px; line-height: 1.68; color: var(--ink-2); }
-.psum .said { font-family: var(--serif); font-size: 15px; color: var(--ink); }
-.psum .doc { color: var(--ink-2); }
-.soapbody > .psum:first-child {
-  font-size: 16px; line-height: 1.7; margin-bottom: 10px;
-}
-.soapbody > .psum:first-child .said { font-size: 16.5px; }
+.psum { margin: 0 0 9px; font-size: 14.5px; line-height: 1.68; color: var(--ink); }
+/* A run-in heading, not a second voice: same face, same size, same ink. */
+.psum .runin { font-weight: 600; }
+.soapbody > .psum:first-child { margin-bottom: 10px; }
 
 .derivedfrom {
   margin: 0 0 22px; font-size: 12.5px; line-height: 1.6; color: var(--ink-3);
@@ -1577,7 +1574,7 @@ blockquote.said footer {
  * One status vocabulary, one accent, and sources behind a mark rather
  * than along the bottom of every paragraph.
  */
-.psum.lead { font-size: 15.5px; line-height: 1.68; margin-bottom: 4px; }
+.psum.lead { margin-bottom: 4px; }
 
 .srcwrap { position: relative; display: inline-block; }
 .srcmark {
@@ -1642,3 +1639,14 @@ blockquote.said footer {
   display: inline-block; width: 5px; height: 5px; margin-left: 6px;
   border-radius: 50%; background: var(--warn); vertical-align: 2px;
 }
+.intlist { list-style: none; margin: 0 0 14px; padding: 0; }
+.intlist li {
+  display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap;
+  padding: 4px 0; font-size: 13.5px; line-height: 1.6; color: var(--ink);
+}
+.intlist .intk {
+  min-width: 120px; font-size: 11px; letter-spacing: .05em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+.intlist .intd { font-size: 12px; color: var(--ink-3); min-width: 86px; }
+.intlist .intt { flex: 1 1 320px; }

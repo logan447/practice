@@ -1076,6 +1076,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             updates: [...p.updates, {
               id: updId, patientId, date, requestId: reqId,
               feeling: feel[which], overall: SAID[which],
+              // The interval history is asked every time, so the
+              // answer is always one of these two shapes: something
+              // happened, or nothing did. Never silence.
+              interval: which === 0
+                ? [{
+                  kind: 'urgent-care' as const, date: addDays(date, -12),
+                  text: 'Ended up at urgent care one evening with chest tightness. They did a tracing, said it was not my heart and sent me home.',
+                }]
+                : [],
             }],
             checkIns: [
               ...p.checkIns,
