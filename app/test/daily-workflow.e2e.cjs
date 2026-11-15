@@ -44,7 +44,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     (await p.locator('.dayrow .dnew').first().textContent()).includes('version'));
 
   // ------------------------------------------- 2. the inbox is separate
-  const bar = await p.locator('.inboxbar').textContent();
+  const bar = await p.locator('.inboxbar:not(.closingbar)').textContent();
   ok(`the inbox is counted on the day: "${bar.replace(/\s+/g,' ').trim().slice(0,40)}"`,
     /\d+ waiting in the inbox/.test(bar));
   ok('with urgency called out', bar.includes('flagged urgent'));
@@ -101,7 +101,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('button:has-text("Leave without approving")'); await p.waitForTimeout(700);
 
   // ------------------------------------------------- 5. the inbox
-  await p.click('.inboxbar'); await p.waitForTimeout(700);
+  await p.click('.inboxbar:not(.closingbar)'); await p.waitForTimeout(700);
   const waiting = await p.locator('.inboxrow').count();
   ok(`the inbox holds what arrived (${waiting})`, waiting>0);
   ok('urgent sorts to the top',

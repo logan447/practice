@@ -25,12 +25,26 @@ organizing question:
 
 ## The practice at a glance
 
-$100/month per adult (no tiers, no insurance required) · target ~140
-adults at maturity → ~$100k after-tax at 30 hr/wk × 39 weeks · ~5–6
-hours of physician attention per patient per year · break-even ~19
-patients · bounded availability (no 24/7 obligation, no coverage layer) ·
-telemedicine + home visits + rented space, no permanent office ·
-grassroots + employer-membership growth · $20k preparation ceiling.
+**Repositioned 2026-11-16 (D-051).** A cash-pay, membership-based
+**consulting** practice in preventive medicine, lifestyle medicine and
+selected chronic disease management. Not anybody's primary care
+physician: named conditions and named services, co-managed with the
+patient's own physician where they have one.
+
+$99/month, $1,188 a year · target 200 adults · 30 hr/wk across eight
+months open and four closed, in four blocks of about a month · 1,040
+physician hours a year, which is **250 clinical minutes per patient**:
+two consultations, three care plan reviews, and 40 minutes of messaging
+and coordination · no insurance billing · bounded availability, with the
+closure dates known before anybody enrols · telemedicine predominant.
+
+The one hard discipline is now arithmetic rather than panel mix: every
+patient over the number the package fits takes minutes from everybody
+already enrolled. See `docs/systems/consultative-practice-model.md`.
+
+The earlier model below ($100/month, ~140 adults, 39 weeks, primary
+care scope) is kept for its reasoning and is superseded where the two
+disagree.
 
 The flat rate's one hard discipline: **panel-mix management** — heavy-
 utilization patients are sustainable at ~1 in 8–10 of the panel, so

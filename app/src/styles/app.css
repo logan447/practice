@@ -1804,3 +1804,53 @@ blockquote.said footer {
 }
 .wellrow input { margin-top: 3px; }
 .newitem.done { opacity: .5; }
+
+/* before closing */
+.closerow {
+  padding: 13px 15px; background: var(--panel);
+  border: 1px solid var(--line); border-radius: 7px;
+}
+.closerow .checklist { margin-top: 8px; }
+.closerow .checklist li.unmet .ckmark { color: var(--crit); font-weight: 700; }
+
+/* the membership year, on the chart */
+.ledger { display: flex; flex-direction: column; gap: 7px; }
+.ledgerbar {
+  height: 6px; border-radius: 3px; background: var(--line-2); overflow: hidden;
+}
+.ledgerbar > span { display: block; height: 100%; background: var(--accent); }
+.ledgerbar.over > span { background: var(--warn); }
+.ledgerline { font-size: 12.5px; line-height: 1.55; color: var(--ink-2); }
+.ledgerpkg { font-size: 11.5px; line-height: 1.6; color: var(--ink-3); }
+
+/* who owns a problem */
+.ownerrow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.ownerask {
+  font-size: 11.5px; color: var(--warn);
+}
+
+.closedbar {
+  padding: 11px 15px; margin-bottom: 12px;
+  background: var(--panel-2); border: 1px solid var(--line);
+  border-left: 3px solid var(--ink-3); border-radius: 7px;
+  font-size: 13px; line-height: 1.6; color: var(--ink-2);
+}
+
+.inboxbar.closingbar { background: var(--panel-2); border-left: 3px solid var(--ink-3); }
+
+/* scope of care */
+.scopeblock { padding-bottom: 14px; border-bottom: 1px solid var(--line-2); }
+.scopeblock:last-of-type { border-bottom: 0; }
+.scopeblock h3 {
+  font: 600 10.5px/1 var(--sans); letter-spacing: .08em; text-transform: uppercase;
+  color: var(--ink-3); margin: 0 0 9px;
+}
+.scopelist { list-style: none; margin: 0; padding: 0; }
+.scopelist li {
+  display: grid; grid-template-columns: 170px 1fr; gap: 10px;
+  padding: 7px 0; font-size: 13px; line-height: 1.55;
+}
+.scopek { font-weight: 600; color: var(--ink-2); font-size: 12.5px; }
+.scopebullets { margin: 0; padding-left: 18px; }
+.scopebullets li { font-size: 13px; line-height: 1.7; color: var(--ink-2); }
+.scopewarn { font-size: 13px; line-height: 1.6; color: var(--warn); margin: 0 0 7px; }

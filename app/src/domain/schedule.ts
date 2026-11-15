@@ -66,13 +66,50 @@ export interface WorkingYear {
 }
 
 /**
+ * The closures, placed rather than invented.
+ *
+ * Four months away, in four blocks of about a month rather than one
+ * block of four. The total is the same and the clinical consequence
+ * is not: a single four-month closure is longer than a ninety day
+ * prescription and longer than almost any monitoring interval, so a
+ * problem found in the last week before it closes has nowhere to go.
+ * A month is shorter than both.
+ *
+ * Two months open, one month closed, repeated. See
+ * docs/systems/consultative-practice-model.md section 2.3.
+ */
+export const CLOSURES: AwayBlock[] = [
+  { from: '2026-12-21', to: '2027-01-17', label: 'Closed, end of year' },
+  { from: '2027-04-19', to: '2027-05-16', label: 'Closed, spring' },
+  { from: '2027-08-16', to: '2027-09-12', label: 'Closed, late summer' },
+  { from: '2027-12-20', to: '2028-01-16', label: 'Closed, end of year' },
+];
+
+/**
+ * Is the practice open on this date, and if not, until when.
+ *
+ * Asked by the day screen and by anything that books. A closure is a
+ * stated fact with dates, never a greyed-out square: a physician
+ * looking at an empty week needs to know whether it is empty because
+ * nothing is booked or because the practice is shut.
+ */
+export function closureOn(iso: string, y: WorkingYear = WORKING_YEAR): AwayBlock | undefined {
+  return y.away.find((a) => iso >= a.from && iso <= a.to);
+}
+
+/** The next closure that starts on or after this date. */
+export function nextClosure(iso: string, y: WorkingYear = WORKING_YEAR): AwayBlock | undefined {
+  return [...y.away].sort((a, b) => a.from.localeCompare(b.from)).find((a) => a.to >= iso);
+}
+
+/**
  * The year as currently decided, starting from the clinic's origin.
- * Away blocks are placed, not invented: three blocks totalling about
- * twelve weeks is what "up to ~3 months a year" means in a calendar.
  */
 export const WORKING_YEAR: WorkingYear = {
   hoursPerWeek: 30,
-  weeksWorked: 39,
+  // Eight months open. 8/12 of 52 weeks is 34.7, which is where the
+  // 1,040 hours in the annual package arithmetic comes from.
+  weeksWorked: 35,
   clinicDays: [1, 2, 3, 4, 5],
   dayStart: 9 * 60,
   dayEnd: 17 * 60,
@@ -80,16 +117,13 @@ export const WORKING_YEAR: WorkingYear = {
   lunchMinutes: 45,
   adminPerDay: 90,
   messagingPerWeek: 180,
-  panelTarget: 140,
-  hoursPerPatientLow: 5,
-  hoursPerPatientHigh: 6,
+  panelTarget: 200,
+  // 250 clinical minutes a year is 4.2 hours. The range below is the
+  // planning band around it, not a limit on anybody's care.
+  hoursPerPatientLow: 4,
+  hoursPerPatientHigh: 5,
   breakEvenPanel: 19,
-  away: [
-    { from: '2026-12-21', to: '2027-01-03', label: 'Away, end of year' },
-    { from: '2027-03-15', to: '2027-03-28', label: 'Away' },
-    { from: '2027-06-28', to: '2027-08-08', label: 'Away, summer' },
-    { from: '2026-11-23', to: '2026-11-27', label: 'Away, Thanksgiving week' },
-  ],
+  away: CLOSURES,
 };
 
 // ------------------------------------------------------------ the day
@@ -110,7 +144,7 @@ export function dayStatus(iso: string, y: WorkingYear = WORKING_YEAR): DayVerdic
   if (block) {
     return {
       status: 'away', label: block.label,
-      why: `${block.label}, ${block.from} to ${block.to}. Routine visits are not booked in an away block. Urgent contact still reaches the practice.`,
+      why: `${block.label}, ${block.from} to ${block.to}. Nothing routine is booked while the practice is closed, and the closure dates are known before anybody enrols.`,
     };
   }
   if (!y.clinicDays.includes(dow(iso))) {

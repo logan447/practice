@@ -22,6 +22,7 @@ export type PortalTab =
 export type Route =
   | { name: 'today' }
   | { name: 'inbox' }
+  | { name: 'closing' }
   | { name: 'patients' }
   | { name: 'new-patient' }
   | { name: 'metrics' }

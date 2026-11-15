@@ -26,7 +26,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // ----------------------------------------------- 1. the week
   await p.click('.topbar button:has-text("Capacity")'); await p.waitForTimeout(700);
-  ok('the schedule opens', await p.locator('h1:has-text("Schedule")').isVisible());
+  ok('the capacity screen opens', await p.locator('h1:has-text("Capacity")').isVisible());
   ok('visits are on the grid', await p.locator('.wdvisit').count()>5);
   ok('weekends are not clinic days', await p.locator('.wday.weekend').count()===2);
   ok('every visit names a patient',
@@ -65,18 +65,16 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // Booking lives in the visits drawer now, not in the header.
   await p.click('.railhead:has-text("Encounters")'); await p.waitForTimeout(400);
   await p.click('.drawer button:has-text("Book a visit")'); await p.waitForTimeout(400);
-  ok('booking offers the real visit types with their lengths',
-    (await p.locator('.booking').textContent()).includes('150m'));
+  ok('booking offers the two activities with their lengths',
+    (await p.locator('.booking').textContent()).includes('30m')
+    && (await p.locator('.booking').textContent()).includes('60m'));
 
-  // today is a Saturday in this fixture: the refusal has to say so
-  const sat = await p.locator('.bookwhy').textContent().catch(()=>'');
-  ok(`a non-clinic day is refused in words: "${sat.slice(0,44)}"`,
-    sat.includes('Not a clinic day'));
-
-  // walk to a day inside the away block
-  for(let i=0;i<10;i++){ await p.click('.booking button:has-text("→")'); await p.waitForTimeout(90); }
+  // The clock opens on a Monday, so five days forward is a Saturday.
+  // A day the practice is closed is refused in words rather than
+  // greyed out, and the words say which kind of closed it is.
+  for(let i=0;i<5;i++){ await p.click('.booking button:has-text("→")'); await p.waitForTimeout(120); }
   const whyNow = await p.locator('.bookwhy').textContent().catch(()=>'');
-  ok('an away block is refused with its dates',
+  ok(`a day the practice is closed is refused in words: "${whyNow.slice(0,44)}"`,
     whyNow.includes('away block') || whyNow.includes('Not a clinic day'));
 
   // back to a clinic day, pick the longest visit, and check slots shrink
@@ -84,10 +82,10 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   for(let i=0;i<2;i++){ await p.click('.booking button:has-text("→")'); await p.waitForTimeout(120); }
   // Two activities and no more. A visit is half an hour, a care plan
   // review is a full one, and the longer one fits in fewer places.
-  const kinds = (await p.locator('.booking .kinds button').allTextContents())
+  const activities = (await p.locator('.booking .kinds button').allTextContents())
     .map((t)=>t.replace(/\s*\d+m$/,'').trim());
-  ok(`booking offers two activities and no others: ${kinds.join(', ')}`,
-    kinds.length===2 && kinds.join(',')==='Visit,Care plan review');
+  ok(`booking offers two activities and no others: ${activities.join(', ')}`,
+    activities.length===2 && activities.join(',')==='Visit,Care plan review');
   await p.click('.booking button:has-text("Visit")'); await p.waitForTimeout(250);
   const shortSlots = await p.locator('.booking .slots button').count();
   await p.click('.booking button:has-text("Care plan review")'); await p.waitForTimeout(250);
@@ -115,11 +113,11 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // up in the rail rather than throwing you at the calendar.
   ok('booking from the chart stays in the chart',
     await p.locator('.chead h1').count()>0);
-  ok('and the new visit is in the rail',
-    (await p.locator('.rail').textContent()).includes('Home visit')
-    || await p.locator('.nextvisit:not(.empty)').count()>0);
+  ok('and the new activity is in the rail',
+    await p.locator('.nextvisit:not(.empty)').count()>0);
   await p.click('.topbar button:has-text("Capacity")'); await p.waitForTimeout(700);
-  ok('the home visit is on the grid', await p.locator('.wdvisit.k-home').count()>0);
+  ok('the review that was booked is on the grid, and reads quieter than a visit',
+    await p.locator('.wdvisit.k-review').count()>0);
 
   // ------------------------------------------- 4. paper
   if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');

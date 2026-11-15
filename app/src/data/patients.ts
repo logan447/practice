@@ -26,14 +26,18 @@ export const patients: Patient[] = [
     sex: 'male', pronouns: 'he/him', membership: 'standard', memberSince: '2025-09-02',
     services: { preventative: true, lifestyle: true },
     photoTone: 0, phone: '(512) 555-0142', email: 'm.reyes@example.com',
-    pinned: 'Wants to come off the BP medicine if the numbers hold. That is his goal, not mine.'
+    pinned: 'Wants to come off the BP medicine if the numbers hold. That is his goal, not mine.',
+    pcp: { name: 'Dr. Yvonne Castellanos', practice: 'Barton Creek Family Medicine', since: '2019-03-01' }
   },
   {
     id: 'p2', name: 'Dana Whitfield', preferredName: 'Dana', dob: '1985-07-29',
     sex: 'female', pronouns: 'she/her', membership: 'sliding-scale', memberSince: '2026-01-15',
     services: { preventative: true, lifestyle: true },
     photoTone: 1, phone: '(512) 555-0188', email: 'dana.w@example.com',
-    pinned: 'Night-shift nurse, three on / four off. Any plan has to survive that rota.'
+    pinned: 'Night-shift nurse, three on / four off. Any plan has to survive that rota.',
+    // No other physician. The most important line in her chart, and
+    // the one that decides what can safely be in scope here.
+    pcp: { none: true, plan: 'Agreed to register with the clinic near the hospital. Nothing booked yet.' }
   },
   {
     id: 'p3', name: 'Arthur Lindqvist', preferredName: 'Art', dob: '1958-11-04',
@@ -41,6 +45,7 @@ export const patients: Patient[] = [
     services: { preventative: true, lifestyle: true },
     photoTone: 2, phone: '(512) 555-0117', email: 'alindqvist@example.com',
     pinned: 'Hard of hearing. Phone calls do not work. Message or video with captions.',
+    pcp: { name: 'Dr. Samuel Okafor', practice: 'Riverside Internal Medicine', since: '2015-06-01' },
     // Turned 65 in November 2023 and took Part B then. One welcome
     // visit, two wellness visits since, the last in March.
     medicare: {
@@ -81,40 +86,40 @@ export const patients: Patient[] = [
 ];
 
 export const conditions: Condition[] = [
-  { id: 'c1', patientId: 'p1', name: 'Prediabetes', code: 'R73.03', status: 'active', managed: true,
+  { id: 'c1', patientId: 'p1', name: 'Prediabetes', code: 'R73.03', status: 'active', managed: true, owner: 'ours',
     onset: '2025-09-12', note: 'A1c 6.4 at intake. Target is reversal, not management.',
     goal: 'at-goal', goalAssessed: '2026-09-02',
     goalNote: 'A1c 6.4 to 5.8, and it happened after he stopped the metformin himself.',
     provenance: MD },
-  { id: 'c2', patientId: 'p1', name: 'Essential hypertension', code: 'I10', status: 'active', managed: true,
+  { id: 'c2', patientId: 'p1', name: 'Essential hypertension', code: 'I10', status: 'active', managed: true, owner: 'ours',
     onset: '2021-04-02', note: 'On one agent. He would like to come off it.',
     goal: 'at-goal', goalAssessed: '2026-09-02',
     goalNote: 'Under 130 at every reading this year on lisinopril alone.',
     provenance: SRC('Austin Family Medicine records', '2025-09-05') },
-  { id: 'c3', patientId: 'p1', name: 'Mixed hyperlipidemia', code: 'E78.2', status: 'active', managed: true,
+  { id: 'c3', patientId: 'p1', name: 'Mixed hyperlipidemia', code: 'E78.2', status: 'active', managed: true, owner: 'ours',
     onset: '2021-04-02', provenance: SRC('Austin Family Medicine records', '2025-09-05') },
-  { id: 'c4', patientId: 'p1', name: 'Obstructive sleep apnea', code: 'G47.33', status: 'active', managed: true,
+  { id: 'c4', patientId: 'p1', name: 'Obstructive sleep apnea', code: 'G47.33', status: 'active', managed: true, owner: 'theirs',
     onset: '2026-02-20', note: 'AHI 22 on home study. CPAP since March, good adherence.',
     provenance: SRC('Sleep study, Austin Sleep Center', '2026-02-20') },
   { id: 'c5', patientId: 'p1', name: 'Vitamin D deficiency', code: 'E55.9', status: 'resolved',
     onset: '2025-09-12', resolved: '2026-05-04', provenance: MD },
 
-  { id: 'c6', patientId: 'p2', name: 'Metabolic syndrome', code: 'E88.81', status: 'active', managed: true,
+  { id: 'c6', patientId: 'p2', name: 'Metabolic syndrome', code: 'E88.81', status: 'active', managed: true, owner: 'ours',
     onset: '2026-01-29', provenance: MD },
-  { id: 'c7', patientId: 'p2', name: 'Insomnia, shift-work related', code: 'G47.26', status: 'active', managed: true,
+  { id: 'c7', patientId: 'p2', name: 'Insomnia, shift-work related', code: 'G47.26', status: 'active', managed: true, owner: 'ours',
     onset: '2026-01-29', note: 'Rotating nights. Not a sleep-hygiene problem; a scheduling one.',
     provenance: MD },
-  { id: 'c8', patientId: 'p2', name: 'Iron deficiency without anemia', code: 'E61.1', status: 'active', managed: true,
+  { id: 'c8', patientId: 'p2', name: 'Iron deficiency without anemia', code: 'E61.1', status: 'active', managed: true, owner: 'ours',
     onset: '2026-04-16', provenance: MD },
 
-  { id: 'c9', patientId: 'p3', name: 'Type 2 diabetes mellitus', code: 'E11.9', status: 'active', managed: true,
+  { id: 'c9', patientId: 'p3', name: 'Type 2 diabetes mellitus', code: 'E11.9', status: 'active', managed: true, owner: 'shared',
     onset: '2014-06-01', provenance: SRC('St. David’s discharge summary', '2025-11-28') },
-  { id: 'c10', patientId: 'p3', name: 'Coronary artery disease, post-PCI', code: 'I25.10', status: 'active', managed: true,
+  { id: 'c10', patientId: 'p3', name: 'Coronary artery disease, post-PCI', code: 'I25.10', status: 'active', managed: true, owner: 'theirs',
     onset: '2025-11-22', note: 'LAD stent Nov 2025. Cardiology leads; I manage the rest.',
     provenance: SRC('St. David’s discharge summary', '2025-11-28') },
-  { id: 'c11', patientId: 'p3', name: 'Chronic kidney disease, stage 3a', code: 'N18.31', status: 'active', managed: true,
+  { id: 'c11', patientId: 'p3', name: 'Chronic kidney disease, stage 3a', code: 'N18.31', status: 'active', managed: true, owner: 'theirs',
     onset: '2023-02-14', provenance: SRC('Nephrology consult note', '2026-01-10') },
-  { id: 'c12', patientId: 'p3', name: 'Hearing loss, bilateral', code: 'H90.3', status: 'active', managed: true,
+  { id: 'c12', patientId: 'p3', name: 'Hearing loss, bilateral', code: 'H90.3', status: 'active', managed: true, owner: 'ours',
     onset: '2019-01-01', provenance: PT('2025-11-20') },
 ];
 
@@ -281,9 +286,10 @@ export const carePlans: CarePlan[] = [
 ];
 
 export const encounters: Encounter[] = [
-  { id: 'e1', patientId: 'p1', date: '2026-11-14', kind: 'visit', legacyKind: 'follow-up',
+  { id: 'e1', patientId: 'p1', date: '2026-11-13', kind: 'visit', legacyKind: 'follow-up',
+    setting: 'in-person',
     reason: 'Six-month review. Labs back. Wants to discuss stopping lisinopril.',
-    status: 'scheduled', duration: 45 },
+    status: 'signed', signedAt: '2026-11-13', duration: 45, minutes: 50 },
   { id: 'e2', patientId: 'p1', date: '2026-09-02', kind: 'visit', legacyKind: 'follow-up', reason: 'Interim review',
     status: 'signed', duration: 40, signedAt: '2026-09-02',
     note: {
@@ -344,9 +350,12 @@ export const encounters: Encounter[] = [
     } },
   { id: 'e4', patientId: 'p3', date: '2026-11-18', kind: 'visit', legacyKind: 'follow-up',
     reason: 'Potassium 5.3 and eGFR down. Needs review this week.', status: 'scheduled', duration: 30 },
-  { id: 'e5', patientId: 'p2', date: '2026-11-14', kind: 'visit', legacyKind: 'follow-up',
-    reason: 'Three-month check. Sleep anchor not holding.', status: 'scheduled', duration: 30 },
-  { id: 'e6', patientId: 'p4', date: '2026-11-14', kind: 'visit', legacyKind: 'initial',
+  { id: 'e5', patientId: 'p2', date: '2026-11-13', kind: 'visit', legacyKind: 'follow-up',
+    setting: 'telehealth',
+    reason: 'Three-month check. Sleep anchor not holding.',
+    status: 'signed', signedAt: '2026-11-13', duration: 60, minutes: 55 },
+  { id: 'e6', patientId: 'p4', date: '2026-11-20', kind: 'visit', legacyKind: 'initial',
+    setting: 'in-person',
     reason: 'First full visit. Records from previous practice received.', status: 'scheduled', duration: 90 },
 ];
 

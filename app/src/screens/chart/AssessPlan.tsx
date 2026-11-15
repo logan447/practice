@@ -36,7 +36,10 @@ import type { Intervention } from '../../lib/interventions';
 import {
   GOAL_LABEL, ACTION_LABEL, LIFESTYLE_DOMAINS,
 } from '../../domain/types';
-import type { CareGoalStatus, Condition, MasterPlan, Patient } from '../../domain/types';
+import type {
+  CareGoalStatus, Condition, MasterPlan, Patient, ProblemOwner,
+} from '../../domain/types';
+import { OWNER_LABEL } from '../../domain/types';
 
 const goalTone = (g?: CareGoalStatus) => (g === 'at-goal' ? undefined : 'warn');
 const actionTone = (a: Intervention['status']) =>
@@ -174,12 +177,41 @@ function GoalRow({ c }: { c: Condition }) {
         </Chip>
       </button>
       {c.goalNote && <p className="goalnote">{c.goalNote}</p>}
+      {/*
+        * Who is responsible. A consulting practice lives on this
+        * distinction and the record used to be unable to express it:
+        * "managed" could say we had taken a problem on, and could not
+        * say that the patient's own physician has it, which is the
+        * commonest case and the one that matters when something goes
+        * wrong with it.
+        */}
+      {!c.owner ? (
+        <div className="ownerrow">
+          <span className="ownerask">Who manages this?</span>
+          {(['ours', 'shared', 'theirs'] as ProblemOwner[]).map((o) => (
+            <button key={o} className="btn ghost sm" onClick={() => st.setOwner(c.id, o)}>
+              {OWNER_LABEL[o]}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div className="ownerrow">
+          <span className="small muted">{OWNER_LABEL[c.owner]}</span>
+          <button className="linkish" onClick={() => setOpen((v) => !v)}>change</button>
+        </div>
+      )}
       {open && (
         <div className="goalset">
           {(['at-goal', 'needs-improvement'] as CareGoalStatus[]).map((x) => (
             <button key={x} className={`btn sm ${x === g ? '' : 'ghost'}`}
               onClick={() => { st.setGoal(c.id, x); setOpen(false); }}>
               {GOAL_LABEL[x]}
+            </button>
+          ))}
+          {(['ours', 'shared', 'theirs'] as ProblemOwner[]).map((o) => (
+            <button key={o} className={`btn sm ${o === c.owner ? '' : 'ghost'}`}
+              onClick={() => { st.setOwner(c.id, o); setOpen(false); }}>
+              {OWNER_LABEL[o]}
             </button>
           ))}
           {c.goalAssessed && (

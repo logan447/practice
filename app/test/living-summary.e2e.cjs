@@ -191,7 +191,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // ------------------------------- 8. billing records kept apart
   await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(300);
-  await p.click('.railfoot button:has-text("Documentation")'); await p.waitForTimeout(700);
+  await p.click('.railfoot button:has-text("Coding")'); await p.waitForTimeout(700);
   const doc = await p.locator('.drawerbody').textContent();
   ok('each visit records the elements a level rests on', doc.includes('Problems') && doc.includes('Risk'));
   ok('both routes to a level are shown', /gives 992\d\d\./.test(doc));

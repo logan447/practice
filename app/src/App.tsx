@@ -12,6 +12,7 @@ import { Audit } from './screens/Audit';
 import { Schedule } from './screens/Schedule';
 import { Today } from './screens/Today';
 import { Inbox } from './screens/Inbox';
+import { Closing } from './screens/Closing';
 import { ActorControl } from './components/SignIn';
 import { useActor } from './lib/session';
 import { can } from './lib/permissions';
@@ -131,6 +132,7 @@ function Screen() {
   switch (route.name) {
     case 'today': return <Today />;
     case 'inbox': return <Inbox />;
+    case 'closing': return <Closing />;
     case 'patients': return <Patients />;
     case 'new-patient': return <NewPatient />;
     case 'metrics': return <Metrics />;

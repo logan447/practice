@@ -35,6 +35,7 @@ import {
   type ChartDrawer,
 } from './chart/drawers';
 import { Documentation } from './chart/Documentation';
+import { Scope } from './chart/Scope';
 import { ExportDrawer } from './chart/ExportDrawer';
 import { EncountersDrawer } from './chart/Encounters';
 import { MedsTab } from './chart/MedsTab';
@@ -180,12 +181,21 @@ export function Chart({ patientId }: { patientId: string }) {
                 el?.classList.add('flash');
                 setTimeout(() => el?.classList.remove('flash'), 1400);
               }} />
+            {/*
+              * Billing is last on purpose. This practice does not bill
+              * insurance, and the coding work stays reachable rather
+              * than prominent: the research behind it was expensive to
+              * establish and will be needed if that ever changes, and
+              * until then it has no business on the daily path.
+              */}
             <nav className="railfoot">
               {([
+                ['scope', 'Scope of care'],
                 ['export', 'Export'], ['letters', 'Letters'],
-                ['documentation', 'Documentation'], ['prevention', 'Prevention'],
+                ['prevention', 'Prevention'],
                 ['studies', 'Imaging'], ['records', 'Records'],
                 ['history', 'History'], ['details', 'Details'],
+                ['documentation', 'Coding, if we ever bill'],
               ] as [ChartDrawer, string][]).map(([k, label]) => (
                 <button key={k} className="linkish" onClick={() => setDrawer(k)}>{label}</button>
               ))}
@@ -210,6 +220,7 @@ export function Chart({ patientId }: { patientId: string }) {
         {drawer === 'letters' && <PaperTab patientId={p.id} />}
         {drawer === 'records' && <RecordsTab patientId={p.id} />}
         {drawer === 'documentation' && <Documentation patientId={p.id} />}
+        {drawer === 'scope' && <Scope patientId={p.id} />}
         {drawer === 'export' && <ExportDrawer patientId={p.id} />}
         {drawer === 'history' && <HistoryTab patientId={p.id} />}
         {drawer === 'details' && <Details patientId={p.id} />}

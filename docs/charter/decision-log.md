@@ -1075,3 +1075,85 @@ questions; the MAC answers on 99484; CMS acts on the CY2026 request
 for information about APCM and prevention; or the practice licenses
 CPT. See `docs/systems/billing-architecture.md` for the full matrix
 and citations.
+
+---
+
+## D-051. A consulting practice, an annual package, and four closures
+
+**Date.** 2026-11-16.
+
+**Decision.** The practice stops being anybody's primary care
+physician and becomes a consulting physician for named conditions and
+named services. The membership is an annual package of five physician
+contacts totalling 250 clinical minutes, delivered inside four
+service periods, at a target panel of 200. Eight months open and four
+closed, in four blocks of about a month rather than one block of
+four. Insurance billing comes off the development path.
+
+**Reasoning.** The repositioning and the arithmetic are the same
+decision. 30 hours a week across 35 working weeks is 1,040 physician
+hours a year. At 200 patients that is 5.2 hours each, and after a
+fifth for administration, 250 clinical minutes per patient per year.
+A primary care scope does not fit in 250 minutes. A consulting scope
+does.
+
+**The number that did not survive.** D-049 and the work after it
+scheduled a sixty minute care plan review per patient per month. That
+is 720 minutes a patient a year, which at 200 patients is 2,400
+physician hours against the 1,040 available: over by a factor of 2.3,
+before a single consultation is booked. It was the right design at a
+140-patient panel with 39 weeks worked and a primary care scope, and
+it does not survive either change. Two consultations and three
+reviews a year replace it, which is a contact roughly every seven
+weeks while the practice is open.
+
+**Four closures rather than one.** The total time away is the same
+and the clinical consequence is not. A single four-month closure is
+longer than a ninety day prescription and longer than almost any
+monitoring interval, so a problem found in the last week before it
+closes has nowhere to go. A month is shorter than both. The system
+consequence is a screen: before a closure begins, what is left
+hanging, patient by patient.
+
+**The exposure that is not solved by an agreement.** A patient
+agreement can define what the practice will do. It cannot define away
+the standard of care for what was actually done, and it cannot make a
+patient who has no other physician into somebody who has one. So "no
+primary care physician" is not a blank field in this record. It is
+the first line in their chart, it is marked urgent on every closure
+check, and establishing primary care is carried as a plan item with a
+status like any other. If they never establish, that is visible and
+somebody decided it.
+
+**Ownership, not a boolean.** `Condition.managed` could say this
+practice had taken a problem on. It could not say that the patient's
+own physician has it, which is the commonest case and the one that
+matters when something goes wrong with it. Every managed problem now
+carries an owner: ours, shared, or theirs. An absent owner is shown
+as a question rather than a default.
+
+**Billing, demoted not deleted.** CCM, BHI, the wellness visit and
+the office visit levels come off the daily path. The research, the
+rules and the citations stay where they are, because they were
+expensive to establish and the question may come back. The drawer is
+reachable and is called what it is.
+
+**What did not change.** The living care plan, the versioning, the
+approval cycle, the reconciliation tray, the inbox and its three
+answers, the two encounter types, and the demo data. All of it
+survived the repositioning untouched, which is the main evidence that
+the workflow was built around the clinical work rather than around
+the billing.
+
+**Still gated, and upstream of everything.** Whether this physician
+can opt out of Medicare while employed elsewhere, which is a decision
+about the physician and not about the practice. Whether a membership
+covering Medicare-covered services can be sold to a beneficiary who
+has not privately contracted. What a Texas board expects of a
+practice with planned month-long closures. All `NEEDS-COUNSEL`;
+D-039 guardrail 4b stands.
+
+**Revisit when:** counsel answers the three questions above; the
+panel passes the size the package fits; or the first real year
+produces actual minutes per patient to replace the planning averages.
+See `docs/systems/consultative-practice-model.md`.

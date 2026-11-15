@@ -24,11 +24,14 @@ import type {
   PatientUpdate, Message, UpdateRequest, CareGoalStatus, ChartVersion, InfoRequest,
   EncounterKind, CareProgram, InstrumentScore, InstrumentId, Claim, MonthlyService,
   ServiceConsent, LifestyleIntervention, Triage, TriageChoice, LegacyEncounterKind,
-  VisitSetting,
+  VisitSetting, ProblemOwner,
 } from '../domain/types';
 import { LEGACY_KIND } from '../domain/types';
 import { inbox as buildInbox, type InboxItem } from './inbox';
-import { dayStatus, WORKING_YEAR } from '../domain/schedule';
+import { dayStatus, nextClosure, WORKING_YEAR } from '../domain/schedule';
+import type { AwayBlock } from '../domain/schedule';
+import { ledgerFor, type Ledger } from './membership';
+import { closureChecks, type ClosureCheck } from './closure';
 
 /**
  * The first slot on a day that nothing already occupies.
@@ -434,6 +437,12 @@ interface Store extends State {
   inbox: () => InboxItem[];
   /** What was decided about one arriving record, where anything was. */
   triageOf: (recordId: string) => Triage | undefined;
+  /** Where this patient stands in their membership year. */
+  ledgerFor: (patientId: string) => Ledger | undefined;
+  /** What is left hanging before the next closure, panel-wide. */
+  closureChecks: () => { closure: AwayBlock; checks: ClosureCheck[] } | undefined;
+  /** Who owns a problem, as far as the record says. */
+  setOwner: (conditionId: string, owner: ProblemOwner) => void;
   /**
    * Record a decision about an arriving record. Never changes the
    * care plan: that only moves when an encounter is approved.
@@ -640,6 +649,25 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       },
 
       triageOf: (recordId) => s.triage.find((t) => t.recordId === recordId),
+
+      ledgerFor: (patientId) => {
+        const p = s.patients.find((x) => x.id === patientId);
+        return p ? ledgerFor(p, s.encounters, s.careLog, s.now) : undefined;
+      },
+
+      closureChecks: () => {
+        const closure = nextClosure(s.now);
+        if (!closure) return undefined;
+        return {
+          closure,
+          checks: closureChecks({
+            closure, now: s.now,
+            patients: s.patients, medications: s.medications,
+            prevention: s.prevention, infoRequests: s.infoRequests,
+            specialists: s.specialists, encounters: s.encounters,
+          }),
+        };
+      },
 
       newSince: (patientId) => {
         const v = [...by(s.chartVersions, patientId)].sort((a, b) => b.version - a.version)[0];
@@ -1308,6 +1336,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
        * that signature. Nothing is duplicated, so nothing can get out
        * of step.
        */
+      setOwner: (conditionId, owner) =>
+        setS((p) => ({
+          ...p,
+          conditions: p.conditions.map((c) => (c.id === conditionId
+            ? { ...c, owner, managed: owner !== 'theirs' }
+            : c)),
+        })),
+
       triageRecord: (patientId, recordId, choice, opts) =>
         setS((p) => ({
           ...p,

@@ -32,32 +32,39 @@ const at = (h: number, m = 0) => h * 60 + m;
  * Reviews first, before the building fills up, which is how
  * asynchronous work actually survives contact with a clinic day: put
  * it where nobody can walk into it.
+ *
+ * Note the lengths. A care plan review is thirty minutes here, not
+ * sixty. A sixty minute review every month is 720 minutes a patient a
+ * year, which across two hundred patients is 2,400 physician hours
+ * against the 1,040 the year holds. The package is two consultations
+ * and three reviews a year; see lib/membership.ts and
+ * docs/systems/consultative-practice-model.md section 4.
  */
 export const todaySchedule: Encounter[] = [
   {
     id: 'd1', patientId: 'p0', date: ORIGIN, kind: 'review',
-    reason: 'Monthly care plan review',
-    status: 'scheduled', start: at(8), duration: 60,
+    reason: 'Care plan review, third of the year',
+    status: 'scheduled', start: at(8), duration: 30,
   },
   {
     id: 'd2', patientId: 'p3', date: ORIGIN, kind: 'review',
-    reason: 'Monthly care plan review',
-    status: 'scheduled', start: at(9), duration: 60,
+    reason: 'Care plan review, second of the year',
+    status: 'scheduled', start: at(8, 45), duration: 30,
   },
   {
     id: 'd3', patientId: 'p1', date: ORIGIN, kind: 'visit', setting: 'in-person',
     reason: 'Blood pressure and the statin conversation he asked for',
-    status: 'scheduled', start: at(10, 30), duration: 30,
+    status: 'scheduled', start: at(9, 30), duration: 60,
   },
   {
     id: 'd4', patientId: 'p2', date: ORIGIN, kind: 'review',
-    reason: 'Monthly care plan review',
-    status: 'scheduled', start: at(11, 30), duration: 60,
+    reason: 'Care plan review, second of the year',
+    status: 'scheduled', start: at(10, 45), duration: 30,
   },
   {
     id: 'd5', patientId: 'p9', date: ORIGIN, kind: 'visit', setting: 'telehealth',
-    reason: 'First follow-up since joining',
-    status: 'scheduled', start: at(14), duration: 30,
+    reason: 'Comprehensive assessment, first of the year',
+    status: 'scheduled', start: at(11, 30), duration: 60,
   },
 ];
 

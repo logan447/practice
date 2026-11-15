@@ -71,6 +71,19 @@ export interface Patient {
   /** One line the physician wants to see every single time. */
   pinned?: string;
   /**
+   * Who their primary care physician is, where they have one.
+   *
+   * This practice is a consulting practice: it manages named
+   * conditions and provides named services, and it is not anybody's
+   * primary care. Where a patient has no PCP, that is not a blank
+   * field. It is a care plan item with an owner and a status, because
+   * a patient whose only physician is this one has a primary care
+   * physician whatever the agreement says, and the record should show
+   * what was recommended and what happened.
+   */
+  pcp?: { name: string; practice?: string; since?: string } | { none: true; plan?: string };
+
+  /**
    * What Medicare will and will not pay for, for this person.
    *
    * Absent for everyone who is not on Part B, which in this practice
@@ -121,6 +134,22 @@ export const ACTION_LABEL: Record<ActionStatus, string> = {
   complete: 'Complete',
 };
 
+/**
+ * Who is responsible for a problem.
+ *
+ * The distinction a consulting practice lives on. "Managed" was a
+ * boolean and could only say whether this practice had taken a
+ * problem on; it could not say that the patient's own physician has
+ * it, which is the commonest and most important case.
+ */
+export type ProblemOwner = 'ours' | 'shared' | 'theirs';
+
+export const OWNER_LABEL: Record<ProblemOwner, string> = {
+  ours: 'We manage this',
+  shared: 'Shared with their PCP',
+  theirs: 'Their PCP manages this',
+};
+
 export interface Condition {
   id: string;
   patientId: string;
@@ -135,6 +164,17 @@ export interface Condition {
    * different lists and most charts conflate them.
    */
   managed?: boolean;
+  /**
+   * Who is responsible for it.
+   *
+   * Absent means the question has not been asked, which for a
+   * consulting practice is a gap rather than a default. A managed
+   * problem with no owner recorded is one where the patient and the
+   * physician may believe different things about who is watching it,
+   * and that is the specific failure this practice is most exposed
+   * to.
+   */
+  owner?: ProblemOwner;
   /**
    * Whether this is where we want it, as data rather than prose.
    *

@@ -22,6 +22,7 @@ import {
   WORKING_YEAR, capacity, dayLoad, dayStatus, hhmm, weekStart,
 } from '../domain/schedule';
 import { toBooked } from '../components/Booking';
+import { PACKAGE, FIRST_YEAR_EXTRA, yearCapacity } from '../lib/membership';
 import { useActor } from '../lib/session';
 
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -71,6 +72,11 @@ export function Schedule() {
   }, [st.encounters, st.patients.length, st.now, y]);
 
   const overTarget = cap.panel > cap.panelAtHigh;
+  // At the target panel, not at whatever is enrolled today. A demo
+  // with five patients would otherwise report two thousand minutes
+  // each, which is true and useless.
+  const yc = yearCapacity(y.panelTarget, y);
+  const ycNow = st.patients.length > 0 ? yearCapacity(st.patients.length, y) : undefined;
   const dayMinutes = y.dayEnd - y.dayStart;
 
   return (
@@ -79,9 +85,10 @@ export function Schedule() {
         <div style={{ flex: 1 }}>
           <h1>Capacity</h1>
           <div className="sub">
-            {y.hoursPerWeek} hours a week for {y.weeksWorked} weeks, Monday to Friday,
-            with about three months a year away. Every number on this page comes from a
-            logged decision or is marked as an assumption. The day itself is on Today.
+            {y.hoursPerWeek} hours a week for {y.weeksWorked} weeks, Monday to Friday.
+            Eight months open and four closed, in four blocks of about a month rather
+            than one block of four. Every number on this page comes from a logged
+            decision or is marked as an assumption. The day itself is on Today.
           </div>
         </div>
         <button className="btn ghost" onClick={() => nav.back()}>Back</button>
@@ -160,7 +167,69 @@ export function Schedule() {
       </div>
 
       {/* ------------------------------------------------- the year */}
+      {/* ------------------------------------- the package, and whether it fits */}
       <h2 style={{ fontSize: 17, margin: '26px 0 12px' }}>Does the year hold the panel?</h2>
+
+      <Panel title="What a membership year contains" eyebrow="Derived">
+        <div className="row flow" style={{ gap: 26, marginBottom: 12 }}>
+          <Stat n={yc.clinicalHours} u="clinical hours a year, after a fifth for admin" />
+          <Stat n={yc.minutesEach} u={`clinical minutes each at the target ${y.panelTarget}`} />
+          <Stat n={yc.minutesPlanned} u="minutes the package plans for" />
+          <Stat n={yc.panelThatFits} u="patients the package exactly fits" />
+        </div>
+        <table className="rows">
+          <tbody>
+            <tr>
+              <td>Synchronous consultations</td>
+              <td className="small muted">
+                {PACKAGE.consultations.count} &times; {PACKAGE.consultations.minutes} min
+              </td>
+              <td className="num">{PACKAGE.consultations.count * PACKAGE.consultations.minutes}</td>
+            </tr>
+            <tr>
+              <td>Care plan reviews</td>
+              <td className="small muted">
+                {PACKAGE.reviews.count} &times; {PACKAGE.reviews.minutes} min
+              </td>
+              <td className="num">{PACKAGE.reviews.count * PACKAGE.reviews.minutes}</td>
+            </tr>
+            <tr>
+              <td>Messages, coordination and follow-up</td>
+              <td className="small muted">across the year</td>
+              <td className="num">{PACKAGE.messagingMinutes}</td>
+            </tr>
+            <tr>
+              <td><b>Total</b></td>
+              <td />
+              <td className="num"><b>{yc.minutesPlanned}</b></td>
+            </tr>
+          </tbody>
+        </table>
+        {ycNow && st.patients.length !== y.panelTarget && (
+          <p className="small muted" style={{ marginTop: 10, maxWidth: '74ch' }}>
+            <b>{st.patients.length} enrolled today</b>, which is {ycNow.minutesEach} clinical
+            minutes each. Every patient over {yc.panelThatFits} takes minutes from everybody
+            already here, which is why the panel number is a clinical parameter and not
+            only a commercial one.
+          </p>
+        )}
+        <p className="small muted" style={{ marginTop: 12, maxWidth: '74ch' }}>
+          Five physician contacts a year inside four service periods, which is a contact
+          roughly every seven weeks while the practice is open. The first year costs about
+          {' '}{FIRST_YEAR_EXTRA} minutes more, because a comprehensive assessment and a care
+          plan built from nothing is not the steady state. Either that year is a larger
+          package or enrolment is staged; staging is simpler and does not need a second price.
+        </p>
+        <p className="small muted" style={{ marginTop: 10, maxWidth: '74ch' }}>
+          <b>What this replaced.</b> A sixty minute care plan review every month is 720
+          minutes a patient a year. Across {y.panelTarget} patients that is{' '}
+          {y.panelTarget * 12} physician hours against the {cap.yearHours} the year contains,
+          over by a factor of {Math.round(((y.panelTarget * 12) / cap.yearHours) * 10) / 10}.
+          It was the right design for a smaller panel and a primary care scope, and it does
+          not survive either change. See docs/systems/consultative-practice-model.md.
+        </p>
+      </Panel>
+
 
       <div className="grid g3">
         <Panel title="Hours the year has" eyebrow="D-018">

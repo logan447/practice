@@ -17,7 +17,7 @@ export type ChartDrawer =
   | null
   | 'visits' | 'plan' | 'meds' | 'results' | 'specialists' | 'orders' | 'followup'
   | 'studies' | 'records' | 'documentation' | 'export' | 'details'
-  | 'encounters' | 'notes' | 'history' | 'prevention' | 'letters';
+  | 'encounters' | 'notes' | 'history' | 'prevention' | 'letters' | 'scope';
 
 export const DRAWER_TITLES: Record<string, { title: string; sub?: string }> = {
   visits: { title: 'Visits', sub: 'Every encounter, and the notes as signed' },
@@ -33,13 +33,20 @@ export const DRAWER_TITLES: Record<string, { title: string; sub?: string }> = {
   followup: { title: 'Follow-up' },
   studies: { title: 'Imaging and procedures' },
   records: { title: 'Allergies and outside records' },
-  documentation: { title: 'Documentation and billing', sub: 'What a biller or an auditor would ask for' },
+  documentation: {
+    title: 'Coding, if we ever bill',
+    sub: 'This practice does not bill insurance. Kept because the work behind it was expensive and the question may come back',
+  },
   export: { title: 'Export the record' },
   details: { title: 'Patient details' },
   notes: { title: 'Visit notes' },
   history: { title: 'Who did what' },
   prevention: { title: 'Prevention' },
   letters: { title: 'Letters and forms', sub: 'Referral, work note, prior authorisation' },
+  scope: {
+    title: 'Scope of care',
+    sub: 'What we manage, what we provide, what we do not, and what they are responsible for',
+  },
 };
 
 /* ------------------------------------------------------ labs + vitals */

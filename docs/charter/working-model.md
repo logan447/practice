@@ -5,6 +5,16 @@ What we currently believe the practice is becoming (D-025). Tags:
 
 Last revised: 2026-08-16 — **re-baselined around D-029.**
 
+> **Superseded in part, 2026-11-16.** D-051 repositions the practice
+> as a consulting practice rather than primary care, moves the panel
+> target to 200, the working year to eight months open and four
+> closed, and replaces the monthly care plan review with an annual
+> package of five contacts totalling 250 clinical minutes. Sections 1
+> to 3 below still carry the earlier $100/month primary care model
+> and have **not** been reconciled. Where they disagree with D-039,
+> D-051 or `docs/systems/consultative-practice-model.md`, those are
+> current and this is not.
+
 ---
 
 ## 0. Project frame

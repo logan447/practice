@@ -82,8 +82,72 @@ export function Rail({ patientId, open, onJump }: {
   const lastOffice = vitals.find((v) => v.source === 'office');
   const lastPanel = panels[0];
 
+  const ledger = st.ledgerFor(patientId);
+  const patient = st.patient(patientId);
+  const pcp = patient?.pcp;
+  const noPcp = !pcp || ('none' in pcp && pcp.none);
+
   return (
     <aside className="rail">
+      {/* ------------------------------------------- the membership year */}
+      {/*
+        * What the membership actually contains, and how much of it has
+        * been used. Not a ration: a patient needing three times the
+        * planned time gets it, and the number is here so somebody
+        * notices, because that is clinical information before it is
+        * commercial information.
+        */}
+      {ledger && (
+        <section className="railblock">
+          <div className="railhead" style={{ cursor: 'default' }}>
+            <h3>Membership year</h3>
+          </div>
+          <div className="ledger">
+            <div className={`ledgerbar${ledger.minutesLeft < 0 ? ' over' : ''}`}>
+              <span style={{
+                width: `${Math.min(100, (ledger.used.minutes / ledger.plannedMinutes) * 100)}%`,
+              }} />
+            </div>
+            <div className="ledgerline">{ledger.line}</div>
+            <div className="ledgerpkg">
+              {ledger.used.consultations} of {ledger.planned.consultations.count} consultations,{' '}
+              {ledger.used.reviews} of {ledger.planned.reviews.count} care plan reviews.
+              {ledger.used.betweenMinutes > 0
+                && ` ${ledger.used.betweenMinutes} min between encounters.`}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ----------------------------------------------- who else is involved */}
+      {/*
+        * This practice is not anybody's primary care. Where a patient
+        * has no other physician that is not a blank field, it is the
+        * most important line in the chart: during a closure they have
+        * no physician at all.
+        */}
+      <section className="railblock">
+        <div className="railhead" style={{ cursor: 'default' }}>
+          <h3>Primary care</h3>
+        </div>
+        {noPcp ? (
+          <>
+            <p className="railempty" style={{ color: 'var(--warn)' }}>
+              No primary care physician on file.
+            </p>
+            <p className="ledgerpkg">
+              We manage named problems and provide the preventive and lifestyle work.
+              Everything else needs somebody. Carry this as a plan item until it is done.
+            </p>
+          </>
+        ) : (
+          <p className="railempty">
+            {'name' in pcp ? pcp.name : ''}
+            {'practice' in pcp && pcp.practice ? ` · ${pcp.practice}` : ''}
+          </p>
+        )}
+      </section>
+
       {/* --------------------------------------------------- encounters */}
       {/*
         * Encounters, not "next visit". On a membership model most of
