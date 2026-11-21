@@ -10,7 +10,8 @@ examples and the Lifestyle Medicine track need.
 ## `cond/` — conditions
 
 cond/hypertension · cond/diabetes-type-2 · cond/obesity ·
-cond/depression · cond/coronary-artery-disease · cond/dyslipidemia
+cond/depression · cond/coronary-artery-disease · cond/dyslipidemia ·
+cond/cancer · cond/chronic-kidney-disease
 
 ## `sys/` — specialty / body system
 

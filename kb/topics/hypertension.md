@@ -36,9 +36,12 @@ tags: [cond/hypertension, sys/cardiology, sys/primary-care, task/screening, task
 
 ## Board-review angle
 
-- Lifestyle-medicine boards lean on the nonpharmacologic effect sizes
-  and DASH evidence — see `kb/boards/lifestyle-medicine/` as material
-  arrives.
+- LM boards nutrition Rx for HTN (board-lm-nutrition, Obj 9): reduce
+  sodium (UL 2,300 mg, AHA ideal <1,500; salt sensitivity highest in
+  Black and ≥65 patients), alcohol (J-curve), caffeine; increase
+  potassium, calcium (low-oxalate greens; DASH low-fat dairy −11 mmHg
+  SBP/8 wk), magnesium, garlic. DASH meta-analysis across 30 RCTs:
+  −3.2/−2.5 mmHg overall [LMBR ref 301].
 
 ## My notes & experience
 
