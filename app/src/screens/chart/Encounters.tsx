@@ -190,12 +190,6 @@ export function EncountersDrawer({ patientId, focus, onDone }: {
 
   return (
     <div className="stack">
-      <p className="drawerlead">
-        Everything on file, newest first: visits, health updates the patient
-        sent, messages, letters and results. The subjective is built from
-        these, so this is where to check it.
-      </p>
-
       {/* Booking belongs with the encounters, not in the header. */}
       {booking ? (
         <Booking patientId={patientId}
@@ -211,16 +205,18 @@ export function EncountersDrawer({ patientId, focus, onDone }: {
           * used to live in the right column and came out with it;
           * they belong here, beside the encounters they create.
           */
+        /*
+          * Three ways to make an encounter, on one row, with no
+          * explanation. What each one does is in the word on it.
+          */
         <div className="row startrow" style={{ gap: 7, flexWrap: 'wrap' }}>
-          <button className="btn" onClick={() => setBooking(true)}>Book a visit</button>
-          <span className="spacer" />
-          <span className="small muted">Start one now:</span>
           {([['visit', 'Visit'], ['review', 'Care plan review']] as const).map(([kind, label]) => (
             <button key={kind} className="btn ghost startenc" onClick={() => {
               const id = st.openEncounter(patientId, kind);
               nav.go({ name: 'encounter', encounterId: id });
             }}>{label}</button>
           ))}
+          <button className="btn ghost" onClick={() => setBooking(true)}>Book for later</button>
         </div>
       )}
 
@@ -258,15 +254,15 @@ export function EncountersDrawer({ patientId, focus, onDone }: {
         * because a demo button that pretends to be a real workflow is
         * how a prototype gets mistaken for a product.
         */}
+      {/*
+        * Kept, and made quiet. It is the only way to watch a record
+        * arrive and the care plan not move, which is the whole claim
+        * of the design, and it is still not a real workflow.
+        */}
       <div className="simbox">
-        <h4>Simulate a new record</h4>
-        <p className="small muted">
-          Adds a dated record to this chart, exactly as a signed note or a
-          portal submission would. The subjective recomputes from it
-          immediately. For evaluating the prototype, not a real workflow.
-        </p>
-        <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
-          <button className="btn sm" onClick={() => st.simulateUpdate(patientId)}>
+        <h4>Simulate a record arriving</h4>
+        <div className="row" style={{ gap: 7, flexWrap: 'wrap' }}>
+          <button className="btn sm ghost" onClick={() => st.simulateUpdate(patientId)}>
             A health update from the patient
           </button>
           <button className="btn sm ghost" onClick={() => st.simulateMessage(patientId)}>

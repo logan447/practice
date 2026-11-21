@@ -14,71 +14,68 @@ import { fmtDate, relative } from '../../lib/format';
 import type { LabPanel } from '../../domain/types';
 
 export type ChartDrawer =
-  | 'subjective' | 'objective' | 'assessment' | 'planview'
+  | 'careplan'
   | 'visits' | 'plan' | 'meds' | 'results' | 'specialists' | 'orders' | 'followup'
   | 'studies' | 'records' | 'documentation' | 'export' | 'details'
   | 'encounters' | 'notes' | 'history' | 'prevention' | 'letters' | 'scope';
 
-/** Which of the four is a reading position inside the care plan. */
-export const SOAP: Record<string, 'S' | 'O' | 'A' | 'P' | undefined> = {
-  subjective: 'S', objective: 'O', assessment: 'A', planview: 'P',
-};
+/**
+ * The strip.
+ *
+ * The care plan first, because it is what the chart is for, then the
+ * record it was built from, in the order a physician reaches for it.
+ *
+ * Splitting the care plan into four tabs was a mistake and lasted one
+ * revision. It is one document: a reader moving between the
+ * assessment and the plan for the same problem was clicking a tab to
+ * do it, which is the opposite of what the tabs were for.
+ */
+export const CHART_TABS: ChartDrawer[] = [
+  'careplan', 'encounters', 'notes', 'results', 'meds', 'studies',
+  'prevention', 'specialists',
+];
 
 /**
- * The strip, in order, with one gap.
+ * Everything else, behind one quiet control.
  *
- * The care plan first, because it is what the chart is for. Then the
- * record it was built from, in the order a physician reaches for it.
- * `null` is the divider.
+ * Real and rarely wanted. A strip of twenty-one tabs is a strip
+ * nobody reads, and these are the ones you go looking for rather than
+ * the ones you meet.
  */
-export const CHART_TABS: (ChartDrawer | null)[] = [
-  'subjective', 'objective', 'assessment', 'planview',
-  null,
-  'encounters', 'notes', 'results', 'meds', 'studies', 'orders', 'followup',
-  'specialists', 'prevention', 'plan', 'letters', 'records', 'scope',
+export const MORE_TABS: ChartDrawer[] = [
+  'plan', 'orders', 'followup', 'letters', 'records', 'scope',
   'history', 'export', 'details', 'documentation',
 ];
 
 /**
- * `tab` is the short label for the strip; `title` is the heading over
- * the content. They differ where the heading earns more words than a
- * tab can carry.
+ * One short label per tab, and nothing else.
+ *
+ * There used to be a heading and a line of explanation over every
+ * tab's content as well. Both are gone: the tab you are standing on
+ * is the heading, and a sentence telling a physician what a list of
+ * medicines is for is a sentence they read once and then read past
+ * forever.
  */
-export const DRAWER_TITLES: Record<string, { title: string; sub?: string; tab?: string }> = {
-  subjective: { title: 'Subjective', tab: 'Subjective' },
-  objective: { title: 'Objective', tab: 'Objective' },
-  assessment: { title: 'Assessment', tab: 'Assessment' },
-  planview: { title: 'Plan', tab: 'Plan' },
-  visits: { title: 'Visits', sub: 'Every encounter, and the notes as signed', tab: 'Visits' },
-  encounters: {
-    title: 'Encounters',
-    sub: 'Visits, updates, messages, letters and results, newest first',
-    tab: 'Encounters',
-  },
-  plan: { title: 'Shared care plan', sub: 'What the patient sees in their portal', tab: 'Shared plan' },
-  meds: { title: 'Medicines', sub: 'Stopped drugs stay, with the reason', tab: 'Meds' },
-  results: { title: 'Labs and vitals', sub: 'Every panel and every reading', tab: 'Labs' },
-  specialists: { title: 'Specialists', tab: 'Specialists' },
-  orders: { title: 'Pending orders', tab: 'Orders' },
-  followup: { title: 'Follow-up', tab: 'Follow-up' },
-  studies: { title: 'Imaging and procedures', tab: 'Imaging' },
-  records: { title: 'Allergies and outside records', tab: 'Records' },
-  documentation: {
-    title: 'Coding, if we ever bill',
-    sub: 'This practice does not bill insurance. Kept because the work behind it was expensive and the question may come back',
-    tab: 'Coding',
-  },
-  export: { title: 'Export the record', tab: 'Export' },
-  details: { title: 'Patient details', tab: 'Details' },
-  notes: { title: 'Visit notes', tab: 'Notes' },
-  history: { title: 'Who did what', tab: 'History' },
-  prevention: { title: 'Prevention', tab: 'Prevention' },
-  letters: { title: 'Letters and forms', sub: 'Referral, work note, prior authorisation', tab: 'Letters' },
-  scope: {
-    title: 'Scope of care',
-    sub: 'What we manage, what we provide, what we do not, and what they are responsible for',
-    tab: 'Scope',
-  },
+export const TAB_LABEL: Record<ChartDrawer, string> = {
+  careplan: 'Care plan',
+  encounters: 'Encounters',
+  notes: 'Notes',
+  results: 'Labs',
+  meds: 'Meds',
+  studies: 'Imaging',
+  prevention: 'Prevention',
+  specialists: 'Specialists',
+  visits: 'Visits',
+  plan: 'Shared plan',
+  orders: 'Orders',
+  followup: 'Follow-up',
+  letters: 'Letters',
+  records: 'Records',
+  scope: 'Scope',
+  history: 'History',
+  export: 'Export',
+  details: 'Details',
+  documentation: 'Coding',
 };
 
 /* ------------------------------------------------------ labs + vitals */
@@ -101,7 +98,7 @@ export function ResultsDrawer({ patientId }: { patientId: string }) {
         */}
       <ResultsTab patientId={patientId} />
 
-      <Panel title="Laboratory panels" flush right={<span className="small muted">{panels.length}</span>}>
+      <Panel title="Labs" flush right={<span className="small muted">{panels.length}</span>}>
         {panels.length === 0 ? <Empty>None on file.</Empty> : panels.map((p) => (
           <div key={p.id} className="paneldrop">
             <button className="pdhead" onClick={() => setOpenPanel(openPanel === p.id ? null : p.id)}>
@@ -109,7 +106,6 @@ export function ResultsDrawer({ patientId }: { patientId: string }) {
               <span className="pddate">{fmtDate(p.date)}</span>
               {p.values.some((v) => v.flag !== 'normal') && <Chip tone="warn">Flagged</Chip>}
               <span className="spacer" />
-              <span className="small muted">{openPanel === p.id ? 'Hide' : 'Show'}</span>
             </button>
             {openPanel === p.id && <PanelTable p={p} />}
           </div>
@@ -169,7 +165,7 @@ export function StudiesDrawer({ patientId }: { patientId: string }) {
   const studies = st.studiesFor(patientId);
   return (
     <div className="stack">
-      <Panel title="Imaging, procedures and other diagnostics" flush>
+      <Panel title="Diagnostics" flush>
         {studies.length === 0 ? <Empty>None on file.</Empty> : studies.map((d) => (
           <div key={d.id} className="listrow" style={{ padding: '12px 16px' }}>
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -273,7 +269,6 @@ export function OrdersDrawer({ patientId }: { patientId: string }) {
                 <button className="btn sm" onClick={() => st.placeOrder(o.id)}>Send</button>
               )}
               <button className="btn ghost sm" onClick={() => st.completeOrder(o.id)}>Close</button>
-              <button className="btn quiet sm" onClick={() => st.removeOrder(o.id)}>Cancel</button>
             </div>
           </div>
         ))}

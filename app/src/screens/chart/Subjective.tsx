@@ -338,11 +338,6 @@ export function SourcesList({ patientId, onOpen }: {
 
   return (
     <div>
-      <p className="drawerlead">
-        Every sentence in the subjective is built from these and recomputed
-        when the chart is opened. Nothing in it is stored, so nothing in it
-        can be out of date with the records below.
-      </p>
       <ul className="srclist">
         {list.map((r) => (
           <li key={r.id}>

@@ -11,6 +11,7 @@
  * itself rather than from anyone remembering to write to it.
  */
 const {chromium}=require('playwright');
+const {tab, hasTab, soap, section}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
@@ -29,7 +30,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   for(let i=0;i<30 && !found;i++){
     await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(250);
     await p.locator('table.rows tbody tr').nth(i).click(); await p.waitForTimeout(300); await p.waitForTimeout(250);
-    await p.click('.ctab:has-text("Meds")'); await p.waitForTimeout(250);
+    await tab(p, 'Meds');
     if(await p.locator('.ixbox.bad').count()>0) found=true;
   }
   ok('an inherited list already has interactions on it', found);
@@ -61,7 +62,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(300);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(400);
   // Adding a problem lives in the Plan tab now, not the header.
-  await p.click('.ctab:has-text("Plan")'); await p.waitForTimeout(500);
+  await section(p, 'P');
   await p.locator('.addproblem:has-text("Problem")').scrollIntoViewIfNeeded();
   await p.click('.addproblem:has-text("Problem")'); await p.waitForTimeout(300);
   await p.fill('input[placeholder="Type a diagnosis"]','gout'); await p.waitForTimeout(400);
@@ -76,7 +77,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     (await p.locator('.csum').textContent()).includes('Gout'));
 
   // ------------------------------- 2. the log, derived not declared await p.waitForTimeout(250);
-  await p.click('.ctab:has-text("History")'); await p.waitForTimeout(400);
+  await tab(p, 'History');
   ok('adding the problem was logged without anyone instrumenting it',
     await p.locator('table.rows td:has-text("Added")').count()>0);
   await p.screenshot({path:'v7-history.png'});
@@ -103,7 +104,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   for(let i=0;i<24 && !draft;i++){ await p.waitForTimeout(180);
     await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(250);
     await p.locator('table.rows tbody tr').nth(i).click(); await p.waitForTimeout(320);
-    await p.click('.ctab:has-text("Shared plan")'); await p.waitForTimeout(320);
+    await tab(p, 'Shared plan');
     if(await p.locator('.tabbody .chip:has-text("Draft")').count()>0) draft=true;
   }
   ok('found a plan still in draft', draft);
@@ -114,7 +115,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     await p.locator('button:has-text("Sign and share")').count()===0);
 
   await p.click(`text=${name}`, {timeout:2000}).catch(()=>{}); await p.waitForTimeout(250);
-  await p.click('.ctab:has-text("History")'); await p.waitForTimeout(400);
+  await tab(p, 'History');
   ok('opening someone else’s chart is logged',
     await p.locator('text=Opened by someone else').count()>0);
   ok('the entry names the covering clinician',

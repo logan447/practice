@@ -1,4 +1,5 @@
 const {chromium}=require('playwright');
+const {tab, hasTab, soap, section}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
@@ -22,7 +23,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('palette opens the patient', await p.locator('h1:has-text("Marcus Reyes")').isVisible());
 
   // place a lab order in the visit
-  await p.click('.ctab:has-text("Encounters")'); await p.waitForTimeout(500);
+  await tab(p, 'Encounters');
   await p.click('.startenc:has-text("Visit")'); await p.waitForTimeout(700);
   const orderBox = p.locator('input[placeholder*="A1c and lipid panel"]');
   await orderBox.scrollIntoViewIfNeeded();
@@ -55,7 +56,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(600); await p.waitForTimeout(250);
   ok('the approval published a version of the care plan',
     /Version \d+, approved/.test(await p.locator('.derivedfrom').textContent()));
-  await p.click('.ctab:has-text("Labs")'); await p.waitForTimeout(500);
+  await tab(p, 'Labs');
   ok('ordered lab came back unreviewed', await p.locator('text=Not yet reviewed').first().isVisible());
   await p.screenshot({path:'v5-results.png', fullPage:true});
 

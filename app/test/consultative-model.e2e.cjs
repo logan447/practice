@@ -19,6 +19,7 @@
  * year holds.
  */
 const {chromium}=require('playwright');
+const {tab, hasTab, soap, section}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
@@ -53,7 +54,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr:has-text("Arthur")').first().click();
   await p.waitForTimeout(800);
-  await p.click('.ctab:has-text("Assessment")'); await p.waitForTimeout(500);
+  await section(p, 'A');
   const owners = (await p.locator('.ownerrow').allTextContents()).join(' | ');
   ok(`each managed problem says who is responsible: ${owners.slice(0,60)}`,
     owners.includes('We manage this') && owners.includes('Their PCP manages this'));
@@ -74,7 +75,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     rail2.includes('Everything outside our list needs somebody'));
 
   // ---------------------------------------- 3b. the agreement, as a view
-  await p.click('.ctab:has-text("Scope")'); await p.waitForTimeout(600);
+  await tab(p, 'Scope'); await p.waitForTimeout(200);
   const scope = (await p.locator('.tabbody').textContent()).replace(/\s+/g,' ');
   ok('the scope tab says this is a consulting practice',
     scope.includes('not anybody\u2019s primary care'));
@@ -93,7 +94,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // clinical, and it lives with the rest of the administration.
   ok('the clinical column does not carry the ledger',
     !rail2.includes('Membership year'));
-  await p.click('.ctab:has-text("Details")'); await p.waitForTimeout(500);
+  await tab(p, 'Details'); await p.waitForTimeout(150);
   const det = (await p.locator('.tabbody').textContent()).replace(/\s+/g,' ');
   ok('the year is a ledger on the details tab',
     det.includes('Membership year')

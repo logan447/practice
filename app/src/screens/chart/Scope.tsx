@@ -51,12 +51,6 @@ export function Scope({ patientId }: { patientId: string }) {
 
   return (
     <div className="stack">
-      <p className="drawerlead">
-        This practice is a consulting practice. It manages named conditions and provides
-        named services, and it is not anybody&rsquo;s primary care. What follows is what
-        that means for this patient in particular.
-      </p>
-
       {/* ------------------------------------------- 1. the problems */}
       <section className="scopeblock">
         <h3>Conditions, and who is responsible</h3>
@@ -74,11 +68,7 @@ export function Scope({ patientId }: { patientId: string }) {
               <li>
                 <span className="scopek" style={{ color: 'var(--warn)' }}>Nobody has said</span>
                 <span>
-                  {unasked.map((c) => c.name).join(', ')}.{' '}
-                  <span className="small muted">
-                    Set an owner in the assessment. A problem nobody has claimed is one the
-                    patient may believe we are watching.
-                  </span>
+                  {unasked.map((c) => c.name).join(', ')}
                 </span>
               </li>
             )}
@@ -98,11 +88,6 @@ export function Scope({ patientId }: { patientId: string }) {
             {pcp && 'plan' in pcp && pcp.plan && (
               <p className="small muted">{pcp.plan}</p>
             )}
-            <p className="small muted">
-              Carry establishing primary care as a plan item with a status, like any other.
-              A sentence in an agreement does not make somebody who has no other physician
-              into somebody who has one.
-            </p>
           </>
         ) : (
           <p>
@@ -116,6 +101,10 @@ export function Scope({ patientId }: { patientId: string }) {
       {/* --------------------------------------- 3 and 4. the practice's lists */}
       <section className="scopeblock">
         <h3>What the membership includes</h3>
+        <p className="scopeline">
+          This is a consulting practice. It manages named conditions and provides named
+          services, and it is not anybody&rsquo;s primary care.
+        </p>
         <ul className="scopebullets">
           {OURS.map((x) => <li key={x}>{x}</li>)}
         </ul>
@@ -140,11 +129,6 @@ export function Scope({ patientId }: { patientId: string }) {
           <li>Going elsewhere for anything urgent, and for anything not on our list</li>
         </ul>
       </section>
-
-      <p className="small muted">
-        The last two lists are the practice&rsquo;s and belong in the agreement. The first
-        two are this patient&rsquo;s and belong here, because they change.
-      </p>
     </div>
   );
 }

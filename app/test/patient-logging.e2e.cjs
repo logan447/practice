@@ -1,4 +1,5 @@
 const {chromium}=require('playwright');
+const {tab, hasTab, soap, section}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4700/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
@@ -13,7 +14,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr:has-text("Marcus Reyes")').first().click();
   await p.waitForTimeout(500); await p.waitForTimeout(250);
-  await p.click('.ctab:has-text("Details")'); await p.waitForTimeout(350);
+  await tab(p, 'Details');
   await p.click('.tabbody button:has-text("Sign in as them")'); await p.waitForTimeout(500);
   await p.click('button[role="tab"]:has-text("Track")'); await p.waitForTimeout(350);
   ok('Track tab opens', await p.locator('text=What are you recording?').isVisible());
@@ -66,12 +67,12 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr:has-text("Marcus Reyes")').first().click();
   await p.waitForTimeout(600); await p.waitForTimeout(250);
-  await p.click('.ctab:has-text("Labs")'); await p.waitForTimeout(350);
+  await tab(p, 'Labs');
   ok('results keeps patient data separate', await p.locator('text=Patient-measured, not clinic-measured').isVisible());
   await p.screenshot({path:'t-5-results.png', fullPage:true});
 
   // encounter workspace shows what they logged await p.waitForTimeout(250);
-  await p.click('.ctab:has-text("Encounters")'); await p.waitForTimeout(500);
+  await tab(p, 'Encounters');
   await p.click('.startenc:has-text("Visit")'); await p.waitForTimeout(700);
   ok('visit workspace shows home readings', await p.locator('text=Home').first().isVisible());
 
@@ -80,7 +81,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr:has-text("Marcus Reyes")').first().click();
   await p.waitForTimeout(600); await p.waitForTimeout(250);
-  await p.click('.ctab:has-text("Labs")'); await p.waitForTimeout(400);
+  await tab(p, 'Labs');
   ok('patient-logged data survives reload', await p.locator('text=Patient-measured, not clinic-measured').isVisible());
 
   const over=await p.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth+1);

@@ -10,6 +10,7 @@
  * list.
  */
 const {chromium}=require('playwright');
+const {tab, hasTab, soap, section}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
@@ -63,8 +64,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(450);
   // Booking lives in the Encounters tab, not in the header.
-  await p.click('.ctab:has-text("Encounters")'); await p.waitForTimeout(400);
-  await p.click('.tabbody button:has-text("Book a visit")'); await p.waitForTimeout(400);
+  await tab(p, 'Encounters');
+  await p.click('.tabbody button:has-text("Book for later")'); await p.waitForTimeout(400);
   ok('booking offers the two activities with their lengths',
     (await p.locator('.booking').textContent()).includes('30m')
     && (await p.locator('.booking').textContent()).includes('60m'));
@@ -125,7 +126,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   for(let i=0;i<14 && !gotSummary;i++){
     await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(200);
     await p.locator('table.rows tbody tr').nth(i).click(); await p.waitForTimeout(320); await p.waitForTimeout(250);
-    await p.click('.ctab:has-text("Letters")'); await p.waitForTimeout(250);
+    await tab(p, 'Letters');
     if(await p.locator('button:has-text("Summary")').count()>0) gotSummary=true;
   }
   ok('a signed visit can produce a summary', gotSummary);
@@ -170,7 +171,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // ------------------------------- 5. the patient takes it themselves
   await p.click('.dochead button:has-text("Close")', {timeout:2000}).catch(()=>{});
   await p.waitForTimeout(200); await p.waitForTimeout(250);
-  await p.click('.ctab:has-text("Details")'); await p.waitForTimeout(350);
+  await tab(p, 'Details');
   await p.click('.tabbody button:has-text("Sign in as them")'); await p.waitForTimeout(700);
   await p.click('button[role="tab"]:has-text("Your records")'); await p.waitForTimeout(450);
   const yr = await p.locator('.wrap').first().textContent();

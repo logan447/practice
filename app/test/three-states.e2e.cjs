@@ -12,6 +12,7 @@
  * finding and that is the failure that matters.
  */
 const {chromium}=require('playwright');
+const {tab, hasTab, soap, section}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
@@ -31,10 +32,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     await p.fill('input[aria-label="Search patients"]',name); await p.waitForTimeout(350);
     await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(600);
   };
-  const sectionText = async (n) => {
-    await p.locator('.ctab').nth(n).click(); await p.waitForTimeout(350);
-    return (await p.locator('.soap').first().textContent()).replace(/\s+/g,' ');
-  };
+  // The care plan is one document: a "section" is a letter of it.
+  const sectionText = async (letter) => soap(p, letter);
 
   ok('the app opens on the schedule, as a week',
     (await p.locator('.weekgrid .wday').count())===7
@@ -55,42 +54,42 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     !(await p.locator('.soapbody').first().textContent()).includes('Chart review:'));
   ok('and their account of their health overall opens it',
     sOverall.startsWith('Patient reports'));
-  await p.click('.ctab:has-text("Objective")'); await p.waitForTimeout(400);
+  await section(p, 'O');
   ok('the objective has vitals, an examination and labs',
     (await p.locator('.vitblock').count())>0
     && (await p.locator('.examrow').count())>0
     && (await p.locator('.bone').count())>0);
   ok('every problem is judged at goal or needing work',
     !(await p.locator('.goalrow').allTextContents()).join('|').includes('Not assessed'));
-  const sPlan = await sectionText(3);
+  const sPlan = await sectionText('P');
   ok('the plan is written for every problem', !sPlan.includes('No plan written'));
   ok('and the follow-up interval is set',
-    (await p.locator('.ctab:has-text("Follow-up")').count())===1);
+    await hasTab(p, 'Follow-up'));
 
   // ------------------------------------------------- 2. part filled
   await open('Marcus');
   const mOverall = (await p.locator('.soap').first().locator('.psum').first().textContent());
   ok('there is still an overall summary, from fewer records', mOverall.length>30);
-  const mSubj = await sectionText(0);
+  const mSubj = await sectionText('S');
   ok('a problem with nothing from the patient says so',
     mSubj.includes('Nothing on file from the patient about this problem'));
   ok('a drug nobody has asked about says that too',
     mSubj.includes('adherence not asked about'));
-  const mObj = await sectionText(1);
+  const mObj = await sectionText('O');
   ok('vitals are there', (await p.locator('.vitblock').count())>0);
   ok('the missing examination is stated, not skipped',
     mObj.includes('No examination documented. Not the same as a normal examination.'));
   ok('the labs that exist are shown', (await p.locator('.bone').count())>0);
-  await p.click('.ctab:has-text("Assessment")'); await p.waitForTimeout(400);
+  await section(p, 'A');
   ok('a problem nobody judged says "not assessed"',
     (await p.locator('.goalrow').allTextContents()).join('|').includes('Not assessed'));
-  const mPlan = await sectionText(3);
+  const mPlan = await sectionText('P');
   ok('the plan still lists what is being done for each problem',
     mPlan.includes('Lisinopril') && /Active|Needs attention/.test(mPlan));
 
   // ----------------------------------------------------- 3. empty
   await open('Nina');
-  const nSubj = await sectionText(0);
+  const nSubj = await sectionText('S');
   ok('the subjective says nothing is being managed',
     nSubj.includes('Nothing is being managed here yet'));
   // Never "they have not been asked": every patient gets a baseline
@@ -100,13 +99,13 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     nSubj.includes('No intake on file yet') && nSubj.includes('First visit booked for'));
   ok('and never claims nobody asked them anything',
     !nSubj.includes('have not been asked'));
-  const nObj = await sectionText(1);
+  const nObj = await sectionText('O');
   ok('no vitals is said out loud', nObj.includes('No vitals recorded'));
   ok('no examination is said out loud',
     nObj.includes('No examination documented. Not the same as a normal examination.'));
   ok('no labs is said out loud', nObj.includes('No laboratory results on file'));
   ok('no diagnostics is said out loud', nObj.includes('None on file'));
-  const nAss = await sectionText(2);
+  const nAss = await sectionText('A');
   ok('an empty prevention schedule is not called at goal',
     !nAss.includes('At goal') && nAss.includes('Nothing scheduled yet'));
   ok('lifestyle says nothing is prescribed', nAss.includes('Nothing prescribed yet'));

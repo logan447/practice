@@ -41,7 +41,6 @@ export function PreventionTab({ patientId }: { patientId: string }) {
               <th style={{ width: 150 }}>Status</th>
               <th style={{ width: 160 }}>Last done</th>
               <th style={{ width: 160 }}>Due</th>
-              <th style={{ width: 110 }}></th>
             </tr>
           </thead>
           <tbody>
@@ -54,11 +53,6 @@ export function PreventionTab({ patientId }: { patientId: string }) {
                 <td><Chip tone={TONE[i.status]}>{LABEL[i.status]}</Chip></td>
                 <td className="small muted">{i.lastDone ? fmtDate(i.lastDone) : '—'}</td>
                 <td className="small muted">{i.dueBy ? relative(i.dueBy) : '—'}</td>
-                <td style={{ textAlign: 'right' }}>
-                  {(i.status === 'due' || i.status === 'overdue') && (
-                    <button className="btn ghost sm">Order</button>
-                  )}
-                </td>
               </tr>
             ))}
           </tbody>

@@ -96,7 +96,7 @@ export function Rail({ patientId, open, onJump }: {
         * Each problem with the two things that decide what to do about
         * it: what it is being treated with, and the last number.
         */}
-      <Block title="Problem list" count={managed.length} onOpen={() => open('assessment')}>
+      <Block title="Problem list" count={managed.length} onOpen={() => open('careplan')}>
         {managed.length === 0 ? (
           <Empty>No problems are being managed here.</Empty>
         ) : (

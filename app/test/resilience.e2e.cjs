@@ -49,7 +49,7 @@ const OLD = {
   ok('the problem renders rather than throwing',
     (await p.locator('#subj-sc1').count())===1);
   ok('and every other section drew too',
-    (await p.locator('.ctab').count())>=4);
+    (await p.locator('.ctabs > .ctab').count())>=7);
   ok('no uncaught error reached the page', errs.length===0);
 
   // ---------------------------------------------- 2. the way back out

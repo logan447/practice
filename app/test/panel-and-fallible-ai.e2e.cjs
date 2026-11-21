@@ -10,6 +10,7 @@
  * longer being measured.
  */
 const {chromium}=require('playwright');
+const {tab, hasTab, soap, section}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
@@ -55,7 +56,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // Reconciliation is a property of the record, so it sits with the
   // allergies and the outside documents that usually caused it.
-  await p.click('.ctab:has-text("Records")'); await p.waitForTimeout(500);
+  await tab(p, 'Records');
   ok('the chart says what needs reconciling', await p.locator('.quality .qhead').isVisible());
   await p.click('.quality .qhead'); await p.waitForTimeout(300);
   ok('each item is specific', await p.locator('.qrow .qtitle').count()>0);
@@ -81,8 +82,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(250);
     await p.click('button:has-text("Needs reconciling")'); await p.waitForTimeout(250);
     await p.locator('table.rows tbody tr').nth(i).click(); await p.waitForTimeout(350);
-    if (await p.locator('.ctab:has-text("Records")').count()===0) continue; await p.waitForTimeout(250);
-    await p.click('.ctab:has-text("Records")'); await p.waitForTimeout(300);
+    if (await p.locator('.ctabmore > .ctab').count()===0) continue; await p.waitForTimeout(250);
+    await tab(p, 'Records');
     if (await p.locator('.garble').count()>0) foundGarble=true;
   }
   ok('an outside record that would not parse is shown as such', foundGarble);
@@ -100,7 +101,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // Start a visit from the chart rather than booking one. The two
   // activities are startable from the Encounters block, which is the
   // path a physician uses when somebody turns up.
-  await p.click('.ctab:has-text("Encounters")'); await p.waitForTimeout(500);
+  await tab(p, 'Encounters');
   await p.click('.startenc:has-text("Visit")'); await p.waitForTimeout(800);
 
   ok('a visit is open, on the care plan rather than a blank note',

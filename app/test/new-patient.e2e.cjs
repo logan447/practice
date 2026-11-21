@@ -1,4 +1,5 @@
 const {chromium}=require('playwright');
+const {tab, hasTab, soap, section}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4600/';
 const step=[]; const fail=[];
 const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
@@ -48,20 +49,20 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   ok('lands on the new chart', await p.locator('h1:has-text("Rosa Delgado")').isVisible());
 
   // The reminder moved out of the clinical header into Details.
-  await p.click('.ctab:has-text("Details")'); await p.waitForTimeout(400);
+  await tab(p, 'Details');
   ok('the pinned reminder is kept, out of the clinical header',
     (await p.locator('.tabbody').textContent()).includes('Cares for her mother full time'));
   
   ok('reported conditions present in the history', await p.locator('.chead .dx:has-text("Trouble sleeping")').isVisible());
   ok('but not yet something we manage',
     (await p.locator('.csum').textContent().catch(()=>'')).includes('Trouble sleeping')===false);
-  await p.click('.ctab:has-text("Encounters")'); await p.waitForTimeout(500);
+  await tab(p, 'Encounters');
   ok('intake visit booked', (await p.locator('.tabbody').textContent()).includes('First full visit'));
-  await p.click('.ctab:has-text("Subjective")'); await p.waitForTimeout(300);
+  await section(p, 'S');
   await p.screenshot({path:'e2e-3-newchart.png', fullPage:true});
 
   // 4 — medicines parsed from free text await p.waitForTimeout(250);
-  await p.click('.ctab:has-text("Meds")'); await p.waitForTimeout(350);
+  await tab(p, 'Meds');
   await p.waitForTimeout(250);
   ok('medicine name parsed', await p.locator('.tabbody >> text=Amlodipine 5 mg').first().isVisible());
   ok('sig parsed', await p.locator('.tabbody >> text=one tablet each morning').first().isVisible());
@@ -81,7 +82,7 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   ok('added a medicine', await p.locator('.tabbody >> text=Atorvastatin 20 mg').first().isVisible());
 
   // 5 — care plan await p.waitForTimeout(250);
-  await p.click('.ctab:has-text("Shared plan")');
+  await tab(p, 'Shared plan');
   await p.waitForTimeout(300);
   ok('empty plan prompts to start', await p.locator('text=No care plan yet').first().isVisible());
   await p.fill('.tabbody textarea','Get the blood pressure down without adding a second tablet, and protect her sleep.');
@@ -100,7 +101,7 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   await p.screenshot({path:'e2e-4-plan.png', fullPage:true});
 
   // 6 — portal BEFORE signing: plan must be invisible await p.waitForTimeout(250);
-  await p.click('.ctab:has-text("Details")'); await p.waitForTimeout(350);
+  await tab(p, 'Details');
   await p.click('.tabbody button:has-text("Sign in as them")');
   await p.waitForTimeout(350);
   ok('portal opens', await p.locator('text=Patient view').isVisible());
@@ -118,14 +119,14 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(450);
   await p.waitForTimeout(400); await p.waitForTimeout(250);
-  await p.click('.ctab:has-text("Shared plan")');
+  await tab(p, 'Shared plan');
   await p.waitForTimeout(300);
   await p.click('button:has-text("Sign and share")');
   await p.waitForTimeout(350);
   ok('plan signed', await p.locator('text=visible to patient').isVisible());
 
   // 8 — portal AFTER signing await p.waitForTimeout(250);
-  await p.click('.ctab:has-text("Details")'); await p.waitForTimeout(350);
+  await tab(p, 'Details');
   await p.click('.tabbody button:has-text("Sign in as them")');
   await p.waitForTimeout(400);
   ok('signed plan now visible to patient', await p.locator('text=Walk 20 minutes before her mother wakes').first().isVisible());
@@ -144,7 +145,7 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(450);
   await p.waitForTimeout(300);
-  await p.click('.ctab:has-text("Encounters")'); await p.waitForTimeout(500);
+  await tab(p, 'Encounters');
   await p.click('.startenc:has-text("Visit")'); await p.waitForTimeout(700);
   ok('the encounter opens on the care plan, not on a blank note',
     (await p.locator('.panel:has-text("Living care plan, working copy")').count())===1);

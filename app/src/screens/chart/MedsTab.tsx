@@ -152,10 +152,6 @@ export function MedsTab({ patientId }: { patientId: string }) {
         </Panel>
       )}
 
-      <p className="small muted">
-        Prescribing runs through a certified e-prescribing service, not this record.
-        See the EMR assessment for why that one is bought rather than built.
-      </p>
     </div>
   );
 }

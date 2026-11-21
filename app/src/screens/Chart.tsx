@@ -35,7 +35,7 @@ import { MasterPlanView } from './chart/MasterPlanView';
 import { Rail } from './chart/Rail';
 import { VisitsDrawer } from './chart/VisitsDrawer';
 import {
-  DRAWER_TITLES, CHART_TABS, SOAP, ResultsDrawer, StudiesDrawer,
+  TAB_LABEL, CHART_TABS, MORE_TABS, ResultsDrawer, StudiesDrawer,
   FollowUpDrawer, OrdersDrawer, type ChartDrawer,
 } from './chart/drawers';
 import { Documentation } from './chart/Documentation';
@@ -55,7 +55,7 @@ export function Chart({ patientId }: { patientId: string }) {
   const st = useStore();
   const nav = useNav();
   const me = useActor();
-  const [tab, setTab] = useState<ChartDrawer>('subjective');
+  const [tab, setTab] = useState<ChartDrawer>('careplan');
 
   useEffect(() => { markChartOpen(); }, [patientId]);
 
@@ -158,29 +158,24 @@ export function Chart({ patientId }: { patientId: string }) {
           * from. Both open in the same place, so neither is a detour.
           */}
         <nav className="ctabs">
-          {CHART_TABS.map((t) => (t === null ? <span key="gap" className="ctabgap" /> : (
+          {CHART_TABS.map((t) => (
             <button key={t} className={`ctab${tab === t ? ' on' : ''}`}
               onClick={() => setTab(t)}>
-              {DRAWER_TITLES[t]?.tab ?? DRAWER_TITLES[t]?.title ?? t}
+              {TAB_LABEL[t]}
             </button>
-          )))}
+          ))}
+          <MoreTabs current={tab} onPick={setTab} />
         </nav>
 
         {/* -------------------------------------------- the workspace */}
         <div className="workspace">
           <div className="tabbody">
-            {SOAP[tab as string] ? (
-              <MasterPlanView patientId={p.id} only={SOAP[tab as string]}
+            {tab === 'careplan' ? (
+              <MasterPlanView patientId={p.id}
                 onOpen={(w) => setTab(w === 'notes' ? 'visits' : (w as ChartDrawer))} />
             ) : (
               <>
-                <div className="tabhead">
-                  <h2>{DRAWER_TITLES[tab ?? '']?.title}</h2>
-                  {DRAWER_TITLES[tab ?? '']?.sub && (
-                    <p className="small muted">{DRAWER_TITLES[tab ?? '']?.sub}</p>
-                  )}
-                </div>
-                {tab === 'visits' && <VisitsDrawer patientId={p.id} onDone={() => setTab('subjective')} />}
+                {tab === 'visits' && <VisitsDrawer patientId={p.id} onDone={() => setTab('careplan')} />}
                 {tab === 'plan' && <PlanTab patientId={p.id} />}
                 {tab === 'meds' && <MedsTab patientId={p.id} />}
                 {tab === 'results' && <ResultsDrawer patientId={p.id} />}
@@ -198,7 +193,7 @@ export function Chart({ patientId }: { patientId: string }) {
                 {tab === 'details' && <Details patientId={p.id} />}
                 {tab === 'notes' && <NotesTab patientId={p.id} />}
                 {tab === 'encounters' && (
-                  <EncountersDrawer patientId={p.id} onDone={() => setTab('subjective')} />
+                  <EncountersDrawer patientId={p.id} onDone={() => setTab('careplan')} />
                 )}
               </>
             )}
@@ -211,7 +206,7 @@ export function Chart({ patientId }: { patientId: string }) {
                * does not exist until the Plan tab is on screen.
                */
               onJump={(cid) => {
-                setTab('planview');
+                setTab('careplan');
                 window.setTimeout(() => {
                   const el = document.getElementById(`problem-${cid}`);
                   el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -223,6 +218,45 @@ export function Chart({ patientId }: { patientId: string }) {
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * The tail of the strip, behind one control.
+ *
+ * Ten things that are real and rarely wanted. Putting them in the
+ * strip made it twenty-one tabs wide and scrolling sideways, which is
+ * a strip nobody reads.
+ */
+function MoreTabs({ current, onPick }: {
+  current: ChartDrawer;
+  onPick: (t: ChartDrawer) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!open) return undefined;
+    const close = () => setOpen(false);
+    window.addEventListener('click', close);
+    return () => window.removeEventListener('click', close);
+  }, [open]);
+  const here = MORE_TABS.includes(current);
+
+  return (
+    <span className="ctabmore" onClick={(e) => e.stopPropagation()}>
+      <button className={`ctab${here ? ' on' : ''}`} onClick={() => setOpen((v) => !v)}>
+        {here ? TAB_LABEL[current] : 'More'}
+      </button>
+      {open && (
+        <span className="moremenu">
+          {MORE_TABS.map((t) => (
+            <button key={t} className="acctrow"
+              onClick={() => { onPick(t); setOpen(false); }}>
+              {TAB_LABEL[t]}
+            </button>
+          ))}
+        </span>
+      )}
+    </span>
   );
 }
 

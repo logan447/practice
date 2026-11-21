@@ -7,6 +7,7 @@
  * And that the export is the whole packet rather than a cover page.
  */
 const {chromium}=require('playwright');
+const {tab, hasTab, soap, section}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
@@ -98,17 +99,18 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await subj.locator('.sprob .srcmark').first().click(); await p.waitForTimeout(150);
 
   // ------------------------------------------- 3. objective order
-  const sections = (await p.locator('.ctab').allTextContents()).slice(0, 4);
-  ok(`SOAP leads the tab strip, in order: ${sections.join(', ')}`,
+  // One document, read top to bottom, with the letters still in order.
+  await tab(p, 'Care plan');
+  const sections = await p.locator('.soaphead h2').allTextContents();
+  ok(`the care plan is one scroll, in SOAP order: ${sections.join(', ')}`,
     sections.join(',')==='Subjective,Objective,Assessment,Plan');
-  await p.click('.ctab:has-text("Objective")'); await p.waitForTimeout(400);
+  const obj = await section(p, 'O');
   ok('the most recent vitals only, with home behind a button',
     (await p.locator('.vitblock .vhead').allTextContents()).join('|').includes('Office')
     && (await p.locator('.vitblock.home').count())===0
     && (await p.locator('button:has-text("Home logs")').count())===1);
   ok('labs are fishbones', await p.locator('.bone').count()>=4);
-  await p.click('.ctab:has-text("Objective")'); await p.waitForTimeout(400);
-  const objText = (await p.locator('.soap').first().textContent());
+  const objText = (await obj.textContent());
   ok('the examination comes before the labs',
     objText.indexOf('Physical examination') < objText.indexOf('Key labs'));
   const bone = await p.locator('.bone').first().textContent();
@@ -116,8 +118,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('the examination carries its own date', await p.locator('.examrow').count()>0);
 
   // ------------------------- 4. the assessment, in one vocabulary
-  await p.click('.ctab:has-text("Assessment")'); await p.waitForTimeout(400);
-  const ass = p.locator('.soap').first();
+  const ass = await section(p, 'A');
   const line = await ass.locator('.oneliner').textContent();
   ok(`it opens with the clinical one-liner: "${line.slice(0,40)}..."`,
     /^60F with PMH of /.test(line));
@@ -140,8 +141,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
       await ass.locator('.catblock:has-text("Lifestyle medicine")').textContent()));
 
   // ------------------------------------- 5. plan follows the gauge
-  await p.locator('.ctab').nth(3).click(); await p.waitForTimeout(400);
-  const plan = await p.locator('.soap').first().textContent();
+  const planSec = await section(p, 'P');
+  const plan = await planSec.textContent();
   ok('the plan no longer tells you what to intend',
     !plan.includes('Continue and keep pushing') && !plan.includes('Change course'));
   ok('medicines are coded to the problem they are for',
@@ -152,10 +153,10 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     plan.includes('Preventative care') && /Needs attention|Complete/.test(plan));
   ok('no summary badges counting things', !/\d+ outstanding|\d+ of \d+/.test(plan));
   ok('follow-up moved out of the plan and into the rail',
-    !plan.includes('FOLLOW-UP') && (await p.locator('.ctab:has-text("Follow-up")').count())===1);
+    !plan.includes('FOLLOW-UP') && await hasTab(p, 'Follow-up'));
 
   // ------------------------------- 6. the sources, and adding to them
-  await p.click('.ctab:has-text("Subjective")'); await p.waitForTimeout(400);
+  await section(p, 'S');
   await p.click('.derivedfrom button'); await p.waitForTimeout(700);
   const tl = await p.locator('.tlitem').count();
   ok(`every record is here to open (${tl})`, tl>=20);
@@ -167,19 +168,19 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     tabtext.includes('shaky and sweaty') || tabtext.includes('A friend sent me an article'));
 
   // the claim: add a record, the summary moves, nothing was edited
-  await p.click('.ctab:has-text("Subjective")'); await p.waitForTimeout(400);
+  await section(p, 'S');
   const before = (await p.locator('.soap').first().textContent());
-  await p.click('.ctab:has-text("Encounters")'); await p.waitForTimeout(400);
+  await tab(p, 'Encounters');
   await p.click('button:has-text("A health update from the patient")');
   await p.waitForTimeout(600);
   
-  await p.click('.ctab:has-text("Subjective")'); await p.waitForTimeout(400);
+  await section(p, 'S');
   const after = (await p.locator('.soap').first().textContent());
   ok('a new patient update changes the summary with no editing step',
     before!==after);
 
   // -------------------------------------------- 7. the packet
-  await p.click('.ctab:has-text("Export")'); await p.waitForTimeout(700);
+  await tab(p, 'Export'); await p.waitForTimeout(300);
   const list = (await p.locator('.packetlist').textContent()).replace(/\s+/g,' ');
   ok(`the packet lists what is in it: ${list.slice(0,60)}`,
     await p.locator('.packetlist li').count()===7);
@@ -199,7 +200,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // ------------------------------- 8. billing records kept apart
   
-  await p.click('.ctab:has-text("Coding")'); await p.waitForTimeout(700);
+  await tab(p, 'Coding'); await p.waitForTimeout(300);
   const doc = await p.locator('.tabbody').textContent();
   ok('each visit records the elements a level rests on', doc.includes('Problems') && doc.includes('Risk'));
   ok('both routes to a level are shown', /gives 992\d\d\./.test(doc));

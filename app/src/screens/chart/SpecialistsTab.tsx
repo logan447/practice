@@ -32,7 +32,7 @@ export function SpecialistsTab({ patientId }: { patientId: string }) {
         <Panel key={sp.id} title={sp.name} eyebrow={sp.specialty}
           right={sp.outstanding && sp.outstanding !== 'None.'
             ? <Chip tone="warn">Outstanding</Chip>
-            : <Chip tone="ok">Nothing pending</Chip>}>
+            : null}>
           <div className="split" style={{ gap: 20 }}>
             <div className="stack">
               {sp.findings && (
@@ -65,7 +65,7 @@ export function SpecialistsTab({ patientId }: { patientId: string }) {
         </Panel>
       ))}
 
-      <Panel title="Add a specialist">
+      <div className="addrow">
         <InlineAdd
           label="Add a specialist" open={adding} setOpen={setAdding}
           canSave={!!f.name.trim() && !!f.specialty.trim()}
@@ -99,7 +99,7 @@ export function SpecialistsTab({ patientId }: { patientId: string }) {
             onChange={(v) => setF((p) => ({ ...p, outstanding: v }))}
             placeholder="Decision on stopping clopidogrel due November" />
         </InlineAdd>
-      </Panel>
+      </div>
     </div>
   );
 }
