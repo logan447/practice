@@ -26,7 +26,7 @@ import { Chip, Panel, Empty, Avatar } from '../components/ui';
 import { fmtDate } from '../lib/format';
 import { addDays } from '../lib/clock';
 import {
-  hhmm, closureOn, nextClosure, dayStatus, weekStart, WORKING_YEAR,
+  hhmm, closureOn, dayStatus, weekStart, WORKING_YEAR,
 } from '../domain/schedule';
 import type { Encounter } from '../domain/types';
 
@@ -34,10 +34,6 @@ type View = 'day' | 'week' | 'month';
 
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const PX_PER_MIN = 0.78;
-
-/** "Closed, end of year" reads better mid-sentence as "the end-of-year closure". */
-const shortLabel = (label: string) =>
-  `the ${label.replace(/^Closed,\s*/i, '').trim().replace(/\s+/g, '-')} closure`;
 
 const monthStart = (iso: string) => `${iso.slice(0, 7)}-01`;
 const addMonths = (iso: string, n: number) => {
@@ -55,11 +51,6 @@ export function Schedule() {
   const [anchor, setAnchor] = useState(st.now);
 
   const waiting = st.inbox().filter((x) => !x.triage);
-  const coming = nextClosure(st.now);
-  const closing = st.closureChecks();
-  const daysToClose = coming
-    ? Math.round((Date.parse(`${coming.from}T12:00:00`) - Date.parse(`${st.now}T12:00:00`)) / 86400000)
-    : undefined;
 
   /** Everything booked, by date, which all three views read. */
   const byDate = useMemo(() => {
@@ -121,25 +112,16 @@ export function Schedule() {
         <button className="btn quiet sm" onClick={() => step(1)}>&rarr;</button>
       </div>
 
-      {/* ---------------------------------------- what is waiting, either way */}
-      {coming && daysToClose !== undefined && daysToClose > 0 && daysToClose <= 45
-        && closing && closing.checks.length > 0 && (
-        <button className="inboxbar closingbar" onClick={() => nav.go({ name: 'closing' })}>
-          <span>
-            <b>{closing.checks.length}</b>{' '}
-            {closing.checks.length === 1 ? 'patient has' : 'patients have'} something
-            outstanding before {shortLabel(coming.label)} in {daysToClose} days
-            {closing.checks.some((c) => c.items.some((i) => i.urgent)) && (
-              <span className="urgentmark">
-                {closing.checks.filter((c) => c.items.some((i) => i.urgent)).length} with
-                no other physician
-              </span>
-            )}
-          </span>
-          <span className="linkish">Check</span>
-        </button>
-      )}
-
+      {/* ------------------------------------------- what is waiting */}
+      {/*
+        * The inbox, and nothing else.
+        *
+        * There was a second bar here counting what was outstanding
+        * before the next closure. It was true and it was also a
+        * standing banner on the screen a physician opens every
+        * morning, which is how a warning stops being read. Before
+        * closing is a page in the menu, and it is a page you go to.
+        */}
       {waiting.length > 0 && (
         <button className="inboxbar" onClick={() => nav.go({ name: 'inbox' })}>
           <span>

@@ -1,5 +1,5 @@
 const {chromium}=require('playwright');
-const {tab, hasTab, soap, section}=require('./tabs.cjs');
+const {tab, hasTab}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4700/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};

@@ -19,7 +19,7 @@
  * year holds.
  */
 const {chromium}=require('playwright');
-const {tab, hasTab}=require('./tabs.cjs');
+const {tab, hasTab, palette}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
@@ -35,7 +35,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('button:has-text("Load the day")'); await p.waitForTimeout(900);
 
   // ------------------------------------- 1. the package, not the month
-  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Capacity")'); await p.waitForTimeout(800);
+  await palette(p, 'Capacity'); await p.waitForTimeout(600);
   const cap = (await p.locator('.wrap').textContent()).replace(/\s+/g,' ');
   ok('the year is eight months open and four closed',
     cap.includes('Eight months open and four closed'));
@@ -114,10 +114,9 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     /of 2 consultations/.test(det) && /of 3 care plan reviews/.test(det));
 
   // ------------------------------------------- 5. before a closure
-  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Schedule")'); await p.waitForTimeout(600);
-  const bar = await p.locator('.closingbar').count();
-  ok('the run-up to a closure is on the day', bar===1);
-  await p.click('.closingbar'); await p.waitForTimeout(800);
+  // The run-up used to be a standing banner on the schedule, which is
+  // how a warning stops being read. It is a page you go to.
+  await palette(p, 'Before closing'); await p.waitForTimeout(600);
   const close = (await p.locator('.wrap').textContent()).replace(/\s+/g,' ');
   ok('the closure is named with its dates',
     /Closed, end of year/.test(close) && /to 17 Jan 2027/.test(close));
@@ -133,7 +132,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // ------------------------------------ 6. a closed day says it is closed
   await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Schedule")'); await p.waitForTimeout(600);
-  for (let i=0;i<5;i++) { await p.click('button:has-text("+1m")'); await p.waitForTimeout(180); }
+  for (let i=0;i<5;i++) { await palette(p, 'Advance one month'); }
   const closedSeen = await p.locator('.closedbar').count();
   ok('a day inside a closure says so rather than looking empty',
     closedSeen>=0);

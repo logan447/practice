@@ -1,5 +1,5 @@
 const {chromium}=require('playwright');
-const {tab, hasTab, soap, section}=require('./tabs.cjs');
+const {tab, hasTab, palette}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
@@ -11,8 +11,11 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.goto(U,{waitUntil:'networkidle'}); await p.waitForTimeout(300);
   await p.click('button:has-text("Load the day")'); await p.waitForTimeout(500);
 
-  ok('clock shows the clinic date', await p.locator('.clockbar .date').isVisible());
-  const d0 = await p.locator('.clockbar .date').textContent();
+  // The clock is not on screen any more. It is a prototype control
+  // rather than part of the practice, so the schedule's own week is
+  // what says where in time we are.
+  ok('no clock in the bar', (await p.locator('.topbar .clockbar').count())===0);
+  const d0 = await p.locator('.weekgrid .wday').first().textContent();
 
   // keyboard: palette
   await p.keyboard.press('Meta+k'); await p.waitForTimeout(350);
@@ -42,8 +45,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.screenshot({path:'v5-signed.png', fullPage:true});
 
   // advance time: the lab should come back
-  await p.click('button:has-text("+1w")'); await p.waitForTimeout(700);
-  const d1 = await p.locator('.clockbar .date').textContent();
+  await palette(p, 'Advance one week'); await p.waitForTimeout(500);
+  const d1 = await p.locator('.weekgrid .wday').first().textContent();
   ok('clock moved', d0 !== d1);
   ok('what changed is reported', await p.locator('.clockflash').isVisible());
   await p.screenshot({path:'v5-advanced.png'});
@@ -61,7 +64,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.screenshot({path:'v5-results.png', fullPage:true});
 
   // metrics await p.waitForTimeout(250);
-  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Usage")'); await p.waitForTimeout(500);
+  await palette(p, 'Usage and timing'); await p.waitForTimeout(400);
   ok('usage page shows a timed visit', await p.locator('text=Median note time').isVisible());
   ok('the visit is listed', await p.locator('text=Marcus Reyes').first().isVisible());
   await p.screenshot({path:'v5-metrics.png', fullPage:true});

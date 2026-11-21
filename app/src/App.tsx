@@ -16,14 +16,12 @@ import { Closing } from './screens/Closing';
 import { SignInRows } from './components/SignIn';
 import { ROLE_LABEL } from './lib/session';
 import { useActor } from './lib/session';
-import { can } from './lib/permissions';
 import { CommandPalette, Shortcuts } from './components/CommandPalette';
-import { CHART_TOOLS, TAB_LABEL } from './screens/chart/drawers';
-import { ClockBar } from './components/ClockBar';
+import { ClockFlash } from './components/ClockFlash';
 import { countClick, countKey } from './lib/metrics';
 
 /**
- * One slim bar: the way home, the clock, and a menu.
+ * One slim bar: the way home, and a menu.
  *
  * It used to carry seven buttons, a keyboard hint, a theme toggle, a
  * sign-in control and a reset. Every one of them was reachable and
@@ -32,9 +30,6 @@ import { countClick, countKey } from './lib/metrics';
  * and a handful of places it goes; the first is the logo and the
  * rest are behind the avatar.
  *
- * The clock stays out in the open because it is not navigation. It
- * is the one control that changes what every screen says, and in a
- * prototype about a longitudinal record it gets used constantly.
  */
 function TopBar() {
   const nav = useNav();
@@ -49,7 +44,6 @@ function TopBar() {
         Direct Lifestyle Medicine
         <small>{clinician ? 'Clinical record' : 'Your health record'}</small>
       </button>
-      {st.hasData && clinician && <ClockBar />}
       <span className="spacer" />
       {!st.persisted && (
         <span className="chip crit" title="The browser refused the last write">
@@ -113,121 +107,42 @@ function AccountMenu() {
           </div>
 
           {/*
-            * This chart's rarely-wanted tabs. They were behind a
-            * "More" control on the tab strip, which is still a tab
-            * sitting there being read. A chart has seven tabs now and
-            * everything else you go looking for is here, with the
-            * rest of the things you go looking for.
+            * Four rows.
+            *
+            * Everything else this prototype can do is real and is
+            * reached by searching for it rather than by scrolling a
+            * menu: the chart's rarely-wanted tabs, the capacity
+            * model, the log, the usage figures, the closure
+            * checklist, the clock, the theme and the reset. A menu
+            * you scroll is a menu you stop reading, and these are
+            * things you go looking for by name.
             */}
-          {st.hasData && clinician && nav.route.name === 'chart' && (
+          {st.hasData && clinician && (
             <div className="acctsec">
-              <div className="acctlabel">This chart</div>
-              {CHART_TOOLS.map((t) => (
-                <button key={t} className="acctrow"
-                  onClick={() => go({
-                    name: 'chart',
-                    patientId: (nav.route as { patientId: string }).patientId,
-                    tab: t,
-                  })}>
-                  {TAB_LABEL[t]}
-                </button>
-              ))}
-              <button className="acctrow" onClick={() => {
-                st.simulateUpdate((nav.route as { patientId: string }).patientId);
-                setOpen(false);
-              }}>
-                Simulate a record arriving
+              <button className="acctrow" onClick={() => go({ name: 'schedule' })}>
+                Schedule
+              </button>
+              <button className="acctrow" onClick={() => go({ name: 'inbox' })}>
+                Inbox
+                {waiting.length > 0 && (
+                  <span className={`acctcount${urgent > 0 ? ' urgent' : ''}`}>
+                    {waiting.length}
+                  </span>
+                )}
+              </button>
+              <button className="acctrow" onClick={() => go({ name: 'patients' })}>
+                Patients
               </button>
             </div>
-          )}
-
-          {st.hasData && clinician && (
-            <>
-              <div className="acctsec">
-                <button className="acctrow" onClick={() => go({ name: 'schedule' })}>
-                  Schedule
-                </button>
-                <button className="acctrow" onClick={() => go({ name: 'inbox' })}>
-                  Inbox
-                  {waiting.length > 0 && (
-                    <span className={`acctcount${urgent > 0 ? ' urgent' : ''}`}>
-                      {waiting.length}
-                    </span>
-                  )}
-                </button>
-                <button className="acctrow" onClick={() => go({ name: 'patients' })}>
-                  Patients
-                </button>
-                <button className="acctrow" onClick={() => go({ name: 'closing' })}>
-                  Before closing
-                </button>
-              </div>
-
-              <div className="acctsec">
-                <button className="acctrow" onClick={() => go({ name: 'capacity' })}>
-                  Capacity
-                </button>
-                <button className="acctrow" onClick={() => go({ name: 'audit' })}>
-                  Who did what
-                </button>
-                <button className="acctrow" onClick={() => go({ name: 'metrics' })}>
-                  Usage
-                </button>
-                <button className="acctrow" onClick={() => {
-                  setOpen(false);
-                  window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }));
-                }}>
-                  Search anything <kbd>&#8984;K</kbd>
-                </button>
-              </div>
-            </>
           )}
 
           <div className="acctsec">
             <SignInRows onDone={() => setOpen(false)} />
           </div>
 
-          <div className="acctsec">
-            <ThemeRow />
-            <ResetRow onDone={() => setOpen(false)} />
-          </div>
         </div>
       )}
     </div>
-  );
-}
-
-function ThemeRow() {
-  const [theme, setTheme] = useState<'system' | 'light' | 'dark'>('system');
-  useEffect(() => {
-    const el = document.documentElement;
-    if (theme === 'system') el.removeAttribute('data-theme');
-    else el.setAttribute('data-theme', theme);
-  }, [theme]);
-  const next = () => setTheme((t) => (t === 'system' ? 'light' : t === 'light' ? 'dark' : 'system'));
-  return (
-    <button className="acctrow" onClick={next}>
-      Appearance <span className="small muted">{theme}</span>
-    </button>
-  );
-}
-
-/** Prototype housekeeping: start over without opening devtools. */
-function ResetRow({ onDone }: { onDone: () => void }) {
-  const st = useStore();
-  const nav = useNav();
-  const me = useActor();
-  const [armed, setArmed] = useState(false);
-  if (!st.hasData) return null;
-  // Clearing the practice is not a clinical act, so cover does not have it.
-  if (!can(me, 'load-data', { now: st.now }).allowed) return null;
-  return armed ? (
-    <button className="acctrow danger"
-      onClick={() => { st.clearAll(); setArmed(false); onDone(); nav.reset({ name: 'schedule' }); }}>
-      Really clear everything?
-    </button>
-  ) : (
-    <button className="acctrow" onClick={() => setArmed(true)}>Clear data</button>
   );
 }
 
@@ -305,6 +220,7 @@ export default function App() {
           <main className="main"><Screen /></main>
         </div>
         <GlobalKeys />
+        <ClockFlash />
         <CommandPalette />
         <Shortcuts />
       </NavProvider>

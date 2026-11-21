@@ -10,7 +10,7 @@
  * list.
  */
 const {chromium}=require('playwright');
-const {tab, hasTab, soap, section}=require('./tabs.cjs');
+const {tab, hasTab, palette}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
@@ -26,7 +26,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('button:has-text("Load 120 patients")'); await p.waitForTimeout(1500);
 
   // ----------------------------------------------- 1. the week
-  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Capacity")'); await p.waitForTimeout(700);
+  await palette(p, 'Capacity'); await p.waitForTimeout(600);
   ok('the capacity screen opens', await p.locator('h1:has-text("Capacity")').isVisible());
   ok('visits are on the grid', await p.locator('.wdvisit').count()>5);
   ok('weekends are not clinic days', await p.locator('.wday.weekend').count()===2);
@@ -115,7 +115,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     await p.locator('.chead h1').count()>0);
   ok('and the new activity is on the encounters tab',
     (await p.locator('.tabbody .tl, .tabbody').first().textContent()).length>40);
-  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Capacity")'); await p.waitForTimeout(700);
+  await palette(p, 'Capacity'); await p.waitForTimeout(600);
   ok('the review that was booked is on the grid, and reads quieter than a visit',
     await p.locator('.wdvisit.k-review').count()>0);
 

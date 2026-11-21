@@ -2245,3 +2245,19 @@ blockquote.said footer {
   font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
 }
 .srcitem > span:nth-child(2) { flex: 1; min-width: 0; }
+
+/* What moving the clock changed. Appears only after it moves. */
+.clockflash {
+  position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%);
+  z-index: 70; display: flex; align-items: baseline; gap: 11px;
+  max-width: min(760px, calc(100vw - 32px));
+  padding: 11px 14px; border-radius: var(--r-lg);
+  background: var(--rail); color: var(--rail-ink);
+  font-size: 13px; line-height: 1.5; box-shadow: var(--shadow);
+}
+.clockflash .cfwhen { flex: none; color: var(--rail-ink-dim); font-variant-numeric: tabular-nums; }
+.clockflash .cfx {
+  flex: none; border: 0; background: none; color: var(--rail-ink-dim);
+  font-size: 17px; line-height: 1; cursor: pointer; padding: 0 2px;
+}
+.clockflash .cfx:hover { color: var(--rail-ink); }

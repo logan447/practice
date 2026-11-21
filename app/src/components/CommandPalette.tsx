@@ -11,9 +11,12 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '../lib/store';
+import { CHART_TOOLS, TAB_LABEL } from '../screens/chart/drawers';
 import { useNav } from '../lib/nav';
 import { Portrait } from './Portrait';
 import { age } from '../lib/format';
+import { useActor } from '../lib/session';
+import { can } from '../lib/permissions';
 
 interface Item {
   id: string;
@@ -35,9 +38,19 @@ function score(needle: string, hay: string): number {
   return i === n.length ? 10 : 0;
 }
 
+/** Light, dark, or whatever the machine says. */
+function cycleTheme() {
+  const el = document.documentElement;
+  const now = el.getAttribute('data-theme');
+  if (!now) el.setAttribute('data-theme', 'light');
+  else if (now === 'light') el.setAttribute('data-theme', 'dark');
+  else el.removeAttribute('data-theme');
+}
+
 export function CommandPalette() {
   const st = useStore();
   const nav = useNav();
+  const me = useActor();
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
   const [sel, setSel] = useState(0);
@@ -95,10 +108,59 @@ export function CommandPalette() {
         id: 'c-panel', label: 'Load a full panel of 120 patients', group: 'Actions',
         run: () => { st.loadPanel(); nav.reset({ name: 'patients' }); },
       },
-      { id: 'c-day', label: 'Advance one day', group: 'Clock', run: () => st.advanceTime(1) },
-      { id: 'c-week', label: 'Advance one week', group: 'Clock', run: () => st.advanceTime(7) },
-      { id: 'c-month', label: 'Advance one month', group: 'Clock', run: () => st.advanceTime(30) },
+      { id: 'c-closing', label: 'Before closing', group: 'Actions', run: () => nav.go({ name: 'closing' }) },
+      { id: 'c-capacity', label: 'Capacity', group: 'Actions', run: () => nav.go({ name: 'capacity' }) },
+      { id: 'c-theme', label: 'Appearance: light, dark or system', group: 'Actions', run: cycleTheme },
     );
+
+    /*
+     * The clock and the administrative commands carry the same
+     * permissions they carried when they were buttons. Moving a
+     * control into a search box must not move it out of the rules:
+     * cover looks after patients for a fortnight and does not run
+     * the practice.
+     */
+    if (can(me, 'load-data', { now: st.now }).allowed) {
+      out.push({
+        // Prototype housekeeping, kept reachable so starting over
+        // does not mean opening devtools. Named plainly enough that
+        // nobody runs it by accident looking for something else.
+        id: 'c-clear', label: 'Clear every patient and start over', group: 'Actions',
+        run: () => { st.clearAll(); nav.reset({ name: 'schedule' }); },
+      });
+    }
+    if (can(me, 'move-clock', { now: st.now }).allowed) {
+      out.push(
+        { id: 'c-day', label: 'Advance one day', group: 'Clock', run: () => st.advanceTime(1) },
+        { id: 'c-week', label: 'Advance one week', group: 'Clock', run: () => st.advanceTime(7) },
+        { id: 'c-month', label: 'Advance one month', group: 'Clock', run: () => st.advanceTime(30) },
+        { id: 'c-reset-clock', label: 'Back to the start of the clock', group: 'Clock', run: st.resetTime },
+      );
+    }
+    if (can(me, 'read-audit', { now: st.now }).allowed === false) {
+      const i = out.findIndex((x) => x.id === 'c-log');
+      if (i >= 0) out.splice(i, 1);
+    }
+
+    /*
+     * The chart's rarely-wanted tabs.
+     *
+     * Seven tabs are on the strip and these ten are not, because they
+     * are things you go looking for by name rather than things you
+     * meet. Looking for something by name is what this is.
+     */
+    if (route.name === 'chart') {
+      for (const t of CHART_TOOLS) {
+        out.push({
+          id: `w-${t}`, label: TAB_LABEL[t], group: 'This chart',
+          run: () => nav.go({ name: 'chart', patientId: route.patientId, tab: t }),
+        });
+      }
+      out.push({
+        id: 'w-sim', label: 'Simulate a record arriving', group: 'This chart',
+        run: () => st.simulateUpdate(route.patientId),
+      });
+    }
 
     if (currentPatient) {
       // The chart no longer has tabs to jump to. What used to be a tab
@@ -123,7 +185,7 @@ export function CommandPalette() {
     }
 
     return out;
-  }, [st, nav, currentPatient]);
+  }, [st, nav, me, currentPatient]);
 
   const shown = useMemo(() => items
     .map((it) => ({ it, s: score(q, it.label) }))

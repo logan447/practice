@@ -13,7 +13,7 @@
  * written.
  */
 const {chromium}=require('playwright');
-const {tab, hasTab}=require('./tabs.cjs');
+const {tab, hasTab, palette}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
@@ -146,8 +146,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   const before = await p.locator('.sheet .psum').textContent();
   await p.click('.sheetx'); await p.waitForTimeout(350);
   const countBefore = await p.locator('.derivedfrom').textContent();
-  await p.click('.acctbtn'); await p.waitForTimeout(250);
-  await p.click('.acctrow:has-text("Simulate a record arriving")'); await p.waitForTimeout(900);
+  await palette(p, 'Simulate a record arriving'); await p.waitForTimeout(700);
   const countAfter = await p.locator('.derivedfrom').textContent();
   ok(`the arriving record is counted: "${(countAfter.match(/\d+ records? since/)||[''])[0]}"`,
     countBefore!==countAfter);

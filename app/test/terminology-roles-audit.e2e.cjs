@@ -11,7 +11,7 @@
  * itself rather than from anyone remembering to write to it.
  */
 const {chromium}=require('playwright');
-const {tab, hasTab}=require('./tabs.cjs');
+const {tab, hasTab, palette}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
@@ -94,7 +94,11 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('the menu says who is signed in',
     (await p.locator('.acctwho').textContent()).includes('Covering'));
   await p.keyboard.press('Escape'); await p.click('h1'); await p.waitForTimeout(200);
-  ok('cover cannot move the clock', await p.locator('.clockbar button:has-text("+1d")').count()===0);
+  await p.keyboard.press('Meta+k'); await p.waitForTimeout(300);
+  await p.keyboard.type('Advance one week'); await p.waitForTimeout(300);
+  ok('cover cannot move the clock',
+    (await p.locator('.palette-row:has-text("Advance one week")').count())===0);
+  await p.keyboard.press('Escape'); await p.waitForTimeout(250);
   await p.click('.acctbtn'); await p.waitForTimeout(150);
   await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   ok('cover cannot add a member', await p.locator('.blocked').count()>0);
@@ -143,7 +147,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('.acctbtn'); await p.waitForTimeout(200);
   await p.click('.acctrow:has-text("Sign in as someone else")'); await p.waitForTimeout(250);
   await p.click('.acctrow:has-text("L. DuBose")'); await p.waitForTimeout(600);
-  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Who did what")'); await p.waitForTimeout(600);
+  await palette(p, 'Who did what'); await p.waitForTimeout(600);
   ok('the log opens', await p.locator('h1:has-text("Who did what")').isVisible());
   const log = await p.locator('.wrap').textContent();
   ok('it counts entries per person', log.includes('Covering clinician'));
