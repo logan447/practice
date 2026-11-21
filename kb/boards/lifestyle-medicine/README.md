@@ -2,40 +2,39 @@
 
 The LM board material as a coherent, exam-oriented body of knowledge.
 Files here are `kind: board-review` sources: they preserve **what the
-review material teaches**, organized by pillar, even where current
+review material teaches**, organized by section, even where current
 guidance has moved on — divergences get an inline
 `BOARDS-VS-PRACTICE:` marker citing the current source record
 (see `kb/README.md` §6).
 
-Planned pillar files, created as studying reaches them (one file per
-pillar; split only if a file gets unwieldy):
+## Source and status
 
-- `fundamentals.md` — LM definitions, evidence base, scope
-- `nutrition.md`
-- `physical-activity.md`
-- `sleep.md`
-- `stress-management.md`
-- `social-connection.md`
-- `substance-use.md`
-- `behavior-change.md` — coaching, motivational interviewing, models
-- `clinical-applications.md` — LM in T2DM, CVD, obesity, cancer
-  prevention, mental health, healthy aging
+Everything here derives from the owner's LMBR manual
+(`kb/sources/lmbr-manual.md` — edition/year still UNSET, owner to
+confirm). The six pillar chapters were ingested 2026-11-21, each as a
+notes file + a full reference list resolving `[LMBR ref N]` citations
+to DOIs/URLs:
 
-## Ingesting the board-review book
+| Book section | Notes | References |
+| --- | --- | --- |
+| §5 Nutrition | `nutrition.md` | `nutrition-refs.md` (431) |
+| §6 Physical Activity | `exercise.md` | `exercise-refs.md` (152) |
+| §7 Emotional & Mental Health | `mental-health.md` | `mental-health-refs.md` (230) |
+| §8 Sleep Health | `sleep.md` | `sleep-refs.md` (84) |
+| §9 Substance Use | `substances.md` | `substances-refs.md` (93) |
+| §10 Connectedness & Positive Psychology | `connection.md` | `connection-refs.md` (71) |
 
-When the owner's LM board study guide arrives: the **book itself gets
-one book-level source record** in `kb/sources/` (title, edition, year,
-publisher — the provenance anchor), and each pillar file here cites it
-(`source: src-<book-id>, ch. N`) so every board note traces back to
-the book without repeating the metadata. Material is added pillar by
-pillar as studying reaches it. Board notes default to
-`assistant: clinician` at most (kb/README §10) — the book is
-copyrighted study material; its use in any patient-facing product is
-an open counsel question (lm-assistant.md §6).
+**Not yet provided:** the book's other sections (LM fundamentals,
+behavior change/coaching, assessment tools, clinical applications —
+§§1–4 and any later sections). Ingest the same way if the owner
+uploads them: one notes file + one refs file per section.
 
-Each file's front matter names the source material it came from
-(course, syllabus, lecture, chapter) with dates — board notes get
-provenance too. Concepts worth cross-topic discovery are tagged
-(`board/lifestyle-medicine` plus condition/domain tags) and cited from
-the relevant `kb/topics/` pages, so board knowledge and clinical
-knowledge stay linked without being blended.
+Reference lists are OCR-extracted (tesseract, 300 dpi) and
+sequence-validated; character-level errors are possible — verify a
+DOI resolves before citing it externally.
+
+`grep -rn "BOARDS-VS-PRACTICE" kb/` lists every noted divergence
+between the book and current guidance. Board notes are capped at
+`assistant: clinician` (kb/README §10): the book is copyrighted study
+material, and any patient-facing or product reuse is an open counsel
+question (Q-24; `docs/systems/lm-assistant.md` §6).

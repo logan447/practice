@@ -22,8 +22,11 @@ The provenance anchor for the owner's board-review book. Chapter notes
 live in `kb/boards/lifestyle-medicine/` and cite this record plus
 their section number; this file holds what applies to the whole book.
 
-- Organized in sections by LM pillar; six core chapters are being
-  ingested one at a time (first: Section 5, Nutrition).
+- Organized in sections by LM pillar; the six core pillar chapters
+  (§§5–10) were ingested 2026-11-21 — see
+  `kb/boards/lifestyle-medicine/README.md` for the file map. Other
+  sections (fundamentals, behavior change, assessments, §§1–4) not
+  yet provided.
 - Each section: numbered exam objectives → outline teaching → glossary
   → numbered references (Section 5 alone has 431). The book's internal
   reference numbers are cited in our notes as `[LMBR ref N]` so claims

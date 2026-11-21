@@ -57,7 +57,7 @@ which is also the filename (`kb/sources/acc-aha-2017-htn.md` holds
 id: src-uspstf-2021-htn-screening
 kind: guideline        # guideline | trial | meta-analysis | review |
                        # textbook | lecture | teacher | observation |
-                       # board-review
+                       # board-review | reference-list
 title: Screening for Hypertension in Adults (USPSTF Recommendation)
 org: USPSTF
 published: 2021-04
