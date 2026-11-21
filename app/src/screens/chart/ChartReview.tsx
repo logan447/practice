@@ -18,7 +18,7 @@ import { useStore } from '../../lib/store';
 import { useNav } from '../../lib/nav';
 import { REVIEW, dictated, type Ctx } from '../../lib/prechart';
 import { TAB_LABEL } from './drawers';
-import { fmtDate, relative } from '../../lib/format';
+import { fmtDate } from '../../lib/format';
 import { LIFESTYLE_DOMAINS } from '../../domain/types';
 
 import { NotesTab } from './NotesTab';
@@ -208,19 +208,5 @@ export function ChartReview({ patientId, onClose }: {
         </footer>
       </div>
     </div>
-  );
-}
-
-/** What a chart review left for the visit, on the chart. */
-export function PreChartLine({ patientId }: { patientId: string }) {
-  const st = useStore();
-  const pc = st.preChartFor(patientId);
-  if (!pc) return null;
-  const said = Object.values(pc.notes).filter((x) => x.trim()).length;
-  return (
-    <p className="prechartline">
-      Chart review {relative(pc.date)} by {pc.by}: {pc.reviewed.length} of {REVIEW.length}{' '}
-      sections, {said} with a note. It will be written into the next visit.
-    </p>
   );
 }

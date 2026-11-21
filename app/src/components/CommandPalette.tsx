@@ -157,6 +157,10 @@ export function CommandPalette() {
         });
       }
       out.push({
+        id: 'w-book', label: 'Book a visit', group: 'This chart',
+        run: () => nav.go({ name: 'chart', patientId: route.patientId, book: true }),
+      });
+      out.push({
         id: 'w-sim', label: 'Simulate a record arriving', group: 'This chart',
         run: () => st.simulateUpdate(route.patientId),
       });

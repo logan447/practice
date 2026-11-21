@@ -12,7 +12,7 @@
  * workflow exists to make that safe rather than merely true.
  */
 const {chromium}=require('playwright');
-const {tab}=require('./tabs.cjs');
+const {tab, versionLine}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 /**
@@ -62,11 +62,11 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(800);
 
   // ------------------------------------------ 1. an approved chart
-  const line = await p.locator('.derivedfrom').textContent();
-  ok(`the chart is a version, not a feed: ${line.replace(/\s+/g,' ').slice(0,46)}`,
-    /Version 1, approved/.test(line));
+  const line = await versionLine(p);
+  ok(`the chart is a version, not a feed: ${line.slice(0,52)}`,
+    /version 1, approved/.test(line));
   ok(`and says what has arrived that it has not incorporated: "${
-    (line.match(/\d+ records? since[^.]*/)||[''])[0]}"`,
+    (line.match(/\d+ records? since[^,]*/)||[''])[0]}"`,
     /\d+ records? since, not yet incorporated/.test(line));
   const before = await planText(p);
   ok('the approved chart does not contain the unincorporated records',
@@ -75,13 +75,14 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // ---------------------------------------------- 3. open a visit
   await p.click('button:has-text("Start a visit")'); await p.waitForTimeout(900);
   ok('the visit opens on the approved version',
-    (await p.locator('.page-head').textContent()).includes('opened on version 1'));
+    (await p.locator('.openedon').textContent()).includes('version 1'));
   ok('and it writes the care plan, not a note about it',
-    (await p.locator('.nsechead h2').count())===5);
+    (await p.locator('.fold.d1 > .foldhead .foldtitle').count())===5);
+  // Every block is a line until it is opened, and the plan it carries
+  // forward from the approved version is on the line.
+  const planSec = p.locator('.fold.d1:has(> .foldhead > .foldtitle:text-is("Plan"))');
   ok('and carries the plan forward from the approved version',
-    (await p.locator('.nsec textarea').last().inputValue()).length >= 0
-    && (await p.evaluate(() => Array.from(document.querySelectorAll('.nsec textarea'))
-      .some((t) => t.value.length > 20))));
+    (await planSec.locator('.fold.d3 .foldright').first().textContent()).length > 10);
   ok('the visit records its own time, measured not typed',
     (await p.locator('.panel:has-text("This visit")').count())===1);
 
@@ -94,16 +95,15 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // --------------------------------------------------- 5. sign it
   ok('approving is one action, and it says what it will publish',
-    (await p.locator('.reviewgrid button:has-text("Approve")').textContent())
-      .includes('publish version 2'));
-  await p.click('.reviewgrid button:has-text("Approve")'); await p.waitForTimeout(1000);
+    (await p.locator('.signrow').textContent()).includes('Publishes version 2'));
+  await p.click('.reviewgrid button:has-text("Sign")'); await p.waitForTimeout(1000);
   ok('and it returns to the schedule', await p.locator('.weekgrid, .daylist').first().isVisible());
   await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.fill('input[aria-label="Search patients"]','Sharon'); await p.waitForTimeout(350);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(800);
-  const after = await p.locator('.derivedfrom').textContent();
-  ok('the chart advances to the next version', /Version 2, approved today/.test(after));
-  ok('and nothing is left unincorporated', /Nothing new since/.test(after));
+  const after = await versionLine(p);
+  ok('the chart advances to the next version', /version 2, approved today/.test(after));
+  ok('and nothing is left unincorporated', !/not yet incorporated/.test(after));
   const nowText = await planText(p);
   ok('the published version now contains what was reviewed',
     nowText.includes('podiatrist') || nowText.includes('urgent care'));
@@ -129,12 +129,12 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // --------------------------------- 8. the next encounter reads it
   await p.click('button:has-text("Back to the chart")'); await p.waitForTimeout(700);
-  const back = await p.locator('.derivedfrom').textContent();
+  const back = await versionLine(p);
   ok('the answer does not change the approved chart',
-    /Version 2, approved today/.test(back) && /1 record since/.test(back));
+    /version 2, approved today/.test(back) && /1 record since/.test(back));
   await tab(p, 'Subjective');
   ok('it waits in the record instead, where the next visit will read it',
-    (await p.locator('.tabbody').textContent()).includes('Health updates'));
+    (await p.locator('.tabbody').textContent()).includes('Patient updates'));
 
   console.log([...pass,...fail].join('\n'));
   console.log(fail.length? `\n${fail.length} FAILED` : '\nALL PASSED');

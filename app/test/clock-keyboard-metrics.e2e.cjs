@@ -1,5 +1,5 @@
 const {chromium}=require('playwright');
-const {tab, hasTab, palette}=require('./tabs.cjs');
+const {tab, hasTab, palette, versionLine}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
@@ -57,7 +57,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.fill('input[aria-label="Search patients"]','Marcus'); await p.waitForTimeout(350);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(600); await p.waitForTimeout(250);
   ok('the approval published a version of the care plan',
-    /Version \d+, approved/.test(await p.locator('.derivedfrom').textContent()));
+    /version \d+, approved/.test(await versionLine(p)));
   await tab(p, 'Labs');
   ok('ordered lab came back unreviewed', await p.locator('text=Not yet reviewed').first().isVisible());
   await p.screenshot({path:'v5-results.png', fullPage:true});

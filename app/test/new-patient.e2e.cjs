@@ -151,12 +151,12 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   await p.waitForTimeout(300);
   await p.click('.startenc:has-text("Start a visit")'); await p.waitForTimeout(700);
   ok('the visit opens on the care plan, not on a blank note',
-    (await p.locator('.nsechead h2').count())===5);
+    (await p.locator('.fold.d1 > .foldhead .foldtitle').count())===5);
   ok('and the one-liner is derived rather than typed',
     (await p.locator('.oneliner').first().textContent()).includes('with PMH of'));
   await p.fill('.wfield textarea >> nth=0','Here with her mother. Sleeping five hours, broken.');
   await p.waitForTimeout(150);
-  await p.click('.reviewgrid button:has-text("Approve")');
+  await p.click('.reviewgrid button:has-text("Sign")');
   await p.waitForTimeout(700);
   ok('approving returns to the schedule',
     await p.locator('.weekgrid, .daylist').first().isVisible());

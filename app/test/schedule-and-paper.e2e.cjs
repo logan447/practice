@@ -63,8 +63,10 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // ----------------------------------------- 3. booking collides
   await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(450);
-  // Booking is one of the three actions under the chart header.
-  await p.click('.cacts button:has-text("Book")'); await p.waitForTimeout(400);
+  // Booking is not one of the two things you do from a chart. It is
+  // something you occasionally need from one, so it is asked for by
+  // name like everything else that is real and rarely wanted.
+  await palette(p, 'Book a visit'); await p.waitForTimeout(500);
   ok('booking offers the one activity, with its length',
     (await p.locator('.booking').textContent()).includes('45m'));
 

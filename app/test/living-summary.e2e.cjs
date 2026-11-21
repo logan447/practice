@@ -13,7 +13,7 @@
  * written.
  */
 const {chromium}=require('playwright');
-const {tab, hasTab, palette}=require('./tabs.cjs');
+const {tab, hasTab, palette, versionLine}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
@@ -42,8 +42,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
       const dx = el.querySelector('.dx');
       return !dx || getComputedStyle(dx).borderBottomWidth === '0px';
     }));
-  ok('three actions under it and no more',
-    (await p.locator('.cacts .btn').count())===3);
+  ok('two actions beside the name and no more',
+    (await p.locator('.cacts .btn').count())===2);
 
   // ------------- 2. the problem sheet: derived, traceable, not typed
   await p.locator('.sumrow').first().click(); await p.waitForTimeout(450);
@@ -87,32 +87,46 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('and names what we are following them for',
     line.includes('following with our office for management of')
     && line.includes('preventative services') && line.includes('lifestyle medicine'));
-  const secs = await p.locator('.nsechead h2').allTextContents();
+  const secs = await p.locator('.fold.d1 > .foldhead .foldtitle').allTextContents();
   ok(`the note runs in the order the conversation does: ${secs.join(', ')}`,
     secs.join(',')==='Subjective,Objective,Assessment,Plan,What they do next');
-  const grps = await p.locator('.nitemhead').allTextContents();
+  const grps = await p.locator('.fold.d2 > .foldhead .foldtitle').allTextContents();
   ok('problems, lifestyle and preventative in every section that has items',
     grps.filter((g)=>g==='Problems').length===3
     && grps.filter((g)=>g==='Lifestyle').length===3
     && grps.filter((g)=>g==='Preventative').length===3);
-  ok('the record is shown beside each field rather than retyped into it',
-    (await p.locator('.wfcontext').first().textContent()).length>40);
-  ok('every field is writable', (await p.locator('.nsec textarea').count())>=12);
+  ok('and every one of them folds away',
+    (await p.locator('.fold.d1 > .foldhead').count())===5);
+  // Every field arrives with the record already written into it.
+  // Editing a draft is a different act from writing from nothing.
+  await p.click('.fold.d3:has-text("Essential hypertension") > .foldhead');
+  await p.waitForTimeout(250);
+  ok('every field arrives with the record already written into it',
+    (await p.locator('#sItems\\:sc1').inputValue()).startsWith('Patient reports'));
+  // A block is a line until you open it. Eleven open blocks is a
+  // screen you scroll rather than a note you read.
+  ok('each thing is a line until it is opened',
+    (await p.locator('.fold.d3.shut').count())>=10);
+  // Status is a sentence you wrote, not a button you picked. "At
+  // goal." is the seeded assessment text; what must not exist is a
+  // control that sets it.
   ok('nothing sets a status by button',
-    !/At goal|Needs improvement/.test(ws));
+    (await p.locator('.note .btn').count())===0);
   ok('and the instructions end in a date',
     (await p.locator('#nextvisit').count())===1);
+  ok('the instructions are beside the note, to type into as you go',
+    (await p.locator('.panel:has-text("Patient instructions") #instructions').count())===1);
 
   // what was said during the chart review is offered, not retyped
   await p.fill('#sOverall','Feeling steadier overall.'); await p.waitForTimeout(250);
   ok('what the physician writes stays written',
     (await p.locator('#sOverall').inputValue()).includes('steadier'));
-  await p.locator('.wfield').first().locator('.wfcomment').click(); await p.waitForTimeout(250);
-  await p.locator('.wfcommentbox').first().fill('Ask about the mother again next time.');
-  ok('and a field can carry a comment that is not part of the note',
-    (await p.locator('.wfcommentbox').first().inputValue()).includes('mother'));
-  ok('the right column is the orders and nothing else',
-    (await p.locator('.panel h2:has-text("Orders")').count())===1
+  ok('and nothing on the screen is a comment box beside a field',
+    (await p.locator('.wfcommentbox').count())===0);
+  ok('the right column is instructions, the visit and the orders',
+    (await p.locator('.panel h2:has-text("Patient instructions")').count())===1
+    && (await p.locator('.panel h2:has-text("This visit")').count())===1
+    && (await p.locator('.panel h2:has-text("Orders")').count())===1
     && (await p.locator('text=Ask the patient').count())===0
     && (await p.locator('text=New since version').count())===0);
   await p.screenshot({path:'v10-visit-note.png'});
@@ -146,7 +160,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   await tab(p, 'Subjective');
   ok('what the patient has said is a tab of its own',
-    (await p.locator('.tabbody').textContent()).includes('Messages from them'));
+    (await p.locator('.tabbody').textContent()).includes('Patient inquiries'));
   await p.locator('.rec:has-text("Something I read about statins")').last().click();
   await p.waitForTimeout(350);
   ok('a message the patient sent is readable in full',
@@ -158,9 +172,9 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.locator('.sumrow').first().click(); await p.waitForTimeout(400);
   const before = await p.locator('.sheet .psum').textContent();
   await p.click('.sheetx'); await p.waitForTimeout(350);
-  const countBefore = await p.locator('.derivedfrom').textContent();
+  const countBefore = await versionLine(p);
   await palette(p, 'Simulate a record arriving'); await p.waitForTimeout(700);
-  const countAfter = await p.locator('.derivedfrom').textContent();
+  const countAfter = await versionLine(p);
   ok(`the arriving record is counted: "${(countAfter.match(/\d+ records? since/)||[''])[0]}"`,
     countBefore!==countAfter);
   await p.locator('.sumrow').first().click(); await p.waitForTimeout(500);

@@ -19,7 +19,7 @@
  * where they now are.
  */
 import { useStore } from '../../lib/store';
-import { fmtDate, relative } from '../../lib/format';
+import { fmtDate } from '../../lib/format';
 import { medsAbout } from './relate';
 import { relevantSeries } from '../../lib/clinical';
 import { useState } from 'react';
@@ -88,7 +88,6 @@ export function Rail({ patientId, open, onJump }: {
    * that moved whenever a message landed would be a feed.
    */
   const approved = st.currentVersion(patientId);
-  const fresh = st.newSince(patientId);
   /*
    * What happened to them since we last looked: hospital stays,
    * urgent care, new specialists. Patient-level rather than
@@ -128,18 +127,14 @@ export function Rail({ patientId, open, onJump }: {
     <aside className="rail">
       {/* ------------------------------------ what we are managing */}
       <Block title="Our office is managing:">
-        <p className="derivedfrom">
-          {approved
-            ? <>Version {approved.version}, approved {relative(approved.approvedAt)} by {approved.approvedBy}.{' '}</>
-            : <>Not yet approved. Drafted from the record.{' '}</>}
-          <button className="linkish" onClick={() => open('encounters')}>
-            {fresh.count === 0
-              ? 'Nothing new since'
-              : `${fresh.count} record${fresh.count === 1 ? '' : 's'} since, not yet incorporated`}
-          </button>
-          {fresh.urgent > 0 && <span className="urgentmark">{fresh.urgent} flagged urgent</span>}
-        </p>
-
+        {/*
+          * The version line used to sit here: which approved version
+          * this is, and how many records have arrived since it. It is
+          * a statement about the document rather than about the
+          * patient, and it was the first thing read on a column whose
+          * job is to say what this practice is doing for them. It is
+          * on the visit, where the records are actually incorporated.
+          */}
         {interval.length > 0 && (
           <ul className="intlist">
             {interval.map((r, i) => (

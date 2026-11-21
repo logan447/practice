@@ -6,23 +6,23 @@
  * said since. Their health updates, their messages, their answers to
  * what we asked. Their words, not a rendering of them.
  *
- * The derived paragraph at the top is the one the plan was approved
- * with. It does not move when a message arrives; the count beside it
- * does, and reading them into the plan happens in a visit.
+ * It opens on what they sent rather than on a summary of it. The
+ * summary of where they were is the approved care plan, and the
+ * approved care plan is read one problem at a time from the right
+ * column: repeating it here was the same paragraph twice on one
+ * screen.
  */
 import { useState } from 'react';
 import { useStore } from '../../lib/store';
 import { fmtDate } from '../../lib/format';
 import { Group, Row, Sheet, NoRows } from './Rows';
 import { FEELING_LABEL, ON_PLAN_LABEL, INTERVAL_LABEL } from '../../domain/types';
-import type { LivingSubjective } from '../../lib/subjective';
 
 export function SubjectiveTab({ patientId }: { patientId: string }) {
   const st = useStore();
   const updates = st.updatesFor(patientId);
   const messages = st.messagesFor(patientId).filter((m) => m.from === 'patient');
   const checkIns = st.checkInsFor(patientId);
-  const approved = st.currentVersion(patientId)?.subjective as LivingSubjective | undefined;
 
   const [update, setUpdate] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -48,23 +48,15 @@ export function SubjectiveTab({ patientId }: { patientId: string }) {
 
   return (
     <>
-      {approved && approved.overall.length > 0 && (
-        <Group title="Where they were, as approved">
-          <p className="psum" style={{ margin: '10px 0 0' }}>
-            {approved.overall.map((c) => c.text).join(' ')}
-          </p>
-        </Group>
-      )}
-
-      <Group title="Health updates" count={updates.length}>
+      <Group title="Patient updates" count={updates.length}>
         {updates.length === 0 ? <NoRows>None on file.</NoRows> : updates.map((x) => (
-          <Row key={x.id} name={x.overall ? x.overall.slice(0, 90) : 'Health update'}
+          <Row key={x.id} name={x.overall ? x.overall.slice(0, 90) : 'Patient update'}
             when={fmtDate(x.date)} note={x.urgent ? 'Urgent' : undefined} warn={x.urgent}
             onOpen={() => setUpdate(x.id)} />
         ))}
       </Group>
 
-      <Group title="Messages from them" count={messages.length}>
+      <Group title="Patient inquiries" count={messages.length}>
         {messages.length === 0 ? <NoRows>None on file.</NoRows> : messages.map((x) => (
           <Row key={x.id} name={x.subject ?? x.body.slice(0, 90)} when={fmtDate(x.date)}
             note={x.urgent ? 'Urgent' : undefined} warn={x.urgent}
@@ -73,7 +65,7 @@ export function SubjectiveTab({ patientId }: { patientId: string }) {
       </Group>
 
       {u && (
-        <Sheet title="Health update" sub={fmtDate(u.date)} onClose={() => setUpdate(null)}>
+        <Sheet title="Patient update" sub={fmtDate(u.date)} onClose={() => setUpdate(null)}>
           {u.overall && <p className="said">{u.overall}</p>}
           {(u.interval ?? []).map((e, i) => (
             <p key={i}><b>{INTERVAL_LABEL[e.kind]}.</b> {e.text}</p>

@@ -45,7 +45,7 @@ export function NotesTab({ patientId }: { patientId: string }) {
           )}>
           <p className="muted">{e.reason}</p>
           {!e.note ? <p className="muted">Not held yet, so there is no note.</p> : (
-            <div className="stack">
+            <div className="note">
               <Section label="Subjective" text={[
                 e.note.subjective.oneLiner, e.note.subjective.reason,
                 e.note.subjective.chartReview, e.note.subjective.diagnostics,
@@ -58,24 +58,7 @@ export function NotesTab({ patientId }: { patientId: string }) {
                 e.note.assessment.oneLiner, e.note.assessment.overall,
               ].filter(Boolean).join('\n\n')} />
               {e.note.plan.problems.length > 0 && (
-                <div>
-                  <div className="eyebrow" style={{ marginBottom: 6 }}>Plan by problem</div>
-                  <div className="stack-sm">
-                    {e.note.plan.problems.map((pr) => (
-                      <div key={pr.id} style={{ borderLeft: '2px solid var(--accent)', paddingLeft: 11 }}>
-                        <div style={{ fontWeight: 600 }}>{pr.problem}</div>
-                        {[['Assessment', pr.assessment], ['Treatment', pr.treatment],
-                          ['Orders', pr.orders], ['Follow-up', pr.followUp]]
-                          .filter(([, v]) => v)
-                          .map(([l, v]) => (
-                            <div key={l} className="small" style={{ marginTop: 2 }}>
-                              <span className="muted">{l}: </span>{v}
-                            </div>
-                          ))}
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <PlanByProblem problems={e.note.plan.problems} />
               )}
               <Section label="Plan summary" text={e.note.plan.overall} />
             </div>
@@ -86,14 +69,65 @@ export function NotesTab({ patientId }: { patientId: string }) {
   );
 }
 
+/** The plan, problem by problem, in the same fold as the rest. */
+function PlanByProblem({ problems }: {
+  problems: { id: string; problem: string; assessment: string; treatment: string;
+    orders: string; followUp: string }[];
+}) {
+  const [shut, setShut] = useState(false);
+  return (
+    <section className={`fold d1${shut ? ' shut' : ''}`}>
+      <button className="foldhead" onClick={() => setShut((v) => !v)}>
+        <span className="foldarrow" aria-hidden="true">{shut ? '\u203a' : '\u2304'}</span>
+        <span className="foldtitle">Plan by problem</span>
+        <span className="foldright">{problems.length}</span>
+      </button>
+      {!shut && (
+        <div className="foldbody">
+          <div className="stack-sm">
+            {problems.map((pr) => (
+              <div key={pr.id} style={{ borderLeft: '2px solid var(--accent)', paddingLeft: 11 }}>
+                <div style={{ fontWeight: 600 }}>{pr.problem}</div>
+                {[['Assessment', pr.assessment], ['Treatment', pr.treatment],
+                  ['Orders', pr.orders], ['Follow-up', pr.followUp]]
+                  .filter(([, v]) => v)
+                  .map(([l, v]) => (
+                    <div key={l} style={{ marginTop: 2, whiteSpace: 'pre-line' }}>
+                      <span className="muted">{l}: </span>{v}
+                    </div>
+                  ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
+/**
+ * One part of a signed note, foldable.
+ *
+ * The whole note is here and open: a note you have to expand four
+ * times to read is a note nobody reads. The folds are for putting a
+ * part away once you have read it, not for hiding it until you ask.
+ */
 function Section({ label, text }: { label: string; text: string }) {
+  const [shut, setShut] = useState(false);
   if (!text) return null;
   return (
-    <div>
-      <div className="eyebrow" style={{ marginBottom: 4 }}>{label}</div>
-      {text.split('\n\n').map((para, i) => (
-        <p key={i} style={{ marginTop: i ? 8 : 0, whiteSpace: 'pre-line' }}>{para}</p>
-      ))}
-    </div>
+    <section className={`fold d1${shut ? ' shut' : ''}`}>
+      <button className="foldhead" onClick={() => setShut((v) => !v)}>
+        <span className="foldarrow" aria-hidden="true">{shut ? '\u203a' : '\u2304'}</span>
+        <span className="foldtitle">{label}</span>
+      </button>
+      {!shut && (
+        <div className="foldbody">
+          {text.split('\n\n').map((para, i) => (
+            <p key={i} style={{ marginTop: i ? 8 : 0, whiteSpace: 'pre-line' }}>{para}</p>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }

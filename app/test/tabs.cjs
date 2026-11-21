@@ -51,4 +51,23 @@ async function openRec(p, name) {
 
 const closeSheet = async (p) => { await p.click('.sheetx'); await p.waitForTimeout(250); };
 
-module.exports = { tab, hasTab, palette, openRec, closeSheet };
+/**
+ * Which version the chart stands on, and what has arrived since.
+ *
+ * It used to be a line on the right column of the chart. It is a
+ * statement about the document rather than about the patient, so it
+ * moved to the visit, where the records are actually incorporated.
+ * Reading it means opening one and leaving again.
+ */
+async function versionLine(p) {
+  await p.click('.startenc:has-text("Start a visit")');
+  await p.waitForTimeout(900);
+  const line = await p.locator('.openedon').textContent();
+  // Back to the chart, not to the day: the caller was reading a chart
+  // and expects to still be on it.
+  await p.click('.backlink');
+  await p.waitForTimeout(900);
+  return line.replace(/\s+/g, ' ');
+}
+
+module.exports = { tab, hasTab, palette, openRec, closeSheet, versionLine };

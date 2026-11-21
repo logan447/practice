@@ -46,7 +46,7 @@ import { LifestyleTab } from './chart/LifestyleTab';
 import { MoreTab } from './chart/MoreTab';
 import { Booking } from '../components/Booking';
 import { ProblemSheet } from './chart/ProblemSheet';
-import { ChartReview, PreChartLine } from './chart/ChartReview';
+import { ChartReview } from './chart/ChartReview';
 import { Documentation } from './chart/Documentation';
 import { Scope } from './chart/Scope';
 import { ExportDrawer } from './chart/ExportDrawer';
@@ -75,6 +75,13 @@ export function Chart({ patientId }: { patientId: string }) {
   useEffect(() => {
     if (routeTab) setTab(routeTab as ChartDrawer);
   }, [routeTab]);
+  /*
+   * Booking is not one of the two things you do from a chart. It is
+   * something you occasionally need from one, so it is asked for by
+   * name like everything else that is real and rarely wanted.
+   */
+  const routeBook = nav.route.name === 'chart' ? nav.route.book : undefined;
+  useEffect(() => { if (routeBook) setBooking(true); }, [routeBook]);
   const [booking, setBooking] = useState(false);
   const [walk, setWalk] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
@@ -136,8 +143,7 @@ export function Chart({ patientId }: { patientId: string }) {
                 const id = st.openEncounter(p.id, 'visit');
                 nav.go({ name: 'encounter', encounterId: id });
               }}>Start a visit</button>
-              <button className="btn quiet" onClick={() => setBooking(true)}>Book</button>
-            </div>
+              </div>
           </div>
 
           <p className="cdem">
@@ -206,8 +212,6 @@ export function Chart({ patientId }: { patientId: string }) {
           * column and the encounter workspace; the other ten are in
           * the account menu.
           */}
-        <PreChartLine patientId={p.id} />
-
         <nav className="ctabs">
           {CHART_TABS.map((t) => (
             <button key={t} className={`ctab${tab === t ? ' on' : ''}`}

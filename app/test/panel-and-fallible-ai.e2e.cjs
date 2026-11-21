@@ -104,9 +104,13 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('.startenc:has-text("Start a visit")'); await p.waitForTimeout(800);
 
   ok('a visit is open, on the care plan rather than a blank note',
-    (await p.locator('.nsechead h2').count())===5);
+    (await p.locator('.fold.d1 > .foldhead .foldtitle').count())===5);
 
-  ok('capture says it is fallible', (await p.locator('button:has-text("Capture:")').textContent()).includes('fallible'));
+  // The capture is always fallible. It used to be a toggle in the
+  // header, and a toggle invites turning it off, which is the setting
+  // in which nobody learns to read a draft.
+  ok('the capture cannot be set to never make mistakes',
+    (await p.locator('button:has-text("Capture:")').count())===0);
 
   await p.click('button:has-text("Listen")');
   await p.waitForTimeout(13600);
@@ -117,10 +121,27 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('the draft fabricated a review of systems', hist.includes('Denies chest pain'));
   ok('the draft swapped the side', hist.includes('Left knee'));
 
-  /** Every field value in the visit, concatenated. */
-  const allFields = () => p.evaluate(() =>
-    Array.from(document.querySelectorAll('.reviewgrid textarea, .reviewgrid input'))
-      .map((el) => el.value).join(' \n '));
+  /**
+   * Every field value in the visit, concatenated.
+   *
+   * Most blocks are shut, so their fields are not rendered. React
+   * state is the truth either way, and what this is testing is what
+   * the capture wrote into the document, not what is on screen, so
+   * the folds are opened first.
+   */
+  const openAll = async () => {
+    const heads = p.locator('.note .fold.d3.shut > .foldhead');
+    for (let i = await heads.count(); i > 0; i -= 1) {
+      await p.locator('.note .fold.d3.shut > .foldhead').first().click();
+      await p.waitForTimeout(40);
+    }
+  };
+  const allFields = async () => {
+    await openAll();
+    return p.evaluate(() =>
+      Array.from(document.querySelectorAll('.reviewgrid textarea, .reviewgrid input'))
+        .map((el) => el.value).join(' \n '));
+  };
 
   const fields = await allFields();
   ok('the draft named a drug he is not on', fields.includes('losartan'));
@@ -153,7 +174,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // sign, and the record keeps the score
   await p.click('.draftcheck button:has-text("Hide")'); await p.waitForTimeout(200);
-  await p.click('.reviewgrid button:has-text("Approve")'); await p.waitForTimeout(800);
+  await p.click('.reviewgrid button:has-text("Sign")'); await p.waitForTimeout(800);
   ok('the check reappears at approval, before the screen changes',
     await p.locator('.draftcheck').isVisible());
   ok('it changes tense once approved',

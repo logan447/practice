@@ -12,7 +12,7 @@
  * approves an encounter.
  */
 const {chromium}=require('playwright');
-const {tab}=require('./tabs.cjs');
+const {tab, versionLine}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
@@ -63,12 +63,16 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // ------------------------------------------- 3. the chart review
   await p.locator('.dayrow:has-text("Sharon White")').click(); await p.waitForTimeout(900);
   ok('a visit opens on the approved care plan',
-    (await p.locator('.page-head').textContent()).includes('opened on version 1'));
-  const secs = await p.locator('.nsechead h2').allTextContents();
+    (await p.locator('.openedon').textContent()).includes('version 1'));
+  const secs = await p.locator('.fold.d1 > .foldhead .foldtitle').allTextContents();
   ok(`the note runs in the order the conversation does: ${secs.join(', ')}`,
     secs.join(',')==='Subjective,Objective,Assessment,Plan,What they do next');
-  ok('every problem, pillar and service is writable in place',
-    (await p.locator('.nsec textarea').count())>=12);
+  // Each one is a line until it is opened, and opening it is a field.
+  const blocks = await p.locator('.note .fold.d3').count();
+  ok(`every problem, pillar and service has its own block (${blocks})`, blocks>=30);
+  await p.click('.note .fold.d3 > .foldhead'); await p.waitForTimeout(250);
+  ok('and opening one is a field with the record already in it',
+    (await p.locator('.note .fold.d3:not(.shut) textarea').count())===1);
   ok('a visit listens', (await p.locator('button:has-text("Listen")').count())===1);
 
   await p.click('button:has-text("Listen")'); await p.waitForTimeout(12000);
@@ -82,7 +86,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('what they do next is written in steps, ending in a date',
     (await p.locator('#instructions').inputValue()).split('\n').length===2);
 
-  await p.click('.reviewgrid button:has-text("Approve")'); await p.waitForTimeout(1200);
+  await p.click('.reviewgrid button:has-text("Sign")'); await p.waitForTimeout(1200);
   // The capture is deliberately fallible, so signing shows what went
   // into the record before it lets go of the screen.
   ok('signing shows what the capture got wrong, before leaving',
@@ -113,14 +117,22 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     (await p.locator('.wrline.on').count())===11);
   await p.click('button:has-text("Start the visit")'); await p.waitForTimeout(1100);
   ok('and the visit offers it rather than making you type it again',
-    (await p.locator('.prechartline').textContent()).includes('Put what you said into this note'));
-  await p.click('.prechartline button'); await p.waitForTimeout(400);
+    (await p.locator('.panel:has-text("This visit")').textContent())
+      .includes('Put what you said into this note'));
+  await p.click('.panel:has-text("This visit") .linkish'); await p.waitForTimeout(400);
   ok('taking it fills the note',
     (await p.locator('#sOverall').inputValue()).length>10);
-  ok('the right column is the orders and nothing else',
-    (await p.locator('.panel h2:has-text("Orders")').count())===1
+  ok('the right column is instructions, the visit and the orders',
+    (await p.locator('.panel h2:has-text("Patient instructions")').count())===1
+    && (await p.locator('.panel h2:has-text("This visit")').count())===1
+    && (await p.locator('.panel h2:has-text("Orders")').count())===1
     && (await p.locator('text=Ask the patient').count())===0);
-  await p.click('button:has-text("Leave")'); await p.waitForTimeout(700);
+  // One way out of a visit, and it goes to the chart.
+  await p.click('.backlink'); await p.waitForTimeout(700);
+  ok('leaving a visit lands on the chart it belongs to',
+    (await p.locator('.chead h1').count())===1);
+  await p.click('.acctbtn'); await p.waitForTimeout(150);
+  await p.click('.acctrow:has-text("Schedule")'); await p.waitForTimeout(700);
   await p.click('.vtab:has-text("day")'); await p.waitForTimeout(400);
 
   // ------------------------------------------------- 5. the inbox
@@ -151,8 +163,10 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('reviewing now brings their visit forward, not a new kind of thing',
     (await p.locator('.page-head h1').textContent())==='Visit');
   ok('and it is the same document as every other encounter',
-    (await p.locator('.nsechead h2').count())===5);
-  await p.click('button:has-text("Leave")'); await p.waitForTimeout(700);
+    (await p.locator('.fold.d1 > .foldhead .foldtitle').count())===5);
+  await p.click('.backlink'); await p.waitForTimeout(700);
+  await p.click('.acctbtn'); await p.waitForTimeout(150);
+  await p.click('.acctrow:has-text("Schedule")'); await p.waitForTimeout(700);
   await p.click('.vtab:has-text("day")'); await p.waitForTimeout(400);
   // Bringing a visit forward moves an existing one or adds exactly
   // one. What it must never do is invent a second kind of activity.
@@ -164,9 +178,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.fill('input[aria-label="Search patients"]',who.split(' ')[0]); await p.waitForTimeout(350);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(800);
-  const line = await p.locator('.derivedfrom').textContent();
-  ok(`acknowledging in the inbox did not move their care plan: "${
-    line.replace(/\s+/g,' ').trim().slice(0,52)}"`,
+  const line = await versionLine(p);
+  ok(`acknowledging in the inbox did not move their care plan: "${line.slice(0,56)}"`,
     /not yet incorporated/.test(line));
 
   const over=await p.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth+1);

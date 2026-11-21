@@ -28,7 +28,7 @@ export type Route =
   | { name: 'metrics' }
   | { name: 'audit' }
   | { name: 'capacity' }
-  | { name: 'chart'; patientId: string; tab?: string }
+  | { name: 'chart'; patientId: string; tab?: string; book?: boolean }
   | { name: 'encounter'; encounterId: string }
   | { name: 'portal'; patientId: string; tab?: PortalTab };
 

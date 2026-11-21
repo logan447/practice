@@ -26,7 +26,7 @@ import { fmtDate, relative } from '../lib/format';
 import { deferReply, type InboxItem } from '../lib/inbox';
 
 const KIND_LABEL: Record<InboxItem['kind'], string> = {
-  message: 'Message', update: 'Health update', result: 'Result',
+  message: 'Patient inquiry', update: 'Patient update', result: 'Result',
   study: 'Report', home: 'Home reading',
 };
 

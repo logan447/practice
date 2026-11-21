@@ -62,8 +62,12 @@ interface Item {
   id: string;
   name: string;
   group: 'Problems' | 'Lifestyle' | 'Preventative';
-  /** What the record already knows, shown beside the field. */
-  context?: string;
+  /** The derived line: what the patient reports about this one. */
+  said: string;
+  /** What is already being done, as the first draft of the plan. */
+  doing: string;
+  /** Where it stands, as the first draft of the assessment. */
+  standing: string;
 }
 
 /** The editable half. Everything else is derived or already on file. */
@@ -77,13 +81,12 @@ interface Working {
   pItems: Record<string, string>;
   instructions: string;
   nextVisit: string;
-  comments: Record<string, string>;
 }
 
 const EMPTY_WORKING: Working = {
   sOverall: '', sItems: {}, oMeasures: '', oExam: '',
   aOverall: '', aItems: {}, pItems: {},
-  instructions: '', nextVisit: '', comments: {},
+  instructions: '', nextVisit: '',
 };
 
 type Marks = Record<string, 'ambient'>;
@@ -100,6 +103,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
   const fresh = st.newSince(patientId);
   const prechart = st.preChartFor(patientId);
   const lifestyle = st.lifestyleFor(patientId);
+  const checkIns = st.checkInsFor(patientId);
   const prevention = st.preventionFor(patientId)
     .filter((x) => x.status !== 'not-applicable');
 
@@ -122,16 +126,52 @@ export function Encounter({ encounterId }: { encounterId: string }) {
 
   const master = st.masterPlanFor(patientId);
 
-  /** The one list, in the one order, used by all four sections. */
+  /**
+   * The one list, in the one order, used by every section.
+   *
+   * Each one arrives with three things already written: what the
+   * patient has said about it, what is already being done about it as
+   * a list of points, and where it stands. Those are the first draft
+   * of the subjective, the plan and the assessment. A field you have
+   * to start from nothing is a field that gets a sentence rather than
+   * a plan.
+   */
   const items = useMemo<Item[]>(() => {
     const dom = (d: string) => LIFESTYLE_DOMAINS.find((x) => x.id === d)?.label ?? d;
+    const bullets = (xs: string[]) => xs.map((x) => `\u2022 ${x}`).join('\n');
+    /*
+     * What the patient said about this exact prescription or service,
+     * not the category sentence repeated five times. A paragraph that
+     * appears under every row is a paragraph nobody reads under any
+     * of them.
+     */
+    const said = (kind: 'lifestyle' | 'prevention', id: string) => {
+      const hit = [...checkIns]
+        .filter((c) => c.about.kind === kind && c.about.id === id)
+        .sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''))[0];
+      return hit?.text ?? '';
+    };
+
     return [
       ...draft.problems.map((pr) => ({
-        id: pr.conditionId, name: pr.name, group: 'Problems' as const,
-        context: pr.clauses.map((c) => c.text).join(' '),
+        id: pr.conditionId,
+        name: pr.name,
+        group: 'Problems' as const,
+        /*
+         * Their voice only. The rest of the derived paragraph is the
+         * record talking, and the record is already in the points
+         * below and in the assessment. Printing it here as well is
+         * the same facts three times down one screen.
+         */
+        said: pr.clauses.filter((c) => c.voice === 'patient').map((c) => c.text).join(' '),
+        doing: bullets(pr.interventions.map(
+          (iv) => `${iv.label}${iv.note ? ` \u2014 ${iv.note}` : ''}`,
+        )),
+        standing: pr.goal === 'at-goal' ? 'At goal.'
+          : pr.goal ? 'Not at goal.' : 'Not assessed yet.',
       })),
-      // Two prescriptions can share a domain, and two rows both
-      // called "Nutrition" is two rows you have to open to tell apart.
+      // Two prescriptions can share a domain, and two blocks both
+      // called "Nutrition" is two you have to open to tell apart.
       ...lifestyle.map((l) => {
         const same = lifestyle.filter((x) => x.domain === l.domain);
         const short = l.prescription.split(/[.,]/)[0].trim();
@@ -139,29 +179,65 @@ export function Encounter({ encounterId }: { encounterId: string }) {
           id: l.id,
           name: same.length > 1 ? `${dom(l.domain)}: ${short}` : dom(l.domain),
           group: 'Lifestyle' as const,
-          context: same.length > 1 ? l.prescription : l.prescription,
+          said: said('lifestyle', l.id),
+          doing: bullets([l.prescription, ...(l.barrier ? [`In the way: ${l.barrier}`] : [])]),
+          standing: l.status === 'achieved' ? 'Holding.'
+            : l.status === 'active' ? 'In progress.'
+              : l.status === 'struggling' ? 'Struggling.' : 'Not started.',
         };
       }),
       ...prevention.map((x) => ({
-        id: x.id, name: x.name, group: 'Preventative' as const,
-        context: x.status === 'current'
-          ? `Current${x.lastDone ? `, last done ${fmtDate(x.lastDone)}` : ''}.`
-          : `${x.status === 'overdue' ? 'Overdue' : 'Due'}${x.dueBy ? ` ${fmtDate(x.dueBy)}` : ''}.`,
+        id: x.id,
+        name: x.name,
+        group: 'Preventative' as const,
+        said: said('prevention', x.id),
+        doing: bullets([
+          x.lastDone ? `Last done ${fmtDate(x.lastDone)}` : 'Never recorded as done',
+          x.dueBy ? `Due ${fmtDate(x.dueBy)}` : 'No due date set',
+          ...(x.note ? [x.note] : []),
+        ]),
+        standing: x.status === 'current' ? 'Up to date.'
+          : x.status === 'overdue' ? 'Overdue.' : 'Due.',
       })),
     ];
-  }, [draft.problems, lifestyle, prevention]);
+  }, [draft.problems, lifestyle, prevention, checkIns]);
 
-  const [w, setW] = useState<Working>(() => ({
-    ...EMPTY_WORKING,
-    // The plan carries forward. The rest of the note is about today
-    // and starts empty, because last week's words in today's note is
-    // how a record stops being read.
-    pItems: { ...(approved?.plan.byProblem ?? master?.plan?.byProblem ?? {}) },
-    nextVisit: '',
-  }));
+  const [w, setW] = useState<Working>(() => ({ ...EMPTY_WORKING }));
+
+  /*
+   * Fill the fields once, from the record.
+   *
+   * Every field starts with what the chart already knows written into
+   * it rather than with a grey hint about what to type. Editing a
+   * draft is a different act from writing from nothing, and the
+   * second one is why notes get written after clinic instead of
+   * during it.
+   */
+  const seeded = useRef(false);
+  useEffect(() => {
+    if (seeded.current || items.length === 0) return;
+    seeded.current = true;
+    const carried = approved?.plan.byProblem ?? master?.plan?.byProblem ?? {};
+    setW((v) => ({
+      ...v,
+      sItems: Object.fromEntries(items.map((it) => [it.id, it.said])),
+      aItems: Object.fromEntries(items.map((it) => [it.id, it.standing])),
+      pItems: Object.fromEntries(items.map(
+        (it) => [it.id, carried[it.id]?.trim() ? carried[it.id] : it.doing],
+      )),
+    }));
+  }, [items, approved, master]);
   const [marks, setMarks] = useState<Marks>({});
   const [setting, setSetting] = useState<VisitSetting>(enc?.setting ?? 'in-person');
   const [usedPrechart, setUsedPrechart] = useState(false);
+  /**
+   * Which folds are shut. Absent means open, so a new problem on the
+   * list is never hiding behind a closed heading somebody has to find.
+   */
+  const [open, setOpen] = useState<Record<string, boolean>>({});
+  /** Records the state asked for, so the default can differ per depth. */
+  const toggle = (id: string, next: boolean) =>
+    setOpen((v) => ({ ...v, [id]: next }));
 
   // ------------------------------------------------------------ the clock
   const [openedAt] = useState(() => Date.now());
@@ -179,7 +255,12 @@ export function Encounter({ encounterId }: { encounterId: string }) {
   // --------------------------------------------------------- the capture
   const [listening, setListening] = useState(false);
   const [elapsed, setElapsed] = useState(0);
-  const [faulty, setFaulty] = useState(true);
+  /*
+   * The capture makes mistakes, always. It used to be a toggle in the
+   * header, and a toggle invites turning it off, which is exactly the
+   * setting in which nobody learns to read a draft.
+   */
+  const faulty = true;
   const [injected, setInjected] = useState<InjectedError[]>([]);
   const [checked, setChecked] = useState(false);
   const [published, setPublished] = useState(false);
@@ -238,9 +319,6 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       return next;
     });
   };
-
-  const comment = (key: string, value: string) =>
-    setW((v) => ({ ...v, comments: { ...v.comments, [key]: value } }));
 
   /**
    * Pull the chart review in.
@@ -397,45 +475,28 @@ export function Encounter({ encounterId }: { encounterId: string }) {
   captureRef.current = signed ? null : (listening ? stopCapture : startListening);
 
   const groups: Item['group'][] = ['Problems', 'Lifestyle', 'Preventative'];
+  /** The first few words of a field, for a shut block's own line. */
+  const short = (v?: string) => {
+    const t = (v ?? '').replace(/\s+/g, ' ').replace(/^\u2022\s*/, '').trim();
+    return t.length > 64 ? `${t.slice(0, 64)}\u2026` : t;
+  };
 
   return (
     <div className="wrap wide">
-      <div className="page-head row" style={{ alignItems: 'flex-end' }}>
-        <div style={{ flex: 1 }}>
-          <h1>Visit</h1>
-          <div className="sub">
-            {p.name} &middot; {fmtDate(enc.date)} &middot;{' '}
-            {approved
-              ? <>opened on version {approved.version}, approved {relative(approved.approvedAt)}</>
-              : 'no approved care plan yet'}
-          </div>
-        </div>
-        {!signed && (
-          listening ? (
-            <button className="btn listening" onClick={stopCapture}>
-              <span className="pulse" /> Stop &middot;{' '}
-              {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')}
-            </button>
-          ) : (
-            <button className="btn ghost" onClick={startListening}>Listen</button>
-          )
-        )}
-        {!signed && !listening && injected.length === 0 && (
-          <button className="btn quiet sm"
-            title="Whether the simulated capture makes mistakes"
-            onClick={() => setFaulty((f) => !f)}>
-            Capture: {faulty ? 'fallible' : 'clean'}
-          </button>
-        )}
-        {!signed && !listening && injected.length > 0 && (
-          <button className="btn ghost" onClick={() => setChecked(true)}>Check the draft</button>
-        )}
-        <button className="btn quiet" onClick={() => nav.go({ name: 'chart', patientId })}>
-          Chart
-        </button>
-        <button className="btn quiet" onClick={() => nav.go({ name: 'schedule' })}>
-          Leave
-        </button>
+      {/*
+        * One way out, and it goes to the chart. Leaving for the day
+        * was a second button saying the same thing in a way that
+        * sounded like abandoning the visit, which nothing here does:
+        * the working copy is not published until it is signed.
+        */}
+      <button className="btn quiet backlink"
+        onClick={() => nav.go({ name: 'chart', patientId })}>
+        &larr; Back to the chart
+      </button>
+
+      <div className="page-head">
+        <h1>Visit</h1>
+        <div className="sub">{p.name} &middot; {fmtDate(enc.date)}</div>
       </div>
 
       {checked && injected.length > 0 && (
@@ -445,112 +506,165 @@ export function Encounter({ encounterId }: { encounterId: string }) {
 
       <div className="reviewgrid">
         {/* ============================================== the note itself */}
-        <div className="stack">
+        <div className="note">
           <p className="oneliner">{oneLiner(p, conditions)}</p>
 
-          {prechart && !usedPrechart && !signed && (
-            <p className="prechartline">
-              Chart review {relative(prechart.date)}: {prechart.reviewed.length} of{' '}
-              {REVIEW.length} sections.{' '}
-              <button className="linkish" onClick={pullPrechart}>
-                Put what you said into this note
-              </button>
-            </p>
-          )}
-
-          {/* ------------------------------------------------- subjective */}
-          <Sec letter="S" title="Subjective" note="What they say, in the order you ask.">
-            <Field id="sOverall" label="How they are generally"
-              placeholder="Open the visit here, before any problem is named."
-              value={w.sOverall} mark={marks.sOverall} rows={3}
-              comment={w.comments.sOverall} onComment={(v) => comment('sOverall', v)}
+          <Sec id="S" title="Subjective" open={open} toggle={toggle}>
+            <Line id="sOverall" label="How they are generally"
+              value={w.sOverall} mark={marks.sOverall} rows={2}
               onChange={(v) => put('sOverall', v)} />
             {groups.map((g) => (
-              <ItemGroup key={g} title={g} items={byGroup(g)}
-                values={w.sItems} marks={marks} bucket="sItems"
-                comments={w.comments} onComment={comment}
-                placeholder="What they say about this one."
-                onChange={(id, v) => putItem('sItems', id, v)} />
+              <Grp key={g} id={`S-${g}`} title={g} items={byGroup(g)}
+                open={open} toggle={toggle}>
+                {byGroup(g).map((it) => (
+                  <Blk key={it.id} id={`S-${g}-${it.id}`} title={it.name}
+                    preview={short(w.sItems[it.id])} open={open} toggle={toggle}>
+                    <Line id={`sItems:${it.id}`} value={w.sItems[it.id] ?? ''}
+                      mark={marks[`sItems:${it.id}`]} rows={2}
+                      onChange={(v) => putItem('sItems', it.id, v)} />
+                  </Blk>
+                ))}
+              </Grp>
             ))}
           </Sec>
 
-          {/* -------------------------------------------------- objective */}
-          <Sec letter="O" title="Objective" note="Measured and examined today.">
-            <Field id="oMeasures" label="Measurements"
-              placeholder="Vitals taken today, and the home readings they brought."
-              value={w.oMeasures} mark={marks.oMeasures} rows={3}
-              comment={w.comments.oMeasures} onComment={(v) => comment('oMeasures', v)}
+          <Sec id="O" title="Objective" open={open} toggle={toggle}>
+            <Line id="oMeasures" label="Measurements"
+              value={w.oMeasures} mark={marks.oMeasures} rows={2}
               onChange={(v) => put('oMeasures', v)} />
-            <Field id="oExam" label="Physical examination"
-              placeholder="What was examined. A blank here is not a normal examination."
-              value={w.oExam} mark={marks.oExam} rows={3}
-              comment={w.comments.oExam} onComment={(v) => comment('oExam', v)}
+            <Line id="oExam" label="Physical examination"
+              value={w.oExam} mark={marks.oExam} rows={2}
               onChange={(v) => put('oExam', v)} />
           </Sec>
 
-          {/* ------------------------------------------------- assessment */}
-          <Sec letter="A" title="Assessment"
-            note="Where they are overall, then where each thing stands.">
-            <Field id="aOverall" label="Overall"
-              placeholder="The sentence you would say to them about their health as a whole."
-              value={w.aOverall} mark={marks.aOverall} rows={3}
-              comment={w.comments.aOverall} onComment={(v) => comment('aOverall', v)}
+          <Sec id="A" title="Assessment" open={open} toggle={toggle}>
+            <Line id="aOverall" label="Overall"
+              value={w.aOverall} mark={marks.aOverall} rows={2}
               onChange={(v) => put('aOverall', v)} />
             {groups.map((g) => (
-              <ItemGroup key={g} title={g} items={byGroup(g)}
-                values={w.aItems} marks={marks} bucket="aItems"
-                comments={w.comments} onComment={comment}
-                placeholder="Where this one stands, in a sentence."
-                onChange={(id, v) => putItem('aItems', id, v)} />
+              <Grp key={g} id={`A-${g}`} title={g} items={byGroup(g)}
+                open={open} toggle={toggle}>
+                {byGroup(g).map((it) => (
+                  <Blk key={it.id} id={`A-${g}-${it.id}`} title={it.name}
+                    preview={short(w.aItems[it.id])} open={open} toggle={toggle}>
+                    <Line id={`aItems:${it.id}`} value={w.aItems[it.id] ?? ''}
+                      mark={marks[`aItems:${it.id}`]} rows={2}
+                      onChange={(v) => putItem('aItems', it.id, v)} />
+                  </Blk>
+                ))}
+              </Grp>
             ))}
           </Sec>
 
-          {/* ------------------------------------------------------- plan */}
-          <Sec letter="P" title="Plan" note="What happens next for each of them.">
-            {groups.map((g) => (
-              <ItemGroup key={g} title={g} items={byGroup(g)}
-                values={w.pItems} marks={marks} bucket="pItems"
-                comments={w.comments} onComment={comment}
-                placeholder="What is being done, and what happens next."
-                onChange={(id, v) => putItem('pItems', id, v)} />
-            ))}
-          </Sec>
-
-          {/* ----------------------------------------------- instructions */}
           {/*
-            * The last thing said in the room and the first thing they
-            * will look at afterwards. Steps, in their words, one per
-            * line, ending with the date we do this again.
+            * The plan, one block per thing, in the shape it is said in:
+            * the sentence about where they are, then the points.
             */}
-          <Sec letter="&rarr;" title="What they do next"
-            note="Their instructions, in steps. This is what they are handed.">
-            <Field id="instructions" label="Between now and the next visit"
-              placeholder={'One step per line.\nBring your home readings.\nStart the half tablet on Monday.'}
-              value={w.instructions} mark={marks.instructions} rows={6}
-              comment={w.comments.instructions} onComment={(v) => comment('instructions', v)}
-              onChange={(v) => put('instructions', v)} />
-            <div className="nextvis">
-              <label className="wflabel" htmlFor="nextvisit">Next visit</label>
-              <input id="nextvisit" className="search" type="date" value={w.nextVisit}
-                onChange={(e) => put('nextVisit', e.target.value)} />
-              {w.instructions.trim() && !w.nextVisit && (
-                <span className="small muted">
-                  Steps with no date to finish them by is a list nobody is accountable for.
-                </span>
-              )}
-            </div>
+          <Sec id="P" title="Plan" open={open} toggle={toggle}>
+            {groups.map((g) => (
+              <Grp key={g} id={`P-${g}`} title={g} items={byGroup(g)}
+                open={open} toggle={toggle}>
+                {byGroup(g).map((it) => (
+                  <Blk key={it.id} id={`P-${g}-${it.id}`} title={it.name}
+                    preview={short(w.pItems[it.id])} open={open} toggle={toggle}>
+                    {/*
+                      * The problem, their sentence, then the points.
+                      * The sentence is the one from the subjective,
+                      * so changing it there changes it here: it is
+                      * the same fact, not a second copy of it.
+                      */}
+                    {(w.sItems[it.id] ?? it.said).trim() && (
+                      <p className="blksaid">{w.sItems[it.id] ?? it.said}</p>
+                    )}
+                    <Line id={`pItems:${it.id}`} value={w.pItems[it.id] ?? ''}
+                      mark={marks[`pItems:${it.id}`]} rows={3}
+                      onChange={(v) => putItem('pItems', it.id, v)} />
+                  </Blk>
+                ))}
+              </Grp>
+            ))}
+          </Sec>
+
+          <Sec id="N" title="What they do next" open={open} toggle={toggle}>
+            {w.instructions.trim()
+              ? <p className="blksaid" style={{ whiteSpace: 'pre-line' }}>{w.instructions}</p>
+              : <p className="blksaid">Written in the instructions box, beside this.</p>}
+            <p className="visitmeta" style={{ margin: 0 }}>
+              {w.nextVisit
+                ? `Next visit ${fmtDate(w.nextVisit)}.`
+                : 'No next visit set. Steps with no date to finish them by is a list nobody is accountable for.'}
+            </p>
           </Sec>
         </div>
 
         {/* ================================================ the right column */}
         <div className="stack">
-          {!signed && (
-            <Orders encounterId={encounterId} patientId={patientId}
-              orders={st.ordersFor(encounterId)} />
-          )}
+          {/*
+            * Where this visit stands: which version it opened on, what
+            * has arrived since, and what the chart review left. All of
+            * it is about the document rather than about the patient,
+            * so none of it belongs over the note.
+            */}
+          {/*
+            * What they do next, at the top of the column and open the
+            * whole visit.
+            *
+            * It is the last thing said in the room and the first thing
+            * they look at afterwards, and it gets written as the
+            * conversation happens rather than remembered at the end.
+            * The same text is the note's last section: one field, two
+            * places to reach it, because the thing you are typing and
+            * the thing that gets signed must not be two documents.
+            */}
+          <Panel title="Patient instructions">
+            <Line id="instructions" value={w.instructions} mark={marks.instructions} rows={7}
+              placeholder={'One step per line, in their words.\nBring your home readings.\nStart the half tablet on Monday.'}
+              onChange={(v) => put('instructions', v)} />
+            <div className="nextvis">
+              <label className="wflabel" htmlFor="nextvisit">Next visit</label>
+              <input id="nextvisit" className="search" type="date" value={w.nextVisit}
+                onChange={(e) => put('nextVisit', e.target.value)} />
+            </div>
+          </Panel>
 
-          <Panel title="This visit">
-            <div className="row" style={{ gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
+          {/*
+            * Everything that is about the visit rather than about the
+            * patient: where it opened, what it is capturing, how long
+            * it has run, and the one act that ends it.
+            */}
+          <Panel title="This visit" right={!signed && (
+            listening ? (
+              <button className="btn sm listening" onClick={stopCapture}>
+                <span className="pulse" /> Stop &middot;{' '}
+                {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')}
+              </button>
+            ) : (
+              <button className="btn sm ghost" onClick={startListening}>Listen</button>
+            )
+          )}>
+            <p className="visitmeta openedon">
+              {approved
+                ? `Opened on version ${approved.version}, approved ${relative(approved.approvedAt)}.`
+                : 'No approved care plan yet.'}
+              {fresh.count > 0 && (
+                <> <span className="freshmark">
+                  {fresh.count} record{fresh.count === 1 ? '' : 's'} since, not yet incorporated
+                  {fresh.urgent > 0 && `, ${fresh.urgent} flagged urgent`}.
+                </span></>
+              )}
+            </p>
+            {prechart && !signed && (
+              <p className="visitmeta">
+                Chart review {relative(prechart.date)}: {prechart.reviewed.length} of{' '}
+                {REVIEW.length} sections.{' '}
+                {!usedPrechart && (
+                  <button className="linkish" onClick={pullPrechart}>
+                    Put what you said into this note
+                  </button>
+                )}
+              </p>
+            )}
+            <div className="row" style={{ gap: 6, flexWrap: 'wrap', margin: '10px 0' }}>
               {(['in-person', 'telehealth', 'home'] as VisitSetting[]).map((v) => (
                 <button key={v} className={`btn sm ${setting === v ? '' : 'ghost'}`}
                   onClick={() => setSetting(v)}>{SETTING_LABEL[v]}</button>
@@ -564,19 +678,33 @@ export function Encounter({ encounterId }: { encounterId: string }) {
                 {running ? 'Pause' : 'Start'}
               </button>
             </div>
+
+            <div className="signrow">
+              {signed ? (
+                <span className="small muted">
+                  Signed {enc.signedAt && fmtDate(enc.signedAt)}. The note is kept as it was
+                  signed and the care plan moved to the next version.
+                </span>
+              ) : (
+                <>
+                  <button className="btn" onClick={approve}>Sign</button>
+                  {injected.length > 0 && !listening && (
+                    <button className="btn ghost sm" onClick={() => setChecked(true)}>
+                      Check the draft
+                    </button>
+                  )}
+                  <span className="small muted">
+                    Publishes version {(approved?.version ?? 0) + 1}
+                    {!anyChange && ', unchanged'}.
+                  </span>
+                </>
+              )}
+            </div>
           </Panel>
 
-          {signed ? (
-            <p className="small muted">
-              Approved {enc.signedAt && fmtDate(enc.signedAt)}. The note is kept as it was
-              signed and the care plan moved to the next version.
-            </p>
-          ) : (
-            <button className="btn" onClick={approve}>
-              {anyChange
-                ? `Approve and publish version ${(approved?.version ?? 0) + 1}`
-                : 'Approve as seen, no change'}
-            </button>
+          {!signed && (
+            <Orders encounterId={encounterId} patientId={patientId}
+              orders={st.ordersFor(encounterId)} />
           )}
         </div>
       </div>
@@ -586,101 +714,117 @@ export function Encounter({ encounterId }: { encounterId: string }) {
 
 /* ------------------------------------------------------------------ bits */
 
-/** One lettered section of the note. */
-function Sec({ letter, title, note, children }: {
-  letter: string; title: string; note: string; children: React.ReactNode;
+/**
+ * A section, a group, a block. Three depths, one appearance.
+ *
+ * Everything on this screen is the same typeface at the same size.
+ * Depth is a heading in a heavier weight and an indent, not a jump
+ * from a serif display face to body copy and back twice a screen. A
+ * note that changes typeface every forty words is a note you read as
+ * a layout rather than as sentences.
+ *
+ * All three fold. A visit about one uncontrolled problem should be
+ * able to look like a visit about one uncontrolled problem.
+ */
+function Fold({ id, title, depth, right, open, toggle, shutByDefault, children }: {
+  id: string;
+  title: string;
+  depth: 1 | 2 | 3;
+  right?: React.ReactNode;
+  open: Record<string, boolean>;
+  toggle: (id: string, next: boolean) => void;
+  /** Blocks start shut; sections and groups start open. */
+  shutByDefault?: boolean;
+  children: React.ReactNode;
 }) {
+  const shut = shutByDefault ? open[id] !== true : open[id] === false;
   return (
-    <section className="nsec">
-      <div className="nsechead">
-        <span className="letter" dangerouslySetInnerHTML={{ __html: letter }} />
-        <h2>{title}</h2>
-        <span className="nsecnote">{note}</span>
-      </div>
-      <div className="nsecbody">{children}</div>
+    <section className={`fold d${depth}${shut ? ' shut' : ''}`}>
+      <button className="foldhead" onClick={() => toggle(id, shut)}>
+        <span className="foldarrow" aria-hidden="true">{shut ? '\u203a' : '\u2304'}</span>
+        <span className="foldtitle">{title}</span>
+        {right && <span className="foldright">{right}</span>}
+      </button>
+      {!shut && <div className="foldbody">{children}</div>}
     </section>
   );
 }
 
-/**
- * One group of things, each with a field.
- *
- * Silent when the group is empty, because a heading over nothing in a
- * note reads as a finding of nothing.
- */
-function ItemGroup({
-  title, items, values, marks, bucket, placeholder, onChange, comments, onComment,
-}: {
-  title: string;
-  items: Item[];
-  values: Record<string, string>;
-  marks: Marks;
-  bucket: string;
-  placeholder: string;
-  onChange: (id: string, v: string) => void;
-  comments: Record<string, string>;
-  onComment: (key: string, v: string) => void;
+const Sec = ({ id, title, open, toggle, children }: {
+  id: string; title: string;
+  open: Record<string, boolean>; toggle: (id: string, next: boolean) => void;
+  children: React.ReactNode;
+}) => (
+  <Fold id={id} title={title} depth={1} open={open} toggle={toggle}>{children}</Fold>
+);
+
+/** Silent when the group is empty: a heading over nothing reads as a finding. */
+function Grp({ id, title, items, open, toggle, children }: {
+  id: string; title: string; items: Item[];
+  open: Record<string, boolean>; toggle: (id: string, next: boolean) => void;
+  children: React.ReactNode;
 }) {
   if (items.length === 0) return null;
   return (
-    <div className="nitemgrp">
-      <div className="nitemhead">{title}</div>
-      {items.map((it) => (
-        <Field key={it.id} id={`${bucket}:${it.id}`} label={it.name} context={it.context}
-          placeholder={placeholder} rows={2}
-          value={values[it.id] ?? ''} mark={marks[`${bucket}:${it.id}`]}
-          comment={comments[`${bucket}:${it.id}`]}
-          onComment={(v) => onComment(`${bucket}:${it.id}`, v)}
-          onChange={(v) => onChange(it.id, v)} />
-      ))}
-    </div>
+    <Fold id={id} title={title} depth={2} right={`${items.length}`}
+      open={open} toggle={toggle}>{children}</Fold>
   );
 }
 
 /**
- * A field, with what the record already knows beside it and a place
- * to put what you think about it.
+ * One thing, shut by default, with its first line showing.
  *
- * The comment is not part of the note the patient is handed. It is
- * the thing a physician would otherwise write in the margin and then
- * lose, and there was nowhere to put it.
+ * Open, every block is a paragraph and a list; eleven of them is a
+ * screen you scroll rather than read. Shut, it is a line that says
+ * what it is and what is currently written, which is what you need
+ * to decide whether to open it.
  */
-function Field({
-  id, label, value, onChange, rows = 3, mark, placeholder, context, comment, onComment,
-}: {
+const Blk = ({ id, title, preview, open, toggle, children }: {
+  id: string; title: string; preview?: string;
+  open: Record<string, boolean>; toggle: (id: string, next: boolean) => void;
+  children: React.ReactNode;
+}) => (
+  <Fold id={id} title={title} depth={3} shutByDefault
+    right={open[id] ? undefined : preview}
+    open={open} toggle={toggle}>{children}</Fold>
+);
+
+/** A field. It arrives with the record already written into it. */
+function Line({ id, label, value, onChange, rows = 2, mark, placeholder }: {
   id: string;
-  label: string;
+  label?: string;
   value: string;
   onChange: (v: string) => void;
   rows?: number;
   mark?: 'ambient';
   placeholder?: string;
-  context?: string;
-  comment?: string;
-  onComment?: (v: string) => void;
 }) {
-  const [open, setOpen] = useState(false);
-  const showing = open || !!comment;
+  /*
+   * Grows to its content. A note field that scrolls inside itself
+   * hides the end of a plan behind two pixels of scrollbar, and the
+   * end of a plan is where the follow-up is.
+   */
+  const ref = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    // Grows, never shrinks below the room it was given. An empty
+    // instructions box that collapses to one line does not look like
+    // somewhere to write.
+    el.style.height = `${Math.max(el.scrollHeight, rows * 25 + 14)}px`;
+  }, [value, rows]);
+
   return (
     <div className="wfield">
-      <div className="wflabel">
-        {label}
-        {mark && <span className="markchip">from the capture</span>}
-        <span className="spacer" />
-        {onComment && (
-          <button className="linkish wfcomment" onClick={() => setOpen((v) => !v)}>
-            {comment ? 'Comment' : '+ Comment'}
-          </button>
-        )}
-      </div>
-      {context && <p className="wfcontext">{context}</p>}
-      <textarea className="prose" rows={rows} value={value} placeholder={placeholder}
-        id={id} onChange={(e) => onChange(e.target.value)} />
-      {showing && onComment && (
-        <input className="search wfcommentbox" value={comment ?? ''}
-          placeholder="Your note on this. Stays in the record, not in what they are handed."
-          onChange={(e) => onComment(e.target.value)} />
+      {(label || mark) && (
+        <div className="wflabel">
+          {label}
+          {mark && <span className="markchip">from the capture</span>}
+        </div>
       )}
+      <textarea ref={ref} className="prose" rows={rows} value={value} placeholder={placeholder}
+        id={id} onChange={(e) => onChange(e.target.value)} />
     </div>
   );
 }
