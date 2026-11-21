@@ -27,9 +27,13 @@ tags: [domain/physical-activity, domain/lifestyle-medicine, domain/preventive-me
 
 ## Board-review angle
 
-- Physical activity is a core ABLM pillar — exercise-prescription
-  frameworks (FITT) will land in `kb/boards/lifestyle-medicine/` and
-  be linked here.
+- Full Section 6 notes: `kb/boards/lifestyle-medicine/exercise.md` —
+  FITT-VP prescription, PAVS vital sign, intensity scales (talk test,
+  Borg, HRR, METs), ACSM screening algorithm/PAR-Q+, progression
+  stages, resistance Rx, special-population prescriptions (older
+  adults, pregnancy contraindications, obesity, CVD, diabetes glucose
+  rules, cancer, stroke), and the treatment-evidence set (DPP, Look
+  AHEAD, exercise-vs-drugs meta-epidemiology).
 
 ## My notes & experience
 
