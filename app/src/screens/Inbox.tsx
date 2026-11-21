@@ -85,7 +85,7 @@ function Row({ item }: { item: InboxItem }) {
     .sort((a, b) => a.date.localeCompare(b.date))[0];
   const [open, setOpen] = useState(false);
 
-  const what = booked?.kind === 'review' ? 'care plan review' : 'visit';
+  const what = 'visit';
   const next = booked
     ? (booked.date === st.now ? `${what} today` : `${what} on ${fmtDate(booked.date)}`)
     : undefined;

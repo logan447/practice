@@ -48,37 +48,30 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('the frequency conflict is stated rather than resolved quietly',
     doc.includes('NEEDS-MAC') && doc.includes('eleven full months'));
 
-  // ---------------------------------------- the month, as a ladder
-  ok('the month is a ladder, not a yes or no',
-    doc.includes('Time recorded') && doc.includes('Requirements satisfied')
-    && doc.includes('Reviewed and ready'));
-  ok('thirty-four countable minutes are counted', doc.includes('34 countable minutes'));
-  ok('and six minutes of software time are not',
-    doc.includes('6 recorded but not countable'));
-  ok('the reason is on the screen', doc.includes('is not the physician'));
-
-  // The two that must never pass for this practice.
-  ok('the certified-record requirement is shown failing, not omitted',
-    doc.includes('Certified electronic health record')
-    && doc.includes('This prototype is not certified technology'));
-  ok('and the call arrangement too', doc.includes('Access around the clock'));
-  ok('so the month is not offered for attestation',
-    doc.includes('requirements outstanding'));
-  ok('passing the time threshold did not make it billable',
-    !doc.includes('I have reviewed this month and it is billable'));
-
-  // Every mandatory line carries where it came from.
-  const rules=await p.locator('.ckrule').allTextContents();
-  ok(`every requirement cites its source (${rules.length} shown)`,
-    rules.length>8 && rules.every(t=>/FR |MLN|CFR|CPT|Manual|FAQ|CMS/.test(t)));
-
-  // ----------------------------------- advanced primary care, declined
-  ok('a service the patient is not on does not list its unmet requirements',
-    !doc.includes('Management across the panel'));
-  ok('but the code the practice decided against is named once',
-    doc.includes('Advanced primary care management is not billed here'));
-  ok('with the reason, and where the reasoning lives',
+  // ------------------------- care management, removed rather than hidden
+  /*
+   * Chronic care management, behavioural health integration and
+   * advanced primary care management are not modelled any more. All
+   * three are monthly programmes built around clinical staff and
+   * certified technology, and this practice is one physician who does
+   * not bill insurance.
+   *
+   * What the tab must still do is say so, and say why, rather than
+   * quietly not mentioning them. Research that was expensive and then
+   * declined is a decision, and a decision belongs in the record.
+   */
+  ok('care management programmes are named as not billed here',
+    doc.includes('Care management programmes are not billed here'));
+  ok('with the reason, which is the practice and not an oversight',
+    doc.includes('clinical staff') && doc.includes('this practice has neither'));
+  ok('advanced primary care management is named with its citation',
     doc.includes('provided by clinical staff') && doc.includes('89 FR 97876'));
+  ok('and where the reasoning lives',
+    doc.includes('billing-architecture.md') && doc.includes('D-050'));
+  ok('no monthly ladder is left behind',
+    !doc.includes('Reviewed and ready') && !doc.includes('countable minutes'));
+  ok('and nothing is offered for attestation',
+    !doc.includes('I have reviewed this month and it is billable'));
 
   // --------------------------------------- the visit, on another chart
   
@@ -90,9 +83,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('a patient who is not on Medicare gets no wellness visit panel',
     !s.includes('Wellness visit'));
   ok('visits still show both routes to a level', /gives 992\d\d\./.test(s));
-  ok('a consent that recites every disclosure passes', /Verbal consent/.test(s));
-  ok('and one that does not is named, disclosure by disclosure',
-    s.includes('these disclosures are not recorded'));
+  ok('and no consent machinery is left for a programme that is gone',
+    !s.includes('these disclosures are not recorded'));
 
   const over=await p.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth+1);
   ok('no horizontal overflow', !over);

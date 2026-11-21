@@ -11,25 +11,27 @@ import { Chip, Panel, Empty } from '../../components/ui';
 import { fmtDate, relative } from '../../lib/format';
 
 export type ChartDrawer =
-  | 'careplan'
-  | 'visits' | 'plan' | 'meds' | 'results' | 'specialists' | 'orders' | 'followup'
-  | 'studies' | 'records' | 'documentation' | 'export' | 'details'
-  | 'encounters' | 'notes' | 'history' | 'prevention' | 'letters' | 'scope';
+  | 'notes' | 'subjective' | 'vitals' | 'problems' | 'lifestyle' | 'prevention'
+  | 'meds' | 'results' | 'studies' | 'specialists' | 'more'
+  | 'visits' | 'plan' | 'orders' | 'followup' | 'records' | 'documentation'
+  | 'export' | 'details' | 'encounters' | 'history' | 'letters' | 'scope';
 
 /**
- * The strip.
+ * The strip, in the order a chart review happens.
  *
- * The care plan first, because it is what the chart is for, then the
- * record it was built from, in the order a physician reaches for it.
+ * This is not a filing system. It is the order a physician reads a
+ * chart in before walking into the room: the last note, then what the
+ * patient has said since, then the numbers, then the problems, then
+ * the two things this practice provides alongside them, then the
+ * treatment, then the results, then everybody else involved, then the
+ * histories that were asked once and rarely change.
  *
- * Splitting the care plan into four tabs was a mistake and lasted one
- * revision. It is one document: a reader moving between the
- * assessment and the plan for the same problem was clicking a tab to
- * do it, which is the opposite of what the tabs were for.
+ * Reading it top to bottom is the chart review, which is why the
+ * pre-visit walkthrough is this list and nothing else.
  */
 export const CHART_TABS: ChartDrawer[] = [
-  'encounters', 'notes', 'results', 'meds', 'studies',
-  'prevention', 'specialists',
+  'notes', 'subjective', 'vitals', 'problems', 'lifestyle', 'prevention',
+  'meds', 'results', 'studies', 'specialists', 'more',
 ];
 
 /**
@@ -41,7 +43,7 @@ export const CHART_TABS: ChartDrawer[] = [
  * own heading, where the rest of the things you go looking for live.
  */
 export const CHART_TOOLS: ChartDrawer[] = [
-  'plan', 'orders', 'followup', 'letters', 'records', 'scope',
+  'encounters', 'plan', 'orders', 'followup', 'letters', 'records', 'scope',
   'history', 'export', 'details', 'documentation',
 ];
 
@@ -55,14 +57,18 @@ export const CHART_TOOLS: ChartDrawer[] = [
  * forever.
  */
 export const TAB_LABEL: Record<ChartDrawer, string> = {
-  careplan: 'Care plan',
-  encounters: 'Encounters',
   notes: 'Notes',
-  results: 'Labs',
-  meds: 'Meds',
-  studies: 'Imaging',
+  subjective: 'Subjective',
+  vitals: 'Vitals',
+  problems: 'Problems',
+  lifestyle: 'Lifestyle',
   prevention: 'Prevention',
+  meds: 'Meds',
+  results: 'Labs',
+  studies: 'Imaging',
   specialists: 'Specialists',
+  more: 'More',
+  encounters: 'Everything on file',
   visits: 'Visits',
   plan: 'Shared plan',
   orders: 'Orders',

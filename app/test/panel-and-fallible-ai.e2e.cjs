@@ -101,15 +101,14 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // Start a visit from the chart rather than booking one. The two
   // activities are startable from the Encounters block, which is the
   // path a physician uses when somebody turns up.
-  await tab(p, 'Encounters');
-  await p.click('.startenc:has-text("Visit")'); await p.waitForTimeout(800);
+  await p.click('.startenc:has-text("Start a visit")'); await p.waitForTimeout(800);
 
   ok('a visit is open, on the care plan rather than a blank note',
-    (await p.locator('.panel:has-text("Living care plan, working copy")').count())===1);
+    (await p.locator('.nsechead h2').count())===5);
 
   ok('capture says it is fallible', (await p.locator('button:has-text("Capture:")').textContent()).includes('fallible'));
 
-  await p.click('button:has-text("Start listening")');
+  await p.click('button:has-text("Listen")');
   await p.waitForTimeout(13600);
 
   const narrative = p.locator('.wfield textarea').first();

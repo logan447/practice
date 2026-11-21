@@ -12,6 +12,7 @@
  * workflow exists to make that safe rather than merely true.
  */
 const {chromium}=require('playwright');
+const {tab}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 /**
@@ -49,10 +50,9 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('.vtab:has-text("day")'); await p.waitForTimeout(500);
   ok('and the day holds five activities',
     (await p.locator('.daylist .dayrow').count())===5);
-  const kinds = (await p.locator('.dayrow .dkind').allTextContents()).join(' ');
-  ok('and it holds two kinds of activity and no others',
-    /Visit/.test(kinds) && /Care plan review/.test(kinds)
-    && !/CCM|BHI|Annual|Acute|Paperwork/.test(kinds));
+  const kinds = (await p.locator('.dayrow').allTextContents()).join(' ');
+  ok('and it holds one kind of activity and no others',
+    !/Care plan review|CCM|BHI|Annual|Acute|Paperwork/.test(kinds));
   ok('each row says whether anything is waiting to be reconciled',
     (await p.locator('.dayrow:has-text("Sharon") .chip').allTextContents())
       .some((t)=>/to reconcile|Nothing new/.test(t)));
@@ -72,43 +72,31 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('the approved chart does not contain the unincorporated records',
     !before.includes('podiatrist') && !before.includes('urgent care place'));
 
-  // --------------------------------------------- 3. open a review
-  await p.click('button:has-text("Care plan review")'); await p.waitForTimeout(800);
-  ok('the review opens on the approved version',
+  // ---------------------------------------------- 3. open a visit
+  await p.click('button:has-text("Start a visit")'); await p.waitForTimeout(900);
+  ok('the visit opens on the approved version',
     (await p.locator('.page-head').textContent()).includes('opened on version 1'));
-  ok('and it is the same document, not a note about it',
-    (await p.locator('.panel:has-text("Living care plan, working copy")').count())===1);
-  const tray = await p.locator('.panel:has-text("New since version")').textContent();
-  ok('with everything new beside it', tray.includes('Health update'));
-  ok('including what they said happened since the last visit',
-    tray.includes('Urgent care') && tray.includes('urgent care place'));
-  ok('the working copy marks what has changed',
-    (await p.locator('.wprob.moved').count())>0);
+  ok('and it writes the care plan, not a note about it',
+    (await p.locator('.nsechead h2').count())===5);
   ok('and carries the plan forward from the approved version',
-    (await p.locator('.wprob textarea').first().inputValue()).length>20);
+    (await p.locator('.nsec textarea').last().inputValue()).length >= 0
+    && (await p.evaluate(() => Array.from(document.querySelectorAll('.nsec textarea'))
+      .some((t) => t.value.length > 20))));
+  ok('the visit records its own time, measured not typed',
+    (await p.locator('.panel:has-text("This visit")').count())===1);
 
-  // ------------------------------------------------ 5. ask for things
-  const openAsks = await p.locator('.askrow').count();
-  ok(`the requests from the last approval are still open (${openAsks})`, openAsks===2);
-  await p.fill('input[placeholder="What do you need from them?"]',
-    'Send the home blood pressure readings from the last two weeks.');
-  await p.click('.panel:has-text("Ask the patient") button:has-text("Add")');
-  await p.waitForTimeout(300);
-  ok('a new request can be written during the encounter',
-    (await p.locator('.askrow').count())===openAsks+1);
-  ok('and the encounter records its own time, measured not typed',
-    (await p.locator('.panel:has-text("This encounter")').count())===1
-    && (await p.locator('.panel:has-text("This encounter")').textContent())
-      .includes('Running since this opened'));
-  ok('a scheduled hour is not treated as billable by itself',
-    (await p.locator('.panel:has-text("This encounter")').textContent())
-      .includes('not by itself billable time'));
+  // ------------------------------------------------- 4. write it
+  await p.fill('#sOverall','Says she is steadier than in the summer.');
+  await p.fill('#aOverall','Doing well overall. The urgent care visit and the podiatrist are the new facts.');
+  await p.fill('#instructions','Send your home readings before the next visit.');
+  await p.fill('#nextvisit','2027-02-15');
+  await p.waitForTimeout(250);
 
-  // --------------------------------------------------- 6. sign it
+  // --------------------------------------------------- 5. sign it
   ok('approving is one action, and it says what it will publish',
     (await p.locator('.reviewgrid button:has-text("Approve")').textContent())
       .includes('publish version 2'));
-  await p.click('.reviewgrid button:has-text("Approve")'); await p.waitForTimeout(900);
+  await p.click('.reviewgrid button:has-text("Approve")'); await p.waitForTimeout(1000);
   ok('and it returns to the schedule', await p.locator('.weekgrid, .daylist').first().isVisible());
   await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.fill('input[aria-label="Search patients"]','Sharon'); await p.waitForTimeout(350);
@@ -130,7 +118,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('the patient is told their plan was updated',
     asked.includes('Your care plan was updated'));
   ok('and what is needed from them',
-    asked.includes('home blood pressure readings'));
+    asked.includes('taking your blood pressure at home'));
   await p.fill('.panel:has-text("From your doctor") textarea',
     'Readings have been 124 to 128 at the top. I will have the mammogram if you book it.');
   await p.click('.panel:has-text("From your doctor") button:has-text("Send")');
@@ -144,11 +132,9 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   const back = await p.locator('.derivedfrom').textContent();
   ok('the answer does not change the approved chart',
     /Version 2, approved today/.test(back) && /1 record since/.test(back));
-  await p.click('button:has-text("Care plan review")'); await p.waitForTimeout(800);
-  const tray2 = await p.locator('.panel:has-text("New since version")').textContent();
-  ok('it waits in the next encounter instead', tray2.includes('124 to 128'));
-  ok('and what it answered is shown as answered',
-    (await p.locator('.panel:has-text("Ask the patient")').textContent()).includes('Answered'));
+  await tab(p, 'Subjective');
+  ok('it waits in the record instead, where the next visit will read it',
+    (await p.locator('.tabbody').textContent()).includes('Health updates'));
 
   console.log([...pass,...fail].join('\n'));
   console.log(fail.length? `\n${fail.length} FAILED` : '\nALL PASSED');

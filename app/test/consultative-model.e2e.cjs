@@ -41,11 +41,10 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     cap.includes('Eight months open and four closed'));
   ok('in four blocks rather than one',
     cap.includes('in four blocks of about a month rather than one block of four'));
-  ok('the membership year is a package of contacts',
-    cap.includes('Synchronous consultations') && cap.includes('Care plan reviews'));
-  ok('two consultations and three reviews',
-    cap.includes('2 × 60 min') && cap.includes('3 × 30 min'));
-  ok(`totalling 250 minutes`, /Total\s*250/.test(cap.replace(/\s+/g,' ')));
+  ok('the membership year is a package of visits',
+    cap.includes('Visits') && !cap.includes('Care plan reviews'));
+  ok('five of them, forty-five minutes each', cap.includes('5 × 45 min'));
+  ok('totalling 265 minutes', /Total\s*265/.test(cap.replace(/\s+/g,' ')));
   ok('and the panel it fits is stated', /patients the package exactly fits/.test(cap));
   ok('the monthly review is named as what this replaced, with the arithmetic',
     cap.includes('720 minutes a patient a year') && cap.includes('2400 physician hours'));
@@ -109,9 +108,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   const det = (await p.locator('.tabbody').textContent()).replace(/\s+/g,' ');
   ok('the year is a ledger on the details tab',
     det.includes('Membership year')
-    && /\d+ of 250 minutes|Nothing used yet of 250/.test(det));
-  ok('counting contacts as well as minutes',
-    /of 2 consultations/.test(det) && /of 3 care plan reviews/.test(det));
+    && /\d+ of 265 minutes|Nothing used yet of 265/.test(det));
+  ok('counting visits as well as minutes', /of 5 visits/.test(det));
 
   // ------------------------------------------- 5. before a closure
   // The run-up used to be a standing banner on the schedule, which is

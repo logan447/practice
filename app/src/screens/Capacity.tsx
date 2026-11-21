@@ -179,18 +179,11 @@ export function Capacity() {
         <table className="rows">
           <tbody>
             <tr>
-              <td>Synchronous consultations</td>
+              <td>Visits</td>
               <td className="small muted">
-                {PACKAGE.consultations.count} &times; {PACKAGE.consultations.minutes} min
+                {PACKAGE.visits.count} &times; {PACKAGE.visits.minutes} min
               </td>
-              <td className="num">{PACKAGE.consultations.count * PACKAGE.consultations.minutes}</td>
-            </tr>
-            <tr>
-              <td>Care plan reviews</td>
-              <td className="small muted">
-                {PACKAGE.reviews.count} &times; {PACKAGE.reviews.minutes} min
-              </td>
-              <td className="num">{PACKAGE.reviews.count * PACKAGE.reviews.minutes}</td>
+              <td className="num">{PACKAGE.visits.count * PACKAGE.visits.minutes}</td>
             </tr>
             <tr>
               <td>Messages, coordination and follow-up</td>
@@ -213,8 +206,10 @@ export function Capacity() {
           </p>
         )}
         <p className="small muted" style={{ marginTop: 12, maxWidth: '74ch' }}>
-          Five physician contacts a year inside four service periods, which is a contact
-          roughly every seven weeks while the practice is open. The first year costs about
+          Five visits a year inside four service periods, which is a contact roughly every
+          seven weeks while the practice is open. There is one kind of encounter: the care
+          plan review was a second one, asynchronous, and five visits of the same shape is
+          the same contact rate with one thing to build. The first year costs about
           {' '}{FIRST_YEAR_EXTRA} minutes more, because a comprehensive assessment and a care
           plan built from nothing is not the steady state. Either that year is a larger
           package or enrolment is staged; staging is simpler and does not need a second price.

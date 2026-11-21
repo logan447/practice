@@ -17,19 +17,17 @@
  * docs/systems/billing-architecture.md.
  */
 import type { CareLogEntry, ServiceConsent, InstrumentScore } from '../domain/types';
-import { CCM_DISCLOSURES } from '../lib/monthly';
 
 const P = 'p3';
 
-export const arthurConsents: ServiceConsent[] = [
-  {
-    id: 'aco1', patientId: P, program: 'ccm', date: '2026-02-17', method: 'verbal',
-    by: 'L. DuBose, MD',
-    disclosures: CCM_DISCLOSURES,
-    note: 'Went through it at the end of the February visit, in writing as well because of his hearing. '
-      + 'He asked what it would cost him and we went through the coinsurance. He agreed.',
-  },
-];
+/*
+ * No care-management consents.
+ *
+ * They were real conversations and they were consents to a monthly
+ * Medicare programme this practice no longer models. What is left is
+ * the visit, which needs no separate consent.
+ */
+export const arthurConsents: ServiceConsent[] = [];
 
 /**
  * November, as it actually happened.

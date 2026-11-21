@@ -27,7 +27,21 @@ export const patients: Patient[] = [
     services: { preventative: true, lifestyle: true },
     photoTone: 0, phone: '(512) 555-0142', email: 'm.reyes@example.com',
     pinned: 'Wants to come off the BP medicine if the numbers hold. That is his goal, not mine.',
-    pcp: { name: 'Dr. Yvonne Castellanos', practice: 'Barton Creek Family Medicine', since: '2019-03-01' }
+    pcp: { name: 'Dr. Yvonne Castellanos', practice: 'Barton Creek Family Medicine', since: '2019-03-01' },
+    history: {
+      family: [
+        { relation: 'Father', condition: 'Hypertension' },
+        { relation: 'Mother', condition: 'Type 2 diabetes' },
+      ],
+      // Deliberately thin. Half the chart review is finding out what
+      // was never asked, and a tab that invents a blank into a
+      // reassuring "none" is the failure this record is designed
+      // against.
+      social: {
+        tobacco: 'Former. Stopped 2014.',
+        work: 'Site supervisor. Long days, early starts.',
+      },
+    },
   },
   {
     id: 'p2', name: 'Dana Whitfield', preferredName: 'Dana', dob: '1985-07-29',
@@ -37,7 +51,14 @@ export const patients: Patient[] = [
     pinned: 'Night-shift nurse, three on / four off. Any plan has to survive that rota.',
     // No other physician. The most important line in her chart, and
     // the one that decides what can safely be in scope here.
-    pcp: { none: true, plan: 'Agreed to register with the clinic near the hospital. Nothing booked yet.' }
+    pcp: { none: true, plan: 'Agreed to register with the clinic near the hospital. Nothing booked yet.' },
+    history: {
+      social: {
+        tobacco: 'Never.',
+        work: 'Night-shift nurse, three on and four off.',
+        living: 'Lives alone.',
+      },
+    },
   },
   {
     id: 'p3', name: 'Arthur Lindqvist', preferredName: 'Art', dob: '1958-11-04',
@@ -51,7 +72,23 @@ export const patients: Patient[] = [
     medicare: {
       partB: true, partBSince: '2023-11-01', qmb: false,
       ippeOn: '2023-12-06', awvOn: ['2025-01-22', '2026-03-10'],
-    }
+    },
+    history: {
+      family: [
+        { relation: 'Mother', condition: 'Stroke', note: 'Age 74.' },
+        { relation: 'Brother', condition: 'Colon cancer', note: 'Age 62. Living.' },
+      ],
+      surgical: [
+        { name: 'Total knee replacement, right', year: '2019' },
+        { name: 'Appendicectomy', year: '1974' },
+      ],
+      social: {
+        tobacco: 'Former, 30 pack-years. Stopped 2004.',
+        alcohol: 'Rarely.',
+        work: 'Retired machinist.',
+        living: 'Lives with his wife. Hard of hearing; phone calls do not work.',
+      },
+    },
   },
   {
     id: 'p4', name: 'Priya Raghunathan', dob: '1991-02-11', sex: 'female', pronouns: 'she/her',

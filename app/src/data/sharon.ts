@@ -24,6 +24,26 @@ export const sharon: Patient = {
   services: { preventative: true, lifestyle: true },
   pinned: 'Caring for her mother three evenings a week. Any plan has to survive that.',
   pcp: { name: 'Dr. Helena Brandt', practice: 'Hill Country Clinic', since: '2014-02-01' },
+  history: {
+    family: [
+      { relation: 'Mother', condition: 'Type 2 diabetes', note: 'Diagnosed in her fifties. Living, 88.' },
+      { relation: 'Father', condition: 'Myocardial infarction', note: 'Age 61. Died 2009.' },
+      { relation: 'Sister', condition: 'Hypothyroidism' },
+      { relation: 'Maternal grandmother', condition: 'Breast cancer', note: 'Age 70s.' },
+    ],
+    surgical: [
+      { name: 'Cholecystectomy', year: '2011', note: 'Laparoscopic. No complications.' },
+      { name: 'Caesarean section', year: '1996' },
+    ],
+    social: {
+      tobacco: 'Never smoked.',
+      alcohol: 'Two or three glasses of wine a week.',
+      substances: 'None.',
+      work: 'School administrator, four days a week.',
+      living: 'Lives with her husband. Caring for her mother three evenings a week.',
+      note: 'The caring is the single biggest constraint on any plan written here.',
+    },
+  },
 };
 
 export const sharonConditions: Condition[] = [

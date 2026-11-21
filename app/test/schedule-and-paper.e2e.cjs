@@ -65,9 +65,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(450);
   // Booking is one of the three actions under the chart header.
   await p.click('.cacts button:has-text("Book")'); await p.waitForTimeout(400);
-  ok('booking offers the two activities with their lengths',
-    (await p.locator('.booking').textContent()).includes('30m')
-    && (await p.locator('.booking').textContent()).includes('60m'));
+  ok('booking offers the one activity, with its length',
+    (await p.locator('.booking').textContent()).includes('45m'));
 
   // The clock opens on a Monday, so five days forward is a Saturday.
   // A day the practice is closed is refused in words rather than
@@ -77,21 +76,16 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok(`a day the practice is closed is refused in words: "${whyNow.slice(0,44)}"`,
     whyNow.includes('away block') || whyNow.includes('Not a clinic day'));
 
-  // back to a clinic day, pick the longest visit, and check slots shrink
+  // back to a clinic day. One activity and no more: the care plan
+  // review was the second one and it is gone, so the only question a
+  // booking asks is when.
   await p.click('.booking button:has-text("Today")'); await p.waitForTimeout(200);
   for(let i=0;i<2;i++){ await p.click('.booking button:has-text("→")'); await p.waitForTimeout(120); }
-  // Two activities and no more. A visit is half an hour, a care plan
-  // review is a full one, and the longer one fits in fewer places.
   const activities = (await p.locator('.booking .kinds button').allTextContents())
     .map((t)=>t.replace(/\s*\d+m$/,'').trim());
-  ok(`booking offers two activities and no others: ${activities.join(', ')}`,
-    activities.length===2 && activities.join(',')==='Visit,Care plan review');
-  await p.click('.booking button:has-text("Visit")'); await p.waitForTimeout(250);
-  const shortSlots = await p.locator('.booking .slots button').count();
-  await p.click('.booking button:has-text("Care plan review")'); await p.waitForTimeout(250);
+  ok(`booking offers one activity and no others: ${activities.join(', ')}`,
+    activities.length===1 && activities[0]==='Visit');
   const longSlots = await p.locator('.booking .slots button').count();
-  ok(`an hour has fewer places to go than half an hour (${longSlots} vs ${shortSlots})`,
-    longSlots < shortSlots);
   await p.screenshot({path:'v8-booking.png'});
 
   // book it, and it appears on the diary
@@ -113,11 +107,12 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // up in the rail rather than throwing you at the calendar.
   ok('booking from the chart stays in the chart',
     await p.locator('.chead h1').count()>0);
-  ok('and the new activity is on the encounters tab',
-    (await p.locator('.tabbody .tl, .tabbody').first().textContent()).length>40);
-  await palette(p, 'Capacity'); await p.waitForTimeout(600);
-  ok('the review that was booked is on the grid, and reads quieter than a visit',
-    await p.locator('.wdvisit.k-review').count()>0);
+  ok('and the new activity is on the notes tab',
+    (await p.locator('.tabbody').first().textContent()).length>40);
+  await p.click('.acctbtn'); await p.waitForTimeout(150);
+  await p.click('.acctrow:has-text("Schedule")'); await p.waitForTimeout(700);
+  ok('the visit that was booked is on the grid',
+    await p.locator('.wdvisit.k-visit').count()>0);
 
   // ------------------------------------------- 4. paper
   await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);

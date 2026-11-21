@@ -77,36 +77,45 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.screenshot({path:'v10-problem-sheet.png'});
   await p.click('.sheetx'); await p.waitForTimeout(250);
 
-  // ----------------------- 3. the working copy, inside an encounter
-  await p.click('.startenc:has-text("Visit")'); await p.waitForTimeout(900);
+  // ------------------------------- 3. the note, inside the visit
+  await p.click('.startenc:has-text("Start a visit")'); await p.waitForTimeout(900);
   const ws = (await p.locator('.wrap').textContent()).replace(/\s+/g,' ');
   const line = await p.locator('.oneliner').textContent();
-  ok(`the encounter opens on the clinical one-liner: "${line.slice(0,40)}..."`,
+  ok(`the visit opens on the clinical one-liner: "${line.slice(0,40)}..."`,
     /^60F with PMH of /.test(line));
   ok('in shorthand rather than long form', line.includes('HTN') && line.includes('T2DM'));
   ok('and names what we are following them for',
     line.includes('following with our office for management of')
     && line.includes('preventative services') && line.includes('lifestyle medicine'));
-  ok('one block per managed problem, then the two service categories',
-    (await p.locator('.wprob').count())===5);
-  ok('every problem is judged at goal or needing improvement, and nothing else',
-    !/Improving|Stable|Worsening/.test(ws) && ws.includes('At goal'));
-  const ivs = (await p.locator('#w-sc1 .actlist li').allTextContents()).join(' | ');
-  ok(`every intervention has a status: ${ivs.slice(0,54)}`,
-    ivs.includes('Lisinopril 20 mg') && ivs.includes('Active'));
-  ok('one status vocabulary across every kind of intervention',
-    ['Active','Needs attention','Complete'].some((x)=>ivs.includes(x))
-    && !/Taking as prescribed|Struggling|Achieved/.test(ivs));
-  ok('home monitoring is tracked as an intervention', ivs.includes('Home blood pressure'));
-  ok('a drug being skipped is called out rather than listed as prescribed',
-    (await p.locator('#w-sc3 .actlist').textContent()).includes('missing doses'));
-  ok('a drug stopped for a reason stays as context',
-    (await p.locator('#w-sc2 .psum').textContent()).toLowerCase().includes('glipizide stopped'));
-  ok('the interval since the last visit is listed, not written into the paragraph',
-    (await p.locator('.intlist li').count())>0);
-  ok('this is a working copy and says so',
-    ws.includes('Living care plan, working copy'));
-  await p.screenshot({path:'v10-working-copy.png'});
+  const secs = await p.locator('.nsechead h2').allTextContents();
+  ok(`the note runs in the order the conversation does: ${secs.join(', ')}`,
+    secs.join(',')==='Subjective,Objective,Assessment,Plan,What they do next');
+  const grps = await p.locator('.nitemhead').allTextContents();
+  ok('problems, lifestyle and preventative in every section that has items',
+    grps.filter((g)=>g==='Problems').length===3
+    && grps.filter((g)=>g==='Lifestyle').length===3
+    && grps.filter((g)=>g==='Preventative').length===3);
+  ok('the record is shown beside each field rather than retyped into it',
+    (await p.locator('.wfcontext').first().textContent()).length>40);
+  ok('every field is writable', (await p.locator('.nsec textarea').count())>=12);
+  ok('nothing sets a status by button',
+    !/At goal|Needs improvement/.test(ws));
+  ok('and the instructions end in a date',
+    (await p.locator('#nextvisit').count())===1);
+
+  // what was said during the chart review is offered, not retyped
+  await p.fill('#sOverall','Feeling steadier overall.'); await p.waitForTimeout(250);
+  ok('what the physician writes stays written',
+    (await p.locator('#sOverall').inputValue()).includes('steadier'));
+  await p.locator('.wfield').first().locator('.wfcomment').click(); await p.waitForTimeout(250);
+  await p.locator('.wfcommentbox').first().fill('Ask about the mother again next time.');
+  ok('and a field can carry a comment that is not part of the note',
+    (await p.locator('.wfcommentbox').first().inputValue()).includes('mother'));
+  ok('the right column is the orders and nothing else',
+    (await p.locator('.panel h2:has-text("Orders")').count())===1
+    && (await p.locator('text=Ask the patient').count())===0
+    && (await p.locator('text=New since version').count())===0);
+  await p.screenshot({path:'v10-visit-note.png'});
 
   // ---------------- 4. the labs, with patient readings kept separate
   await p.click('.acctbtn'); await p.waitForTimeout(150);
@@ -125,15 +134,19 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('.sheetx'); await p.waitForTimeout(250);
 
   // ------------------------------- 5. the sources, and adding to them
-  await tab(p, 'Encounters');
+  // Everything on file is still one list, off the strip: the chart
+  // review reads the record by section, not as a feed.
+  await tab(p, 'Everything on file');
   const tl = await p.locator('.rec').count();
   ok(`every record is here to open (${tl})`, tl>=20);
   const tabtext = (await p.locator('.tabbody').textContent()).replace(/\s+/g,' ');
   ok('visits, updates, messages, letters and results together',
     ['Annual physical','Answered our question','Mammogram','panels']
       .every((k)=>tabtext.includes(k)));
-  // Two rows match: the patient's message and the reply to it. The
-  // one with the article in it is theirs.
+
+  await tab(p, 'Subjective');
+  ok('what the patient has said is a tab of its own',
+    (await p.locator('.tabbody').textContent()).includes('Messages from them'));
   await p.locator('.rec:has-text("Something I read about statins")').last().click();
   await p.waitForTimeout(350);
   ok('a message the patient sent is readable in full',
@@ -181,11 +194,15 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   const doc = await p.locator('.tabbody').textContent();
   ok('each visit records the elements a level rests on', doc.includes('Problems') && doc.includes('Risk'));
   ok('both routes to a level are shown', /gives 992\d\d\./.test(doc));
-  ok('care management time is tracked per month', doc.includes('countable minutes'));
-  ok('time spent by software does not count', doc.includes('does not'));
-  ok('and says why', doc.includes('not clinical staff time'));
-  ok('consent is a requirement with its own evidence', /[Vv]erbal consent/.test(doc));
-  ok('it points at where the research came from', doc.includes('NEEDS-COUNSEL'));
+  // Care management is not modelled any more. The tab says so and
+  // says where the working went, which is the honest version of
+  // deleting a feature that cost something to research.
+  ok('care management programmes are named as not billed here',
+    doc.includes('Care management programmes are not billed here'));
+  ok('and the reason is the practice, not an oversight',
+    doc.includes('clinical staff') && doc.includes('this practice has neither'));
+  ok('it points at where the research went',
+    doc.includes('billing-architecture.md') && doc.includes('D-050'));
   await p.screenshot({path:'v10-documentation.png'});
 
   const over=await p.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth+1);

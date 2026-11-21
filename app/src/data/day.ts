@@ -33,7 +33,7 @@ const at = (h: number, m = 0) => h * 60 + m;
  * asynchronous work actually survives contact with a clinic day: put
  * it where nobody can walk into it.
  *
- * Note the lengths. A care plan review is thirty minutes here, not
+ * Note the lengths. A longer visit is sixty minutes here, not
  * sixty. A sixty minute review every month is 720 minutes a patient a
  * year, which across two hundred patients is 2,400 physician hours
  * against the 1,040 the year holds. The package is two consultations
@@ -42,13 +42,13 @@ const at = (h: number, m = 0) => h * 60 + m;
  */
 export const todaySchedule: Encounter[] = [
   {
-    id: 'd1', patientId: 'p0', date: ORIGIN, kind: 'review',
-    reason: 'Care plan review, third of the year',
+    id: 'd1', patientId: 'p0', date: ORIGIN, kind: 'visit',
+    reason: 'Follow-up visit, third of the year',
     status: 'scheduled', start: at(8), duration: 30,
   },
   {
-    id: 'd2', patientId: 'p3', date: ORIGIN, kind: 'review',
-    reason: 'Care plan review, second of the year',
+    id: 'd2', patientId: 'p3', date: ORIGIN, kind: 'visit',
+    reason: 'Follow-up visit, second of the year',
     status: 'scheduled', start: at(8, 45), duration: 30,
   },
   {
@@ -57,8 +57,8 @@ export const todaySchedule: Encounter[] = [
     status: 'scheduled', start: at(9, 30), duration: 60,
   },
   {
-    id: 'd4', patientId: 'p2', date: ORIGIN, kind: 'review',
-    reason: 'Care plan review, second of the year',
+    id: 'd4', patientId: 'p2', date: ORIGIN, kind: 'visit',
+    reason: 'Follow-up visit, second of the year',
     status: 'scheduled', start: at(10, 45), duration: 30,
   },
   {

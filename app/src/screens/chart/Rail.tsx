@@ -19,7 +19,6 @@
  * where they now are.
  */
 import { useStore } from '../../lib/store';
-import { useNav } from '../../lib/nav';
 import { fmtDate, relative } from '../../lib/format';
 import { medsAbout } from './relate';
 import { relevantSeries } from '../../lib/clinical';
@@ -79,7 +78,6 @@ export function Rail({ patientId, open, onJump }: {
   onJump: (conditionId: string) => void;
 }) {
   const st = useStore();
-  const nav = useNav();
   const patient = st.patient(patientId);
   /*
    * The chart shows the approved plan, not the record.
@@ -140,11 +138,6 @@ export function Rail({ patientId, open, onJump }: {
               : `${fresh.count} record${fresh.count === 1 ? '' : 's'} since, not yet incorporated`}
           </button>
           {fresh.urgent > 0 && <span className="urgentmark">{fresh.urgent} flagged urgent</span>}
-          {' '}
-          <button className="linkish" onClick={() => {
-            const id = st.openEncounter(patientId, 'review');
-            nav.go({ name: 'encounter', encounterId: id });
-          }}>Start a care plan review</button>
         </p>
 
         {interval.length > 0 && (

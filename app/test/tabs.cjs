@@ -24,6 +24,12 @@ async function tab(p, name) {
 async function palette(p, label) {
   await p.keyboard.press('Meta+k'); await p.waitForTimeout(280);
   await p.keyboard.type(label); await p.waitForTimeout(320);
+  if ((await p.locator('.palette-row').count()) === 0) {
+    // Nothing matched. Leaving it open hides the whole page behind a
+    // backdrop and every later click fails somewhere else.
+    await p.keyboard.press('Escape'); await p.waitForTimeout(250);
+    throw new Error(`no command matches "${label}"`);
+  }
   await p.keyboard.press('Enter'); await p.waitForTimeout(420);
 }
 

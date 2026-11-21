@@ -72,8 +72,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.screenshot({path:'t-5-results.png', fullPage:true});
 
   // encounter workspace shows what they logged await p.waitForTimeout(250);
-  await tab(p, 'Encounters');
-  await p.click('.startenc:has-text("Visit")'); await p.waitForTimeout(700);
+  await p.click('.startenc:has-text("Start a visit")'); await p.waitForTimeout(700);
   ok('visit workspace shows home readings', await p.locator('text=Home').first().isVisible());
 
   // persistence

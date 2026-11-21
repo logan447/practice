@@ -1,32 +1,36 @@
 /**
- * One encounter. Two ways in, one document.
+ * The visit.
  *
- * A visit and a care plan review are the same act of work: open the
- * approved care plan, read what has arrived since, decide what it
- * means, write that down, ask for what is missing, approve. The only
- * real difference is where the words come from. In a visit there is
- * somebody in the room and the capture is listening to them. In a
- * review the physician is reading and dictating. Everything after
- * that is identical, and it has to be identical, or the review
- * becomes the thing that gets skipped.
+ * There is one kind of encounter now, and this is it. A care plan
+ * review used to be a second one, asynchronous, with its own flow and
+ * its own note; two flows meant the second was the one that got
+ * skipped. What a review was for happens here, at the top, as the
+ * chart review you did before walking in.
  *
- * So this screen is the care plan, editable, with the new information
- * beside it. Not a note editor that later updates a summary: there is
- * no second document to keep in step. The signed note is generated
- * from what this encounter changed, which is why nothing here is
- * typed twice.
+ * The note is written in the order the conversation actually goes.
  *
- * Three columns of attention, two of layout.
+ *   Subjective    how they are generally, then each problem, each
+ *                 lifestyle pillar, each preventative service
+ *   Objective     what was measured, and what was examined
+ *   Assessment    where they are overall, then a line on each of the
+ *                 same things, in the same order
+ *   Plan          what happens next for each of them
+ *   Instructions  what they do between now and the next visit, in
+ *                 steps, ending with the date
  *
- * Left, the working copy of the living care plan. Editing here is
- * editing the next approved version.
+ * That order is not a filing convention. It is the shape of the
+ * conversation, and a note written in the order the conversation
+ * happened is a note that can be written during it.
  *
- * Right, three things: what has arrived since the last approval and
- * is waiting to be read into the plan, what we need back from the
- * patient, and the capture.
+ * Every field is editable and every field can carry a comment. The
+ * comment is yours, stays in the record, and is not part of what the
+ * patient is handed. Nothing on this screen is a button that sets a
+ * status: a status somebody picked from two options is not an
+ * assessment, and the sentence underneath was always doing the work.
  *
- * Approving does the rest in one act: freezes the version, preserves
- * the note as it was signed, sends the requests, records the time.
+ * Right, one thing: the orders. What was arriving since the last
+ * approval and what to ask the patient both used to live there, and
+ * both were a second inbox beside a conversation already happening.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '../lib/store';
@@ -35,42 +39,52 @@ import { Chip, Panel } from '../components/ui';
 import { fmtDate, relative } from '../lib/format';
 import { oneLiner } from './chart/AssessPlan';
 import { livingSubjective } from '../lib/subjective';
-import type { LivingSubjective, ProblemSummary, CategorySummary } from '../lib/subjective';
+import type { LivingSubjective } from '../lib/subjective';
 import { ambientScript, wasCaught, ERROR_LABEL, type InjectedError } from '../lib/ambient';
-import { dictationScript } from '../lib/capture';
-import {
-  GOAL_LABEL, ACTION_LABEL, INTERVAL_LABEL, SETTING_LABEL,
-} from '../domain/types';
-import type {
-  CareGoalStatus, InfoRequest, VisitSetting, VisitNote, Order, OrderKind,
-} from '../domain/types';
+import { REVIEW } from '../lib/prechart';
+import { TAB_LABEL } from './chart/drawers';
+import { LIFESTYLE_DOMAINS, SETTING_LABEL } from '../domain/types';
+import type { VisitSetting, VisitNote, Order, OrderKind } from '../domain/types';
 import { ORDER_KINDS } from '../domain/types';
 import {
   startVisit as metricStart, signVisit as metricSign, endVisit,
   countAiSection, countAiEdit, recordErrors,
 } from '../lib/metrics';
 
-const ASK_SUGGESTIONS = [
-  'Send your home blood pressure readings from the last two weeks.',
-  'Tell us whether you have started the new medicine, and how you are finding it.',
-  'Let us know how the walking has gone since we last spoke.',
-  'Confirm whether the referral appointment has happened.',
-  'Tell us about any new symptoms since we last spoke.',
-];
-
-/** The editable half of the care plan. Everything else is derived. */
-interface Working {
-  /** What was said in the room, or dictated at the desk. */
-  narrative: string;
-  /** What was measured or examined today. */
-  objective: string;
-  /** The overall assessment, this encounter. */
-  assessment: string;
-  byProblem: Record<string, string>;
-  prevention: string;
-  lifestyle: string;
-  followUp: string;
+/**
+ * One thing the visit talks about, in the order it is talked about.
+ *
+ * A problem, a lifestyle pillar and a preventative service are three
+ * kinds of the same thing to this practice, so the note treats them
+ * as one list and keeps that list in the same order in every section.
+ */
+interface Item {
+  id: string;
+  name: string;
+  group: 'Problems' | 'Lifestyle' | 'Preventative';
+  /** What the record already knows, shown beside the field. */
+  context?: string;
 }
+
+/** The editable half. Everything else is derived or already on file. */
+interface Working {
+  sOverall: string;
+  sItems: Record<string, string>;
+  oMeasures: string;
+  oExam: string;
+  aOverall: string;
+  aItems: Record<string, string>;
+  pItems: Record<string, string>;
+  instructions: string;
+  nextVisit: string;
+  comments: Record<string, string>;
+}
+
+const EMPTY_WORKING: Working = {
+  sOverall: '', sItems: {}, oMeasures: '', oExam: '',
+  aOverall: '', aItems: {}, pItems: {},
+  instructions: '', nextVisit: '', comments: {},
+};
 
 type Marks = Record<string, 'ambient'>;
 
@@ -83,19 +97,12 @@ export function Encounter({ encounterId }: { encounterId: string }) {
   const conditions = st.conditionsFor(patientId);
 
   const approved = st.currentVersion(patientId);
-  const approvedIds = new Set(approved?.incorporated ?? []);
   const fresh = st.newSince(patientId);
-  const openAsks = st.infoRequestsFor(patientId, 'open');
-  const answered = st.infoRequestsFor(patientId, 'answered')
-    .filter((r) => !approvedIds.has(r.answeredBy ?? ''));
+  const prechart = st.preChartFor(patientId);
+  const lifestyle = st.lifestyleFor(patientId);
+  const prevention = st.preventionFor(patientId)
+    .filter((x) => x.status !== 'not-applicable');
 
-  /**
-   * The draft: everything on file, read now.
-   *
-   * Not written anywhere until this encounter is approved. The same
-   * function produced the approved version, so the difference between
-   * the two is the new information and nothing else.
-   */
   const draft = useMemo<LivingSubjective>(() => livingSubjective({
     patientId, now: st.now,
     conditions,
@@ -113,36 +120,50 @@ export function Encounter({ encounterId }: { encounterId: string }) {
     orders: st.ordersForPatient(patientId),
   }), [st, patientId, conditions]);
 
-  const prior = approved?.subjective as LivingSubjective | undefined;
   const master = st.masterPlanFor(patientId);
 
-  const [goals, setGoals] = useState<Record<string, CareGoalStatus>>(
-    () => approved?.goals ?? {},
-  );
+  /** The one list, in the one order, used by all four sections. */
+  const items = useMemo<Item[]>(() => {
+    const dom = (d: string) => LIFESTYLE_DOMAINS.find((x) => x.id === d)?.label ?? d;
+    return [
+      ...draft.problems.map((pr) => ({
+        id: pr.conditionId, name: pr.name, group: 'Problems' as const,
+        context: pr.clauses.map((c) => c.text).join(' '),
+      })),
+      // Two prescriptions can share a domain, and two rows both
+      // called "Nutrition" is two rows you have to open to tell apart.
+      ...lifestyle.map((l) => {
+        const same = lifestyle.filter((x) => x.domain === l.domain);
+        const short = l.prescription.split(/[.,]/)[0].trim();
+        return {
+          id: l.id,
+          name: same.length > 1 ? `${dom(l.domain)}: ${short}` : dom(l.domain),
+          group: 'Lifestyle' as const,
+          context: same.length > 1 ? l.prescription : l.prescription,
+        };
+      }),
+      ...prevention.map((x) => ({
+        id: x.id, name: x.name, group: 'Preventative' as const,
+        context: x.status === 'current'
+          ? `Current${x.lastDone ? `, last done ${fmtDate(x.lastDone)}` : ''}.`
+          : `${x.status === 'overdue' ? 'Overdue' : 'Due'}${x.dueBy ? ` ${fmtDate(x.dueBy)}` : ''}.`,
+      })),
+    ];
+  }, [draft.problems, lifestyle, prevention]);
+
   const [w, setW] = useState<Working>(() => ({
-    narrative: '', objective: '', assessment: '',
-    byProblem: { ...(approved?.plan.byProblem ?? master?.plan?.byProblem ?? {}) },
-    prevention: approved?.plan.prevention ?? master?.plan?.prevention ?? '',
-    lifestyle: approved?.plan.lifestyle ?? master?.plan?.lifestyle ?? '',
-    followUp: approved?.plan.followUp ?? master?.plan?.followUp ?? '',
+    ...EMPTY_WORKING,
+    // The plan carries forward. The rest of the note is about today
+    // and starts empty, because last week's words in today's note is
+    // how a record stops being read.
+    pItems: { ...(approved?.plan.byProblem ?? master?.plan?.byProblem ?? {}) },
+    nextVisit: '',
   }));
   const [marks, setMarks] = useState<Marks>({});
-  const [planTouched, setPlanTouched] = useState(false);
-  const [asking, setAsking] = useState('');
   const [setting, setSetting] = useState<VisitSetting>(enc?.setting ?? 'in-person');
-  const [wellness, setWellness] = useState(!!enc?.wellness);
-  /** Records the physician has ticked off in the reconciliation tray. */
-  const [read, setRead] = useState<Set<string>>(() => new Set());
+  const [usedPrechart, setUsedPrechart] = useState(false);
 
   // ------------------------------------------------------------ the clock
-  /**
-   * Running from the moment the encounter opens.
-   *
-   * Typing a number at the end is how a time record becomes an
-   * estimate, and an estimate is the thing an audit is least able to
-   * accept. Editable, because the clock does not know about the phone
-   * call, but it starts from something real.
-   */
   const [openedAt] = useState(() => Date.now());
   const [minutes, setMinutes] = useState(0);
   const [running, setRunning] = useState(true);
@@ -161,19 +182,10 @@ export function Encounter({ encounterId }: { encounterId: string }) {
   const [faulty, setFaulty] = useState(true);
   const [injected, setInjected] = useState<InjectedError[]>([]);
   const [checked, setChecked] = useState(false);
-  /** Set once the encounter has been approved, so the check changes tense. */
   const [published, setPublished] = useState(false);
   const timers = useRef<number[]>([]);
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
-  /**
-   * The two keys worth having.
-   *
-   * Approving is the end of the encounter and starting the capture is
-   * the beginning of it, and both happen with hands on a keyboard
-   * while looking at somebody. Held in refs because the handlers
-   * close over state that changes every keystroke.
-   */
   const approveRef = useRef<(() => void) | null>(null);
   const captureRef = useRef<(() => void) | null>(null);
   useEffect(() => {
@@ -201,10 +213,10 @@ export function Encounter({ encounterId }: { encounterId: string }) {
 
   if (!enc || !p) return <div className="wrap"><p>That encounter is not on file.</p></div>;
 
-  const isReview = enc.kind === 'review';
   const signed = enc.status === 'signed';
 
-  const put = (field: keyof Working, value: string, fromCapture?: boolean) => {
+  const put = (field: 'sOverall' | 'oMeasures' | 'oExam' | 'aOverall' | 'instructions' | 'nextVisit',
+    value: string, fromCapture?: boolean) => {
     setW((v) => ({ ...v, [field]: value }));
     setMarks((m) => {
       const next = { ...m };
@@ -214,25 +226,43 @@ export function Encounter({ encounterId }: { encounterId: string }) {
     });
   };
 
-  const putProblem = (id: string, value: string, fromCapture?: boolean) => {
-    setPlanTouched(true);
-    setW((v) => ({ ...v, byProblem: { ...v.byProblem, [id]: value } }));
+  const putItem = (
+    bucket: 'sItems' | 'aItems' | 'pItems', id: string, value: string, fromCapture?: boolean,
+  ) => {
+    setW((v) => ({ ...v, [bucket]: { ...v[bucket], [id]: value } }));
+    const key = `${bucket}:${id}`;
     setMarks((m) => {
       const next = { ...m };
-      if (fromCapture) { next[`p:${id}`] = 'ambient'; countAiSection(1); }
-      else if (m[`p:${id}`]) { countAiEdit(); delete next[`p:${id}`]; }
+      if (fromCapture) { next[key] = 'ambient'; countAiSection(1); }
+      else if (m[key]) { countAiEdit(); delete next[key]; }
       return next;
     });
   };
 
+  const comment = (key: string, value: string) =>
+    setW((v) => ({ ...v, comments: { ...v.comments, [key]: value } }));
+
   /**
-   * Listening, for a visit.
+   * Pull the chart review in.
    *
-   * The script carries deliberate errors, because a prototype whose
-   * capture is always right teaches the wrong lesson: the weight of
-   * the reading step gets designed to match what you have watched the
-   * thing do.
+   * What was said about each section while reading it is the first
+   * draft of the subjective and the assessment, and typing it again
+   * is the thing this is meant to stop. One click, and it is editable
+   * like everything else.
    */
+  const pullPrechart = () => {
+    if (!prechart) return;
+    const n = prechart.notes;
+    const take = (id: string) => (n[id] ?? '').trim();
+    setW((v) => ({
+      ...v,
+      sOverall: [v.sOverall, take('subjective'), take('notes')].filter(Boolean).join(' '),
+      oMeasures: [v.oMeasures, take('vitals'), take('results')].filter(Boolean).join(' '),
+      aOverall: [v.aOverall, take('problems')].filter(Boolean).join(' '),
+    }));
+    setUsedPrechart(true);
+  };
+
   const startListening = () => {
     setListening(true);
     setElapsed(0);
@@ -244,37 +274,19 @@ export function Encounter({ encounterId }: { encounterId: string }) {
     setInjected(steps.flatMap((x) => x.errors));
     timers.current = steps.map((step) => window.setTimeout(() => {
       if (step.kind === 'text') {
-        const field = step.section === 'subjective' ? 'narrative'
-          : step.section === 'objective' ? 'objective' : 'assessment';
+        const field = step.section === 'subjective' ? 'sOverall'
+          : step.section === 'objective' ? 'oMeasures' : 'aOverall';
         put(field, step.text, true);
       } else {
         const hit = draft.problems.find((pr) => pr.name.toLowerCase().includes(step.match));
         if (hit) {
-          putProblem(
-            hit.conditionId,
+          putItem('pItems', hit.conditionId,
             [step.fields.treatment, step.fields.orders, step.fields.followUp]
-              .filter(Boolean).join(' '),
-            true,
-          );
+              .filter(Boolean).join(' '), true);
         }
       }
       if (step === steps[steps.length - 1]) setListening(false);
     }, step.at));
-  };
-
-  /** Dictating, for a review. Assembled from this patient's own list. */
-  const startDictation = () => {
-    setListening(true);
-    setElapsed(0);
-    const lines = dictationScript(draft.problems, conditions);
-    timers.current = lines.map((line) => window.setTimeout(() => {
-      if (line.target === 'narrative' || line.target === 'assessment' || line.target === 'followUp') {
-        put(line.target, line.text, true);
-      } else {
-        putProblem(line.target, line.text, true);
-      }
-      if (line === lines[lines.length - 1]) setListening(false);
-    }, line.at));
   };
 
   const stopCapture = () => {
@@ -282,81 +294,98 @@ export function Encounter({ encounterId }: { encounterId: string }) {
     setListening(false);
   };
 
-  // ------------------------------------------------- what the capture got wrong
+  // ------------------------------------------- what the capture got wrong
   const fieldText = (id: string): string => {
-    if (id === 'plan.problems') return Object.values(w.byProblem).join(' ');
-    if (id === 'subjective.additional') return w.narrative;
-    if (id === 'objective.vitals') return w.objective;
-    if (id === 'assessment.overall') return w.assessment;
+    if (id === 'plan.problems') return Object.values(w.pItems).join(' ');
+    if (id === 'subjective.additional') return w.sOverall;
+    if (id === 'objective.vitals') return w.oMeasures;
+    if (id === 'assessment.overall') return w.aOverall;
     return '';
   };
   const audit = injected.map((e) => ({ err: e, caught: wasCaught(e, fieldText(e.field)) }));
   const missed = audit.filter((a) => !a.caught);
 
-  // ------------------------------------------------------------- changed?
-  const changed = (pr: ProblemSummary) => {
-    const was = prior?.problems.find((x) => x.conditionId === pr.conditionId);
-    if (!was) return true;
-    return was.clauses.map((c) => c.text).join(' ') !== pr.clauses.map((c) => c.text).join(' ')
-      || (goals[pr.conditionId] ?? pr.goal) !== was.goal;
-  };
-  const anyChange = draft.problems.some(changed) || fresh.count > 0
-    || planTouched || w.narrative.trim().length > 0 || w.assessment.trim().length > 0;
+  const written = [
+    w.sOverall, w.oMeasures, w.oExam, w.aOverall, w.instructions,
+    ...Object.values(w.sItems), ...Object.values(w.aItems), ...Object.values(w.pItems),
+  ].some((x) => x.trim().length > 0);
+  const anyChange = written || fresh.count > 0;
 
-  // ------------------------------------------------------------ approving
+  // ------------------------------------------------------------ the note
+  const byGroup = (g: Item['group']) => items.filter((x) => x.group === g);
+  const joinGroup = (bucket: 'sItems' | 'aItems' | 'pItems', g: Item['group']) =>
+    byGroup(g)
+      .map((x) => (w[bucket][x.id] ? `${x.name}: ${w[bucket][x.id]}` : ''))
+      .filter(Boolean).join('\n');
+
+  const reviewLine = prechart
+    ? `Chart review completed ${fmtDate(prechart.date)} by ${prechart.by}. Sections reviewed: ${
+      prechart.reviewed.map((id) => TAB_LABEL[id as keyof typeof TAB_LABEL] ?? id).join(', ')
+    }.`
+    : '';
+
   const note: VisitNote = {
     subjective: {
       oneLiner: oneLiner(p, conditions),
       reason: enc.reason,
-      chartReview: '',
+      chartReview: reviewLine,
       diagnostics: '', specialists: '',
-      additional: w.narrative,
+      additional: [
+        w.sOverall,
+        joinGroup('sItems', 'Problems'),
+        joinGroup('sItems', 'Lifestyle'),
+        joinGroup('sItems', 'Preventative'),
+      ].filter(Boolean).join('\n\n'),
     },
-    objective: { homeMeasures: '', vitals: w.objective, exam: '' },
-    assessment: { oneLiner: oneLiner(p, conditions), overall: w.assessment },
+    objective: { homeMeasures: '', vitals: w.oMeasures, exam: w.oExam },
+    assessment: {
+      oneLiner: oneLiner(p, conditions),
+      overall: [
+        w.aOverall,
+        joinGroup('aItems', 'Problems'),
+        joinGroup('aItems', 'Lifestyle'),
+        joinGroup('aItems', 'Preventative'),
+      ].filter(Boolean).join('\n\n'),
+    },
     plan: {
-      problems: draft.problems.map((pr) => ({
-        id: `pp-${pr.conditionId}`, problem: pr.name,
-        assessment: GOAL_LABEL[goals[pr.conditionId] ?? pr.goal ?? 'needs-improvement'],
-        treatment: w.byProblem[pr.conditionId] ?? '',
+      problems: items.filter((x) => w.pItems[x.id] || w.aItems[x.id]).map((x) => ({
+        id: `pp-${x.id}`, problem: x.name,
+        assessment: w.aItems[x.id] ?? '',
+        treatment: w.pItems[x.id] ?? '',
         orders: '', followUp: '',
       })),
-      overall: w.followUp,
+      overall: [
+        w.instructions,
+        w.nextVisit ? `Next visit: ${fmtDate(w.nextVisit)}.` : '',
+      ].filter(Boolean).join('\n\n'),
     },
   };
 
   const approve = () => {
     st.approveEncounter(encounterId, {
-      subjective: {
-        ...draft,
-        problems: draft.problems.map((pr) => ({
-          ...pr, goal: goals[pr.conditionId] ?? pr.goal,
-        })),
-      },
+      subjective: draft,
       goals: Object.fromEntries(draft.problems.map(
-        (pr) => [pr.conditionId, goals[pr.conditionId] ?? pr.goal ?? 'needs-improvement'],
+        (pr) => [pr.conditionId, pr.goal ?? 'needs-improvement'],
       )),
       plan: {
-        byProblem: w.byProblem,
-        prevention: w.prevention,
-        lifestyle: w.lifestyle,
-        followUp: w.followUp,
+        byProblem: w.pItems,
+        prevention: joinGroup('pItems', 'Preventative'),
+        lifestyle: joinGroup('pItems', 'Lifestyle'),
+        followUp: [w.instructions, w.nextVisit ? `Next visit ${fmtDate(w.nextVisit)}.` : '']
+          .filter(Boolean).join(' '),
       },
       minutes: Math.max(minutes, 1),
-      planUpdated: planTouched,
+      planUpdated: Object.values(w.pItems).some((x) => x.trim()),
       problems: draft.problems.map((pr) => pr.conditionId),
       noChange: !anyChange,
       note,
-      setting: isReview ? undefined : setting,
-      wellness: isReview ? undefined : wellness,
+      setting,
+      wellness: undefined,
     });
     metricSign(enc.id);
     if (injected.length > 0) {
       recordErrors(enc.id, injected.length, audit.length - missed.length,
         missed.filter((a) => a.err.consequential).length);
-      // Do not leave yet. The count of what went into the record is
-      // the only calibration this prototype offers, and it is worth
-      // nothing if it appears after the screen has changed.
       setPublished(true);
       setChecked(true);
       return;
@@ -364,16 +393,16 @@ export function Encounter({ encounterId }: { encounterId: string }) {
     nav.go({ name: 'schedule' });
   };
 
-  const label = isReview ? 'Care plan review' : 'Visit';
   approveRef.current = signed ? null : approve;
-  captureRef.current = signed ? null
-    : (listening ? stopCapture : (isReview ? startDictation : startListening));
+  captureRef.current = signed ? null : (listening ? stopCapture : startListening);
+
+  const groups: Item['group'][] = ['Problems', 'Lifestyle', 'Preventative'];
 
   return (
     <div className="wrap wide">
       <div className="page-head row" style={{ alignItems: 'flex-end' }}>
         <div style={{ flex: 1 }}>
-          <h1>{label}</h1>
+          <h1>Visit</h1>
           <div className="sub">
             {p.name} &middot; {fmtDate(enc.date)} &middot;{' '}
             {approved
@@ -381,11 +410,31 @@ export function Encounter({ encounterId }: { encounterId: string }) {
               : 'no approved care plan yet'}
           </div>
         </div>
-        <button className="btn ghost" onClick={() => nav.go({ name: 'chart', patientId })}>
-          Open the chart
+        {!signed && (
+          listening ? (
+            <button className="btn listening" onClick={stopCapture}>
+              <span className="pulse" /> Stop &middot;{' '}
+              {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')}
+            </button>
+          ) : (
+            <button className="btn ghost" onClick={startListening}>Listen</button>
+          )
+        )}
+        {!signed && !listening && injected.length === 0 && (
+          <button className="btn quiet sm"
+            title="Whether the simulated capture makes mistakes"
+            onClick={() => setFaulty((f) => !f)}>
+            Capture: {faulty ? 'fallible' : 'clean'}
+          </button>
+        )}
+        {!signed && !listening && injected.length > 0 && (
+          <button className="btn ghost" onClick={() => setChecked(true)}>Check the draft</button>
+        )}
+        <button className="btn quiet" onClick={() => nav.go({ name: 'chart', patientId })}>
+          Chart
         </button>
-        <button className="btn ghost" onClick={() => nav.go({ name: 'schedule' })}>
-          Leave without approving
+        <button className="btn quiet" onClick={() => nav.go({ name: 'schedule' })}>
+          Leave
         </button>
       </div>
 
@@ -395,307 +444,126 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       )}
 
       <div className="reviewgrid">
-        {/* ============================================ the working copy */}
+        {/* ============================================== the note itself */}
         <div className="stack">
-          <Panel title="Living care plan, working copy" right={
-            <span className="small muted">
-              {anyChange ? 'Changed from the approved version' : 'Nothing has changed'}
-            </span>
-          }>
-            <p className="oneliner" style={{ marginBottom: 12 }}>{oneLiner(p, conditions)}</p>
+          <p className="oneliner">{oneLiner(p, conditions)}</p>
 
-            {/* ------------------------------------------------ subjective */}
-            <h3 className="wsec">Subjective</h3>
-            <p className="psum">{draft.overall.map((c) => c.text).join(' ')}</p>
-            {draft.interval.length > 0 && (
-              <ul className="intlist">
-                {draft.interval.map((r, i) => (
-                  <li key={i}>
-                    <span className="intk">{r.label}</span>
-                    {r.date && <span className="intd">{fmtDate(r.date)}</span>}
-                    <span className="intt">{r.text}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <Field label={isReview ? 'What this review found' : 'What they said today'}
-              value={w.narrative} mark={marks.narrative} rows={4}
-              onChange={(v) => put('narrative', v)} />
+          {prechart && !usedPrechart && !signed && (
+            <p className="prechartline">
+              Chart review {relative(prechart.date)}: {prechart.reviewed.length} of{' '}
+              {REVIEW.length} sections.{' '}
+              <button className="linkish" onClick={pullPrechart}>
+                Put what you said into this note
+              </button>
+            </p>
+          )}
 
-            {/* --------------------------------------------- problem by problem */}
-            {draft.problems.map((pr) => (
-              <div key={pr.conditionId} id={`w-${pr.conditionId}`}
-                className={`wprob${changed(pr) ? ' moved' : ''}`}>
-                <div className="sphead">
-                  <strong>{pr.name}</strong>
-                  {pr.code && <span className="ppcode">{pr.code}</span>}
-                  <span className="spacer" />
-                  {(['at-goal', 'needs-improvement'] as CareGoalStatus[]).map((g) => (
-                    <button key={g}
-                      className={`btn sm ${(goals[pr.conditionId] ?? pr.goal) === g ? '' : 'ghost'}`}
-                      onClick={() => setGoals((v) => ({ ...v, [pr.conditionId]: g }))}>
-                      {GOAL_LABEL[g]}
-                    </button>
-                  ))}
-                </div>
-                <p className="psum">{pr.clauses.map((c) => c.text).join(' ')}</p>
-                {pr.conflict && <p className="pconflict">{pr.conflict}</p>}
-                {pr.interventions.length > 0 && (
-                  <ul className="actlist">
-                    {pr.interventions.map((iv, i) => (
-                      <li key={i} className="actrow">
-                        <span className="actl">{iv.label}</span>
-                        <Chip tone={iv.status === 'needs-attention' ? 'warn' : undefined}>
-                          {ACTION_LABEL[iv.status]}
-                        </Chip>
-                        {iv.note && <span className="actn">{iv.note}</span>}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                <Field label="Plan" value={w.byProblem[pr.conditionId] ?? ''}
-                  mark={marks[`p:${pr.conditionId}`]} rows={2}
-                  placeholder="What happens next for this problem."
-                  onChange={(v) => putProblem(pr.conditionId, v)} />
-              </div>
+          {/* ------------------------------------------------- subjective */}
+          <Sec letter="S" title="Subjective" note="What they say, in the order you ask.">
+            <Field id="sOverall" label="How they are generally"
+              placeholder="Open the visit here, before any problem is named."
+              value={w.sOverall} mark={marks.sOverall} rows={3}
+              comment={w.comments.sOverall} onComment={(v) => comment('sOverall', v)}
+              onChange={(v) => put('sOverall', v)} />
+            {groups.map((g) => (
+              <ItemGroup key={g} title={g} items={byGroup(g)}
+                values={w.sItems} marks={marks} bucket="sItems"
+                comments={w.comments} onComment={comment}
+                placeholder="What they say about this one."
+                onChange={(id, v) => putItem('sItems', id, v)} />
             ))}
+          </Sec>
 
-            {/* -------------------------- prevention and lifestyle, same shape */}
-            {draft.categories.map((cat) => (
-              <Category key={cat.key} cat={cat}
-                goal={goals[cat.key] ?? cat.goal}
-                onGoal={(g) => setGoals((v) => ({ ...v, [cat.key]: g }))}
-                value={cat.key === 'prevention' ? w.prevention : w.lifestyle}
-                onChange={(v) => {
-                  setPlanTouched(true);
-                  put(cat.key === 'prevention' ? 'prevention' : 'lifestyle', v);
-                }} />
+          {/* -------------------------------------------------- objective */}
+          <Sec letter="O" title="Objective" note="Measured and examined today.">
+            <Field id="oMeasures" label="Measurements"
+              placeholder="Vitals taken today, and the home readings they brought."
+              value={w.oMeasures} mark={marks.oMeasures} rows={3}
+              comment={w.comments.oMeasures} onComment={(v) => comment('oMeasures', v)}
+              onChange={(v) => put('oMeasures', v)} />
+            <Field id="oExam" label="Physical examination"
+              placeholder="What was examined. A blank here is not a normal examination."
+              value={w.oExam} mark={marks.oExam} rows={3}
+              comment={w.comments.oExam} onComment={(v) => comment('oExam', v)}
+              onChange={(v) => put('oExam', v)} />
+          </Sec>
+
+          {/* ------------------------------------------------- assessment */}
+          <Sec letter="A" title="Assessment"
+            note="Where they are overall, then where each thing stands.">
+            <Field id="aOverall" label="Overall"
+              placeholder="The sentence you would say to them about their health as a whole."
+              value={w.aOverall} mark={marks.aOverall} rows={3}
+              comment={w.comments.aOverall} onComment={(v) => comment('aOverall', v)}
+              onChange={(v) => put('aOverall', v)} />
+            {groups.map((g) => (
+              <ItemGroup key={g} title={g} items={byGroup(g)}
+                values={w.aItems} marks={marks} bucket="aItems"
+                comments={w.comments} onComment={comment}
+                placeholder="Where this one stands, in a sentence."
+                onChange={(id, v) => putItem('aItems', id, v)} />
             ))}
+          </Sec>
 
-            {/* ------------------------------------------------- objective */}
-            <h3 className="wsec">Objective</h3>
-            <Field label={isReview ? 'What the numbers show' : 'Measured and examined today'}
-              value={w.objective} mark={marks.objective} rows={3}
-              onChange={(v) => put('objective', v)} />
+          {/* ------------------------------------------------------- plan */}
+          <Sec letter="P" title="Plan" note="What happens next for each of them.">
+            {groups.map((g) => (
+              <ItemGroup key={g} title={g} items={byGroup(g)}
+                values={w.pItems} marks={marks} bucket="pItems"
+                comments={w.comments} onComment={comment}
+                placeholder="What is being done, and what happens next."
+                onChange={(id, v) => putItem('pItems', id, v)} />
+            ))}
+          </Sec>
 
-            {/* ------------------------------------------------ assessment */}
-            <h3 className="wsec">Assessment</h3>
-            <Field label="Across the whole list" value={w.assessment}
-              mark={marks.assessment} rows={3}
-              onChange={(v) => put('assessment', v)} />
-
-            <h3 className="wsec">Follow-up</h3>
-            <Field label="When, and with what done beforehand"
-              value={w.followUp} mark={marks.followUp} rows={2}
-              onChange={(v) => { setPlanTouched(true); put('followUp', v); }} />
-          </Panel>
+          {/* ----------------------------------------------- instructions */}
+          {/*
+            * The last thing said in the room and the first thing they
+            * will look at afterwards. Steps, in their words, one per
+            * line, ending with the date we do this again.
+            */}
+          <Sec letter="&rarr;" title="What they do next"
+            note="Their instructions, in steps. This is what they are handed.">
+            <Field id="instructions" label="Between now and the next visit"
+              placeholder={'One step per line.\nBring your home readings.\nStart the half tablet on Monday.'}
+              value={w.instructions} mark={marks.instructions} rows={6}
+              comment={w.comments.instructions} onComment={(v) => comment('instructions', v)}
+              onChange={(v) => put('instructions', v)} />
+            <div className="nextvis">
+              <label className="wflabel" htmlFor="nextvisit">Next visit</label>
+              <input id="nextvisit" className="search" type="date" value={w.nextVisit}
+                onChange={(e) => put('nextVisit', e.target.value)} />
+              {w.instructions.trim() && !w.nextVisit && (
+                <span className="small muted">
+                  Steps with no date to finish them by is a list nobody is accountable for.
+                </span>
+              )}
+            </div>
+          </Sec>
         </div>
 
         {/* ================================================ the right column */}
         <div className="stack">
-          {/* ------------------------------------------------- the capture */}
-          <Panel title={isReview ? 'Dictate' : 'Listen'} right={
-            listening
-              ? <Chip tone="accent">{Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')}</Chip>
-              : <span className="small muted">{isReview ? 'Reading aloud' : 'The room'}</span>
-          }>
-            <p className="small muted" style={{ marginBottom: 9 }}>
-              {isReview
-                ? 'Goes down the problem list and writes what you say into the plan for each one. '
-                + 'Everything it writes is editable, and editing it is the point.'
-                : 'Writes what it hears into the document. It gets things wrong on purpose here, '
-                + 'because a capture you have only ever watched succeed is one you will review too lightly.'}
-            </p>
-            <div className="row" style={{ gap: 7, flexWrap: 'wrap' }}>
-              {listening ? (
-                <button className="btn listening" onClick={stopCapture}>
-                  <span className="pulse" /> Stop
-                </button>
-              ) : (
-                <button className="btn ghost"
-                  onClick={isReview ? startDictation : startListening}>
-                  {isReview ? 'Start dictating' : 'Start listening'}
-                </button>
-              )}
-              {!isReview && !listening && injected.length === 0 && (
-                <button className="btn quiet sm"
-                  title="Whether the simulated capture makes mistakes"
-                  onClick={() => setFaulty((f) => !f)}>
-                  Capture: {faulty ? 'fallible' : 'clean'}
-                </button>
-              )}
-              {!isReview && !listening && injected.length > 0 && (
-                <button className="btn ghost" onClick={() => setChecked(true)}>
-                  Check the draft
-                </button>
-              )}
-            </div>
-          </Panel>
-
-          {/* ------------------------------------------- the reconciliation */}
-          <Panel title={`New since version ${approved?.version ?? 0}`} right={
-            <Chip tone={fresh.urgent > 0 ? 'crit' : fresh.count > 0 ? 'warn' : undefined}>
-              {fresh.count === 0 ? 'Nothing new' : `${read.size} of ${fresh.count} read`}
-            </Chip>
-          }>
-            {fresh.count === 0 ? (
-              <p className="snone">
-                Nothing has arrived since this plan was last approved. Approving
-                will record that it was reviewed and left as it stands.
-              </p>
-            ) : (
-              <>
-                <p className="small muted" style={{ marginBottom: 9 }}>
-                  Tick one when you have read it into the plan beside this. Nothing
-                  is merged for you, and the record behind it is kept either way.
-                </p>
-                <div className="newlist">
-                  {fresh.updates.map((u) => (
-                    <NewItem key={u.id} id={u.id} tone="accent" label="Health update"
-                      date={u.date} read={read} setRead={setRead}>
-                      {u.overall && <p>{u.overall}</p>}
-                      {(u.interval ?? []).map((e, i) => (
-                        <p key={i} className="small"><b>{INTERVAL_LABEL[e.kind]}.</b> {e.text}</p>
-                      ))}
-                      {st.checkInsFor(patientId)
-                        .filter((c) => c.updateId === u.id && c.text !== u.overall)
-                        .map((c) => <p key={c.id} className="small">{c.text}</p>)}
-                    </NewItem>
-                  ))}
-                  {fresh.messages.map((m) => (
-                    <NewItem key={m.id} id={m.id} tone={m.urgent ? 'crit' : undefined}
-                      label={m.urgent ? 'Urgent message' : 'Message'}
-                      date={m.date} read={read} setRead={setRead}>
-                      <p>{m.body}</p>
-                      {st.triageOf(m.id) && (
-                        <p className="small muted">
-                          Acknowledged in the inbox {relative(st.triageOf(m.id)!.at)}, still to be
-                          read into the plan.
-                        </p>
-                      )}
-                    </NewItem>
-                  ))}
-                  {fresh.panels.map((x) => (
-                    <NewItem key={x.id} id={x.id} label={x.name} date={x.date}
-                      read={read} setRead={setRead}>
-                      <p className="small">
-                        {x.values.map((v) => `${v.key} ${v.value}`).join(', ')}
-                      </p>
-                    </NewItem>
-                  ))}
-                  {fresh.vitals.map((x) => (
-                    <NewItem key={x.id} id={x.id} label="Home reading" date={x.date}
-                      read={read} setRead={setRead}>
-                      <p className="small">
-                        {x.systolic && x.diastolic ? `${x.systolic}/${x.diastolic}` : ''}
-                        {x.weightLb ? ` ${x.weightLb} lb` : ''}
-                      </p>
-                    </NewItem>
-                  ))}
-                  {fresh.encounters.map((e) => (
-                    <NewItem key={e.id} id={e.id} label="Earlier encounter" date={e.date}
-                      read={read} setRead={setRead}>
-                      <p className="small">{e.note?.assessment.overall ?? e.reason}</p>
-                    </NewItem>
-                  ))}
-                </div>
-              </>
-            )}
-          </Panel>
-
-          {/* ------------------------------------------ what we need back */}
-          <Panel title="Ask the patient" right={
-            <span className="small muted">Sent when you approve</span>
-          }>
-            {answered.length > 0 && (
-              <div className="asklist" style={{ marginBottom: 12 }}>
-                {answered.map((r) => (
-                  <div key={r.id} className="askrow">
-                    <div style={{ flex: 1 }}>
-                      <div className="asktext">{r.ask}</div>
-                      <div className="small muted">
-                        answered {relative(r.answeredAt ?? r.created)}
-                      </div>
-                    </div>
-                    <Chip tone="ok">Answered</Chip>
-                  </div>
-                ))}
-              </div>
-            )}
-            {openAsks.length > 0 && (
-              <div className="asklist">
-                {openAsks.map((r) => (
-                  <AskRow key={r.id} r={r} patientId={patientId}
-                    onCancel={() => st.cancelAsk(r.id)} />
-                ))}
-              </div>
-            )}
-            <div className="row" style={{ gap: 7, marginTop: 10 }}>
-              <input className="search" value={asking}
-                placeholder="What do you need from them?"
-                onChange={(e) => setAsking(e.target.value)} />
-              <button className="btn sm" disabled={!asking.trim()}
-                onClick={() => {
-                  st.askPatient(patientId, encounterId, { kind: 'overall' }, asking.trim());
-                  setAsking('');
-                }}>Add</button>
-            </div>
-            <div className="row" style={{ gap: 6, flexWrap: 'wrap', marginTop: 9 }}>
-              {ASK_SUGGESTIONS.map((a) => (
-                <button key={a} className="btn ghost sm" onClick={() => setAsking(a)}>
-                  {a.split(' ').slice(0, 4).join(' ')}...
-                </button>
-              ))}
-            </div>
-          </Panel>
-
-          {/* ------------------------------------------------------ orders */}
-          {/*
-            * The other half of "ask". A request goes to the patient
-            * and an order goes to somebody else, and both are things
-            * this encounter is promising to make happen.
-            */}
           {!signed && (
             <Orders encounterId={encounterId} patientId={patientId}
               orders={st.ordersFor(encounterId)} />
           )}
 
-          {/* ------------------------------------------------- what and how long */}
-          <Panel title="This encounter">
-            {!isReview && (
-              <div className="row" style={{ gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
-                {(['in-person', 'telehealth', 'home'] as VisitSetting[]).map((v) => (
-                  <button key={v} className={`btn sm ${setting === v ? '' : 'ghost'}`}
-                    onClick={() => setSetting(v)}>{SETTING_LABEL[v]}</button>
-                ))}
-              </div>
-            )}
-            {!isReview && (
-              <label className="wellrow">
-                <input type="checkbox" checked={wellness}
-                  onChange={(e) => setWellness(e.target.checked)} />
-                <span>
-                  The wellness visit elements were covered
-                  <span className="small muted">
-                    {' '}Ticked because they happened, never because the slot was booked for it.
-                  </span>
-                </span>
-              </label>
-            )}
-            <div className="row" style={{ gap: 8, alignItems: 'center', marginTop: 10 }}>
+          <Panel title="This visit">
+            <div className="row" style={{ gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
+              {(['in-person', 'telehealth', 'home'] as VisitSetting[]).map((v) => (
+                <button key={v} className={`btn sm ${setting === v ? '' : 'ghost'}`}
+                  onClick={() => setSetting(v)}>{SETTING_LABEL[v]}</button>
+              ))}
+            </div>
+            <div className="row" style={{ gap: 8, alignItems: 'center' }}>
               <input className="search" style={{ maxWidth: 90 }} type="number" value={minutes}
                 onChange={(e) => { setRunning(false); setMinutes(Number(e.target.value)); }} />
               <span className="small muted">minutes</span>
               <button className="btn ghost sm" onClick={() => setRunning((v) => !v)}>
-                {running ? 'Pause the clock' : 'Start the clock'}
+                {running ? 'Pause' : 'Start'}
               </button>
             </div>
-            <p className="small muted" style={{ marginTop: 8 }}>
-              Running since this opened. Editing it stops the clock, because a number
-              somebody typed and a number somebody measured should not look the same.
-              {isReview && ' A scheduled hour is not by itself billable time; what qualifies '
-                + 'is a separate question with its own requirements.'}
-            </p>
           </Panel>
 
           {signed ? (
@@ -707,7 +575,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
             <button className="btn" onClick={approve}>
               {anyChange
                 ? `Approve and publish version ${(approved?.version ?? 0) + 1}`
-                : 'Approve as reviewed, no change'}
+                : 'Approve as seen, no change'}
             </button>
           )}
         </div>
@@ -718,88 +586,101 @@ export function Encounter({ encounterId }: { encounterId: string }) {
 
 /* ------------------------------------------------------------------ bits */
 
-/** A text area that says when something other than the physician wrote it. */
-function Field({ label, value, onChange, rows = 3, mark, placeholder }: {
+/** One lettered section of the note. */
+function Sec({ letter, title, note, children }: {
+  letter: string; title: string; note: string; children: React.ReactNode;
+}) {
+  return (
+    <section className="nsec">
+      <div className="nsechead">
+        <span className="letter" dangerouslySetInnerHTML={{ __html: letter }} />
+        <h2>{title}</h2>
+        <span className="nsecnote">{note}</span>
+      </div>
+      <div className="nsecbody">{children}</div>
+    </section>
+  );
+}
+
+/**
+ * One group of things, each with a field.
+ *
+ * Silent when the group is empty, because a heading over nothing in a
+ * note reads as a finding of nothing.
+ */
+function ItemGroup({
+  title, items, values, marks, bucket, placeholder, onChange, comments, onComment,
+}: {
+  title: string;
+  items: Item[];
+  values: Record<string, string>;
+  marks: Marks;
+  bucket: string;
+  placeholder: string;
+  onChange: (id: string, v: string) => void;
+  comments: Record<string, string>;
+  onComment: (key: string, v: string) => void;
+}) {
+  if (items.length === 0) return null;
+  return (
+    <div className="nitemgrp">
+      <div className="nitemhead">{title}</div>
+      {items.map((it) => (
+        <Field key={it.id} id={`${bucket}:${it.id}`} label={it.name} context={it.context}
+          placeholder={placeholder} rows={2}
+          value={values[it.id] ?? ''} mark={marks[`${bucket}:${it.id}`]}
+          comment={comments[`${bucket}:${it.id}`]}
+          onComment={(v) => onComment(`${bucket}:${it.id}`, v)}
+          onChange={(v) => onChange(it.id, v)} />
+      ))}
+    </div>
+  );
+}
+
+/**
+ * A field, with what the record already knows beside it and a place
+ * to put what you think about it.
+ *
+ * The comment is not part of the note the patient is handed. It is
+ * the thing a physician would otherwise write in the margin and then
+ * lose, and there was nowhere to put it.
+ */
+function Field({
+  id, label, value, onChange, rows = 3, mark, placeholder, context, comment, onComment,
+}: {
+  id: string;
   label: string;
   value: string;
   onChange: (v: string) => void;
   rows?: number;
   mark?: 'ambient';
   placeholder?: string;
+  context?: string;
+  comment?: string;
+  onComment?: (v: string) => void;
 }) {
+  const [open, setOpen] = useState(false);
+  const showing = open || !!comment;
   return (
     <div className="wfield">
       <div className="wflabel">
         {label}
         {mark && <span className="markchip">from the capture</span>}
+        <span className="spacer" />
+        {onComment && (
+          <button className="linkish wfcomment" onClick={() => setOpen((v) => !v)}>
+            {comment ? 'Comment' : '+ Comment'}
+          </button>
+        )}
       </div>
+      {context && <p className="wfcontext">{context}</p>}
       <textarea className="prose" rows={rows} value={value} placeholder={placeholder}
-        onChange={(e) => onChange(e.target.value)} />
-    </div>
-  );
-}
-
-function Category({ cat, goal, onGoal, value, onChange }: {
-  cat: CategorySummary;
-  goal: CareGoalStatus;
-  onGoal: (g: CareGoalStatus) => void;
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div className="wprob">
-      <div className="sphead">
-        <strong>{cat.name}</strong>
-        <span className="spacer" />
-        {(['at-goal', 'needs-improvement'] as CareGoalStatus[]).map((g) => (
-          <button key={g} className={`btn sm ${goal === g ? '' : 'ghost'}`}
-            onClick={() => onGoal(g)}>{GOAL_LABEL[g]}</button>
-        ))}
-      </div>
-      <p className="psum">{cat.clauses.map((c) => c.text).join(' ')}</p>
-      {cat.interventions.length > 0 && (
-        <ul className="actlist">
-          {cat.interventions.map((iv, i) => (
-            <li key={i} className="actrow">
-              <span className="actl">{iv.label}</span>
-              <Chip tone={iv.status === 'needs-attention' ? 'warn' : undefined}>
-                {ACTION_LABEL[iv.status]}
-              </Chip>
-              {iv.note && <span className="actn">{iv.note}</span>}
-            </li>
-          ))}
-        </ul>
+        id={id} onChange={(e) => onChange(e.target.value)} />
+      {showing && onComment && (
+        <input className="search wfcommentbox" value={comment ?? ''}
+          placeholder="Your note on this. Stays in the record, not in what they are handed."
+          onChange={(e) => onComment(e.target.value)} />
       )}
-      <Field label="Plan" value={value} rows={2} onChange={onChange}
-        placeholder="What happens next here." />
-    </div>
-  );
-}
-
-/** One arriving record, with the tick that says it has been read. */
-function NewItem({ id, label, tone, date, children, read, setRead }: {
-  id: string;
-  label: string;
-  tone?: 'accent' | 'crit';
-  date: string;
-  children: React.ReactNode;
-  read: Set<string>;
-  setRead: (f: (s: Set<string>) => Set<string>) => void;
-}) {
-  const isRead = read.has(id);
-  return (
-    <div className={`newitem${isRead ? ' done' : ''}`}>
-      <div className="newhead">
-        <Chip tone={tone}>{label}</Chip>
-        <span className="muted">{fmtDate(date)}</span>
-        <span className="spacer" />
-        <button className="linkish" onClick={() => setRead((s) => {
-          const next = new Set(s);
-          if (next.has(id)) next.delete(id); else next.add(id);
-          return next;
-        })}>{isRead ? 'Read' : 'Mark read'}</button>
-      </div>
-      {children}
     </div>
   );
 }
@@ -843,31 +724,6 @@ function Orders({ encounterId, patientId, orders }: {
           onClick={add}>Add order</button>
       </div>
     </Panel>
-  );
-}
-
-function AskRow({ r, patientId, onCancel }: {
-  r: InfoRequest; patientId: string; onCancel: () => void;
-}) {
-  const st = useStore();
-  const about = r.about;
-  const name = about.kind === 'condition'
-    ? st.conditionsFor(patientId).find((c) => c.id === about.id)?.name
-    : about.kind === 'prevention'
-      ? st.preventionFor(patientId).find((x) => x.id === about.id)?.name
-      : about.kind === 'lifestyle'
-        ? st.lifestyleFor(patientId).find((x) => x.id === about.id)?.prescription
-        : undefined;
-  return (
-    <div className="askrow">
-      <div style={{ flex: 1 }}>
-        <div className="asktext">{r.ask}</div>
-        <div className="small muted">
-          {name ? `${name} · ` : ''}asked {relative(r.created)}
-        </div>
-      </div>
-      <button className="linkish" onClick={onCancel}>Drop</button>
-    </div>
   );
 }
 

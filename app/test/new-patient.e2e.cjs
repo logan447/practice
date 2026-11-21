@@ -56,7 +56,7 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   ok('reported conditions present in the history', await p.locator('.chead .dx:has-text("Trouble sleeping")').isVisible());
   ok('but not yet something we manage',
     (await p.locator('.csum').textContent().catch(()=>'')).includes('Trouble sleeping')===false);
-  await tab(p, 'Encounters');
+  await tab(p, 'Notes');
   ok('intake visit booked', (await p.locator('.tabbody').textContent()).includes('First full visit'));
   await p.screenshot({path:'e2e-3-newchart.png', fullPage:true});
 
@@ -149,10 +149,9 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(450);
   await p.waitForTimeout(300);
-  await tab(p, 'Encounters');
-  await p.click('.startenc:has-text("Visit")'); await p.waitForTimeout(700);
-  ok('the encounter opens on the care plan, not on a blank note',
-    (await p.locator('.panel:has-text("Living care plan, working copy")').count())===1);
+  await p.click('.startenc:has-text("Start a visit")'); await p.waitForTimeout(700);
+  ok('the visit opens on the care plan, not on a blank note',
+    (await p.locator('.nsechead h2').count())===5);
   ok('and the one-liner is derived rather than typed',
     (await p.locator('.oneliner').first().textContent()).includes('with PMH of'));
   await p.fill('.wfield textarea >> nth=0','Here with her mother. Sleeping five hours, broken.');

@@ -204,9 +204,6 @@ function DayView({ iso, list }: { iso: string; list: Encounter[] }) {
                   <span className="dreason">{e.reason}</span>
                 </span>
                 <span className="dkind">
-                  <Chip tone={e.kind === 'review' ? undefined : 'accent'}>
-                    {e.kind === 'review' ? 'Care plan review' : 'Visit'}
-                  </Chip>
                   <span className="small muted">{e.duration ?? 30} min</span>
                 </span>
                 <span className="dnew">
@@ -299,7 +296,7 @@ function WeekView({ start, on, onDay }: {
                       </span>
                       {mins >= 40 && (
                         <span className="k">
-                          {e.kind === 'review' ? 'Care plan review' : 'Visit'} &middot; {mins}m
+                          Visit &middot; {mins}m
                         </span>
                       )}
                     </button>

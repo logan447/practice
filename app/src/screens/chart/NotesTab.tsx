@@ -27,14 +27,14 @@ export function NotesTab({ patientId }: { patientId: string }) {
     <>
       <Group title="Notes" count={encounters.length}>
         {encounters.length === 0 ? <NoRows>No visits yet.</NoRows> : encounters.map((x) => (
-          <Row key={x.id} name={kindLabel(x.kind)} when={fmtDate(x.date)}
+          <Row key={x.id} name={x.reason || kindLabel(x.kind)} when={fmtDate(x.date)}
             note={state(x.status)} warn={x.status === 'in-progress'}
             onOpen={() => setOpen(x.id)} />
         ))}
       </Group>
 
       {e && (
-        <Sheet title={kindLabel(e.kind)}
+        <Sheet title={e.reason || kindLabel(e.kind)}
           sub={`${fmtDate(e.date)}${e.duration ? ` · ${e.duration} min` : ''}${
             e.signedAt ? ` · signed by L. DuBose, MD` : ''}`}
           onClose={() => setOpen(null)}

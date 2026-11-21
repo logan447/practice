@@ -44,7 +44,7 @@ export function FirstRun() {
             <h2 style={{ fontSize: 17 }}>Load a worked day</h2>
             <p className="small muted" style={{ margin: '8px 0 16px' }}>
               Five charts in different states, and a Monday booked across them:
-              three care plan reviews, two visits, and a weekend of messages and
+              five visits, and a weekend of messages and
               readings waiting in the inbox. Sharon White is complete, Marcus
               Reyes is half written, Nina Alvarado joined last week with nothing
               on file. All fictional, and you can clear them at any time.

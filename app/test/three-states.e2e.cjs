@@ -57,11 +57,11 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // -------------------------------------------------- 1. filled out
   await open('Sharon');
-  ok('the chart opens on the records, not on a document',
-    (await p.locator('.ctabs > .ctab.on').textContent())==='Encounters');
-  ok('seven tabs, and no eighth holding the rest',
-    (await p.locator('.ctabs > .ctab').count())===7
-    && (await p.locator('.ctabmore').count())===0);
+  ok('the chart opens on the last note, where a chart review starts',
+    (await p.locator('.ctabs > .ctab.on').textContent())==='Notes');
+  const strip = (await p.locator('.ctabs > .ctab').allTextContents()).join('|');
+  ok(`the tabs are in the order a chart review happens: ${strip}`,
+    strip==='Notes|Subjective|Vitals|Problems|Lifestyle|Prevention|Meds|Labs|Imaging|Specialists|More');
 
   const rail = (await p.locator('.rail').textContent()).replace(/\s+/g,' ');
   ok('the column says what the practice is managing, in those words',
@@ -87,7 +87,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     sProb.includes('Plan') && sProb.includes('Being treated with'));
   await shut();
 
-  for (const t of ['Encounters','Notes','Labs','Meds','Imaging','Prevention','Specialists']) {
+  for (const t of ['Notes','Subjective','Vitals','Problems','Lifestyle','Prevention',
+    'Meds','Labs','Imaging','Specialists','More']) {
     const txt = await tabText(t);
     ok(`${t} is a list of records and nothing else`, txt.length>20);
   }
@@ -119,9 +120,14 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // Nina has one booked first visit and nothing else, so the two tabs
   // that know about it show it rather than claiming to be empty.
-  for (const [t, said] of [['Encounters','First visit'],['Notes','Scheduled'],
+  // Nina has one booked first visit and nothing else, so the tab that
+  // knows about it shows it rather than claiming to be empty.
+  for (const [t, said] of [['Notes','Scheduled'],['Subjective','None on file'],
+    ['Vitals','None recorded'],['Problems','Nothing is being managed here'],
+    ['Lifestyle','Nothing prescribed yet'],
     ['Labs','None on file'],['Meds','No medicines recorded'],['Imaging','None on file'],
-    ['Prevention','Nothing scheduled yet'],['Specialists','Nobody else recorded']]) {
+    ['Prevention','Nothing scheduled yet'],['Specialists','Nobody else recorded'],
+    ['More','Not asked, or asked and not recorded']]) {
     const txt = await tabText(t);
     ok(`${t} says what it does not have: "${said}"`, txt.includes(said));
   }

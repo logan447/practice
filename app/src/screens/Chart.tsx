@@ -39,8 +39,14 @@ import {
 } from './chart/drawers';
 import { LabsTab } from './chart/LabsTab';
 import { ImagingTab } from './chart/ImagingTab';
+import { SubjectiveTab } from './chart/SubjectiveTab';
+import { VitalsTab } from './chart/VitalsTab';
+import { ProblemsTab } from './chart/ProblemsTab';
+import { LifestyleTab } from './chart/LifestyleTab';
+import { MoreTab } from './chart/MoreTab';
 import { Booking } from '../components/Booking';
 import { ProblemSheet } from './chart/ProblemSheet';
+import { ChartReview, PreChartLine } from './chart/ChartReview';
 import { Documentation } from './chart/Documentation';
 import { Scope } from './chart/Scope';
 import { ExportDrawer } from './chart/ExportDrawer';
@@ -59,7 +65,7 @@ export function Chart({ patientId }: { patientId: string }) {
   const nav = useNav();
   const me = useActor();
   const routeTab = nav.route.name === 'chart' ? nav.route.tab : undefined;
-  const [tab, setTab] = useState<ChartDrawer>('encounters');
+  const [tab, setTab] = useState<ChartDrawer>('notes');
   /*
    * The ten rarely-wanted tabs live in the account menu now, and the
    * menu cannot reach into this component, so it asks for them through
@@ -70,6 +76,7 @@ export function Chart({ patientId }: { patientId: string }) {
     if (routeTab) setTab(routeTab as ChartDrawer);
   }, [routeTab]);
   const [booking, setBooking] = useState(false);
+  const [walk, setWalk] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
 
   useEffect(() => { markChartOpen(); }, [patientId]);
@@ -115,7 +122,23 @@ export function Chart({ patientId }: { patientId: string }) {
 
         {/* ------------------------------------------------- header */}
         <header className="chead">
-          <h1>{p.name}</h1>
+          <div className="cname">
+            <h1>{p.name}</h1>
+            {/*
+              * The two things you do from a chart, beside the name.
+              * They were a row of their own under the summary, which
+              * put three buttons between the sentence about the
+              * patient and the record of them.
+              */}
+            <div className="cacts">
+              <button className="btn ghost" onClick={() => setWalk(true)}>Chart review</button>
+              <button className="btn startenc" onClick={() => {
+                const id = st.openEncounter(p.id, 'visit');
+                nav.go({ name: 'encounter', encounterId: id });
+              }}>Start a visit</button>
+              <button className="btn quiet" onClick={() => setBooking(true)}>Book</button>
+            </div>
+          </div>
 
           <p className="cdem">
             <span>{demographicLine(p)}</span>
@@ -164,21 +187,6 @@ export function Chart({ patientId }: { patientId: string }) {
             </p>
           )}
 
-          {/*
-            * The three things you can do from a chart, on one row,
-            * with no explanation. What each one does is the word on
-            * it. They used to live inside the encounters tab under a
-            * heading, which made starting a visit a navigation.
-            */}
-          <div className="cacts">
-            {([['visit', 'Visit'], ['review', 'Care plan review']] as const).map(([kind, label]) => (
-              <button key={kind} className="btn ghost startenc" onClick={() => {
-                const id = st.openEncounter(p.id, kind);
-                nav.go({ name: 'encounter', encounterId: id });
-              }}>{label}</button>
-            ))}
-            <button className="btn ghost" onClick={() => setBooking(true)}>Book</button>
-          </div>
         </header>
 
         {booking && (
@@ -198,6 +206,8 @@ export function Chart({ patientId }: { patientId: string }) {
           * column and the encounter workspace; the other ten are in
           * the account menu.
           */}
+        <PreChartLine patientId={p.id} />
+
         <nav className="ctabs">
           {CHART_TABS.map((t) => (
             <button key={t} className={`ctab${tab === t ? ' on' : ''}`}
@@ -210,7 +220,12 @@ export function Chart({ patientId }: { patientId: string }) {
         {/* -------------------------------------------- the workspace */}
         <div className="workspace">
           <div className="tabbody">
-            {tab === 'visits' && <VisitsDrawer patientId={p.id} onDone={() => setTab('encounters')} />}
+            {tab === 'visits' && <VisitsDrawer patientId={p.id} onDone={() => setTab('notes')} />}
+            {tab === 'subjective' && <SubjectiveTab patientId={p.id} />}
+            {tab === 'vitals' && <VitalsTab patientId={p.id} />}
+            {tab === 'problems' && <ProblemsTab patientId={p.id} />}
+            {tab === 'lifestyle' && <LifestyleTab patientId={p.id} />}
+            {tab === 'more' && <MoreTab patientId={p.id} />}
             {tab === 'plan' && <PlanTab patientId={p.id} />}
             {tab === 'meds' && <MedsTab patientId={p.id} />}
             {tab === 'results' && <LabsTab patientId={p.id} />}
@@ -233,6 +248,8 @@ export function Chart({ patientId }: { patientId: string }) {
             <Rail patientId={p.id} open={setTab} onJump={setProblem} />
           </div>
         </div>
+
+        {walk && <ChartReview patientId={p.id} onClose={() => setWalk(false)} />}
 
         {problem && (
           <ProblemSheet patientId={p.id} conditionId={problem}
@@ -295,8 +312,7 @@ function Details({ patientId }: { patientId: string }) {
             </div>
             <div className="ledgerline">{ledger.line}</div>
             <div className="ledgerpkg">
-              {ledger.used.consultations} of {ledger.planned.consultations.count} consultations,{' '}
-              {ledger.used.reviews} of {ledger.planned.reviews.count} care plan reviews.
+              {ledger.used.visits} of {ledger.planned.visits.count} visits.
               {ledger.used.betweenMinutes > 0
                 && ` ${ledger.used.betweenMinutes} min between encounters.`}
             </div>

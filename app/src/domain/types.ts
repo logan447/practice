@@ -84,6 +84,27 @@ export interface Patient {
   pcp?: { name: string; practice?: string; since?: string } | { none: true; plan?: string };
 
   /**
+   * The histories a chart review covers and nothing else reads.
+   *
+   * Family, surgical and social history change rarely and are asked
+   * once, so they do not belong beside the problem list where a
+   * physician is looking every day. They belong in the pass you make
+   * before a visit, which is what the More tab is for.
+   */
+  history?: {
+    family?: { relation: string; condition: string; note?: string }[];
+    surgical?: { name: string; year?: string; note?: string }[];
+    social?: {
+      tobacco?: string;
+      alcohol?: string;
+      substances?: string;
+      work?: string;
+      living?: string;
+      note?: string;
+    };
+  };
+
+  /**
    * What Medicare will and will not pay for, for this person.
    *
    * Absent for everyone who is not on Part B, which in this practice
@@ -339,31 +360,31 @@ export interface CarePlan {
  * were covered, how long it took. A service is something you
  * establish during the encounter, not something you book.
  */
-export type EncounterKind = 'visit' | 'review';
+export type EncounterKind = 'visit';
 
 /** The old vocabulary, kept only so stored records can be read. */
 export type LegacyEncounterKind =
   | 'follow-up' | 'annual' | 'acute' | 'paperwork' | 'initial' | 'home'
-  | 'ccm' | 'bhi' | 'awv';
+  | 'ccm' | 'bhi' | 'awv' | 'review';
 
 /**
  * Everything that used to be a kind, mapped to what it is now.
  *
- * Care management and behavioural health reviews were always the same
- * act of work and are now one activity. Everything with the patient
- * present is a visit.
+ * There is one kind of encounter: a visit. Care plan reviews were a
+ * second one, asynchronous, and they are gone. Two kinds meant two
+ * flows, two sets of scheduling rules and two notes, and the second
+ * of anything is the one that gets skipped. What a review was for,
+ * reading what has arrived and deciding what it means, happens at the
+ * start of a visit, which is where it was always going to happen.
  */
 export const LEGACY_KIND: Record<LegacyEncounterKind, EncounterKind> = {
   'follow-up': 'visit', annual: 'visit', acute: 'visit', paperwork: 'visit',
-  initial: 'visit', home: 'visit', awv: 'visit', ccm: 'review', bhi: 'review',
+  initial: 'visit', home: 'visit', awv: 'visit', ccm: 'visit', bhi: 'visit',
+  review: 'visit',
 };
 
 export const ENCOUNTER_KINDS: { id: EncounterKind; label: string; mins: number }[] = [
-  { id: 'visit', label: 'Visit', mins: 30 },
-  // An hour, because the whole care plan is read in it. The number is
-  // a scheduling assumption, not a billing threshold, and the two
-  // must not be allowed to become the same number by habit.
-  { id: 'review', label: 'Care plan review', mins: 60 },
+  { id: 'visit', label: 'Visit', mins: 45 },
 ];
 
 /** How the room was arranged, which is not what kind of activity it was. */
@@ -815,6 +836,34 @@ export interface Order {
   status: 'draft' | 'placed' | 'done';
   created: string;
   closed?: string;
+}
+
+// ------------------------------------------------------- the chart review
+
+/**
+ * A pass through the chart before a visit, and what was said during it.
+ *
+ * The sections are the chart's own tabs in the chart's own order,
+ * because the order a chart is filed in and the order it is read in
+ * should not be two different things. What this records is both
+ * halves of a chart review: that each section was looked at, and what
+ * the physician thought while looking at it.
+ *
+ * It is not a note. It is what the note is written from, and it is
+ * consumed by the next visit rather than sitting in the record as a
+ * second opinion about the same day.
+ */
+export interface PreChart {
+  id: string;
+  patientId: string;
+  date: string;
+  by: string;
+  /** Section id to whatever was dictated or typed about it. */
+  notes: Record<string, string>;
+  /** Section ids that were actually opened, in the order they were. */
+  reviewed: string[];
+  /** Set once a visit has written it into a note. */
+  usedBy?: string;
 }
 
 // ------------------------------------------------------------- allergies

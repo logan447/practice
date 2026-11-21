@@ -15,15 +15,15 @@ import { load, save, wipe, newId } from './persist';
 import { ORIGIN, now as clockNow, setNow, addDays } from './clock';
 import { tick } from './tick';
 import { ENCOUNTER_KINDS } from '../domain/types';
-import { evaluateMonth } from './monthly';
 import type {
   AiDraft, CarePlan, CarePlanGoal, Condition, Encounter, Medication, Order,
   OrderKind, Patient, PatientEntry, PreVisit, PreventionItem, ResultReport,
   ResultSeries, Specialist, Task, VisitNote, Allergy, ChartDocument, MasterPlan,
   VitalsSet, LabPanel, ExamRecord, DiagnosticStudy, EmRecord, CareLogEntry, ProblemCheckIn,
   PatientUpdate, Message, UpdateRequest, CareGoalStatus, ChartVersion, InfoRequest,
-  EncounterKind, CareProgram, InstrumentScore, InstrumentId, Claim, MonthlyService,
+  EncounterKind, CareProgram, InstrumentScore, InstrumentId, Claim,
   ServiceConsent, LifestyleIntervention, Triage, TriageChoice, LegacyEncounterKind,
+  PreChart,
   VisitSetting, ProblemOwner,
 } from '../domain/types';
 import { LEGACY_KIND } from '../domain/types';
@@ -52,9 +52,10 @@ import { closureChecks, type ClosureCheck } from './closure';
  * to do.
  */
 const RETIRED_REASON: Record<string, string> = {
-  'Chronic care management review': 'Care plan review',
-  'Behavioural health review': 'Care plan review',
-  'Behavioral health review': 'Care plan review',
+  'Chronic care management review': 'Visit',
+  'Behavioural health review': 'Visit',
+  'Behavioral health review': 'Visit',
+  'Care plan review': 'Visit',
   'Clinical visit': 'Visit',
 };
 
@@ -148,6 +149,8 @@ interface State {
    * that somebody read something and what they chose to do about it.
    */
   triage: Triage[];
+  /** Chart reviews done before a visit, waiting to be written into one. */
+  precharts: PreChart[];
   /** The clinic's today. Movable, because care is longitudinal. */
   now: string;
   /** What changed the last time the clock moved. */
@@ -163,7 +166,7 @@ const EMPTY: State = {
   emRecords: [], careLog: [], consents: [], lifestyle: [],
   checkIns: [], updates: [], messages: [], requests: [],
   scores: [], chartVersions: [], infoRequests: [], attestations: [], claims: [],
-  triage: [],
+  triage: [], precharts: [],
   now: ORIGIN, lastEvents: [],
 };
 
@@ -200,7 +203,7 @@ function migrate(raw: State | null): State | null {
     'masterPlans', 'vitals', 'labPanels', 'exams', 'studies', 'emRecords',
     'careLog', 'consents', 'lifestyle', 'checkIns',
     'updates', 'messages', 'requests', 'scores', 'chartVersions', 'infoRequests',
-    'attestations', 'claims', 'triage',
+    'attestations', 'claims', 'triage', 'precharts',
   ] as (keyof State)[]) fill(k);
   if (!s.now) s.now = ORIGIN;
   if (!Array.isArray(s.lastEvents)) s.lastEvents = [];
@@ -224,7 +227,7 @@ function migrate(raw: State | null): State | null {
   // sort of hour it was, and loses it as a scheduling category.
   s.encounters = (s.encounters ?? []).map((e) => {
     const k = e.kind as string;
-    if (k !== 'visit' && k !== 'review') {
+    if (k !== 'visit') {
       const legacy = (k === 'intake' ? 'initial' : k) as LegacyEncounterKind;
       return {
         ...e,
@@ -304,7 +307,7 @@ function demoState(): State {
     consents: [...clinical.sharonConsents, ...medicare.arthurConsents],
     checkIns: [...contact.sharonCheckIns, ...demo.marcusCheckIns],
     scores: [...clinical.sharonScores, ...medicare.arthurScores],
-    attestations: [], claims: [], triage: [],
+    attestations: [], claims: [], triage: [], precharts: [],
     chartVersions: [...versions.sharonVersions],
     infoRequests: [...versions.sharonAsks],
     updates: contact.sharonUpdates,
@@ -399,19 +402,15 @@ interface Store extends State {
   };
   infoRequestsFor: (patientId: string, status?: InfoRequest['status']) => InfoRequest[];
 
-  // ------------------------------------------------- the monthly record
-  /** Computed, never stored: the chart and the evaluation cannot disagree. */
-  monthFor: (patientId: string, program: CareProgram, month?: string) => MonthlyService;
-  /** A physician agreeing that a month is billable. The only way past the checks. */
-  attestMonth: (patientId: string, program: CareProgram, month: string) => void;
-  /** Produced only from an attested month, or a signed encounter. */
-  prepareClaim: (
+  /** The most recent chart review for this patient that no visit has used. */
+  preChartFor: (patientId: string) => PreChart | undefined;
+  /** Record a pass through the chart, with whatever was said during it. */
+  savePreChart: (
     patientId: string,
-    basis: { monthlyServiceId?: string; encounterId?: string },
-    code: string, period: string, diagnoses: string[],
+    notes: Record<string, string>,
+    reviewed: string[],
   ) => void;
-  claimsFor: (patientId: string) => Claim[];
-  /** Open a visit, a care management review or a behavioural health review. */
+  /** Open a visit. There is one kind of encounter. */
   openEncounter: (patientId: string, kind: EncounterKind) => string;
   askPatient: (
     patientId: string, encounterId: string,
@@ -670,7 +669,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
       ledgerFor: (patientId) => {
         const p = s.patients.find((x) => x.id === patientId);
-        return p ? ledgerFor(p, s.encounters, s.careLog, s.now) : undefined;
+        return p ? ledgerFor(p, s.encounters, s.now) : undefined;
       },
 
       closureChecks: () => {
@@ -708,31 +707,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             + updates.filter((u) => u.urgent).length,
         };
       },
-      monthFor: (patientId, program, month) => {
-        const m = month ?? s.now.slice(0, 7);
-        const patient = s.patients.find((x) => x.id === patientId);
-        const att = s.attestations.find(
-          (a) => a.patientId === patientId && a.program === program && a.month === m,
-        );
-        return evaluateMonth({
-          patient: patient ?? { id: patientId } as Patient,
-          program, month: m,
-          conditions: by(s.conditions, patientId),
-          log: by(s.careLog, patientId),
-          consents: by(s.consents, patientId),
-          encounters: by(s.encounters, patientId),
-          scores: by(s.scores, patientId),
-          master: s.masterPlans.find((x) => x.patientId === patientId),
-          version: [...by(s.chartVersions, patientId)].sort((a, b) => b.version - a.version)[0],
-          attested: att ? { by: att.by, at: att.at } : undefined,
-          claimed: s.claims.some(
-            (c) => c.patientId === patientId && c.period === m
-              && c.status !== 'void' && c.basis.monthlyServiceId?.includes(program),
-          ),
-        });
-      },
-      claimsFor: (patientId) => by(s.claims, patientId)
-        .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
       infoRequestsFor: (patientId, status) => by(s.infoRequests, patientId)
         .filter((r) => (status ? r.status === status : true))
         .sort((a, b) => b.created.localeCompare(a.created)),
@@ -1387,18 +1361,46 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           lastEvents: [...p.lastEvents, `Triaged ${recordId}: ${choice}`],
         })),
 
+      /*
+       * Bring their next visit forward, or make one.
+       *
+       * This used to add a care plan review, which was a second kind
+       * of encounter and a second flow to keep in step. There is one
+       * kind now, so the answer to "this cannot wait" is the same
+       * answer as everything else: see them sooner.
+       */
+      preChartFor: (patientId) => [...s.precharts]
+        .filter((x) => x.patientId === patientId && !x.usedBy)
+        .sort((a, b) => b.date.localeCompare(a.date))[0],
+
+      savePreChart: (patientId, notes, reviewed) =>
+        setS((p) => ({
+          ...p,
+          // One live chart review per patient. Doing it twice before a
+          // visit replaces the first; two of them waiting would mean
+          // choosing, and nobody should have to choose which of their
+          // own reviews counts.
+          precharts: [
+            ...p.precharts.filter((x) => !(x.patientId === patientId && !x.usedBy)),
+            {
+              id: newId('pc'), patientId, date: clockNow(), by: ME,
+              notes, reviewed,
+            },
+          ],
+        })),
+
       expediteReview: (patientId) => {
         const existing = s.encounters.find(
-          (e) => e.patientId === patientId && e.kind === 'review' && e.status !== 'signed',
+          (e) => e.patientId === patientId && e.status !== 'signed',
         );
         if (existing) {
           if (existing.date !== s.now) {
             setS((p) => ({
               ...p,
               encounters: p.encounters.map((e) => (e.id === existing.id
-                ? { ...e, date: clockNow(), reason: 'Care plan review, brought forward' }
+                ? { ...e, date: clockNow(), reason: 'Visit, brought forward' }
                 : e)),
-              lastEvents: [...p.lastEvents, `Review moved to ${clockNow()}`],
+              lastEvents: [...p.lastEvents, `Visit moved to ${clockNow()}`],
             }));
           }
           return existing.id;
@@ -1407,12 +1409,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setS((p) => ({
           ...p,
           encounters: [...p.encounters, {
-            id, patientId, date: clockNow(), kind: 'review' as const,
-            reason: 'Care plan review, brought forward',
-            status: 'scheduled' as const, duration: 60,
+            id, patientId, date: clockNow(), kind: 'visit' as const,
+            reason: 'Visit, brought forward',
+            status: 'scheduled' as const, duration: 45,
             start: nextFreeStart(p.encounters, clockNow()),
           }],
-          lastEvents: [...p.lastEvents, `Review added ${clockNow()}`],
+          lastEvents: [...p.lastEvents, `Visit added ${clockNow()}`],
         }));
         return id;
       },
@@ -1466,10 +1468,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             // An hour, so it lands somewhere real on the week rather
             // than at the top of the morning with no time at all.
             start: nextFreeStart(p.encounters, clockNow()),
-            ...(kind === 'visit' ? { setting: 'in-person' as const } : {}),
-            reason: kind === 'review'
-              ? 'Care plan review'
-              : 'Visit',
+            setting: 'in-person' as const,
+            reason: 'Visit',
             status: 'in-progress', duration: mins,
             note: {
               subjective: {
@@ -1522,27 +1522,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           };
         }),
 
-      attestMonth: (patientId, program, month) =>
-        setS((p) => ({
-          ...p,
-          attestations: [
-            ...p.attestations.filter(
-              (a) => !(a.patientId === patientId && a.program === program && a.month === month),
-            ),
-            { id: newId('at'), patientId, program, month, by: ME, at: clockNow() },
-          ],
-        })),
-
-      prepareClaim: (patientId, basis, code, period, diagnoses) =>
-        setS((p) => ({
-          ...p,
-          claims: [...p.claims, {
-            id: newId('cm'), patientId, code, period, units: 1,
-            diagnoses, createdAt: clockNow(), createdBy: ME,
-            basis, status: 'prepared' as const,
-          }],
-        })),
-
       cancelAsk: (id) =>
         setS((p) => ({
           ...p,
@@ -1578,30 +1557,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             ].filter((x) => x.patientId === patientId).map((x) => x.id),
           };
 
-          // Time is recorded against the programme the encounter is
-          // for. A review can be clinically worth doing and not be
-          // billable on its own, so this is a time entry and not a
-          // claim.
-          // A care plan review is physician time spent on this
-          // patient's chronic care between visits. Recording it is not
-          // the same as claiming it: whether the month qualifies is a
-          // separate question with its own requirements, and the
-          // answer is never "an hour was scheduled".
-          const program: CareProgram | undefined =
-            enc.kind === 'review' ? 'ccm' : undefined;
-          const careLog = program && opts.minutes
-            ? [...p.careLog, {
-              id: newId('cl'), patientId, program,
-              date: now, minutes: opts.minutes,
-              by: ME, role: 'physician' as const, countable: true,
-              encounterId,
-              problems: opts.problems,
-              planUpdated: opts.planUpdated,
-              activity: `Care plan review: read what had arrived since the last approval${
-                opts.planUpdated ? ', updated the care plan' : ''
-              } and published version ${version.version}.`,
-            }]
-            : p.careLog;
+          /*
+           * No care management time log.
+           *
+           * Chronic care management and behavioural health integration
+           * were monthly programmes with their own minute thresholds,
+           * and this practice does not bill insurance. What is left is
+           * a visit, its length, and the note it produced.
+           */
+          const careLog = p.careLog;
 
           return {
             ...p,
@@ -1800,6 +1764,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             orders: drop(p.orders), masterPlans: drop(p.masterPlans),
             vitals: drop(p.vitals), labPanels: drop(p.labPanels), exams: drop(p.exams),
             studies: drop(p.studies), careLog: drop(p.careLog), consents: drop(p.consents),
+            precharts: drop(p.precharts),
             lifestyle: drop(p.lifestyle),
             checkIns: drop(p.checkIns), updates: drop(p.updates),
             messages: drop(p.messages), requests: drop(p.requests),

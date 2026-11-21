@@ -1,10 +1,10 @@
 /**
  * A day, walked the way the physician walks it.
  *
- * One schedule, two encounter types, one living care plan, one inbox.
- * The claim is that those four things are enough, so this test does a
- * morning with nothing else: open the day, do a visit, do a review,
- * triage what came in over the weekend, and end up back on the day.
+ * One schedule, one kind of encounter, one inbox. The claim is that
+ * those three things are enough, so this test does a morning with
+ * nothing else: open the day, read a chart, do a visit, triage what
+ * came in over the weekend, and end up back on the day.
  *
  * The assertions that matter are the ones about what does not happen.
  * A record arriving does not change the care plan. Acknowledging it
@@ -12,6 +12,7 @@
  * approves an encounter.
  */
 const {chromium}=require('playwright');
+const {tab}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
@@ -41,11 +42,11 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('.vtab:has-text("day")'); await p.waitForTimeout(500);
   const rows = await p.locator('.dayrow').count();
   ok(`one list, five activities (${rows})`, rows===5);
-  const kinds = [...new Set((await p.locator('.dayrow .dkind .chip').allTextContents()))];
-  ok(`two kinds and no others: ${kinds.join(', ')}`,
-    kinds.length===2 && kinds.includes('Visit') && kinds.includes('Care plan review'));
-  ok('reviews come before the clinic fills up',
-    (await p.locator('.dayrow').first().textContent()).includes('Care plan review'));
+  // One kind of thing on the day. The care plan review was a second
+  // kind and is gone: two flows meant the second was the one skipped.
+  const day = (await p.locator('.dayrow').allTextContents()).join(' | ');
+  ok('one kind of activity and no others',
+    !/Care plan review/.test(day));
   ok('and the month is there for finding a free fortnight',
     await p.locator('.vtab:has-text("month")').isVisible());
   ok('each row says what is waiting on it',
@@ -54,66 +55,76 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     (await p.locator('.dayrow .dnew').first().textContent()).includes('version'));
 
   // ------------------------------------------- 2. the inbox is separate
-  const bar = await p.locator('.inboxbar:not(.closingbar)').textContent();
+  const bar = await p.locator('.inboxbar').textContent();
   ok(`the inbox is counted on the day: "${bar.replace(/\s+/g,' ').trim().slice(0,40)}"`,
     /\d+ waiting in the inbox/.test(bar));
   ok('with urgency called out', bar.includes('flagged urgent'));
 
-  // ------------------------------------------------ 3. a care plan review
+  // ------------------------------------------- 3. the chart review
   await p.locator('.dayrow:has-text("Sharon White")').click(); await p.waitForTimeout(900);
-  ok('a review opens on the approved care plan',
+  ok('a visit opens on the approved care plan',
     (await p.locator('.page-head').textContent()).includes('opened on version 1'));
-  ok('the document is the care plan itself, not a note about it',
-    (await p.locator('.panel:has-text("Living care plan, working copy")').count())===1);
-  const secs = await p.locator('.wsec').allTextContents();
-  ok(`it keeps the SOAP shape: ${secs.join(', ')}`,
-    secs.join(',')==='Subjective,Objective,Assessment,Follow-up');
-  ok('every managed problem is editable in place',
-    (await p.locator('.wprob textarea').count())>=4);
-  ok('a review dictates rather than listens',
-    (await p.locator('button:has-text("Start dictating")').count())===1
-    && (await p.locator('button:has-text("Start listening")').count())===0);
+  const secs = await p.locator('.nsechead h2').allTextContents();
+  ok(`the note runs in the order the conversation does: ${secs.join(', ')}`,
+    secs.join(',')==='Subjective,Objective,Assessment,Plan,What they do next');
+  ok('every problem, pillar and service is writable in place',
+    (await p.locator('.nsec textarea').count())>=12);
+  ok('a visit listens', (await p.locator('button:has-text("Listen")').count())===1);
 
-  await p.click('button:has-text("Start dictating")'); await p.waitForTimeout(12000);
+  await p.click('button:has-text("Listen")'); await p.waitForTimeout(12000);
   const marked = await p.locator('.markchip').count();
-  ok(`dictation lands in the document itself (${marked} fields marked)`, marked>=4);
+  ok(`the capture lands in the document itself (${marked} fields marked)`, marked>=3);
   ok('and says which parts it wrote',
     (await p.locator('.markchip').first().textContent()).includes('from the capture'));
 
-  // reconcile, ask, approve
-  const items = await p.locator('.newitem').count();
-  ok(`what arrived since is beside the plan (${items})`, items>0);
-  await p.locator('.newitem .linkish').first().click(); await p.waitForTimeout(250);
-  ok('each record can be ticked off as read',
-    (await p.locator('.newitem.done').count())===1);
-  await p.fill('input[placeholder="What do you need from them?"]',
-    'Send your home readings from the last two weeks.');
-  await p.click('.panel:has-text("Ask the patient") button:has-text("Add")');
-  await p.waitForTimeout(300);
-  ok('and what we need back is written while it is in mind',
-    (await p.locator('.askrow').count())>=3);
+  await p.fill('#instructions','Bring your home readings.\nStart the half tablet on Monday.');
+  await p.fill('#nextvisit','2027-02-15');
+  ok('what they do next is written in steps, ending in a date',
+    (await p.locator('#instructions').inputValue()).split('\n').length===2);
 
-  const before = await p.locator('.panel:has-text("Living care plan") .psum').first().textContent();
-  await p.click('.reviewgrid button:has-text("Approve")'); await p.waitForTimeout(1000);
+  await p.click('.reviewgrid button:has-text("Approve")'); await p.waitForTimeout(1200);
+  // The capture is deliberately fallible, so signing shows what went
+  // into the record before it lets go of the screen.
+  ok('signing shows what the capture got wrong, before leaving',
+    (await p.locator('.draftcheck').count())===1);
+  await p.click('.draftcheck .linkish'); await p.waitForTimeout(900);
   ok('approving returns to the schedule', await p.locator('.weekgrid').isVisible());
   await p.click('.vtab:has-text("day")'); await p.waitForTimeout(500);
   const sharon = await p.locator('.dayrow:has-text("Sharon White")').textContent();
   ok('the row is marked approved and the plan has moved on',
     sharon.includes('Approved') && sharon.includes('version 2'));
 
-  // ---------------------------------------------------- 4. a visit
-  await p.locator('.dayrow:has-text("Marcus Reyes")').click(); await p.waitForTimeout(900);
-  ok('a visit listens rather than dictates',
-    (await p.locator('button:has-text("Start listening")').count())===1);
-  ok('and asks how the room was arranged, not which code it is',
-    (await p.locator('.panel:has-text("This encounter") button:has-text("Telehealth")').count())===1);
-  ok('the wellness elements are a thing you did, not a thing you booked',
-    (await p.locator('.wellrow').textContent()).includes('never because the slot was booked'));
-  await p.click('button:has-text("Leave without approving")'); await p.waitForTimeout(700);
+  // -------------------------------------- 4. the pre-visit walkthrough
+  await p.click('.acctbtn'); await p.waitForTimeout(150);
+  await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
+  await p.locator('table.rows tbody tr:has-text("Marcus")').first().click();
+  await p.waitForTimeout(700);
+  await p.click('.cacts button:has-text("Chart review")'); await p.waitForTimeout(700);
+  ok('the chart review walks the tabs in the chart\'s own order',
+    (await p.locator('.wstep').count())===11);
+  ok('and says what each section is being opened to answer',
+    (await p.locator('.walkask').textContent()).length>30);
+  await p.click('.walkacts button:has-text("Dictate")'); await p.waitForTimeout(2600);
+  const said = await p.locator('.walksay').inputValue();
+  ok(`dictation is about this chart, not a chart: "${said.slice(0,44)}"`, said.length>20);
+  for (let i=0;i<10;i++) { await p.click('.walkacts button:has-text("Next")'); await p.waitForTimeout(220); }
+  await p.click('.walkacts button:has-text("Finish")'); await p.waitForTimeout(700);
+  ok('it records what was opened and what was said',
+    (await p.locator('.wrline.on').count())===11);
+  await p.click('button:has-text("Start the visit")'); await p.waitForTimeout(1100);
+  ok('and the visit offers it rather than making you type it again',
+    (await p.locator('.prechartline').textContent()).includes('Put what you said into this note'));
+  await p.click('.prechartline button'); await p.waitForTimeout(400);
+  ok('taking it fills the note',
+    (await p.locator('#sOverall').inputValue()).length>10);
+  ok('the right column is the orders and nothing else',
+    (await p.locator('.panel h2:has-text("Orders")').count())===1
+    && (await p.locator('text=Ask the patient').count())===0);
+  await p.click('button:has-text("Leave")'); await p.waitForTimeout(700);
   await p.click('.vtab:has-text("day")'); await p.waitForTimeout(400);
 
   // ------------------------------------------------- 5. the inbox
-  await p.click('.inboxbar:not(.closingbar)'); await p.waitForTimeout(700);
+  await p.click('.inboxbar'); await p.waitForTimeout(700);
   const waiting = await p.locator('.inboxrow').count();
   ok(`the inbox holds what arrived (${waiting})`, waiting>0);
   ok('urgent sorts to the top',
@@ -137,14 +148,17 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.locator('.inboxrow.urgent').first()
     .locator('button:has-text("Review this now")').click();
   await p.waitForTimeout(1000);
-  ok('reviewing now opens a care plan review, not a new kind of thing',
-    (await p.locator('.page-head h1').textContent())==='Care plan review');
+  ok('reviewing now brings their visit forward, not a new kind of thing',
+    (await p.locator('.page-head h1').textContent())==='Visit');
   ok('and it is the same document as every other encounter',
-    (await p.locator('.panel:has-text("Living care plan, working copy")').count())===1);
-  await p.click('button:has-text("Leave without approving")'); await p.waitForTimeout(700);
+    (await p.locator('.nsechead h2').count())===5);
+  await p.click('button:has-text("Leave")'); await p.waitForTimeout(700);
   await p.click('.vtab:has-text("day")'); await p.waitForTimeout(400);
-  ok('and it did not add a sixth thing to the day',
-    (await p.locator('.dayrow').count())===5);
+  // Bringing a visit forward moves an existing one or adds exactly
+  // one. What it must never do is invent a second kind of activity.
+  const after = (await p.locator('.dayrow').allTextContents()).join(' | ');
+  ok(`and the day is still one kind of thing (${await p.locator('.dayrow').count()} rows)`,
+    !/Care plan review/.test(after));
 
   // ------------------------------------- 6. the negative assertion
   await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);

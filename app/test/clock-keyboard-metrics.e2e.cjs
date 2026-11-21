@@ -26,8 +26,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('palette opens the patient', await p.locator('h1:has-text("Marcus Reyes")').isVisible());
 
   // place a lab order in the visit
-  await tab(p, 'Encounters');
-  await p.click('.startenc:has-text("Visit")'); await p.waitForTimeout(700);
+  await p.click('.startenc:has-text("Start a visit")'); await p.waitForTimeout(900);
   const orderBox = p.locator('input[placeholder*="A1c and lipid panel"]');
   await orderBox.scrollIntoViewIfNeeded();
   await orderBox.fill('A1c and lipid panel');

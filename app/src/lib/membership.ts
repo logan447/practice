@@ -1,7 +1,7 @@
 /**
  * What a year of membership actually contains.
  *
- * The membership is an annual package of consultations and care
+ * The membership is an annual package of visits and care
  * planning delivered during stated service periods, not a standing
  * claim on the physician's attention. That sentence has an
  * arithmetic consequence and this file is it.
@@ -25,14 +25,12 @@
  * hundred patients is 2,400 physician hours against 1,040 available.
  * See docs/systems/consultative-practice-model.md section 4.2.
  */
-import type { CareLogEntry, Encounter, Patient } from '../domain/types';
+import type {  Encounter, Patient } from '../domain/types';
 import { WORKING_YEAR } from '../domain/schedule';
 
 export interface AnnualPackage {
-  /** Synchronous consultations, in person or by video. */
-  consultations: { count: number; minutes: number };
-  /** Asynchronous care plan reviews. */
-  reviews: { count: number; minutes: number };
+  /** Visits, in person or by video. The only kind of encounter. */
+  visits: { count: number; minutes: number };
   /** Messages, coordination and follow-up across the year. */
   messagingMinutes: number;
 }
@@ -40,21 +38,23 @@ export interface AnnualPackage {
 /**
  * The package, as recommended.
  *
- * Five physician contacts a year inside four service periods, which
- * is a contact roughly every seven weeks while the practice is open
- * and never more than about ten weeks between reviews, closure
- * included.
+ * Five visits a year inside four service periods, which is a contact
+ * roughly every seven weeks while the practice is open and never
+ * more than about ten weeks apart, closure included.
+ *
+ * It used to be two long consultations and three asynchronous care
+ * plan reviews. The review was a second kind of encounter with its
+ * own flow, its own note and its own scheduling rules, and the second
+ * of anything is the one that gets skipped. Five visits of the same
+ * shape is the same contact rate and one thing to build.
  */
 export const PACKAGE: AnnualPackage = {
-  consultations: { count: 2, minutes: 60 },
-  reviews: { count: 3, minutes: 30 },
+  visits: { count: 5, minutes: 45 },
   messagingMinutes: 40,
 };
 
 export const packageMinutes = (p: AnnualPackage = PACKAGE): number =>
-  p.consultations.count * p.consultations.minutes
-  + p.reviews.count * p.reviews.minutes
-  + p.messagingMinutes;
+  p.visits.count * p.visits.minutes + p.messagingMinutes;
 
 /**
  * The first year costs more, and saying so is cheaper than finding
@@ -83,8 +83,7 @@ export function yearCapacity(panel: number, y = WORKING_YEAR) {
 // ------------------------------------------------------------- the ledger
 
 export interface Used {
-  consultations: number;
-  reviews: number;
+  visits: number;
   /** Physician minutes recorded against this patient in the year. */
   minutes: number;
   /** Of those, the minutes that were not a booked encounter. */
@@ -125,7 +124,7 @@ const daysBetween = (a: string, b: string): number =>
  * package is what they bought rather than what the calendar did.
  */
 export function ledgerFor(
-  patient: Patient, encounters: Encounter[], careLog: CareLogEntry[], now: string,
+  patient: Patient, encounters: Encounter[], now: string,
 ): Ledger {
   // Which membership year are we in.
   let from = patient.memberSince;
@@ -136,19 +135,18 @@ export function ledgerFor(
     (e) => e.patientId === patient.id && e.status === 'signed'
       && e.date >= from && e.date < to,
   );
-  const consultations = mine.filter((e) => e.kind === 'visit').length;
-  const reviews = mine.filter((e) => e.kind === 'review').length;
+  const visits = mine.length;
   const encounterMinutes = mine.reduce(
     (a, e) => a + (e.minutes ?? e.duration ?? 30), 0,
   );
-  const betweenMinutes = careLog
-    .filter((c) => c.patientId === patient.id && c.date >= from && c.date < to
-      && c.role === 'physician' && !c.encounterId)
-    .reduce((a, c) => a + c.minutes, 0);
+  // Time between visits is not logged any more. It was logged because
+  // chronic care management billed by the minute, and this practice
+  // does not bill. What a membership year holds is visits.
+  const betweenMinutes = 0;
 
   const plannedMinutes = packageMinutes();
   const used: Used = {
-    consultations, reviews,
+    visits,
     minutes: encounterMinutes + betweenMinutes,
     betweenMinutes,
   };
