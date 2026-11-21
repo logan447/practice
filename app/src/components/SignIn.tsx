@@ -71,9 +71,19 @@ export function SignInRows({ onDone }: { onDone: () => void }) {
         {PHYSICIAN.name}
         <span className="small muted">Physician</span>
       </button>
-      <button className="acctrow" onClick={() => go({ ...COVERING, coverUntil: addDays(st.now, 7) })}>
-        {COVERING.name}
-        <span className="small muted">Covering to {fmtDate(addDays(st.now, 7))}</span>
+      {/*
+        * What cover cannot do, said before you switch rather than
+        * discovered afterwards as a disabled button.
+        */}
+      <button className="acctrow tall"
+        onClick={() => go({ ...COVERING, coverUntil: addDays(st.now, 7) })}>
+        <span className="acctstack">
+          <span>{COVERING.name}</span>
+          <span className="small muted">
+            Covering to {fmtDate(addDays(st.now, 7))}. Can read, write and sign a note.
+            Cannot sign a care plan, change membership or move the clock.
+          </span>
+        </span>
       </button>
       <div className="acctlabel">As a patient</div>
       <div className="plist">

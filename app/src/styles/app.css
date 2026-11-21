@@ -2072,3 +2072,7 @@ blockquote.said footer {
 .tmrole { display: flex; gap: 8px; font-size: 11.5px; color: var(--ink-3); }
 .tmseen { opacity: .8; }
 .tmout { font-size: 11.5px; line-height: 1.5; color: var(--warn); }
+
+.acctrow.tall { align-items: flex-start; }
+.acctstack { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.acctstack .small { margin-left: 0; white-space: normal; line-height: 1.45; }

@@ -111,8 +111,11 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   await p.screenshot({path:'e2e-5-portal-before.png', fullPage:true});
 
   // 7 — sign it
-  await p.click('.whoami'); await p.waitForTimeout(250);
-  await p.click('.srow:has-text("L. DuBose")'); await p.waitForTimeout(500);
+  await p.click('.acctbtn'); await p.waitForTimeout(200);
+  await p.click('.acctrow:has-text("Sign in as someone else")'); await p.waitForTimeout(250);
+  await p.click('.acctrow:has-text("L. DuBose")'); await p.waitForTimeout(500);
+  await p.click('.acctbtn'); await p.waitForTimeout(150);
+  await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(450);
   await p.waitForTimeout(400); await p.waitForTimeout(250);
   await p.click('.ctab:has-text("Shared plan")');
@@ -134,8 +137,11 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   await p.screenshot({path:'e2e-7-portal-ask.png', fullPage:true});
 
   // 9 — document the visit
-  await p.click('.whoami'); await p.waitForTimeout(250);
-  await p.click('.srow:has-text("L. DuBose")'); await p.waitForTimeout(500);
+  await p.click('.acctbtn'); await p.waitForTimeout(200);
+  await p.click('.acctrow:has-text("Sign in as someone else")'); await p.waitForTimeout(250);
+  await p.click('.acctrow:has-text("L. DuBose")'); await p.waitForTimeout(500);
+  await p.click('.acctbtn'); await p.waitForTimeout(150);
+  await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(450);
   await p.waitForTimeout(300);
   await p.click('.ctab:has-text("Encounters")'); await p.waitForTimeout(500);
@@ -148,7 +154,8 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   await p.waitForTimeout(150);
   await p.click('.reviewgrid button:has-text("Approve")');
   await p.waitForTimeout(700);
-  ok('approving returns to the day', await p.locator('.daylist').isVisible());
+  ok('approving returns to the schedule',
+    await p.locator('.weekgrid, .daylist').first().isVisible());
   await p.screenshot({path:'e2e-8-encounter.png', fullPage:true});
 
   // 10 — persistence across reload

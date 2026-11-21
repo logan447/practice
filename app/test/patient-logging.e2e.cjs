@@ -60,8 +60,9 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.screenshot({path:'t-3-alert.png', fullPage:true});
 
   // physician side
-  await p.click('.whoami'); await p.waitForTimeout(250);
-  await p.click('.srow:has-text("L. DuBose")'); await p.waitForTimeout(500);
+  await p.click('.acctbtn'); await p.waitForTimeout(200);
+  await p.click('.acctrow:has-text("Sign in as someone else")'); await p.waitForTimeout(250);
+  await p.click('.acctrow:has-text("L. DuBose")'); await p.waitForTimeout(500);
   await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr:has-text("Marcus Reyes")').first().click();
   await p.waitForTimeout(600); await p.waitForTimeout(250);

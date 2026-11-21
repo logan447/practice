@@ -60,7 +60,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // an uncoded problem is called out as uncheckable
   await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(300);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(400);
-  // Adding a problem lives in the Plan section now, not the header.
+  // Adding a problem lives in the Plan tab now, not the header.
+  await p.click('.ctab:has-text("Plan")'); await p.waitForTimeout(500);
   await p.locator('.addproblem:has-text("Problem")').scrollIntoViewIfNeeded();
   await p.click('.addproblem:has-text("Problem")'); await p.waitForTimeout(300);
   await p.fill('input[placeholder="Type a diagnosis"]','gout'); await p.waitForTimeout(400);
@@ -82,14 +83,19 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // ------------------------------------- 3. covering clinician
   const name = await p.locator('.chead h1').first().textContent();
-  await p.click('.whoami'); await p.waitForTimeout(300);
+  await p.click('.acctbtn'); await p.waitForTimeout(200);
+  await p.click('.acctrow:has-text("Sign in as someone else")'); await p.waitForTimeout(250);
   ok('the switcher explains what cover can and cannot do',
-    (await p.locator('.srow:has-text("Okonjo")').textContent()).includes('Cannot sign a care plan'));
+    (await p.locator('.acctrow:has-text("Okonjo")').textContent()).includes('Cannot sign a care plan'));
   await p.screenshot({path:'v7-signin.png'});
-  await p.click('.srow:has-text("Okonjo")'); await p.waitForTimeout(600);
-  ok('the bar says who is signed in',
-    (await p.locator('.whoami').textContent()).includes('Covering'));
+  await p.click('.acctrow:has-text("Okonjo")'); await p.waitForTimeout(600);
+  await p.click('.acctbtn'); await p.waitForTimeout(250);
+  ok('the menu says who is signed in',
+    (await p.locator('.acctwho').textContent()).includes('Covering'));
+  await p.keyboard.press('Escape'); await p.click('h1'); await p.waitForTimeout(200);
   ok('cover cannot move the clock', await p.locator('.clockbar button:has-text("+1d")').count()===0);
+  await p.click('.acctbtn'); await p.waitForTimeout(150);
+  await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   ok('cover cannot add a member', await p.locator('.blocked').count()>0);
 
   // a chart whose shared plan is still a draft, which is where the rule bites
@@ -116,8 +122,9 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.screenshot({path:'v7-covering.png'});
 
   // ------------------------------------------- 4. the patient
-  await p.click('.whoami'); await p.waitForTimeout(300);
-  await p.locator('.plist .srow').first().click(); await p.waitForTimeout(700);
+  await p.click('.acctbtn'); await p.waitForTimeout(200);
+  await p.click('.acctrow:has-text("Sign in as someone else")'); await p.waitForTimeout(250);
+  await p.locator('.plist .acctrow').first().click(); await p.waitForTimeout(700);
   ok('a patient lands in the portal', await p.locator('text=Patient view').count()>0);
   ok('and is told this is the whole of it',
     (await p.locator('.wrap').textContent()).includes('whole of what they can reach'));
@@ -132,8 +139,9 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.screenshot({path:'v7-patient.png'});
 
   // ------------------------------- 5. the practice-wide log
-  await p.click('.whoami'); await p.waitForTimeout(300);
-  await p.click('.srow:has-text("L. DuBose")'); await p.waitForTimeout(600);
+  await p.click('.acctbtn'); await p.waitForTimeout(200);
+  await p.click('.acctrow:has-text("Sign in as someone else")'); await p.waitForTimeout(250);
+  await p.click('.acctrow:has-text("L. DuBose")'); await p.waitForTimeout(600);
   await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Who did what")'); await p.waitForTimeout(600);
   ok('the log opens', await p.locator('h1:has-text("Who did what")').isVisible());
   const log = await p.locator('.wrap').textContent();

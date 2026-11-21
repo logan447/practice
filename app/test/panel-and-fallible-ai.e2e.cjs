@@ -53,6 +53,9 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('button:has-text("Needs reconciling")'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(600);
 
+  // Reconciliation is a property of the record, so it sits with the
+  // allergies and the outside documents that usually caused it.
+  await p.click('.ctab:has-text("Records")'); await p.waitForTimeout(500);
   ok('the chart says what needs reconciling', await p.locator('.quality .qhead').isVisible());
   await p.click('.quality .qhead'); await p.waitForTimeout(300);
   ok('each item is specific', await p.locator('.qrow .qtitle').count()>0);
@@ -97,10 +100,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // Start a visit from the chart rather than booking one. The two
   // activities are startable from the Encounters block, which is the
   // path a physician uses when somebody turns up.
-  await p.click('.ctab:has-text("Encounters")'); await p.waitForTimeout(300);
-  await p.waitForTimeout(250);
-  await p.click('.railbody button:has-text("Visit"), .rail button:has-text("Visit")');
-  await p.waitForTimeout(800);
+  await p.click('.ctab:has-text("Encounters")'); await p.waitForTimeout(500);
+  await p.click('.startenc:has-text("Visit")'); await p.waitForTimeout(800);
 
   ok('a visit is open, on the care plan rather than a blank note',
     (await p.locator('.panel:has-text("Living care plan, working copy")').count())===1);

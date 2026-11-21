@@ -19,6 +19,8 @@ import { fmtDate } from '../../lib/format';
 import type { Allergy, ChartDocument } from '../../domain/types';
 import { useActor, ROLE_LABEL } from '../../lib/session';
 import { can } from '../../lib/permissions';
+import { QualityStrip } from '../../components/Quality';
+import { findIssues } from '../../lib/dataQuality';
 
 const SEV_TONE: Record<string, 'crit' | 'warn' | undefined> = {
   severe: 'crit', moderate: 'warn', mild: undefined, unknown: 'warn',
@@ -35,6 +37,16 @@ export function RecordsTab({ patientId }: { patientId: string }) {
   const me = useActor();
   const allergies = st.allergiesFor(patientId);
   const docs = st.documentsFor(patientId);
+  const patient = st.patient(patientId);
+  const issues = patient ? findIssues({
+    patient,
+    allPatients: st.patients,
+    conditions: st.conditionsFor(patientId),
+    medications: st.medsFor(patientId),
+    allergies,
+    documents: docs,
+    series: st.seriesFor(patientId),
+  }) : [];
 
   /**
    * What the patient wrote, filtered by who is reading.
@@ -59,6 +71,17 @@ export function RecordsTab({ patientId }: { patientId: string }) {
 
   return (
     <div className="stack">
+      {/*
+        * What in this chart does not add up.
+        *
+        * It used to sit in the right column, which is now five
+        * clinical blocks and nothing else. Reconciliation is a
+        * property of the record rather than of the patient, so it
+        * belongs here with the allergies and the outside documents
+        * that are usually what caused it.
+        */}
+      {issues.length > 0 && <QualityStrip issues={issues} onGo={() => {}} />}
+
       <Panel title="Allergies">
         {allergies.length === 0 ? (
           <Empty>None recorded. That is not the same as none, and the chart should not imply it is.</Empty>

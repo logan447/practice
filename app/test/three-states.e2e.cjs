@@ -55,6 +55,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     !(await p.locator('.soapbody').first().textContent()).includes('Chart review:'));
   ok('and their account of their health overall opens it',
     sOverall.startsWith('Patient reports'));
+  await p.click('.ctab:has-text("Objective")'); await p.waitForTimeout(400);
   ok('the objective has vitals, an examination and labs',
     (await p.locator('.vitblock').count())>0
     && (await p.locator('.examrow').count())>0
@@ -80,6 +81,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('the missing examination is stated, not skipped',
     mObj.includes('No examination documented. Not the same as a normal examination.'));
   ok('the labs that exist are shown', (await p.locator('.bone').count())>0);
+  await p.click('.ctab:has-text("Assessment")'); await p.waitForTimeout(400);
   ok('a problem nobody judged says "not assessed"',
     (await p.locator('.goalrow').allTextContents()).join('|').includes('Not assessed'));
   const mPlan = await sectionText(3);
