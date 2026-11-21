@@ -7,11 +7,12 @@
  */
 import { useMemo, useState } from 'react';
 import { useStore } from '../../lib/store';
-import { Chip, Panel, Prov, Empty } from '../../components/ui';
+import { Prov } from '../../components/ui';
 import { InlineAdd, Field } from '../../components/InlineAdd';
 import { CodePicker } from '../../components/CodePicker';
 import { Interactions } from '../../components/Interactions';
 import { fmtDate } from '../../lib/format';
+import { Group, Row, Sheet, NoRows } from './Rows';
 import { searchDrugs, searchConditions, resolveDrug } from '../../domain/terminology';
 import { check } from '../../lib/interactions';
 
@@ -20,6 +21,7 @@ const BLANK = { name: '', rxcui: '', dose: '', sig: '', indication: '' };
 export function MedsTab({ patientId }: { patientId: string }) {
   const st = useStore();
   const [adding, setAdding] = useState(false);
+  const [open, setOpen] = useState<string | null>(null);
   const [nm, setNm] = useState(BLANK);
   const meds = st.medsFor(patientId);
   const allergies = st.allergiesFor(patientId);
@@ -47,111 +49,100 @@ export function MedsTab({ patientId }: { patientId: string }) {
   const held = meds.filter((m) => m.status === 'held');
   const stopped = meds.filter((m) => m.status === 'stopped');
 
-  const Row = ({ m }: { m: typeof meds[number] }) => {
-    const d = resolveDrug(m.name, m.rxcui);
-    return (
-    <tr>
-      <td>
-        <div style={{ fontWeight: 600 }}>
-          {m.name} {m.dose}
-          {d && d.name.toLowerCase() !== m.name.toLowerCase() && (
-            <span className="small muted" style={{ fontWeight: 400 }}> &middot; {d.name}</span>
-          )}
-        </div>
-        <div className="small muted">{m.sig}</div>
-        {m.changeNote && (
-          <div className="small" style={{ marginTop: 5, color: 'var(--ink-2)' }}>{m.changeNote}</div>
-        )}
-        <div style={{ marginTop: 5 }}><Prov author={m.provenance.author} by={m.provenance.by} /></div>
-      </td>
-      <td style={{ width: 160 }} className="small muted">{m.indication ?? '—'}</td>
-      <td style={{ width: 150 }} className="small muted">
-        {fmtDate(m.started)}
-        {m.stopped && <> &rarr; {fmtDate(m.stopped)}</>}
-      </td>
-      <td style={{ width: 140, textAlign: 'right' }}>
-        {m.status === 'active' && (
-          <button className="btn ghost sm"
-            onClick={() => st.setMedStatus(m.id, 'held', 'Held at today’s visit.')}>
-            Hold
-          </button>
-        )}
-        {m.status === 'held' && (
-          <button className="btn ghost sm" onClick={() => st.setMedStatus(m.id, 'active')}>
-            Restart
-          </button>
-        )}
-      </td>
-    </tr>
-    );
-  };
+  const sel = meds.find((m) => m.id === open);
+  const selDrug = sel ? resolveDrug(sel.name, sel.rxcui) : undefined;
+
+  const list = (xs: typeof meds, note?: string) => xs.map((m) => (
+    <Row key={m.id} name={`${m.name} ${m.dose}`} note={note} warn={note === 'Held'}
+      when={fmtDate(m.started)} onOpen={() => setOpen(m.id)} />
+  ));
 
   return (
-    <div className="stack">
+    <>
       <Interactions alerts={standing} title="This list, checked" />
-      <Panel title="Active" flush right={<span className="small muted">{active.length}</span>}>
-        {active.length === 0 ? <Empty>No medicines recorded.</Empty> : (
-          <table className="rows"><tbody>{active.map((m) => <Row key={m.id} m={m} />)}</tbody></table>
-        )}
-        <div style={{ padding: '12px 16px', borderTop: '1px solid var(--line-2)' }}>
-          <InlineAdd
-            label="Add a medicine" open={adding} setOpen={setAdding}
-            canSave={!!nm.name.trim()}
-            onSave={() => {
-              st.addMedication(patientId, nm.name.trim(), nm.dose.trim(), nm.sig.trim(),
-                nm.indication.trim() || undefined, nm.rxcui || undefined);
-              setNm(BLANK);
-            }}>
-            <div className="grid g2">
-              <CodePicker
-                label="Name" value={nm.name} autoFocus
-                placeholder="Lisinopril, or Zestril"
-                hint="Generic or brand. RxNorm."
-                onText={(v) => setNm((p) => ({ ...p, name: v, rxcui: '' }))}
-                search={(q) => searchDrugs(q).map((d) => ({
-                  id: d.rxcui, primary: d.name, code: d.rxcui,
-                  note: [d.brands.slice(0, 3).join(', '), d.atc[0]?.name]
-                    .filter(Boolean).join(' \u00b7 ') || undefined,
-                }))}
-                onPick={(r) => setNm((p) => ({ ...p, name: r.primary, rxcui: r.id }))}
-              />
-              <Field label="Dose" value={nm.dose} onChange={(v) => setNm((p) => ({ ...p, dose: v }))}
-                placeholder="10 mg" />
-            </div>
-            {candidate.length > 0 && (
-              <Interactions alerts={candidate} title="Before you prescribe this" />
-            )}
-            <Field label="How they take it" value={nm.sig}
-              onChange={(v) => setNm((p) => ({ ...p, sig: v }))}
-              placeholder="One tablet by mouth each morning" />
-            <CodePicker
-              label="What for" value={nm.indication}
-              placeholder="Hypertension"
-              hint="ICD-10-CM. Links the drug to the problem it is for."
-              onText={(v) => setNm((p) => ({ ...p, indication: v }))}
-              search={(q) => searchConditions(q).map((c) => ({
-                id: c.code, primary: c.name, code: c.code,
-              }))}
-              onPick={(r) => setNm((p) => ({ ...p, indication: r.primary }))}
-            />
-          </InlineAdd>
-        </div>
-      </Panel>
+
+      <Group title="Active" count={active.length}>
+        {active.length === 0 ? <NoRows>No medicines recorded.</NoRows> : list(active)}
+      </Group>
 
       {held.length > 0 && (
-        <Panel title="Held" flush right={<Chip tone="warn">Needs a decision</Chip>}>
-          <table className="rows"><tbody>{held.map((m) => <Row key={m.id} m={m} />)}</tbody></table>
-        </Panel>
+        <Group title="Held" count={held.length} note="Each one needs a decision.">
+          {list(held, 'Held')}
+        </Group>
       )}
 
       {stopped.length > 0 && (
-        <Panel title="Stopped" flush right={
-          <span className="small muted">Kept, with the reason</span>
-        }>
-          <table className="rows"><tbody>{stopped.map((m) => <Row key={m.id} m={m} />)}</tbody></table>
-        </Panel>
+        <Group title="Stopped" count={stopped.length} note="Kept, with the reason.">
+          {list(stopped, 'Stopped')}
+        </Group>
       )}
 
-    </div>
+      <InlineAdd
+        label="Add a medicine" open={adding} setOpen={setAdding}
+        canSave={!!nm.name.trim()}
+        onSave={() => {
+          st.addMedication(patientId, nm.name.trim(), nm.dose.trim(), nm.sig.trim(),
+            nm.indication.trim() || undefined, nm.rxcui || undefined);
+          setNm(BLANK);
+        }}>
+        <div className="grid g2">
+          <CodePicker
+            label="Name" value={nm.name} autoFocus
+            placeholder="Lisinopril, or Zestril"
+            hint="Generic or brand. RxNorm."
+            onText={(v) => setNm((p) => ({ ...p, name: v, rxcui: '' }))}
+            search={(q) => searchDrugs(q).map((d) => ({
+              id: d.rxcui, primary: d.name, code: d.rxcui,
+              note: [d.brands.slice(0, 3).join(', '), d.atc[0]?.name]
+                .filter(Boolean).join(' \u00b7 ') || undefined,
+            }))}
+            onPick={(r) => setNm((p) => ({ ...p, name: r.primary, rxcui: r.id }))}
+          />
+          <Field label="Dose" value={nm.dose} onChange={(v) => setNm((p) => ({ ...p, dose: v }))}
+            placeholder="10 mg" />
+        </div>
+        {candidate.length > 0 && (
+          <Interactions alerts={candidate} title="Before you prescribe this" />
+        )}
+        <Field label="How they take it" value={nm.sig}
+          onChange={(v) => setNm((p) => ({ ...p, sig: v }))}
+          placeholder="One tablet by mouth each morning" />
+        <CodePicker
+          label="What for" value={nm.indication}
+          placeholder="Hypertension"
+          hint="ICD-10-CM. Links the drug to the problem it is for."
+          onText={(v) => setNm((p) => ({ ...p, indication: v }))}
+          search={(q) => searchConditions(q).map((c) => ({
+            id: c.code, primary: c.name, code: c.code,
+          }))}
+          onPick={(r) => setNm((p) => ({ ...p, indication: r.primary }))}
+        />
+      </InlineAdd>
+
+      {sel && (
+        <Sheet title={`${sel.name} ${sel.dose}`}
+          sub={[selDrug && selDrug.name.toLowerCase() !== sel.name.toLowerCase()
+            ? selDrug.name : '', sel.indication, `started ${fmtDate(sel.started)}`]
+            .filter(Boolean).join(' \u00b7 ')}
+          onClose={() => setOpen(null)}
+          actions={
+            sel.status === 'active' ? (
+              <button className="btn ghost"
+                onClick={() => st.setMedStatus(sel.id, 'held', 'Held at today\u2019s visit.')}>
+                Hold
+              </button>
+            ) : sel.status === 'held' ? (
+              <button className="btn ghost" onClick={() => st.setMedStatus(sel.id, 'active')}>
+                Restart
+              </button>
+            ) : undefined
+          }>
+          <p>{sel.sig}</p>
+          {sel.changeNote && <p>{sel.changeNote}</p>}
+          {sel.stopped && <p className="muted">Stopped {fmtDate(sel.stopped)}.</p>}
+          <Prov author={sel.provenance.author} by={sel.provenance.by} />
+        </Sheet>
+      )}
+    </>
   );
 }

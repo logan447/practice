@@ -82,7 +82,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(250);
     await p.click('button:has-text("Needs reconciling")'); await p.waitForTimeout(250);
     await p.locator('table.rows tbody tr').nth(i).click(); await p.waitForTimeout(350);
-    if (await p.locator('.ctabmore > .ctab').count()===0) continue; await p.waitForTimeout(250);
+    await p.waitForTimeout(250);
     await tab(p, 'Records');
     if (await p.locator('.garble').count()>0) foundGarble=true;
   }

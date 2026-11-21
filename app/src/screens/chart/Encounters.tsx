@@ -1,31 +1,27 @@
 /**
  * Encounters: everything that happened, openable.
  *
- * This is the drawer behind the summary. The subjective says what we
- * know; this says how we know it, in the words it was written in, on
- * the date it was written. Opening a row shows the original record
- * rather than a rendering of it, because the reason to open a row is
- * that the summary said something you want to check.
+ * One line per record, newest first, and opening one puts the
+ * original in a sheet over the list rather than a rendering of it on
+ * another screen. The reason to open a row is that the summary said
+ * something you wanted to check, and checking it should not cost you
+ * your place in the list.
  *
- * It also carries the two buttons that make the prototype testable:
- * add a visit note or a patient update and watch the summary change.
- * In the real thing those arrive from the portal and from a signed
- * note; here they are simulated, and the simulation is honest about
- * being one.
+ * What used to be here: a row of filter buttons, one per kind of
+ * record, and a coloured pill on every line repeating the kind. Both
+ * are gone. The kinds are visits, updates, messages, results and
+ * specialist letters, and a physician scanning a chart is reading
+ * dates and names, not sorting by type.
  */
 import { useState } from 'react';
 import { useStore } from '../../lib/store';
 import { useNav } from '../../lib/nav';
-import { Chip, Empty } from '../../components/ui';
-import { fmtDate, relative } from '../../lib/format';
+import { fmtDate } from '../../lib/format';
 import { timeline, TIMELINE_LABEL } from '../../lib/timeline';
 import type { TimelineItem } from '../../lib/timeline';
 import { hhmm } from '../../domain/schedule';
-import { Booking } from '../../components/Booking';
 import { FEELING_LABEL, ON_PLAN_LABEL } from '../../domain/types';
-
-const tone = (k: TimelineItem['kind']) =>
-  (k === 'visit' ? 'ok' : k === 'update' ? 'accent' : k === 'booked' ? 'warn' : undefined);
+import { Row, Sheet, NoRows } from './Rows';
 
 export function useTimeline(patientId: string) {
   const st = useStore();
@@ -46,7 +42,6 @@ export function useTimeline(patientId: string) {
 /** The body of one record, in its own shape. */
 function Record({ patientId, item }: { patientId: string; item: TimelineItem }) {
   const st = useStore();
-  const nav = useNav();
 
   if (item.kind === 'visit' || item.kind === 'booked') {
     const e = st.encounter(item.id);
@@ -67,10 +62,6 @@ function Record({ patientId, item }: { patientId: string; item: TimelineItem }) 
             {n.plan.overall && <p><b>P.</b> {n.plan.overall}</p>}
           </>
         ) : <p className="muted">Not held yet, so there is no note.</p>}
-        <button className="linkish"
-          onClick={() => nav.go({ name: 'encounter', encounterId: e.id })}>
-          Open the visit
-        </button>
       </div>
     );
   }
@@ -110,12 +101,10 @@ function Record({ patientId, item }: { patientId: string; item: TimelineItem }) 
             {answers.map((a) => (
               <li key={a.id}>
                 <span className="ansfor">{nameFor(a)}</span>
-                <Chip tone={a.feeling === 'worse' ? 'crit' : a.feeling === 'better' ? 'ok' : undefined}>
+                <span className="answas">
                   {FEELING_LABEL[a.feeling]}
-                </Chip>
-                {a.onPlan && <Chip tone={a.onPlan === 'no' ? 'crit' : a.onPlan === 'partly' ? 'warn' : 'ok'}>
-                  {ON_PLAN_LABEL[a.onPlan]}
-                </Chip>}
+                  {a.onPlan && ` · ${ON_PLAN_LABEL[a.onPlan]}`}
+                </span>
                 <span className="anstext">{a.text}</span>
               </li>
             ))}
@@ -172,107 +161,43 @@ function Record({ patientId, item }: { patientId: string; item: TimelineItem }) 
   );
 }
 
-export function EncountersDrawer({ patientId, focus, onDone }: {
+export function EncountersDrawer({ patientId, focus }: {
   patientId: string;
   /** A record id to open on, when arriving from a source link. */
   focus?: string;
-  onDone: () => void;
+  /** Kept for callers that still pass it; the list no longer navigates. */
+  onDone?: () => void;
 }) {
   const st = useStore();
   const nav = useNav();
   const items = useTimeline(patientId);
-  const [open, setOpen] = useState<string | null>(focus ?? items[0]?.id ?? null);
-  const [filter, setFilter] = useState<string>('all');
-  const [booking, setBooking] = useState(false);
-
-  const kinds = ['all', ...new Set(items.map((i) => i.kind))];
-  const shown = filter === 'all' ? items : items.filter((i) => i.kind === filter);
+  const [open, setOpen] = useState<string | null>(focus ?? null);
+  const sel = items.find((i) => i.id === open);
+  const enc = sel && (sel.kind === 'visit' || sel.kind === 'booked')
+    ? st.encounter(sel.id) : undefined;
 
   return (
-    <div className="stack">
-      {/* Booking belongs with the encounters, not in the header. */}
-      {booking ? (
-        <Booking patientId={patientId}
-          onCancel={() => setBooking(false)}
-          onBooked={(id, sameDay) => {
-            setBooking(false);
-            onDone();
-            if (sameDay) nav.go({ name: 'encounter', encounterId: id });
-          }} />
-      ) : (
-        /*
-          * Book one for later, or start one now. The two starters
-          * used to live in the right column and came out with it;
-          * they belong here, beside the encounters they create.
-          */
-        /*
-          * Three ways to make an encounter, on one row, with no
-          * explanation. What each one does is in the word on it.
-          */
-        <div className="row startrow" style={{ gap: 7, flexWrap: 'wrap' }}>
-          {([['visit', 'Visit'], ['review', 'Care plan review']] as const).map(([kind, label]) => (
-            <button key={kind} className="btn ghost startenc" onClick={() => {
-              const id = st.openEncounter(patientId, kind);
-              nav.go({ name: 'encounter', encounterId: id });
-            }}>{label}</button>
-          ))}
-          <button className="btn ghost" onClick={() => setBooking(true)}>Book for later</button>
-        </div>
-      )}
-
-      <div className="row flow" style={{ gap: 6, flexWrap: 'wrap' }}>
-        {kinds.map((k) => (
-          <button key={k} className={`btn sm ${filter === k ? '' : 'ghost'}`}
-            onClick={() => setFilter(k)}>
-            {k === 'all' ? `All ${items.length}` : TIMELINE_LABEL[k as TimelineItem['kind']]}
-          </button>
-        ))}
-      </div>
-
-      {shown.length === 0 ? <Empty>Nothing on file.</Empty> : (
-        <div className="tl">
-          {shown.map((i) => (
-            <div key={i.id} className={`tlitem${open === i.id ? ' open' : ''}`}>
-              <button className="tlhead" onClick={() => setOpen(open === i.id ? null : i.id)}>
-                <span className="tldate">{fmtDate(i.date)}</span>
-                <Chip tone={tone(i.kind)}>{TIMELINE_LABEL[i.kind]}</Chip>
-                <span className="tltitle">{i.title}</span>
-                <span className="tlby">{i.by}</span>
-                <span className="tlwhen">{relative(i.date)}</span>
-              </button>
-              {open === i.id
-                ? <Record patientId={patientId} item={i} />
-                : <p className="tlprev">{i.preview}</p>}
-            </div>
+    <>
+      {items.length === 0 ? <NoRows>Nothing on file.</NoRows> : (
+        <div className="grprows">
+          {items.map((i) => (
+            <Row key={i.id} name={i.title} note={i.by} when={fmtDate(i.date)}
+              onOpen={() => setOpen(i.id)} />
           ))}
         </div>
       )}
 
-      {/*
-        * The reason this prototype can be evaluated at all: add a
-        * record and watch the summary move. Labelled as simulated,
-        * because a demo button that pretends to be a real workflow is
-        * how a prototype gets mistaken for a product.
-        */}
-      {/*
-        * Kept, and made quiet. It is the only way to watch a record
-        * arrive and the care plan not move, which is the whole claim
-        * of the design, and it is still not a real workflow.
-        */}
-      <div className="simbox">
-        <h4>Simulate a record arriving</h4>
-        <div className="row" style={{ gap: 7, flexWrap: 'wrap' }}>
-          <button className="btn sm ghost" onClick={() => st.simulateUpdate(patientId)}>
-            A health update from the patient
-          </button>
-          <button className="btn sm ghost" onClick={() => st.simulateMessage(patientId)}>
-            A message about a side effect
-          </button>
-          <button className="btn sm ghost" onClick={() => st.simulateVisit(patientId)}>
-            A signed visit note
-          </button>
-        </div>
-      </div>
-    </div>
+      {sel && (
+        <Sheet title={sel.title} sub={`${TIMELINE_LABEL[sel.kind]} · ${fmtDate(sel.date)}`}
+          onClose={() => setOpen(null)}
+          actions={enc && (
+            <button className="btn" onClick={() => nav.go({ name: 'encounter', encounterId: enc.id })}>
+              {enc.status === 'signed' ? 'Open the visit' : 'Continue the visit'}
+            </button>
+          )}>
+          <Record patientId={patientId} item={sel} />
+        </Sheet>
+      )}
+    </>
   );
 }

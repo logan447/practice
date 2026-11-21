@@ -14,6 +14,23 @@
 const {chromium}=require('playwright');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
+/**
+ * The approved plan, read the way the chart now offers it: one sheet
+ * per managed problem, off the right column. There is no care plan
+ * tab any more and no single element holding the whole document.
+ */
+const planText = async (p) => {
+  const n = await p.locator('.sumrow').count();
+  let out = (await p.locator('.rail').textContent());
+  for (let i = 0; i < n; i++) {
+    await p.locator('.sumrow').nth(i).click(); await p.waitForTimeout(350);
+    if (await p.locator('.sheet').count()) {
+      out += ' ' + (await p.locator('.sheet').textContent());
+      await p.click('.sheetx'); await p.waitForTimeout(200);
+    }
+  }
+  return out;
+};
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
 (async()=>{
@@ -51,7 +68,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok(`and says what has arrived that it has not incorporated: "${
     (line.match(/\d+ records? since[^.]*/)||[''])[0]}"`,
     /\d+ records? since, not yet incorporated/.test(line));
-  const before = await p.locator('.soap').first().textContent();
+  const before = await planText(p);
   ok('the approved chart does not contain the unincorporated records',
     !before.includes('podiatrist') && !before.includes('urgent care place'));
 
@@ -99,7 +116,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   const after = await p.locator('.derivedfrom').textContent();
   ok('the chart advances to the next version', /Version 2, approved today/.test(after));
   ok('and nothing is left unincorporated', /Nothing new since/.test(after));
-  const nowText = await p.locator('.soap').first().textContent();
+  const nowText = await planText(p);
   ok('the published version now contains what was reviewed',
     nowText.includes('podiatrist') || nowText.includes('urgent care'));
   ok('the chart changed only because somebody signed',

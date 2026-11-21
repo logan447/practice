@@ -1,13 +1,19 @@
 /**
  * The living summary, and the things it must not become.
  *
- * Three claims are tested. That the summary lags the record and says
- * so. That nothing the assistant drafts reaches the record without a
- * person accepting it, and that interpretations are marked as such.
- * And that the export is the whole packet rather than a cover page.
+ * Three claims are tested. That every sentence about a patient is
+ * composed from the records at read time and can be traced back to
+ * them. That the approved plan does not move because a record
+ * arrived. And that the export is the whole packet rather than a
+ * cover page.
+ *
+ * The care plan tab is gone, so the summary is read in the two places
+ * it now lives: one problem at a time from the right column, and the
+ * whole working copy inside an encounter, which is where it is
+ * written.
  */
 const {chromium}=require('playwright');
-const {tab, hasTab, soap, section}=require('./tabs.cjs');
+const {tab, hasTab}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
@@ -27,58 +33,65 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   const head = (await p.locator('.chead').textContent()).replace(/\s+/g,' ');
   ok('age and sex only', head.includes('60 F'));
   ok('past medical history carries everything', head.includes('Hypothyroidism'));
-  ok('managed problems are tagged separately',
+  ok('managed problems are named separately from the history',
     (await p.locator('.csum .dx.on').count())===3);
-  ok('services are tags, not prose',
+  ok('services are named in the same sentence',
     (await p.locator('.csum .dx.svc').allTextContents()).join('|')==='Preventative Services|Lifestyle Medicine');
-  ok('no pinned note in the header', await p.locator('.cpin').count()===0);
+  ok('the header is words, not a wall of pills',
+    await p.locator('.chead').evaluate((el)=>{
+      const dx = el.querySelector('.dx');
+      return !dx || getComputedStyle(dx).borderBottomWidth === '0px';
+    }));
+  ok('three actions under it and no more',
+    (await p.locator('.cacts .btn').count())===3);
 
-  // ------------------- 2. the subjective is derived, not maintained
-  const subj = p.locator('.soap').first();
-  ok('nothing in the subjective is a text field',
-    (await subj.locator('textarea').count())===0);
-  ok('it says which approved version this is, and what is waiting',
-    /Version 1, approved .* by L\. DuBose, MD\./.test(
-      await subj.locator('.derivedfrom').textContent()));
-  ok('and how many records have arrived since it was approved',
-    /records? since, not yet incorporated/.test(
-      await subj.locator('.derivedfrom').textContent()));
-  ok('and the chart no longer advertises a summary to review',
-    (await p.locator('.summarybanner').count())===0);
-
-  const stext = (await subj.textContent()).replace(/\s+/g,' ');
-  ok('it opens with what the patient reports, composed',
-    /Patient reports (things are|they are)/.test(stext));
-  ok('no chart review in the opening paragraph',
-    !(await subj.locator('.psum.lead').textContent()).includes('Chart review'));
-  ok('and nothing outstanding there either',
-    !(await subj.locator('.psum.lead').textContent()).includes('Outstanding'));
-  ok('the approved chart does not show records it has not incorporated',
-    !stext.includes('podiatrist'));
-  ok('preventative services are summarised too, after the problems',
-    (await subj.locator('#subj-prevention').count())===1);
-  ok('and so is lifestyle medicine',
-    (await subj.locator('#subj-lifestyle').count())===1);
-  ok('both in the same shape as a problem',
-    /^(Patient reports|Nothing on file from the patient)/.test(
-      await subj.locator('#subj-prevention .psum').first().textContent()));
-
-  const htn = subj.locator('#subj-sc1');
-  ok('one block per managed problem, then the two service categories',
-    (await subj.locator('.sprob').count())===5);
-  const htnText = (await htn.locator('.psum').allTextContents());
-  ok('what the patient reports leads the problem, composed not quoted',
-    htnText[0].startsWith('Patient reports'));
-  ok('and names what they are struggling with', htnText[0].includes('struggle with'));
-  ok('the problem is one paragraph, not two',
-    htnText.length===1
-    && (await htn.locator('.psum .said, .psum .doc, .psum .runin').count())===0);
-  ok('and what the record shows is in it rather than announced separately',
-    !htnText[0].includes('Chart review:') && htnText[0].length>120);
+  // ------------- 2. the problem sheet: derived, traceable, not typed
+  await p.locator('.sumrow').first().click(); await p.waitForTimeout(450);
+  const sheet = p.locator('.sheet');
+  ok('the sheet is the problem, not the document',
+    (await sheet.locator('h2').textContent())==='Essential hypertension');
+  ok('nothing in it is a text field',
+    (await sheet.locator('textarea, input').count())===0);
+  const psum = await sheet.locator('.psum').textContent();
+  ok(`it opens with what the patient reports, composed: ${psum.slice(0,38)}...`,
+    psum.startsWith('Patient reports'));
+  ok('and names what they are struggling with', psum.includes('struggle with'));
+  ok('the problem is one paragraph, not a split into testimony and findings',
+    (await sheet.locator('.psum').count())===1);
+  ok('what the record shows is in it rather than announced separately',
+    !psum.includes('Chart review:') && psum.length>120);
   ok('and the current measure rides along with it',
-    /132\/78 on 30 Oct 2026, home average/.test(htnText.join(' ')));
+    /132\/78 on 30 Oct 2026, home average/.test(psum));
+  ok('the sentence says how many records it was composed from',
+    /Composed from \d+ records? when this opened/.test(await sheet.textContent()));
+  await p.click('.srcmark'); await p.waitForTimeout(250);
+  ok('and opens to the records themselves',
+    (await p.locator('.srcitem').count())>=3);
+  ok('the plan for this problem is here, as approved',
+    (await sheet.textContent()).includes('Treat to the home readings'));
+  ok('with what it is being treated with',
+    (await sheet.textContent()).includes('Lisinopril 20 mg'));
+  ok('and how it is going', (await sheet.textContent()).includes('How it is going'));
+  ok('and when it is reviewed again',
+    (await sheet.textContent()).includes('Follow-up'));
+  await p.screenshot({path:'v10-problem-sheet.png'});
+  await p.click('.sheetx'); await p.waitForTimeout(250);
 
-  const ivs = (await htn.locator('.actlist li').allTextContents()).join(' | ');
+  // ----------------------- 3. the working copy, inside an encounter
+  await p.click('.startenc:has-text("Visit")'); await p.waitForTimeout(900);
+  const ws = (await p.locator('.wrap').textContent()).replace(/\s+/g,' ');
+  const line = await p.locator('.oneliner').textContent();
+  ok(`the encounter opens on the clinical one-liner: "${line.slice(0,40)}..."`,
+    /^60F with PMH of /.test(line));
+  ok('in shorthand rather than long form', line.includes('HTN') && line.includes('T2DM'));
+  ok('and names what we are following them for',
+    line.includes('following with our office for management of')
+    && line.includes('preventative services') && line.includes('lifestyle medicine'));
+  ok('one block per managed problem, then the two service categories',
+    (await p.locator('.wprob').count())===5);
+  ok('every problem is judged at goal or needing improvement, and nothing else',
+    !/Improving|Stable|Worsening/.test(ws) && ws.includes('At goal'));
+  const ivs = (await p.locator('#w-sc1 .actlist li').allTextContents()).join(' | ');
   ok(`every intervention has a status: ${ivs.slice(0,54)}`,
     ivs.includes('Lisinopril 20 mg') && ivs.includes('Active'));
   ok('one status vocabulary across every kind of intervention',
@@ -86,98 +99,63 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     && !/Taking as prescribed|Struggling|Achieved/.test(ivs));
   ok('home monitoring is tracked as an intervention', ivs.includes('Home blood pressure'));
   ok('a drug being skipped is called out rather than listed as prescribed',
-    (await subj.locator('#subj-sc3 .actlist').textContent()).includes('missing doses'));
+    (await p.locator('#w-sc3 .actlist').textContent()).includes('missing doses'));
   ok('a drug stopped for a reason stays as context',
-    (await subj.locator('#subj-sc2 .psum').allTextContents()).join(' ').toLowerCase()
-      .includes('glipizide stopped'));
-  ok('sources are behind a mark rather than printed under each paragraph',
-    (await subj.locator('.psrc').count())===0
-    && (await subj.locator('.srcmark').count())>=4);
-  await subj.locator('.sprob .srcmark').first().click(); await p.waitForTimeout(250);
-  ok('and open to the records they came from',
-    (await p.locator('.srcpop .srcitem').count())>0);
-  await subj.locator('.sprob .srcmark').first().click(); await p.waitForTimeout(150);
+    (await p.locator('#w-sc2 .psum').textContent()).toLowerCase().includes('glipizide stopped'));
+  ok('the interval since the last visit is listed, not written into the paragraph',
+    (await p.locator('.intlist li').count())>0);
+  ok('this is a working copy and says so',
+    ws.includes('Living care plan, working copy'));
+  await p.screenshot({path:'v10-working-copy.png'});
 
-  // ------------------------------------------- 3. objective order
-  // One document, read top to bottom, with the letters still in order.
-  await tab(p, 'Care plan');
-  const sections = await p.locator('.soaphead h2').allTextContents();
-  ok(`the care plan is one scroll, in SOAP order: ${sections.join(', ')}`,
-    sections.join(',')==='Subjective,Objective,Assessment,Plan');
-  const obj = await section(p, 'O');
-  ok('the most recent vitals only, with home behind a button',
-    (await p.locator('.vitblock .vhead').allTextContents()).join('|').includes('Office')
-    && (await p.locator('.vitblock.home').count())===0
-    && (await p.locator('button:has-text("Home logs")').count())===1);
-  ok('labs are fishbones', await p.locator('.bone').count()>=4);
-  const objText = (await obj.textContent());
-  ok('the examination comes before the labs',
-    objText.indexOf('Physical examination') < objText.indexOf('Key labs'));
-  const bone = await p.locator('.bone').first().textContent();
-  ok(`current with previous in brackets: ${bone.replace(/\s+/g,' ').slice(0,46)}`, /\(\d/.test(bone));
-  ok('the examination carries its own date', await p.locator('.examrow').count()>0);
+  // ---------------- 4. the labs, with patient readings kept separate
+  await p.click('.acctbtn'); await p.waitForTimeout(150);
+  await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
+  await p.click('text=Sharon White'); await p.waitForTimeout(700);
+  await tab(p, 'Labs');
+  const labs = (await p.locator('.tabbody').textContent()).replace(/\s+/g,' ');
+  ok('reports, vitals and what is tracked over time, in that order',
+    labs.indexOf('Reports') < labs.indexOf('Vitals')
+    && labs.indexOf('Vitals') < labs.indexOf('Tracked over time'));
+  ok('what the patient measures is a group of its own, labelled',
+    labs.includes('Patient-measured, not clinic-measured'));
+  await p.locator('.rec').first().click(); await p.waitForTimeout(350);
+  ok('a report opens to its values, not to a summary of them',
+    (await p.locator('.sheet .rows tr').count())>3);
+  await p.click('.sheetx'); await p.waitForTimeout(250);
 
-  // ------------------------- 4. the assessment, in one vocabulary
-  const ass = await section(p, 'A');
-  const line = await ass.locator('.oneliner').textContent();
-  ok(`it opens with the clinical one-liner: "${line.slice(0,40)}..."`,
-    /^60F with PMH of /.test(line));
-  ok('in shorthand rather than long form', line.includes('HTN') && line.includes('T2DM'));
-  ok('and names what we are following them for',
-    line.includes('following with our office for management of')
-    && line.includes('preventative services') && line.includes('lifestyle medicine'));
-  const cats = await ass.locator('.cathead h4').allTextContents();
-  ok(`three categories, in order: ${cats.join(', ')}`,
-    cats.join(',')==='Chronic conditions,Preventative services,Lifestyle medicine');
-  const goals = (await ass.locator('.goalrow').allTextContents()).join(' | ');
-  ok('each problem is at goal or needs improvement, and nothing else',
-    /At goal/.test(goals) && /Needs improvement/.test(goals)
-    && !/Improving|Stable|Worsening/.test(goals));
-  ok('preventative services carry the same two statuses',
-    /At goal|Needs improvement/.test(
-      await ass.locator('.catblock:has-text("Preventative services")').textContent()));
-  ok('and so does lifestyle medicine',
-    /At goal|Needs improvement/.test(
-      await ass.locator('.catblock:has-text("Lifestyle medicine")').textContent()));
-
-  // ------------------------------------- 5. plan follows the gauge
-  const planSec = await section(p, 'P');
-  const plan = await planSec.textContent();
-  ok('the plan no longer tells you what to intend',
-    !plan.includes('Continue and keep pushing') && !plan.includes('Change course'));
-  ok('medicines are coded to the problem they are for',
-    (await p.locator('#problem-sc2 .actlist').textContent()).includes('Metformin'));
-  ok('and not to problems they are not for',
-    !(await p.locator('#problem-sc3 .actlist').textContent()).includes('Metformin'));
-  ok('preventative care is its own block with the same statuses',
-    plan.includes('Preventative care') && /Needs attention|Complete/.test(plan));
-  ok('no summary badges counting things', !/\d+ outstanding|\d+ of \d+/.test(plan));
-  ok('follow-up moved out of the plan and into the rail',
-    !plan.includes('FOLLOW-UP') && await hasTab(p, 'Follow-up'));
-
-  // ------------------------------- 6. the sources, and adding to them
-  await section(p, 'S');
-  await p.click('.derivedfrom button'); await p.waitForTimeout(700);
-  const tl = await p.locator('.tlitem').count();
+  // ------------------------------- 5. the sources, and adding to them
+  await tab(p, 'Encounters');
+  const tl = await p.locator('.rec').count();
   ok(`every record is here to open (${tl})`, tl>=20);
   const tabtext = (await p.locator('.tabbody').textContent()).replace(/\s+/g,' ');
   ok('visits, updates, messages, letters and results together',
-    ['Visit','Health update','Message','Specialist letter','Results']
+    ['Annual physical','Answered our question','Mammogram','panels']
       .every((k)=>tabtext.includes(k)));
+  // Two rows match: the patient's message and the reply to it. The
+  // one with the article in it is theirs.
+  await p.locator('.rec:has-text("Something I read about statins")').last().click();
+  await p.waitForTimeout(350);
   ok('a message the patient sent is readable in full',
-    tabtext.includes('shaky and sweaty') || tabtext.includes('A friend sent me an article'));
+    (await p.locator('.sheet').textContent()).includes('A friend sent me an article'));
+  await p.click('.sheetx'); await p.waitForTimeout(250);
 
-  // the claim: add a record, the summary moves, nothing was edited
-  await section(p, 'S');
-  const before = (await p.locator('.soap').first().textContent());
-  await tab(p, 'Encounters');
-  await p.click('button:has-text("A health update from the patient")');
-  await p.waitForTimeout(600);
-  
-  await section(p, 'S');
-  const after = (await p.locator('.soap').first().textContent());
-  ok('a new patient update changes the summary with no editing step',
-    before!==after);
+  // The claim this design rests on: a record arriving is counted,
+  // and changes nothing a clinician has approved.
+  await p.locator('.sumrow').first().click(); await p.waitForTimeout(400);
+  const before = await p.locator('.sheet .psum').textContent();
+  await p.click('.sheetx'); await p.waitForTimeout(350);
+  const countBefore = await p.locator('.derivedfrom').textContent();
+  await p.click('.acctbtn'); await p.waitForTimeout(250);
+  await p.click('.acctrow:has-text("Simulate a record arriving")'); await p.waitForTimeout(900);
+  const countAfter = await p.locator('.derivedfrom').textContent();
+  ok(`the arriving record is counted: "${(countAfter.match(/\d+ records? since/)||[''])[0]}"`,
+    countBefore!==countAfter);
+  await p.locator('.sumrow').first().click(); await p.waitForTimeout(500);
+  const after = await p.locator('.sheet .psum').textContent();
+  ok('and the approved plan does not move because of it', before===after);
+  await p.click('.sheetx'); await p.waitForTimeout(250);
+  ok('follow-up is still reachable, off the strip', await hasTab(p, 'Follow-up'));
 
   // -------------------------------------------- 7. the packet
   await tab(p, 'Export'); await p.waitForTimeout(300);

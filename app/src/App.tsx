@@ -18,6 +18,7 @@ import { ROLE_LABEL } from './lib/session';
 import { useActor } from './lib/session';
 import { can } from './lib/permissions';
 import { CommandPalette, Shortcuts } from './components/CommandPalette';
+import { CHART_TOOLS, TAB_LABEL } from './screens/chart/drawers';
 import { ClockBar } from './components/ClockBar';
 import { countClick, countKey } from './lib/metrics';
 
@@ -110,6 +111,35 @@ function AccountMenu() {
             <strong>{me.name}</strong>
             <span className="small muted">{ROLE_LABEL[me.role]}</span>
           </div>
+
+          {/*
+            * This chart's rarely-wanted tabs. They were behind a
+            * "More" control on the tab strip, which is still a tab
+            * sitting there being read. A chart has seven tabs now and
+            * everything else you go looking for is here, with the
+            * rest of the things you go looking for.
+            */}
+          {st.hasData && clinician && nav.route.name === 'chart' && (
+            <div className="acctsec">
+              <div className="acctlabel">This chart</div>
+              {CHART_TOOLS.map((t) => (
+                <button key={t} className="acctrow"
+                  onClick={() => go({
+                    name: 'chart',
+                    patientId: (nav.route as { patientId: string }).patientId,
+                    tab: t,
+                  })}>
+                  {TAB_LABEL[t]}
+                </button>
+              ))}
+              <button className="acctrow" onClick={() => {
+                st.simulateUpdate((nav.route as { patientId: string }).patientId);
+                setOpen(false);
+              }}>
+                Simulate a record arriving
+              </button>
+            </div>
+          )}
 
           {st.hasData && clinician && (
             <>

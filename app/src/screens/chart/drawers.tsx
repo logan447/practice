@@ -6,12 +6,9 @@
  * of you, not a filtered highlight of it, because the reason you
  * opened it is that the summary was not enough.
  */
-import { useState } from 'react';
 import { useStore } from '../../lib/store';
 import { Chip, Panel, Empty } from '../../components/ui';
-import { ResultsTab } from './ResultsTab';
 import { fmtDate, relative } from '../../lib/format';
-import type { LabPanel } from '../../domain/types';
 
 export type ChartDrawer =
   | 'careplan'
@@ -31,18 +28,19 @@ export type ChartDrawer =
  * do it, which is the opposite of what the tabs were for.
  */
 export const CHART_TABS: ChartDrawer[] = [
-  'careplan', 'encounters', 'notes', 'results', 'meds', 'studies',
+  'encounters', 'notes', 'results', 'meds', 'studies',
   'prevention', 'specialists',
 ];
 
 /**
- * Everything else, behind one quiet control.
+ * Everything else, off the chart entirely.
  *
- * Real and rarely wanted. A strip of twenty-one tabs is a strip
- * nobody reads, and these are the ones you go looking for rather than
- * the ones you meet.
+ * These are real and rarely wanted, and they were behind a "More"
+ * control on the strip, which is still a tab: it sat there being read
+ * and counted. They have moved to the account menu, under the chart's
+ * own heading, where the rest of the things you go looking for live.
  */
-export const MORE_TABS: ChartDrawer[] = [
+export const CHART_TOOLS: ChartDrawer[] = [
   'plan', 'orders', 'followup', 'letters', 'records', 'scope',
   'history', 'export', 'details', 'documentation',
 ];
@@ -77,113 +75,6 @@ export const TAB_LABEL: Record<ChartDrawer, string> = {
   details: 'Details',
   documentation: 'Coding',
 };
-
-/* ------------------------------------------------------ labs + vitals */
-
-export function ResultsDrawer({ patientId }: { patientId: string }) {
-  const st = useStore();
-  const panels = st.panelsFor(patientId);
-  const vitals = st.vitalsFor(patientId);
-  const [openPanel, setOpenPanel] = useState<string | null>(panels[0]?.id ?? null);
-
-  const office = vitals.filter((v) => v.source === 'office');
-  const home = vitals.filter((v) => v.source === 'home');
-
-  return (
-    <div className="stack">
-      {/*
-        * Reports to acknowledge, the trends, and the rule that keeps
-        * patient-measured readings in their own series. All of that
-        * predates the fishbone and none of it is replaced by it.
-        */}
-      <ResultsTab patientId={patientId} />
-
-      <Panel title="Labs" flush right={<span className="small muted">{panels.length}</span>}>
-        {panels.length === 0 ? <Empty>None on file.</Empty> : panels.map((p) => (
-          <div key={p.id} className="paneldrop">
-            <button className="pdhead" onClick={() => setOpenPanel(openPanel === p.id ? null : p.id)}>
-              <span className="pdname">{p.name}</span>
-              <span className="pddate">{fmtDate(p.date)}</span>
-              {p.values.some((v) => v.flag !== 'normal') && <Chip tone="warn">Flagged</Chip>}
-              <span className="spacer" />
-            </button>
-            {openPanel === p.id && <PanelTable p={p} />}
-          </div>
-        ))}
-      </Panel>
-
-      <Panel title="Vitals" flush>
-        {vitals.length === 0 ? <Empty>None recorded.</Empty> : (
-          <table className="rows">
-            <thead>
-              <tr><th>Date</th><th>Where</th><th>BP</th><th>HR</th><th>Weight</th><th>BMI</th></tr>
-            </thead>
-            <tbody>
-              {[...office, ...home].sort((a, b) => b.date.localeCompare(a.date)).map((v) => (
-                <tr key={v.id}>
-                  <td className="small">{fmtDate(v.date)}</td>
-                  <td className="small muted">{v.source}</td>
-                  <td className="num">{v.systolic ? `${v.systolic}/${v.diastolic}` : '—'}</td>
-                  <td className="num">{v.heartRate ?? '—'}</td>
-                  <td className="num">{v.weightLb ?? '—'}</td>
-                  <td className="num">{v.bmi ?? '—'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </Panel>
-    </div>
-  );
-}
-
-function PanelTable({ p }: { p: LabPanel }) {
-  return (
-    <table className="rows pdtable">
-      <tbody>
-        {p.values.map((v) => (
-          <tr key={v.key}>
-            <td>{v.name}</td>
-            <td className={`num${v.flag !== 'normal' ? ' flagged' : ''}`}>{v.value} {v.unit}</td>
-            <td className="small muted">
-              {v.refLow !== undefined || v.refHigh !== undefined
-                ? `${v.refLow ?? ''}${v.refLow !== undefined && v.refHigh !== undefined ? '–' : ''}${v.refHigh ?? ''}`
-                : 'no range supplied'}
-            </td>
-            <td className="small">{v.flag !== 'normal' ? <Chip tone="warn">{v.flag}</Chip> : null}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-}
-
-/* --------------------------------------------------------- diagnostics */
-
-export function StudiesDrawer({ patientId }: { patientId: string }) {
-  const st = useStore();
-  const studies = st.studiesFor(patientId);
-  return (
-    <div className="stack">
-      <Panel title="Diagnostics" flush>
-        {studies.length === 0 ? <Empty>None on file.</Empty> : studies.map((d) => (
-          <div key={d.id} className="listrow" style={{ padding: '12px 16px' }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div className="row" style={{ gap: 8 }}>
-                <strong>{d.name}</strong>
-                {d.significant && <Chip tone="warn">Significant</Chip>}
-              </div>
-              <div className="small muted" style={{ marginTop: 2 }}>
-                {fmtDate(d.date)} &middot; {d.from ?? 'source not recorded'} &middot; {d.kind}
-              </div>
-              <p className="small" style={{ marginTop: 6 }}>{d.impression}</p>
-            </div>
-          </div>
-        ))}
-      </Panel>
-    </div>
-  );
-}
 
 /* ----------------------------------------------------------- follow-up */
 

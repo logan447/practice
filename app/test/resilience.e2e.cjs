@@ -44,10 +44,14 @@ const OLD = {
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(700);
   ok('the chart draws rather than going blank',
     (await p.locator('.chead h1').textContent())==='Sharon White');
-  ok('the subjective still derives from whatever records survived',
-    (await p.locator('.soap').first().locator('.psum').first().textContent()).length>20);
+  ok('the standing summary still derives from whatever records survived',
+    (await p.locator('.rail').textContent()).includes('Our office is managing:'));
   ok('the problem renders rather than throwing',
-    (await p.locator('#subj-sc1').count())===1);
+    (await p.locator('.sumrow').count())>=1);
+  await p.locator('.sumrow').first().click(); await p.waitForTimeout(400);
+  ok('and opens, on a chart missing half its records',
+    (await p.locator('.sheet').count())===1);
+  await p.click('.sheetx'); await p.waitForTimeout(250);
   ok('and every other section drew too',
     (await p.locator('.ctabs > .ctab').count())>=7);
   ok('no uncaught error reached the page', errs.length===0);

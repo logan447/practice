@@ -11,7 +11,7 @@
  * itself rather than from anyone remembering to write to it.
  */
 const {chromium}=require('playwright');
-const {tab, hasTab, soap, section}=require('./tabs.cjs');
+const {tab, hasTab}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
@@ -61,8 +61,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // an uncoded problem is called out as uncheckable
   await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(300);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(400);
-  // Adding a problem lives in the Plan tab now, not the header.
-  await section(p, 'P');
+  // Adding a problem lives in the right column now, under the list of
+  // what this practice has taken on.
   await p.locator('.addproblem:has-text("Problem")').scrollIntoViewIfNeeded();
   await p.click('.addproblem:has-text("Problem")'); await p.waitForTimeout(300);
   await p.fill('input[placeholder="Type a diagnosis"]','gout'); await p.waitForTimeout(400);

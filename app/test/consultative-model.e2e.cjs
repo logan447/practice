@@ -19,7 +19,7 @@
  * year holds.
  */
 const {chromium}=require('playwright');
-const {tab, hasTab, soap, section}=require('./tabs.cjs');
+const {tab, hasTab}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
@@ -54,12 +54,23 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr:has-text("Arthur")').first().click();
   await p.waitForTimeout(800);
-  await section(p, 'A');
-  const owners = (await p.locator('.ownerrow').allTextContents()).join(' | ');
-  ok(`each managed problem says who is responsible: ${owners.slice(0,60)}`,
-    owners.includes('We manage this') && owners.includes('Their PCP manages this'));
+  // Who owns a problem is asked on the problem, in its own sheet.
+  const owners = [];
+  for (let i = 0; i < await p.locator('.sumrow').count(); i++) {
+    await p.locator('.sumrow').nth(i).click(); await p.waitForTimeout(350);
+    // Only a condition has a plan to open. Lifestyle and preventative
+    // medicine are summaries of a tab and go there instead.
+    if (!(await p.locator('.sheet').count())) continue;
+    if (await p.locator('.sheet .ownerrow').count()) {
+      owners.push(await p.locator('.sheet .ownerrow').textContent());
+    }
+    await p.click('.sheetx'); await p.waitForTimeout(200);
+  }
+  const ownerText = owners.join(' | ');
+  ok(`each managed problem says who is responsible: ${ownerText.slice(0,60)}`,
+    ownerText.includes('We manage this') && ownerText.includes('Their PCP manages this'));
   ok('and shared care is its own answer, not a half-tick',
-    owners.includes('Shared with their PCP'));
+    ownerText.includes('Shared with their PCP'));
   const rail = (await p.locator('.rail').textContent()).replace(/\s+/g,' ');
   ok('their own physician heads the team block',
     rail.includes('Dr. Samuel Okafor') && rail.includes('Primary care'));

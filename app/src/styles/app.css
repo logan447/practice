@@ -855,7 +855,7 @@ kbd {
 .cdem::-webkit-scrollbar { display: none; }
 .cdem > span { flex: none; }
 .cdem .bar { width: 1px; height: 13px; background: var(--line); margin: 0 2px; }
-.cdem .pmh { color: var(--ink-3); }
+.cdem .pmh { color: var(--ink-3); margin-right: 1px; }
 .csum {
   display: flex; align-items: center; gap: 7px; flex-wrap: nowrap;
   margin: 0; font-size: 14px; color: var(--ink-2);
@@ -869,18 +869,18 @@ kbd {
   border-left: 2px solid var(--line); padding-left: 11px;
 }
 
-/* A diagnosis. Compact, quiet, and darker when we are managing it. */
+/* A diagnosis, as a word.
+ *
+ * These were boxed pills, two rows of them, and they were the loudest
+ * thing on a chart whose whole job is to be quiet. A diagnosis is a
+ * noun; it does not need a border to be one. Separated by middots,
+ * which is how it would be written out. */
 .dx {
-  display: inline-block; font: 500 12.5px/1 var(--sans);
-  padding: 4px 7px; border-radius: 4px; white-space: nowrap;
-  max-width: 100%; overflow-wrap: anywhere;
-  background: var(--panel-2); color: var(--ink-2);
-  border: 1px solid var(--line-2);
+  display: inline-block; font: 400 14px/1.3 var(--sans);
+  white-space: nowrap; color: var(--ink-2);
 }
-.dx.on {
-  background: var(--accent-soft); color: var(--accent);
-  border-color: var(--accent-line);
-}
+.dx + .dx::before { content: '· '; color: var(--ink-3); margin-right: 1px; }
+.dx.on { color: var(--ink); }
 
 
 /* --------------------------------------------------------- workspace */
@@ -1244,10 +1244,7 @@ textarea.prose:focus {
   .packet .note, .packet .panel { page-break-inside: avoid; }
 }
 .csum .lead { color: var(--ink-2); margin-right: 3px; }
-.dx.svc {
-  background: var(--panel-2); color: var(--ink-2);
-  border-color: var(--line); border-style: dashed;
-}
+.dx.svc { color: var(--ink-2); font-style: italic; }
 .problemplan.flash {
   animation: flashrow 1.4s ease-out;
   border-radius: 6px;
@@ -1547,7 +1544,7 @@ blockquote.said footer {
 .soapbody > .psum:first-child { margin-bottom: 10px; }
 
 .derivedfrom {
-  margin: 0 0 22px; font-size: 12.5px; line-height: 1.6; color: var(--ink-3);
+  margin: 9px 0 4px; font-size: 12.5px; line-height: 1.6; color: var(--ink-3);
 }
 .psrc { margin: 6px 0 0; font-size: 12px; line-height: 1.55; color: var(--ink-3); }
 .pconflict {
@@ -2108,3 +2105,143 @@ blockquote.said footer {
 /* The one standing fact about what this practice is, stated once on
    the scope tab rather than as a paragraph introducing it. */
 .scopeline { margin: 0 0 10px; color: var(--ink-2); }
+
+/* ===================================================================
+ * The standardised chart: one row, one group, one sheet.
+ *
+ * Everything below replaces per-tab layout. A record is a line with a
+ * name on the left, a word of state in the middle and a date on the
+ * right, and it is the same line in every tab. No cards, no panels
+ * with their own borders, no pills.
+ * =================================================================== */
+
+.grp { margin-bottom: 30px; }
+.grp:last-child { margin-bottom: 0; }
+
+.grphead {
+  display: flex; align-items: baseline; gap: 9px;
+  padding-bottom: 7px; border-bottom: 1px solid var(--line);
+}
+.grphead h3 {
+  margin: 0; font-family: var(--sans); font-size: 12px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3);
+}
+.grpcount { font-size: 12px; color: var(--ink-3); }
+.grpnote { margin: 7px 0 0; font-size: 13px; color: var(--ink-3); }
+.grprows { margin-top: 2px; }
+
+.rec {
+  display: flex; align-items: baseline; gap: 14px; width: 100%;
+  padding: 11px 2px; text-align: left; background: none; border: 0;
+  border-bottom: 1px solid var(--line-2);
+  font: inherit; color: inherit; cursor: pointer;
+}
+.rec:last-child { border-bottom: 0; }
+.rec:hover { background: var(--panel-2); }
+.rec.flat { cursor: default; }
+.rec.flat:hover { background: none; }
+.recname { flex: 1; min-width: 0; font-size: 15px; color: var(--ink); }
+.recnote { flex: none; font-size: 13px; color: var(--ink-3); }
+.recnote.warn { color: var(--warn); }
+.recwhen {
+  flex: none; width: 92px; text-align: right;
+  font-size: 13px; color: var(--ink-3); font-variant-numeric: tabular-nums;
+}
+.norows { margin: 12px 2px; font-size: 14px; color: var(--ink-3); }
+
+/* ----------------------------------------------------------- sheet */
+
+.sheetback {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgb(22 32 31 / 0.22);
+}
+.sheet {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 61;
+  width: min(620px, 100vw); display: flex; flex-direction: column;
+  background: var(--panel); border-left: 1px solid var(--line);
+  box-shadow: -8px 0 28px rgb(22 32 31 / 0.10);
+}
+.sheethead {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 20px 24px 14px; border-bottom: 1px solid var(--line);
+}
+.sheethead h2 {
+  margin: 0; font-family: var(--serif); font-size: 21px; font-weight: 600;
+  line-height: 1.25; color: var(--ink);
+}
+.sheetsub { margin: 4px 0 0; font-size: 13px; color: var(--ink-3); }
+.sheetx {
+  flex: none; width: 30px; height: 30px; border: 0; border-radius: var(--r);
+  background: none; font-size: 22px; line-height: 1; color: var(--ink-3);
+  cursor: pointer;
+}
+.sheetx:hover { background: var(--panel-2); color: var(--ink); }
+.sheetbody { flex: 1; overflow-y: auto; padding: 20px 24px 28px; }
+.sheetbody > p { margin: 0 0 11px; }
+.sheetbody > p:last-child { margin-bottom: 0; }
+.sheetfoot {
+  display: flex; gap: 8px; padding: 13px 24px;
+  border-top: 1px solid var(--line); background: var(--panel-2);
+}
+
+/* --------------------------------------------- the standing summary
+ * The right column is no longer an index of tabs. It is the standing
+ * answer to "what is this practice doing for this person", and every
+ * line of it is one thing we are managing with how it is going.
+ */
+
+.sumrow {
+  display: block; width: 100%; text-align: left; padding: 11px 0;
+  background: none; border: 0; border-bottom: 1px solid var(--line-2);
+  font: inherit; color: inherit; cursor: pointer;
+}
+.sumrow:last-child { border-bottom: 0; }
+.sumrow:hover .sumname { color: var(--accent); }
+.sumrow.flat { cursor: default; }
+.sumrow.flat:hover .sumname { color: var(--ink); }
+.sumtop { display: flex; align-items: baseline; gap: 10px; }
+.sumname { flex: 1; min-width: 0; font-size: 14px; font-weight: 600; color: var(--ink); }
+.sumstate { flex: none; font-size: 12px; color: var(--ink-3); }
+.sumstate.bad { color: var(--warn); }
+.sumstate.good { color: var(--ok); }
+.sumline {
+  display: block; margin-top: 3px; font-size: 13px; color: var(--ink-3);
+  line-height: 1.45;
+}
+.sumwhen { margin-left: 6px; color: var(--ink-3); opacity: 0.8; }
+
+/* A list inside a sheet: bullets, no card, no row borders. */
+.plainlist { margin: 0; padding-left: 18px; }
+.plainlist li { margin-bottom: 4px; font-size: 15px; }
+
+/* The three things you can do from a chart, under the header. */
+.cacts { display: flex; gap: 7px; margin-top: 14px; }
+
+/* What the patient said, beside the problem it was about. */
+.answas { font-size: 13px; color: var(--ink-3); margin-right: 7px; }
+
+/* A heading inside the account menu, for a group of rows. */
+.acctlabel {
+  padding: 4px 13px 6px; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3);
+}
+
+/* The citation under a derived paragraph, and what is behind it. */
+.srcmark {
+  display: block; margin-top: 6px; padding: 0; border: 0; background: none;
+  font: inherit; font-size: 13px; color: var(--ink-3); text-align: left;
+  text-decoration: underline; text-decoration-style: dotted;
+  text-underline-offset: 3px; cursor: pointer;
+}
+.srcmark:hover { color: var(--accent); }
+.srclist { margin: 9px 0 0; padding: 0; list-style: none; }
+.srcitem {
+  display: flex; gap: 9px; align-items: baseline;
+  padding: 6px 0; border-bottom: 1px solid var(--line-2); font-size: 13px;
+}
+.srcitem:last-child { border-bottom: 0; }
+.srckind {
+  flex: none; width: 76px; color: var(--ink-3);
+  font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+}
+.srcitem > span:nth-child(2) { flex: 1; min-width: 0; }

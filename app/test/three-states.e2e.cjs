@@ -1,18 +1,21 @@
 /**
- * The same structure, at three fill levels.
+ * The same chart, at three fill levels.
  *
  * A chart design can only be judged against all three, and the one
  * that is almost never designed for is the middle one: half the
- * problems reviewed, one patient answer of four, vitals but no labs,
- * a plan written for one problem and not the rest.
+ * problems reviewed, one patient answer of four, vitals but no labs.
  *
  * What this suite is really testing is that nothing renders blank.
- * Every section on an empty chart has to say what it does not have,
- * because a blank space in a clinical document reads as a normal
- * finding and that is the failure that matters.
+ * Every block and every tab on an empty chart has to say what it does
+ * not have, because a blank space in a clinical document reads as a
+ * normal finding and that is the failure that matters.
+ *
+ * It used to read the care plan tab, which is gone. The standing
+ * summary is the right column and the detail is one sheet per
+ * problem, so that is where the same questions get asked now.
  */
 const {chromium}=require('playwright');
-const {tab, hasTab, soap, section}=require('./tabs.cjs');
+const {tab}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
@@ -28,97 +31,108 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('button:has-text("Load the day")'); await p.waitForTimeout(800);
 
   const open = async (name) => {
-    await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(350);
+    await p.click('.acctbtn'); await p.waitForTimeout(150);
+    await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(350);
     await p.fill('input[aria-label="Search patients"]',name); await p.waitForTimeout(350);
     await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(600);
   };
-  // The care plan is one document: a "section" is a letter of it.
-  const sectionText = async (letter) => soap(p, letter);
+  const problem = async (n) => {
+    await p.locator('.sumrow').nth(n).click(); await p.waitForTimeout(400);
+    const t = (await p.locator('.sheet').textContent()).replace(/\s+/g,' ');
+    return t;
+  };
+  const shut = async () => { await p.click('.sheetx'); await p.waitForTimeout(250); };
+  const tabText = async (name) => {
+    await tab(p, name);
+    return (await p.locator('.tabbody').textContent()).replace(/\s+/g,' ');
+  };
 
   ok('the app opens on the schedule, as a week',
     (await p.locator('.weekgrid .wday').count())===7
     && (await p.locator('.vtab.on').textContent())==='week');
-  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
+  await p.click('.acctbtn'); await p.waitForTimeout(150);
+  await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   ok('the demo is five charts, not a crowd',
     (await p.locator('table.rows tbody tr').count())===5);
 
   // -------------------------------------------------- 1. filled out
   await open('Sharon');
-  const sOverall = (await p.locator('.soap').first().locator('.psum').first().textContent());
-  ok(`the overall summary is derived: "${sOverall.slice(0,40)}..."`, sOverall.length>60);
-  ok('every managed problem is summarised',
-    (await p.locator('.sprob .psum').count())>=3);
-  ok('each problem is one paragraph, not a split into testimony and findings',
-    (await p.locator('.sprob .psum').count())===(await p.locator('.sprob').count()));
-  ok('and the chart review is not announced in the middle of it',
-    !(await p.locator('.soapbody').first().textContent()).includes('Chart review:'));
-  ok('and their account of their health overall opens it',
-    sOverall.startsWith('Patient reports'));
-  await section(p, 'O');
-  ok('the objective has vitals, an examination and labs',
-    (await p.locator('.vitblock').count())>0
-    && (await p.locator('.examrow').count())>0
-    && (await p.locator('.bone').count())>0);
-  ok('every problem is judged at goal or needing work',
-    !(await p.locator('.goalrow').allTextContents()).join('|').includes('Not assessed'));
-  const sPlan = await sectionText('P');
-  ok('the plan is written for every problem', !sPlan.includes('No plan written'));
-  ok('and the follow-up interval is set',
-    await hasTab(p, 'Follow-up'));
+  ok('the chart opens on the records, not on a document',
+    (await p.locator('.ctabs > .ctab.on').textContent())==='Encounters');
+  ok('seven tabs, and no eighth holding the rest',
+    (await p.locator('.ctabs > .ctab').count())===7
+    && (await p.locator('.ctabmore').count())===0);
+
+  const rail = (await p.locator('.rail').textContent()).replace(/\s+/g,' ');
+  ok('the column says what the practice is managing, in those words',
+    rail.includes('Our office is managing:'));
+  ok('lifestyle and preventative medicine sit with the conditions',
+    rail.includes('Lifestyle medicine') && rail.includes('Preventative medicine'));
+  ok('each managed thing carries its own evidence, not just a name',
+    rail.includes('Lisinopril') && /\d/.test(rail));
+  ok('a condition is controlled or uncontrolled, in one word',
+    rail.includes('Controlled') && rail.includes('Uncontrolled'));
+  ok('diagnostics carries a count', (await p.locator('.rcount').count())>0);
+  ok('and medicines are not a block of their own any more',
+    !/\bMedicines\b/.test(rail));
+
+  const sProb = await problem(0);
+  ok(`the problem sheet opens with where they are now: ${sProb.slice(0,40)}...`,
+    sProb.includes('Where they are now'));
+  ok('and the sentence is derived, with its records behind it',
+    sProb.includes('Composed from') && sProb.includes('Nothing here is stored'));
+  await p.click('.srcmark'); await p.waitForTimeout(250);
+  ok('the records open', (await p.locator('.srcitem').count())>0);
+  ok('the sheet carries the plan and what it is treated with',
+    sProb.includes('Plan') && sProb.includes('Being treated with'));
+  await shut();
+
+  for (const t of ['Encounters','Notes','Labs','Meds','Imaging','Prevention','Specialists']) {
+    const txt = await tabText(t);
+    ok(`${t} is a list of records and nothing else`, txt.length>20);
+  }
+  ok('a record is one line, with no preview paragraph under it',
+    (await p.locator('.tlprev').count())===0);
 
   // ------------------------------------------------- 2. part filled
   await open('Marcus');
-  const mOverall = (await p.locator('.soap').first().locator('.psum').first().textContent());
-  ok('there is still an overall summary, from fewer records', mOverall.length>30);
-  const mSubj = await sectionText('S');
-  ok('a problem with nothing from the patient says so',
-    mSubj.includes('Nothing on file from the patient about this problem'));
-  ok('a drug nobody has asked about says that too',
-    mSubj.includes('adherence not asked about'));
-  const mObj = await sectionText('O');
-  ok('vitals are there', (await p.locator('.vitblock').count())>0);
-  ok('the missing examination is stated, not skipped',
-    mObj.includes('No examination documented. Not the same as a normal examination.'));
-  ok('the labs that exist are shown', (await p.locator('.bone').count())>0);
-  await section(p, 'A');
-  ok('a problem nobody judged says "not assessed"',
-    (await p.locator('.goalrow').allTextContents()).join('|').includes('Not assessed'));
-  const mPlan = await sectionText('P');
-  ok('the plan still lists what is being done for each problem',
-    mPlan.includes('Lisinopril') && /Active|Needs attention/.test(mPlan));
+  const mRail = (await p.locator('.rail').textContent()).replace(/\s+/g,' ');
+  ok('the column still draws every block', mRail.includes('Vitals')
+    && mRail.includes('Diagnostics') && mRail.includes('Care team'));
+  ok('a problem nobody judged says so rather than looking fine',
+    mRail.includes('Not assessed'));
+  const mProb = await problem(0);
+  ok('a problem with nothing from the patient says that out loud',
+    /Nothing on file from the patient|No plan written/.test(mProb));
+  await shut();
 
   // ----------------------------------------------------- 3. empty
   await open('Nina');
-  const nSubj = await sectionText('S');
-  ok('the subjective says nothing is being managed',
-    nSubj.includes('Nothing is being managed here yet'));
-  // Never "they have not been asked": every patient gets a baseline
-  // evaluation, so the only honest empty state is that it has not
-  // happened yet, and it says when it is booked for.
-  ok('and says the intake has not happened yet, with the date it is booked',
-    nSubj.includes('No intake on file yet') && nSubj.includes('First visit booked for'));
-  ok('and never claims nobody asked them anything',
-    !nSubj.includes('have not been asked'));
-  const nObj = await sectionText('O');
-  ok('no vitals is said out loud', nObj.includes('No vitals recorded'));
-  ok('no examination is said out loud',
-    nObj.includes('No examination documented. Not the same as a normal examination.'));
-  ok('no labs is said out loud', nObj.includes('No laboratory results on file'));
-  ok('no diagnostics is said out loud', nObj.includes('None on file'));
-  const nAss = await sectionText('A');
-  ok('an empty prevention schedule is not called at goal',
-    !nAss.includes('At goal') && nAss.includes('Nothing scheduled yet'));
-  ok('lifestyle says nothing is prescribed', nAss.includes('Nothing prescribed yet'));
-  const rail = (await p.locator('.railnotices, .rail, [class*=rail]').first().textContent());
-  ok('and the rail has an empty state for each of its sections',
-    (await p.locator('.railblock, .railhead').count())>=6);
-  ok('a chart with nothing on it is not told its summary is behind',
-    (await p.locator('.railnotices .summarybanner').count())===0);
+  const nRail = (await p.locator('.rail').textContent()).replace(/\s+/g,' ');
+  ok('an empty chart says nothing is being managed',
+    nRail.includes('Nothing is being managed here yet'));
+  ok('and every other block says it is empty rather than vanishing',
+    nRail.includes('Nothing recorded') && nRail.includes('Nothing on file'));
+  ok('a missing primary care physician is a finding, not a blank',
+    nRail.includes('No primary care physician'));
+  ok('the four blocks are all drawn', (await p.locator('.railblock').count())===4);
+
+  // Nina has one booked first visit and nothing else, so the two tabs
+  // that know about it show it rather than claiming to be empty.
+  for (const [t, said] of [['Encounters','First visit'],['Notes','Scheduled'],
+    ['Labs','None on file'],['Meds','No medicines recorded'],['Imaging','None on file'],
+    ['Prevention','Nothing scheduled yet'],['Specialists','Nobody else recorded']]) {
+    const txt = await tabText(t);
+    ok(`${t} says what it does not have: "${said}"`, txt.includes(said));
+  }
 
   // nothing anywhere renders as an empty box
-  const blanks = await p.locator('.derived').evaluateAll(
+  const blanks = await p.locator('.grp, .railblock').evaluateAll(
     (els)=>els.filter((e)=>e.textContent.replace(/\s+/g,'').length < 12).length);
   ok('no section renders blank', blanks===0);
+
+  const over=await p.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth+1);
+  ok('no horizontal overflow', !over);
 
   console.log([...pass,...fail].join('\n'));
   console.log(fail.length? `\n${fail.length} FAILED` : '\nALL PASSED');

@@ -31,13 +31,16 @@ import { useActor, ROLE_LABEL, signInAs } from '../lib/session';
 import { can } from '../lib/permissions';
 import { recordRead, record } from '../lib/audit';
 import { practiceSummary, demographicLine } from '../lib/clinical';
-import { MasterPlanView } from './chart/MasterPlanView';
 import { Rail } from './chart/Rail';
 import { VisitsDrawer } from './chart/VisitsDrawer';
 import {
-  TAB_LABEL, CHART_TABS, MORE_TABS, ResultsDrawer, StudiesDrawer,
+  TAB_LABEL, CHART_TABS,
   FollowUpDrawer, OrdersDrawer, type ChartDrawer,
 } from './chart/drawers';
+import { LabsTab } from './chart/LabsTab';
+import { ImagingTab } from './chart/ImagingTab';
+import { Booking } from '../components/Booking';
+import { ProblemSheet } from './chart/ProblemSheet';
 import { Documentation } from './chart/Documentation';
 import { Scope } from './chart/Scope';
 import { ExportDrawer } from './chart/ExportDrawer';
@@ -55,7 +58,19 @@ export function Chart({ patientId }: { patientId: string }) {
   const st = useStore();
   const nav = useNav();
   const me = useActor();
-  const [tab, setTab] = useState<ChartDrawer>('careplan');
+  const routeTab = nav.route.name === 'chart' ? nav.route.tab : undefined;
+  const [tab, setTab] = useState<ChartDrawer>('encounters');
+  /*
+   * The ten rarely-wanted tabs live in the account menu now, and the
+   * menu cannot reach into this component, so it asks for them through
+   * the route instead. That also makes them linkable, which the More
+   * control never was.
+   */
+  useEffect(() => {
+    if (routeTab) setTab(routeTab as ChartDrawer);
+  }, [routeTab]);
+  const [booking, setBooking] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
 
   useEffect(() => { markChartOpen(); }, [patientId]);
 
@@ -149,13 +164,39 @@ export function Chart({ patientId }: { patientId: string }) {
             </p>
           )}
 
+          {/*
+            * The three things you can do from a chart, on one row,
+            * with no explanation. What each one does is the word on
+            * it. They used to live inside the encounters tab under a
+            * heading, which made starting a visit a navigation.
+            */}
+          <div className="cacts">
+            {([['visit', 'Visit'], ['review', 'Care plan review']] as const).map(([kind, label]) => (
+              <button key={kind} className="btn ghost startenc" onClick={() => {
+                const id = st.openEncounter(p.id, kind);
+                nav.go({ name: 'encounter', encounterId: id });
+              }}>{label}</button>
+            ))}
+            <button className="btn ghost" onClick={() => setBooking(true)}>Book</button>
+          </div>
         </header>
+
+        {booking && (
+          <Booking patientId={p.id}
+            onCancel={() => setBooking(false)}
+            onBooked={(id, sameDay) => {
+              setBooking(false);
+              if (sameDay) nav.go({ name: 'encounter', encounterId: id });
+            }} />
+        )}
 
         {/* ------------------------------------------------- the tabs */}
         {/*
-          * Two groups in one strip, and the divider is the only thing
-          * marking them: the care plan, then the record it was built
-          * from. Both open in the same place, so neither is a detour.
+          * Seven tabs, all of the same kind: a list of records you can
+          * open. There is no eighth tab holding the care plan, and no
+          * "More" tab holding ten others. The care plan is the right
+          * column and the encounter workspace; the other ten are in
+          * the account menu.
           */}
         <nav className="ctabs">
           {CHART_TABS.map((t) => (
@@ -164,99 +205,41 @@ export function Chart({ patientId }: { patientId: string }) {
               {TAB_LABEL[t]}
             </button>
           ))}
-          <MoreTabs current={tab} onPick={setTab} />
         </nav>
 
         {/* -------------------------------------------- the workspace */}
         <div className="workspace">
           <div className="tabbody">
-            {tab === 'careplan' ? (
-              <MasterPlanView patientId={p.id}
-                onOpen={(w) => setTab(w === 'notes' ? 'visits' : (w as ChartDrawer))} />
-            ) : (
-              <>
-                {tab === 'visits' && <VisitsDrawer patientId={p.id} onDone={() => setTab('careplan')} />}
-                {tab === 'plan' && <PlanTab patientId={p.id} />}
-                {tab === 'meds' && <MedsTab patientId={p.id} />}
-                {tab === 'results' && <ResultsDrawer patientId={p.id} />}
-                {tab === 'specialists' && <SpecialistsTab patientId={p.id} />}
-                {tab === 'orders' && <OrdersDrawer patientId={p.id} />}
-                {tab === 'followup' && <FollowUpDrawer patientId={p.id} />}
-                {tab === 'studies' && <StudiesDrawer patientId={p.id} />}
-                {tab === 'prevention' && <PreventionTab patientId={p.id} />}
-                {tab === 'letters' && <PaperTab patientId={p.id} />}
-                {tab === 'records' && <RecordsTab patientId={p.id} />}
-                {tab === 'documentation' && <Documentation patientId={p.id} />}
-                {tab === 'scope' && <Scope patientId={p.id} />}
-                {tab === 'export' && <ExportDrawer patientId={p.id} />}
-                {tab === 'history' && <HistoryTab patientId={p.id} />}
-                {tab === 'details' && <Details patientId={p.id} />}
-                {tab === 'notes' && <NotesTab patientId={p.id} />}
-                {tab === 'encounters' && (
-                  <EncountersDrawer patientId={p.id} onDone={() => setTab('careplan')} />
-                )}
-              </>
-            )}
+            {tab === 'visits' && <VisitsDrawer patientId={p.id} onDone={() => setTab('encounters')} />}
+            {tab === 'plan' && <PlanTab patientId={p.id} />}
+            {tab === 'meds' && <MedsTab patientId={p.id} />}
+            {tab === 'results' && <LabsTab patientId={p.id} />}
+            {tab === 'specialists' && <SpecialistsTab patientId={p.id} />}
+            {tab === 'orders' && <OrdersDrawer patientId={p.id} />}
+            {tab === 'followup' && <FollowUpDrawer patientId={p.id} />}
+            {tab === 'studies' && <ImagingTab patientId={p.id} />}
+            {tab === 'prevention' && <PreventionTab patientId={p.id} />}
+            {tab === 'letters' && <PaperTab patientId={p.id} />}
+            {tab === 'records' && <RecordsTab patientId={p.id} />}
+            {tab === 'documentation' && <Documentation patientId={p.id} />}
+            {tab === 'scope' && <Scope patientId={p.id} />}
+            {tab === 'export' && <ExportDrawer patientId={p.id} />}
+            {tab === 'history' && <HistoryTab patientId={p.id} />}
+            {tab === 'details' && <Details patientId={p.id} />}
+            {tab === 'notes' && <NotesTab patientId={p.id} />}
+            {tab === 'encounters' && <EncountersDrawer patientId={p.id} />}
           </div>
           <div>
-            <Rail patientId={p.id} open={setTab}
-              /*
-               * A problem in the rail points at the plan for it, so
-               * the tab has to change before the scroll: the element
-               * does not exist until the Plan tab is on screen.
-               */
-              onJump={(cid) => {
-                setTab('careplan');
-                window.setTimeout(() => {
-                  const el = document.getElementById(`problem-${cid}`);
-                  el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                  el?.classList.add('flash');
-                  window.setTimeout(() => el?.classList.remove('flash'), 1400);
-                }, 60);
-              }} />
+            <Rail patientId={p.id} open={setTab} onJump={setProblem} />
           </div>
         </div>
+
+        {problem && (
+          <ProblemSheet patientId={p.id} conditionId={problem}
+            onClose={() => setProblem(null)} />
+        )}
       </div>
     </div>
-  );
-}
-
-/**
- * The tail of the strip, behind one control.
- *
- * Ten things that are real and rarely wanted. Putting them in the
- * strip made it twenty-one tabs wide and scrolling sideways, which is
- * a strip nobody reads.
- */
-function MoreTabs({ current, onPick }: {
-  current: ChartDrawer;
-  onPick: (t: ChartDrawer) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  useEffect(() => {
-    if (!open) return undefined;
-    const close = () => setOpen(false);
-    window.addEventListener('click', close);
-    return () => window.removeEventListener('click', close);
-  }, [open]);
-  const here = MORE_TABS.includes(current);
-
-  return (
-    <span className="ctabmore" onClick={(e) => e.stopPropagation()}>
-      <button className={`ctab${here ? ' on' : ''}`} onClick={() => setOpen((v) => !v)}>
-        {here ? TAB_LABEL[current] : 'More'}
-      </button>
-      {open && (
-        <span className="moremenu">
-          {MORE_TABS.map((t) => (
-            <button key={t} className="acctrow"
-              onClick={() => { onPick(t); setOpen(false); }}>
-              {TAB_LABEL[t]}
-            </button>
-          ))}
-        </span>
-      )}
-    </span>
   );
 }
 

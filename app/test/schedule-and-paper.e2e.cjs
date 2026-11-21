@@ -63,9 +63,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // ----------------------------------------- 3. booking collides
   await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(450);
-  // Booking lives in the Encounters tab, not in the header.
-  await tab(p, 'Encounters');
-  await p.click('.tabbody button:has-text("Book for later")'); await p.waitForTimeout(400);
+  // Booking is one of the three actions under the chart header.
+  await p.click('.cacts button:has-text("Book")'); await p.waitForTimeout(400);
   ok('booking offers the two activities with their lengths',
     (await p.locator('.booking').textContent()).includes('30m')
     && (await p.locator('.booking').textContent()).includes('60m'));

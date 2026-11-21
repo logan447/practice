@@ -1,5 +1,5 @@
 const {chromium}=require('playwright');
-const {tab, hasTab, soap, section}=require('./tabs.cjs');
+const {tab, hasTab}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4600/';
 const step=[]; const fail=[];
 const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
@@ -58,14 +58,18 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
     (await p.locator('.csum').textContent().catch(()=>'')).includes('Trouble sleeping')===false);
   await tab(p, 'Encounters');
   ok('intake visit booked', (await p.locator('.tabbody').textContent()).includes('First full visit'));
-  await section(p, 'S');
   await p.screenshot({path:'e2e-3-newchart.png', fullPage:true});
 
   // 4 — medicines parsed from free text await p.waitForTimeout(250);
   await tab(p, 'Meds');
   await p.waitForTimeout(250);
   ok('medicine name parsed', await p.locator('.tabbody >> text=Amlodipine 5 mg').first().isVisible());
-  ok('sig parsed', await p.locator('.tabbody >> text=one tablet each morning').first().isVisible());
+  // The row is the name and the date; how they take it is in the sheet.
+  await p.locator('.rec:has-text("Amlodipine 5 mg")').first().click();
+  await p.waitForTimeout(350);
+  ok('sig parsed', (await p.locator('.sheet').textContent()).toLowerCase()
+    .includes('one tablet each morning'));
+  await p.click('.sheetx'); await p.waitForTimeout(250);
   // add one
   await p.click('button:has-text("+ Add a medicine")');
   await p.waitForTimeout(200);
