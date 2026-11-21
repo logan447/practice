@@ -26,7 +26,8 @@ mechanism will exist (form deferred)
 **Operations & technology:** D-026 one Practice Terms document + EHR care
 plan · D-027 cancel-anytime monthly; no outcomes guarantee · D-021
 established EHR core + simple front-door website · D-007 integrate before
-build
+build · D-036 kb/ knowledge base adopted · D-037 KB doubles as the
+assistant corpus; PHI never in this repo
 
 **Project:** D-034 named: **DuBose, M.D.** · D-011 preparation project · D-012 Texas, Austin lean · D-019
 ~12–24 mo horizon; VA license now, TX after settling · D-020 $20k prep
@@ -357,3 +358,32 @@ appears in the hero, so the seen-the-number principle still holds).
 **Revisit triggers:** launch-city facts landing ([City], service
 area, licensure), counsel/TMB review outcomes, scheduler and portal
 vendor selection, first real conversion data.
+
+## D-036 — The kb/ knowledge-base architecture is adopted (2026-11-21)
+
+The medical knowledge base proposed 2026-08-23 is adopted as built:
+one note, one file; faceted tags for cross-cutting retrieval; source
+records separated from synthesis and from personal notes; verification
+states (`unverified`/`current`/`superseded`) with `tools/kb_audit.py`
+as the staleness check; board-review material preserved as taught with
+`BOARDS-VS-PRACTICE` markers. `kb/README.md` is the binding manual.
+First content program: the Lifestyle Medicine board-review book.
+**Revisit triggers:** retrieval failing in real study use; flat
+folders or manual tags becoming painful at volume; a second board
+track arriving.
+
+## D-037 — The KB doubles as the practice assistant's corpus; PHI never enters this repo (2026-11-21)
+
+The practice will build an AI assistant supporting patients and
+clinician before, during, and after visits (questions, check-ins, data
+collection, recommendations, reports) — design in
+`docs/systems/lm-assistant.md`. Two content planes: the assistant's
+medical knowledge comes **only** from kb/ notes explicitly marked
+`assistant:` approved and verification-current (`tools/kb_export.py`
+builds the corpus and blocks unverified/superseded sources); patient
+data is read at runtime from HIPAA-covered systems and **is never
+committed to this repository**. Phase 0 (corpus + prompt + owner-only
+testing on the owner's own data) proceeds now; any PHI-connected phase
+waits on the Stage-2 HIPAA review (experience-layer §6) and the Q-24
+counsel answers. **Revisit triggers:** Q-24 answers landing; X-03 EHR
+selection; first real Phase-0 usage findings.

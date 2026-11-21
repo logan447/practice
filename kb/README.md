@@ -1,8 +1,8 @@
 # Knowledge Base (KB) — How This System Works
 
-**Status: PROPOSED architecture, pending owner review.** On approval,
-log as a decision in `docs/charter/decision-log.md` and delete this
-line.
+Architecture adopted 2026-11-21 (D-036); it also serves as the
+practice assistant's approved-content corpus (D-037,
+`docs/systems/lm-assistant.md`).
 
 This is the living medical knowledge repository: a source-based system
 for learning, board review, and clinical practice. It complements — it
@@ -194,3 +194,27 @@ important sources always get the full front matter block.
    access date), then synthesis.
 
 Adding one paper should take minutes, not become a project.
+
+## 10. The assistant corpus (what the chatbot may use)
+
+The practice assistant (`docs/systems/lm-assistant.md`) draws its
+medical knowledge **only** from notes that opt in via front matter:
+
+```yaml
+assistant: excluded    # the default when absent — never exported
+assistant: clinician   # clinician-facing use only
+assistant: patient     # usable in patient-facing replies
+assistant: all         # both audiences
+```
+
+`python3 tools/kb_export.py` builds `kb/export/corpus.jsonl` (a
+derived, gitignored artifact) and enforces: sources with `status:
+unverified` or `superseded` are never exported regardless of the
+field; exported notes citing non-current sources raise warnings.
+Defaults by kind: `board-review`, `teacher`, and `observation` notes
+are capped at `clinician` — patient-facing recommendations trace to
+verified-current guidelines and the synthesis built on them.
+
+**Patient data never enters `kb/` or anywhere else in this git
+repository.** The assistant reads chart data at runtime from
+HIPAA-covered systems; the repo supplies only the knowledge plane.

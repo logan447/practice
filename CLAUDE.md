@@ -42,5 +42,11 @@ seeded from model memory starts `unverified`; conflicts between
 sources are documented, never silently resolved; board-review material
 is preserved as taught, with `BOARDS-VS-PRACTICE:` markers where it
 diverges from current guidance. `python3 tools/kb_audit.py` lists what
-needs rechecking. House Style does not gate `kb/` (internal notes) —
+needs rechecking. The KB is also the practice assistant's corpus
+(D-037, `docs/systems/lm-assistant.md`): notes opt in via
+`assistant: excluded | clinician | patient | all` (absent = excluded);
+`python3 tools/kb_export.py` builds the corpus and blocks
+unverified/superseded sources. **Patient data / PHI never enters this
+repository, anywhere, ever** — the assistant reads it at runtime from
+HIPAA-covered systems only. House Style does not gate `kb/` (internal notes) —
 but does gate anything patient-facing derived from it.

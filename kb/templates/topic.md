@@ -1,6 +1,7 @@
 ---
 id: topic-SLUG
 updated:               # date of last substantive edit
+assistant: excluded    # excluded | clinician | patient | all (README §10)
 tags: []
 ---
 

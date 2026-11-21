@@ -13,6 +13,7 @@ review-by: UNSET       # when to recheck (guidelines/recommendations)
 status: unverified     # current | superseded | unverified
 superseded-by: —
 population:
+assistant: excluded    # excluded | clinician | patient | all (README §10)
 tags: []
 ---
 

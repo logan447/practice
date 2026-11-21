@@ -46,12 +46,12 @@ patient one (unit economics §3, risk R-26).
 | `docs/agreements/` | Patient Agreement draft · program eligibility brief · payment research |
 | `docs/website/` | Website information architecture, patient journey, and (soon) the site itself |
 | `docs/acquisition/` | Patient-acquisition workstream: funnel architecture, channel map, measurement system, phased plan, marketing compliance |
-| `docs/systems/` | Technology strategy: the experience-layer exploration, EHR interop criteria |
+| `docs/systems/` | Technology strategy: the experience-layer exploration, EHR interop criteria, the practice-assistant design |
 | `docs/outreach/` | Physical outreach packet: architecture, production plan, piece drafts |
 | `docs/style/` | **House Style** — the binding writing standard for all materials |
 | `docs/archive/` | Superseded concepts, preserved with an index — how we got here |
 | `kb/` | **Medical knowledge base** — source-based learning and clinical-reference system (see `kb/README.md`) |
-| `tools/` | `practice_model.py` — the subscription economics model · `kb_audit.py` — knowledge-base staleness audit |
+| `tools/` | `practice_model.py` — the subscription economics model · `kb_audit.py` — knowledge-base staleness audit · `kb_export.py` — assistant-corpus export |
 
 ## Working agreements
 

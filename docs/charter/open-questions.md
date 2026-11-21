@@ -97,6 +97,17 @@ continuity); GFE mechanics for a published flat price; refund/
 cancellation terms (DTPA); discounted-slot criteria (X-10, R-10);
 marketing claims (R-13).
 
+### Q-24 — The practice assistant: regulatory boundary `COUNSEL`
+The AI assistant (D-037, `docs/systems/lm-assistant.md`) needs counsel
+answers before any PHI-connected phase: BAA availability/terms with
+the AI vendor; whether its recommendation functions cross the FDA
+clinical-decision-support device boundary; malpractice coverage for
+AI-assisted care; patient consent/disclosure language for the Patient
+Agreement; TMB/Texas telemedicine rules on automated patient
+communication; copyright limits on using the board-review book's
+content in a product rather than personal study. Phase 0 (no PHI,
+owner-only testing) proceeds meanwhile.
+
 ### Q-18 — Compensation and tax structure `CPA`
 The after-tax goal spans a ~$20k pre-tax band on filing status, QBI,
 entity structure (W-2 not assumed), SE tax, retirement strategy, and the

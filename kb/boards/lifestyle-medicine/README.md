@@ -21,6 +21,18 @@ pillar; split only if a file gets unwieldy):
 - `clinical-applications.md` — LM in T2DM, CVD, obesity, cancer
   prevention, mental health, healthy aging
 
+## Ingesting the board-review book
+
+When the owner's LM board study guide arrives: the **book itself gets
+one book-level source record** in `kb/sources/` (title, edition, year,
+publisher — the provenance anchor), and each pillar file here cites it
+(`source: src-<book-id>, ch. N`) so every board note traces back to
+the book without repeating the metadata. Material is added pillar by
+pillar as studying reaches it. Board notes default to
+`assistant: clinician` at most (kb/README §10) — the book is
+copyrighted study material; its use in any patient-facing product is
+an open counsel question (lm-assistant.md §6).
+
 Each file's front matter names the source material it came from
 (course, syllabus, lecture, chapter) with dates — board notes get
 provenance too. Concepts worth cross-topic discovery are tagged
