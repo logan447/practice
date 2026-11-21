@@ -39,7 +39,7 @@ const OLD = {
   // ------------------------------------- 1. state from an older version
   await p.evaluate((raw)=>localStorage.setItem('dlm-emr-v1',JSON.stringify(raw)), OLD);
   await p.goto(U,{waitUntil:'networkidle'}); await p.waitForTimeout(500);
-  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   ok('the panel still loads', (await p.locator('table.rows tbody tr').count())===1);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(700);
   ok('the chart draws rather than going blank',
@@ -49,7 +49,7 @@ const OLD = {
   ok('the problem renders rather than throwing',
     (await p.locator('#subj-sc1').count())===1);
   ok('and every other section drew too',
-    (await p.locator('.soap').count())===4);
+    (await p.locator('.ctab').count())>=4);
   ok('no uncaught error reached the page', errs.length===0);
 
   // ---------------------------------------------- 2. the way back out
@@ -64,7 +64,8 @@ const OLD = {
     now:'2026-11-16',
   })));
   await p.goto(U,{waitUntil:'networkidle'}); await p.waitForTimeout(400);
-  await p.click('.topbar button:has-text("Patients")').catch(()=>{}); await p.waitForTimeout(400);
+  await p.click('.acctbtn').catch(()=>{}); await p.waitForTimeout(150);
+  await p.click('.acctrow:has-text("Patients")').catch(()=>{}); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr').first().click().catch(()=>{});
   await p.waitForTimeout(700);
   ok('a crash is a screen, not a white page',

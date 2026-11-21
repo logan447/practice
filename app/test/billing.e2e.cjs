@@ -24,13 +24,13 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('button:has-text("Load the day")'); await p.waitForTimeout(700);
 
   // ------------------------------------------- a Medicare patient
-  await p.click('.topbar button:has-text(\"Patients\")'); await p.waitForTimeout(400);
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
 
   // ------------------------------------------- a Medicare patient
   await p.fill('input[aria-label=\"Search patients\"]','Lindqvist'); await p.waitForTimeout(350);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(700);
-  await p.click('.railfoot button:has-text("Coding")'); await p.waitForTimeout(700);
-  const doc=(await p.locator('.drawerbody').textContent()).replace(/\s+/g,' ');
+  await p.click('.ctab:has-text("Coding")'); await p.waitForTimeout(700);
+  const doc=(await p.locator('.tabbody').textContent()).replace(/\s+/g,' ');
 
   // ---------------------------------------------- the wellness visit
   ok('a Medicare patient gets a wellness visit panel', doc.includes('Wellness visit'));
@@ -80,12 +80,12 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     doc.includes('provided by clinical staff') && doc.includes('89 FR 97876'));
 
   // --------------------------------------- the visit, on another chart
-  await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(300);
-  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(350);
+  
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(350);
   await p.fill('input[aria-label="Search patients"]','Sharon'); await p.waitForTimeout(350);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(700);
-  await p.click('.railfoot button:has-text("Coding")'); await p.waitForTimeout(700);
-  const s=(await p.locator('.drawerbody').textContent()).replace(/\s+/g,' ');
+  await p.click('.ctab:has-text("Coding")'); await p.waitForTimeout(700);
+  const s=(await p.locator('.tabbody').textContent()).replace(/\s+/g,' ');
   ok('a patient who is not on Medicare gets no wellness visit panel',
     !s.includes('Wellness visit'));
   ok('visits still show both routes to a level', /gives 992\d\d\./.test(s));

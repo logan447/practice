@@ -27,7 +27,10 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('button:has-text("Load the day")'); await p.waitForTimeout(700);
 
   // ------------------------------------------- 0. the day is the way in
-  ok('the morning opens on the day, not a patient list',
+  ok('the morning opens on the schedule, not a patient list',
+    (await p.locator('.weekgrid .wday').count())===7);
+  await p.click('.vtab:has-text("day")'); await p.waitForTimeout(500);
+  ok('and the day holds five activities',
     (await p.locator('.daylist .dayrow').count())===5);
   const kinds = (await p.locator('.dayrow .dkind').allTextContents()).join(' ');
   ok('and it holds two kinds of activity and no others',
@@ -37,7 +40,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     (await p.locator('.dayrow:has-text("Sharon") .chip').allTextContents())
       .some((t)=>/to reconcile|Nothing new/.test(t)));
 
-  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.fill('input[aria-label="Search patients"]','Sharon'); await p.waitForTimeout(350);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(800);
 
@@ -89,8 +92,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     (await p.locator('.reviewgrid button:has-text("Approve")').textContent())
       .includes('publish version 2'));
   await p.click('.reviewgrid button:has-text("Approve")'); await p.waitForTimeout(900);
-  ok('and it returns to the day', await p.locator('.daylist').isVisible());
-  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
+  ok('and it returns to the schedule', await p.locator('.weekgrid, .daylist').first().isVisible());
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.fill('input[aria-label="Search patients"]','Sharon'); await p.waitForTimeout(350);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(800);
   const after = await p.locator('.derivedfrom').textContent();

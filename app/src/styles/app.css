@@ -977,8 +977,25 @@ textarea.prose:focus {
  * a patient you are seeing on Tuesday.
  */
 .rail { display: flex; flex-direction: column; gap: 22px; }
+/*
+ * Sticky, but never taller than the window.
+ *
+ * It used to be sticky with no height limit, so on a long chart the
+ * column pinned and the page looked like it had stopped scrolling
+ * until the bottom of the rail went past. Capping it to the viewport
+ * and letting it scroll inside means the document always moves when
+ * the pointer is over the document, which is the only rule a reader
+ * should have to learn. `overscroll-behavior` stops a flick inside
+ * the rail from carrying on into the page behind it.
+ */
 @media (min-width: 1081px) {
-  .workspace > div:last-child { position: sticky; top: 18px; }
+  .workspace > div:last-child {
+    position: sticky; top: 18px;
+    max-height: calc(100vh - 42px);
+    overflow-y: auto; overscroll-behavior: contain;
+    scrollbar-width: thin; scrollbar-gutter: stable;
+    padding-right: 4px;
+  }
 }
 .railblock { }
 .railhead {
@@ -1854,3 +1871,204 @@ blockquote.said footer {
 .scopebullets { margin: 0; padding-left: 18px; }
 .scopebullets li { font-size: 13px; line-height: 1.7; color: var(--ink-2); }
 .scopewarn { font-size: 13px; line-height: 1.6; color: var(--warn); margin: 0 0 7px; }
+
+/* ================================================= schedule: three views */
+.viewtabs {
+  display: flex; gap: 2px; padding: 2px;
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px;
+}
+.vtab {
+  font: 500 12px/1 var(--sans); text-transform: capitalize;
+  padding: 6px 12px; border: 0; border-radius: 4px;
+  background: none; color: var(--ink-3); cursor: pointer;
+}
+.vtab:hover { color: var(--ink); }
+.vtab.on { background: var(--panel); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+
+/* a day header you can click into */
+.wdhead {
+  width: 100%; border: 0; background: none; font: inherit; cursor: pointer;
+  text-align: left;
+}
+
+/* encounters with no hour: real, and not given a fictional one */
+.wdloose { margin: 0 6px 4px; display: flex; flex-direction: column; gap: 3px; }
+.looserow {
+  display: flex; align-items: baseline; gap: 6px; width: 100%;
+  padding: 5px 7px; text-align: left; cursor: pointer;
+  font: 500 11px/1.3 var(--sans); color: var(--ink-2);
+  background: var(--panel-2); border: 1px dashed var(--line); border-radius: 4px;
+}
+.looserow:hover { border-style: solid; border-color: var(--accent-line); }
+.looserow .muted { margin-left: auto; font-size: 10px; }
+.wdvisit.signed { opacity: .55; }
+
+/* the month, for finding a free fortnight */
+.monthgrid {
+  display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px;
+}
+.mhead {
+  font: 600 10px/1 var(--sans); letter-spacing: .07em; text-transform: uppercase;
+  color: var(--ink-3); padding: 0 0 4px 4px;
+}
+.mcell {
+  min-height: 86px; padding: 7px 8px; text-align: left; cursor: pointer;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+  font: inherit; color: inherit;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.mcell:hover { border-color: var(--accent-line); }
+.mcell.blank { background: none; border: 0; cursor: default; min-height: 0; }
+.mcell.weekend, .mcell.away { background: var(--panel-2); }
+.mcell.today { border-color: var(--accent); }
+.mnum { font: 600 12.5px/1 var(--sans); color: var(--ink-2); }
+.mcell.today .mnum { color: var(--accent); }
+.mclosed { font: 500 10.5px/1.3 var(--sans); color: var(--ink-3); }
+.mcounts { display: flex; flex-direction: column; gap: 3px; }
+.mcounts span {
+  font: 500 10.5px/1.4 var(--sans); padding: 2px 5px; border-radius: 3px;
+}
+.mcounts .mv { background: var(--accent-soft); color: var(--accent); }
+.mcounts .mr { background: var(--panel-2); color: var(--ink-3); border: 1px solid var(--line-2); }
+
+@media (max-width: 860px) {
+  .monthgrid { font-size: 11px; }
+  .mcell { min-height: 60px; padding: 5px; }
+}
+
+/* ========================================================= account menu */
+.acct { position: relative; }
+.acctbtn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 3px; border: 0; background: none; cursor: pointer;
+}
+.acctface {
+  display: grid; place-items: center; width: 30px; height: 30px;
+  border-radius: 50%; background: var(--accent); color: var(--accent-ink);
+  font: 600 11.5px/1 var(--sans); letter-spacing: .02em;
+}
+.acctbtn:hover .acctface { filter: brightness(1.08); }
+.acctcount {
+  min-width: 17px; padding: 1px 5px; border-radius: 9px;
+  background: var(--line); color: var(--ink-2);
+  font: 600 10.5px/1.5 var(--sans); text-align: center;
+}
+.acctcount.urgent { background: var(--crit-soft); color: var(--crit); }
+.acctrow .acctcount { margin-left: auto; }
+
+.acctmenu {
+  position: absolute; right: 0; top: calc(100% + 7px); z-index: 60;
+  min-width: 246px; max-height: 76vh; overflow: auto;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.14);
+}
+.acctwho {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 11px 13px; border-bottom: 1px solid var(--line-2);
+}
+.acctsec { padding: 5px 0; border-bottom: 1px solid var(--line-2); }
+.acctsec:last-child { border-bottom: 0; }
+.acctlabel {
+  font: 600 10px/1 var(--sans); letter-spacing: .07em; text-transform: uppercase;
+  color: var(--ink-3); padding: 8px 13px 5px;
+}
+.acctrow {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 8px 13px; border: 0; background: none; cursor: pointer;
+  font: 500 13px/1.3 var(--sans); color: var(--ink); text-align: left;
+}
+.acctrow:hover { background: var(--panel-2); }
+.acctrow .muted, .acctrow .small { margin-left: auto; }
+.acctrow.thin { padding: 6px 13px; font-weight: 400; font-size: 12.5px; }
+.acctrow.danger { color: var(--crit); }
+.acctrow kbd { margin-left: auto; }
+.signinrows .plist { max-height: 200px; overflow: auto; }
+
+/* ======================================================== chart tabs */
+/*
+ * Two groups in one strip, divided once: the care plan, then the
+ * record it was built from. Scrolls sideways rather than wrapping,
+ * because a strip that reflows to two rows moves the tab you were
+ * about to click.
+ */
+.ctabs {
+  display: flex; align-items: stretch; gap: 1px;
+  margin: 14px 0 0; padding: 0 2px;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto; scrollbar-width: thin;
+}
+.ctabgap { flex: none; width: 15px; }
+.ctabgap::after {
+  content: ''; display: block; width: 1px; height: 15px; margin: 7px auto 0;
+  background: var(--line);
+}
+.ctab {
+  flex: none; position: relative;
+  padding: 9px 12px 8px; border: 0; background: none; cursor: pointer;
+  font: 500 12.5px/1 var(--sans); color: var(--ink-3); white-space: nowrap;
+}
+.ctab:hover { color: var(--ink); background: var(--panel-2); }
+.ctab.on { color: var(--accent); font-weight: 600; }
+.ctab.on::after {
+  content: ''; position: absolute; left: 6px; right: 6px; bottom: -1px;
+  height: 2px; background: var(--accent); border-radius: 1px;
+}
+
+.tabbody { min-width: 0; }
+.tabhead { margin: 0 0 14px; }
+.tabhead h2 { font-size: 17px; margin: 0; }
+.tabhead p { margin: 4px 0 0; }
+
+/* the care plan no longer needs a letter column when it is one tab */
+.tabbody .soap:first-child { padding-top: 0; border-top: 0; }
+
+/* ===================================== the rail's five blocks */
+/* problem list: the name, whether it is controlled, and the evidence */
+.problist { display: flex; flex-direction: column; gap: 2px; }
+.probrow {
+  display: flex; flex-direction: column; gap: 3px; width: 100%;
+  padding: 8px 9px; margin: 0 -9px; text-align: left; cursor: pointer;
+  background: none; border: 0; border-radius: 5px; font: inherit; color: inherit;
+}
+.probrow:hover { background: var(--panel-2); }
+.prhead { display: flex; align-items: baseline; gap: 8px; }
+.prname { font: 600 13px/1.35 var(--sans); color: var(--ink); flex: 1; }
+.prmeds { font-size: 11.5px; line-height: 1.5; color: var(--ink-2); }
+.prlab {
+  display: flex; align-items: baseline; gap: 7px;
+  font-size: 11.5px; line-height: 1.5; color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+.prwhen { color: var(--ink-3); opacity: .8; }
+
+/* vitals */
+.vitrow { display: flex; flex-direction: column; gap: 2px; padding: 5px 0; }
+.vitwhere {
+  font: 600 10px/1 var(--sans); letter-spacing: .06em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+.vitval { font-size: 13px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.vitwhen { font-size: 11px; color: var(--ink-3); }
+
+/* diagnostics */
+.dxrow {
+  display: flex; align-items: baseline; gap: 9px; width: 100%;
+  padding: 6px 9px; margin: 0 -9px; text-align: left; cursor: pointer;
+  background: none; border: 0; border-radius: 5px; font: inherit; color: inherit;
+}
+.dxrow:hover { background: var(--panel-2); }
+.dxname { flex: 1; font-size: 12.5px; color: var(--ink); display: flex; align-items: baseline; gap: 6px; }
+.dxwhen { font-size: 11px; color: var(--ink-3); white-space: nowrap; }
+
+/* their team */
+.teamrow {
+  display: flex; flex-direction: column; gap: 2px; width: 100%;
+  padding: 7px 9px; margin: 0 -9px; text-align: left; cursor: pointer;
+  background: none; border: 0; border-radius: 5px; font: inherit; color: inherit;
+}
+.teamrow:hover { background: var(--panel-2); }
+.teamrow.missing .tmwho { color: var(--warn); }
+.tmwho { font: 600 12.5px/1.35 var(--sans); color: var(--ink); }
+.tmrole { display: flex; gap: 8px; font-size: 11.5px; color: var(--ink-3); }
+.tmseen { opacity: .8; }
+.tmout { font-size: 11.5px; line-height: 1.5; color: var(--warn); }

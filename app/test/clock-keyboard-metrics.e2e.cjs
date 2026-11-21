@@ -22,7 +22,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('palette opens the patient', await p.locator('h1:has-text("Marcus Reyes")').isVisible());
 
   // place a lab order in the visit
-  await p.click('.nextvisit'); await p.waitForTimeout(600);
+  await p.click('.ctab:has-text("Encounters")'); await p.waitForTimeout(500);
+  await p.click('.startenc:has-text("Visit")'); await p.waitForTimeout(700);
   const orderBox = p.locator('input[placeholder*="A1c and lipid panel"]');
   await orderBox.scrollIntoViewIfNeeded();
   await orderBox.fill('A1c and lipid panel');
@@ -32,8 +33,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // approve with the keyboard. Approving leaves the encounter, so
   // landing back on the day is the evidence that it took.
   await p.keyboard.press('Meta+Enter'); await p.waitForTimeout(900);
-  ok('cmd-Enter approves the encounter and returns to the day',
-    await p.locator('.daylist').isVisible());
+  ok('cmd-Enter approves the encounter and returns to the schedule',
+    await p.locator('.weekgrid, .daylist').first().isVisible());
   // Whether it published is checked on the chart below, where the
   // version line is. Landing back on the day is only evidence that
   // the key did something.
@@ -49,19 +50,17 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // Back into the chart by way of the patient list. The day is the
   // way in now, so a chart is somewhere you go rather than somewhere
   // an encounter leaves you.
-  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.fill('input[aria-label="Search patients"]','Marcus'); await p.waitForTimeout(350);
-  await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(600);
-  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
+  await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(600); await p.waitForTimeout(250);
   ok('the approval published a version of the care plan',
     /Version \d+, approved/.test(await p.locator('.derivedfrom').textContent()));
-  await p.click('.railhead:has-text("Labs and vitals")'); await p.waitForTimeout(500);
+  await p.click('.ctab:has-text("Labs")'); await p.waitForTimeout(500);
   ok('ordered lab came back unreviewed', await p.locator('text=Not yet reviewed').first().isVisible());
   await p.screenshot({path:'v5-results.png', fullPage:true});
 
-  // metrics
-  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
-  await p.click('.topbar button:has-text("Usage")'); await p.waitForTimeout(500);
+  // metrics await p.waitForTimeout(250);
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Usage")'); await p.waitForTimeout(500);
   ok('usage page shows a timed visit', await p.locator('text=Median note time').isVisible());
   ok('the visit is listed', await p.locator('text=Marcus Reyes').first().isVisible());
   await p.screenshot({path:'v5-metrics.png', fullPage:true});

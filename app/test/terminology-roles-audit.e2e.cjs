@@ -21,17 +21,15 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   p.on('console',m=>{if(m.type()==='error')errs.push(m.text());});
   await p.goto(U,{waitUntil:'networkidle'}); await p.waitForTimeout(300);
   await p.click('button:has-text("Load 120 patients")'); await p.waitForTimeout(1400);
-  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(500);
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(500);
 
   // ------------------------------------------------ 1. real codes
   // find a chart with interactions already on the list
   let found=false;
   for(let i=0;i<30 && !found;i++){
-  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
-    await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(250);
-    await p.locator('table.rows tbody tr').nth(i).click(); await p.waitForTimeout(300);
-  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
-    await p.click('.railhead:has-text("Medicines")'); await p.waitForTimeout(250);
+    await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(250);
+    await p.locator('table.rows tbody tr').nth(i).click(); await p.waitForTimeout(300); await p.waitForTimeout(250);
+    await p.click('.ctab:has-text("Meds")'); await p.waitForTimeout(250);
     if(await p.locator('.ixbox.bad').count()>0) found=true;
   }
   ok('an inherited list already has interactions on it', found);
@@ -60,8 +58,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('button:has-text("Cancel")'); await p.waitForTimeout(250);
 
   // an uncoded problem is called out as uncheckable
-  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
-  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(300);
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(300);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(400);
   // Adding a problem lives in the Plan section now, not the header.
   await p.locator('.addproblem:has-text("Problem")').scrollIntoViewIfNeeded();
@@ -77,16 +74,14 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('and the practice is shown as managing it',
     (await p.locator('.csum').textContent()).includes('Gout'));
 
-  // ------------------------------- 2. the log, derived not declared
-  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
-  await p.click('.railfoot button:has-text("History")'); await p.waitForTimeout(400);
+  // ------------------------------- 2. the log, derived not declared await p.waitForTimeout(250);
+  await p.click('.ctab:has-text("History")'); await p.waitForTimeout(400);
   ok('adding the problem was logged without anyone instrumenting it',
     await p.locator('table.rows td:has-text("Added")').count()>0);
   await p.screenshot({path:'v7-history.png'});
 
   // ------------------------------------- 3. covering clinician
   const name = await p.locator('.chead h1').first().textContent();
-  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
   await p.click('.whoami'); await p.waitForTimeout(300);
   ok('the switcher explains what cover can and cannot do',
     (await p.locator('.srow:has-text("Okonjo")').textContent()).includes('Cannot sign a care plan'));
@@ -99,23 +94,21 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // a chart whose shared plan is still a draft, which is where the rule bites
   let draft=false;
-  for(let i=0;i<24 && !draft;i++){
-    if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(180);
-    await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(250);
+  for(let i=0;i<24 && !draft;i++){ await p.waitForTimeout(180);
+    await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(250);
     await p.locator('table.rows tbody tr').nth(i).click(); await p.waitForTimeout(320);
-    await p.click('.railhead:has-text("Current plan")'); await p.waitForTimeout(320);
-    if(await p.locator('.drawer .chip:has-text("Draft")').count()>0) draft=true;
+    await p.click('.ctab:has-text("Shared plan")'); await p.waitForTimeout(320);
+    if(await p.locator('.tabbody .chip:has-text("Draft")').count()>0) draft=true;
   }
   ok('found a plan still in draft', draft);
-  const plan = await p.locator('.drawerbody').textContent();
+  const plan = await p.locator('.tabbody').textContent();
   ok('cover is told why it cannot sign a plan, not just shown nothing',
     plan.includes('signing it stays with their own physician'));
   ok('and the sign button is actually gone',
     await p.locator('button:has-text("Sign and share")').count()===0);
 
-  await p.click(`text=${name}`, {timeout:2000}).catch(()=>{});
-  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
-  await p.click('.railfoot button:has-text("History")'); await p.waitForTimeout(400);
+  await p.click(`text=${name}`, {timeout:2000}).catch(()=>{}); await p.waitForTimeout(250);
+  await p.click('.ctab:has-text("History")'); await p.waitForTimeout(400);
   ok('opening someone else’s chart is logged',
     await p.locator('text=Opened by someone else').count()>0);
   ok('the entry names the covering clinician',
@@ -123,22 +116,25 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.screenshot({path:'v7-covering.png'});
 
   // ------------------------------------------- 4. the patient
-  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
   await p.click('.whoami'); await p.waitForTimeout(300);
   await p.locator('.plist .srow').first().click(); await p.waitForTimeout(700);
   ok('a patient lands in the portal', await p.locator('text=Patient view').count()>0);
   ok('and is told this is the whole of it',
     (await p.locator('.wrap').textContent()).includes('whole of what they can reach'));
   ok('no way back to the chart', await p.locator('button:has-text("Back to the chart")').count()===0);
-  ok('no practice-wide log for a patient', await p.locator('.topbar button:has-text("Log")').count()===0);
+  await p.click('.acctbtn'); await p.waitForTimeout(200);
+  ok('no practice-wide log for a patient',
+    await p.locator('.acctrow:has-text("Who did what")').count()===0);
+  ok('and no schedule either, because a patient has no panel',
+    await p.locator('.acctrow:has-text("Schedule")').count()===0);
+  await p.keyboard.press('Escape'); await p.click('h1'); await p.waitForTimeout(200);
   ok('the bar is renamed', (await p.locator('.topbar .mark').textContent()).includes('Your health record'));
   await p.screenshot({path:'v7-patient.png'});
 
   // ------------------------------- 5. the practice-wide log
-  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
   await p.click('.whoami'); await p.waitForTimeout(300);
   await p.click('.srow:has-text("L. DuBose")'); await p.waitForTimeout(600);
-  await p.click('.topbar button:has-text("Log")'); await p.waitForTimeout(600);
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Who did what")'); await p.waitForTimeout(600);
   ok('the log opens', await p.locator('h1:has-text("Who did what")').isVisible());
   const log = await p.locator('.wrap').textContent();
   ok('it counts entries per person', log.includes('Covering clinician'));

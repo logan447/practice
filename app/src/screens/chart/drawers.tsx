@@ -14,38 +14,70 @@ import { fmtDate, relative } from '../../lib/format';
 import type { LabPanel } from '../../domain/types';
 
 export type ChartDrawer =
-  | null
+  | 'subjective' | 'objective' | 'assessment' | 'planview'
   | 'visits' | 'plan' | 'meds' | 'results' | 'specialists' | 'orders' | 'followup'
   | 'studies' | 'records' | 'documentation' | 'export' | 'details'
   | 'encounters' | 'notes' | 'history' | 'prevention' | 'letters' | 'scope';
 
-export const DRAWER_TITLES: Record<string, { title: string; sub?: string }> = {
-  visits: { title: 'Visits', sub: 'Every encounter, and the notes as signed' },
+/** Which of the four is a reading position inside the care plan. */
+export const SOAP: Record<string, 'S' | 'O' | 'A' | 'P' | undefined> = {
+  subjective: 'S', objective: 'O', assessment: 'A', planview: 'P',
+};
+
+/**
+ * The strip, in order, with one gap.
+ *
+ * The care plan first, because it is what the chart is for. Then the
+ * record it was built from, in the order a physician reaches for it.
+ * `null` is the divider.
+ */
+export const CHART_TABS: (ChartDrawer | null)[] = [
+  'subjective', 'objective', 'assessment', 'planview',
+  null,
+  'encounters', 'notes', 'results', 'meds', 'studies', 'orders', 'followup',
+  'specialists', 'prevention', 'plan', 'letters', 'records', 'scope',
+  'history', 'export', 'details', 'documentation',
+];
+
+/**
+ * `tab` is the short label for the strip; `title` is the heading over
+ * the content. They differ where the heading earns more words than a
+ * tab can carry.
+ */
+export const DRAWER_TITLES: Record<string, { title: string; sub?: string; tab?: string }> = {
+  subjective: { title: 'Subjective', tab: 'Subjective' },
+  objective: { title: 'Objective', tab: 'Objective' },
+  assessment: { title: 'Assessment', tab: 'Assessment' },
+  planview: { title: 'Plan', tab: 'Plan' },
+  visits: { title: 'Visits', sub: 'Every encounter, and the notes as signed', tab: 'Visits' },
   encounters: {
     title: 'Encounters',
     sub: 'Visits, updates, messages, letters and results, newest first',
+    tab: 'Encounters',
   },
-  plan: { title: 'Shared care plan', sub: 'What the patient sees in their portal' },
-  meds: { title: 'Medicines', sub: 'Stopped drugs stay, with the reason' },
-  results: { title: 'Labs and vitals', sub: 'Every panel and every reading' },
-  specialists: { title: 'Specialists' },
-  orders: { title: 'Pending orders' },
-  followup: { title: 'Follow-up' },
-  studies: { title: 'Imaging and procedures' },
-  records: { title: 'Allergies and outside records' },
+  plan: { title: 'Shared care plan', sub: 'What the patient sees in their portal', tab: 'Shared plan' },
+  meds: { title: 'Medicines', sub: 'Stopped drugs stay, with the reason', tab: 'Meds' },
+  results: { title: 'Labs and vitals', sub: 'Every panel and every reading', tab: 'Labs' },
+  specialists: { title: 'Specialists', tab: 'Specialists' },
+  orders: { title: 'Pending orders', tab: 'Orders' },
+  followup: { title: 'Follow-up', tab: 'Follow-up' },
+  studies: { title: 'Imaging and procedures', tab: 'Imaging' },
+  records: { title: 'Allergies and outside records', tab: 'Records' },
   documentation: {
     title: 'Coding, if we ever bill',
     sub: 'This practice does not bill insurance. Kept because the work behind it was expensive and the question may come back',
+    tab: 'Coding',
   },
-  export: { title: 'Export the record' },
-  details: { title: 'Patient details' },
-  notes: { title: 'Visit notes' },
-  history: { title: 'Who did what' },
-  prevention: { title: 'Prevention' },
-  letters: { title: 'Letters and forms', sub: 'Referral, work note, prior authorisation' },
+  export: { title: 'Export the record', tab: 'Export' },
+  details: { title: 'Patient details', tab: 'Details' },
+  notes: { title: 'Visit notes', tab: 'Notes' },
+  history: { title: 'Who did what', tab: 'History' },
+  prevention: { title: 'Prevention', tab: 'Prevention' },
+  letters: { title: 'Letters and forms', sub: 'Referral, work note, prior authorisation', tab: 'Letters' },
   scope: {
     title: 'Scope of care',
     sub: 'What we manage, what we provide, what we do not, and what they are responsible for',
+    tab: 'Scope',
   },
 };
 

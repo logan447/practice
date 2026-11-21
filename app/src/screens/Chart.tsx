@@ -6,12 +6,17 @@
  * administrative controls. The middle is the master care plan. The
  * right is what is coming and what is outstanding.
  *
- * Everything that used to be a tab is still here and is reachable
- * from the place in the plan that refers to it, or from the one quiet
- * row at the foot of the rail. That is deliberate. Eight tabs across
- * the top meant the first thing the chart said about a patient was
- * "here are eight places to look", which is a statement about the
- * software rather than about the person.
+ * Under the header is a tab strip, and under that is whatever the
+ * tab says. The care plan is still one document written in one place;
+ * the first four tabs are a reading position inside it rather than
+ * four separate records, and the rest are the source material the
+ * plan was built from.
+ *
+ * This replaced a drawer that slid over the chart. Drawers were
+ * cheaper to build and worse to use: the thing you were reading
+ * vanished under the thing you opened, and coming back meant finding
+ * a Close button. A physician comparing a lab against the plan wants
+ * both reachable in one move, which is what a tab is for.
  *
  * The header's sentence is generated from structured data: which
  * problems carry `managed`, and which of the two service switches are
@@ -26,13 +31,12 @@ import { useActor, ROLE_LABEL, signInAs } from '../lib/session';
 import { can } from '../lib/permissions';
 import { recordRead, record } from '../lib/audit';
 import { practiceSummary, demographicLine } from '../lib/clinical';
-import { Drawer } from '../components/Drawer';
 import { MasterPlanView } from './chart/MasterPlanView';
 import { Rail } from './chart/Rail';
 import { VisitsDrawer } from './chart/VisitsDrawer';
 import {
-  DRAWER_TITLES, ResultsDrawer, StudiesDrawer, FollowUpDrawer, OrdersDrawer,
-  type ChartDrawer,
+  DRAWER_TITLES, CHART_TABS, SOAP, ResultsDrawer, StudiesDrawer,
+  FollowUpDrawer, OrdersDrawer, type ChartDrawer,
 } from './chart/drawers';
 import { Documentation } from './chart/Documentation';
 import { Scope } from './chart/Scope';
@@ -46,14 +50,12 @@ import { SpecialistsTab } from './chart/SpecialistsTab';
 import { RecordsTab } from './chart/RecordsTab';
 import { HistoryTab } from './chart/HistoryTab';
 import { PlanTab } from './chart/PlanTab';
-import { QualityStrip } from '../components/Quality';
-import { findIssues } from '../lib/dataQuality';
 
 export function Chart({ patientId }: { patientId: string }) {
   const st = useStore();
   const nav = useNav();
   const me = useActor();
-  const [drawer, setDrawer] = useState<ChartDrawer>(null);
+  const [tab, setTab] = useState<ChartDrawer>('subjective');
 
   useEffect(() => { markChartOpen(); }, [patientId]);
 
@@ -87,12 +89,6 @@ export function Chart({ patientId }: { patientId: string }) {
   const history = conditions.filter((c) => c.status !== 'resolved');
   const allergies = st.allergiesFor(p.id);
   const { managed, services } = practiceSummary(p, conditions);
-
-  const issues = findIssues({
-    patient: p, allPatients: st.patients, medications: st.medsFor(p.id),
-    allergies, conditions,
-    series: st.seriesFor(p.id), documents: st.documentsFor(p.id),
-  });
 
 
   return (
@@ -155,80 +151,77 @@ export function Chart({ patientId }: { patientId: string }) {
 
         </header>
 
+        {/* ------------------------------------------------- the tabs */}
+        {/*
+          * Two groups in one strip, and the divider is the only thing
+          * marking them: the care plan, then the record it was built
+          * from. Both open in the same place, so neither is a detour.
+          */}
+        <nav className="ctabs">
+          {CHART_TABS.map((t) => (t === null ? <span key="gap" className="ctabgap" /> : (
+            <button key={t} className={`ctab${tab === t ? ' on' : ''}`}
+              onClick={() => setTab(t)}>
+              {DRAWER_TITLES[t]?.tab ?? DRAWER_TITLES[t]?.title ?? t}
+            </button>
+          )))}
+        </nav>
+
         {/* -------------------------------------------- the workspace */}
         <div className="workspace">
-          <MasterPlanView patientId={p.id} onOpen={(w) => setDrawer(
-            w === 'notes' ? 'visits' : (w as ChartDrawer))} />
-          <div>
-            {/*
-              * Only the one notice now: what in this chart needs
-              * reconciling. The summary used to advertise itself here
-              * with a count of unreviewed records and a button to
-              * draft an update, which turned a document that keeps
-              * itself current into a queue of work. It derives from
-              * the record continuously; there is nothing to review.
-              */}
-            {issues.length > 0 && (
-              <div className="railnotices">
-                <QualityStrip issues={issues} onGo={(t) => setDrawer(
-                  t === 'plan' ? 'plan' : t === 'notes' ? 'visits' : (t as ChartDrawer))} />
-              </div>
+          <div className="tabbody">
+            {SOAP[tab as string] ? (
+              <MasterPlanView patientId={p.id} only={SOAP[tab as string]}
+                onOpen={(w) => setTab(w === 'notes' ? 'visits' : (w as ChartDrawer))} />
+            ) : (
+              <>
+                <div className="tabhead">
+                  <h2>{DRAWER_TITLES[tab ?? '']?.title}</h2>
+                  {DRAWER_TITLES[tab ?? '']?.sub && (
+                    <p className="small muted">{DRAWER_TITLES[tab ?? '']?.sub}</p>
+                  )}
+                </div>
+                {tab === 'visits' && <VisitsDrawer patientId={p.id} onDone={() => setTab('subjective')} />}
+                {tab === 'plan' && <PlanTab patientId={p.id} />}
+                {tab === 'meds' && <MedsTab patientId={p.id} />}
+                {tab === 'results' && <ResultsDrawer patientId={p.id} />}
+                {tab === 'specialists' && <SpecialistsTab patientId={p.id} />}
+                {tab === 'orders' && <OrdersDrawer patientId={p.id} />}
+                {tab === 'followup' && <FollowUpDrawer patientId={p.id} />}
+                {tab === 'studies' && <StudiesDrawer patientId={p.id} />}
+                {tab === 'prevention' && <PreventionTab patientId={p.id} />}
+                {tab === 'letters' && <PaperTab patientId={p.id} />}
+                {tab === 'records' && <RecordsTab patientId={p.id} />}
+                {tab === 'documentation' && <Documentation patientId={p.id} />}
+                {tab === 'scope' && <Scope patientId={p.id} />}
+                {tab === 'export' && <ExportDrawer patientId={p.id} />}
+                {tab === 'history' && <HistoryTab patientId={p.id} />}
+                {tab === 'details' && <Details patientId={p.id} />}
+                {tab === 'notes' && <NotesTab patientId={p.id} />}
+                {tab === 'encounters' && (
+                  <EncountersDrawer patientId={p.id} onDone={() => setTab('subjective')} />
+                )}
+              </>
             )}
-            <Rail patientId={p.id} open={setDrawer}
+          </div>
+          <div>
+            <Rail patientId={p.id} open={setTab}
+              /*
+               * A problem in the rail points at the plan for it, so
+               * the tab has to change before the scroll: the element
+               * does not exist until the Plan tab is on screen.
+               */
               onJump={(cid) => {
-                const el = document.getElementById(`problem-${cid}`);
-                el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                el?.classList.add('flash');
-                setTimeout(() => el?.classList.remove('flash'), 1400);
+                setTab('planview');
+                window.setTimeout(() => {
+                  const el = document.getElementById(`problem-${cid}`);
+                  el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  el?.classList.add('flash');
+                  window.setTimeout(() => el?.classList.remove('flash'), 1400);
+                }, 60);
               }} />
-            {/*
-              * Billing is last on purpose. This practice does not bill
-              * insurance, and the coding work stays reachable rather
-              * than prominent: the research behind it was expensive to
-              * establish and will be needed if that ever changes, and
-              * until then it has no business on the daily path.
-              */}
-            <nav className="railfoot">
-              {([
-                ['scope', 'Scope of care'],
-                ['export', 'Export'], ['letters', 'Letters'],
-                ['prevention', 'Prevention'],
-                ['studies', 'Imaging'], ['records', 'Records'],
-                ['history', 'History'], ['details', 'Details'],
-                ['documentation', 'Coding, if we ever bill'],
-              ] as [ChartDrawer, string][]).map(([k, label]) => (
-                <button key={k} className="linkish" onClick={() => setDrawer(k)}>{label}</button>
-              ))}
-            </nav>
           </div>
         </div>
       </div>
-
-      <Drawer open={drawer !== null} wide
-        title={drawer ? (DRAWER_TITLES[drawer]?.title ?? '') : ''}
-        sub={drawer ? DRAWER_TITLES[drawer]?.sub : undefined}
-        onClose={() => setDrawer(null)}>
-        {drawer === 'visits' && <VisitsDrawer patientId={p.id} onDone={() => setDrawer(null)} />}
-        {drawer === 'plan' && <PlanTab patientId={p.id} />}
-        {drawer === 'meds' && <MedsTab patientId={p.id} />}
-        {drawer === 'results' && <ResultsDrawer patientId={p.id} />}
-        {drawer === 'specialists' && <SpecialistsTab patientId={p.id} />}
-        {drawer === 'orders' && <OrdersDrawer patientId={p.id} />}
-        {drawer === 'followup' && <FollowUpDrawer patientId={p.id} />}
-        {drawer === 'studies' && <StudiesDrawer patientId={p.id} />}
-        {drawer === 'prevention' && <PreventionTab patientId={p.id} />}
-        {drawer === 'letters' && <PaperTab patientId={p.id} />}
-        {drawer === 'records' && <RecordsTab patientId={p.id} />}
-        {drawer === 'documentation' && <Documentation patientId={p.id} />}
-        {drawer === 'scope' && <Scope patientId={p.id} />}
-        {drawer === 'export' && <ExportDrawer patientId={p.id} />}
-        {drawer === 'history' && <HistoryTab patientId={p.id} />}
-        {drawer === 'details' && <Details patientId={p.id} />}
-        {drawer === 'notes' && <NotesTab patientId={p.id} />}
-        {drawer === 'encounters' && (
-          <EncountersDrawer patientId={p.id} onDone={() => setDrawer(null)} />
-        )}
-      </Drawer>
     </div>
   );
 }
@@ -246,6 +239,7 @@ function Details({ patientId }: { patientId: string }) {
   const me = useActor();
   const p = st.patient(patientId);
   const conditions = st.conditionsFor(patientId);
+  const ledger = st.ledgerFor(patientId);
   if (!p) return null;
   const svc = p.services ?? { preventative: true, lifestyle: true };
 
@@ -265,6 +259,33 @@ function Details({ patientId }: { patientId: string }) {
           Born {p.dob} &middot; {p.pronouns} &middot; member since {p.memberSince}
         </p>
       </div></section>
+
+      {/*
+        * The membership year, which used to sit in the clinical
+        * column and does not belong there. It is the one number that
+        * is commercial before it is clinical, and a physician reading
+        * a chart should not meet it between the problem list and the
+        * vitals.
+        */}
+      {ledger && (
+        <section className="panel"><div className="body">
+          <div className="soaplabel">Membership year</div>
+          <div className="ledger">
+            <div className={`ledgerbar${ledger.minutesLeft < 0 ? ' over' : ''}`}>
+              <span style={{
+                width: `${Math.min(100, (ledger.used.minutes / ledger.plannedMinutes) * 100)}%`,
+              }} />
+            </div>
+            <div className="ledgerline">{ledger.line}</div>
+            <div className="ledgerpkg">
+              {ledger.used.consultations} of {ledger.planned.consultations.count} consultations,{' '}
+              {ledger.used.reviews} of {ledger.planned.reviews.count} care plan reviews.
+              {ledger.used.betweenMinutes > 0
+                && ` ${ledger.used.betweenMinutes} min between encounters.`}
+            </div>
+          </div>
+        </div></section>
+      )}
 
       <section className="panel"><div className="body">
         <div className="soaplabel">Membership</div>

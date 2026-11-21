@@ -34,7 +34,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('button:has-text("Load the day")'); await p.waitForTimeout(900);
 
   // ------------------------------------- 1. the package, not the month
-  await p.click('.topbar button:has-text("Capacity")'); await p.waitForTimeout(800);
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Capacity")'); await p.waitForTimeout(800);
   const cap = (await p.locator('.wrap').textContent()).replace(/\s+/g,' ');
   ok('the year is eight months open and four closed',
     cap.includes('Eight months open and four closed'));
@@ -50,31 +50,33 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     cap.includes('720 minutes a patient a year') && cap.includes('2400 physician hours'));
 
   // ------------------------------------------- 2. who owns a problem
-  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr:has-text("Arthur")').first().click();
   await p.waitForTimeout(800);
+  await p.click('.ctab:has-text("Assessment")'); await p.waitForTimeout(500);
   const owners = (await p.locator('.ownerrow').allTextContents()).join(' | ');
   ok(`each managed problem says who is responsible: ${owners.slice(0,60)}`,
     owners.includes('We manage this') && owners.includes('Their PCP manages this'));
   ok('and shared care is its own answer, not a half-tick',
     owners.includes('Shared with their PCP'));
   const rail = (await p.locator('.rail').textContent()).replace(/\s+/g,' ');
-  ok('the chart names their own physician', rail.includes('Dr. Samuel Okafor'));
+  ok('their own physician heads the team block',
+    rail.includes('Dr. Samuel Okafor') && rail.includes('Primary care'));
 
   // ----------------------------------- 3. the patient with nobody else
-  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr:has-text("Dana")').first().click();
   await p.waitForTimeout(800);
   const rail2 = (await p.locator('.rail').textContent()).replace(/\s+/g,' ');
   ok('a patient with no other physician is said so, not left blank',
-    rail2.includes('No primary care physician on file'));
-  ok('and it is carried as a plan item rather than a disclaimer',
-    rail2.includes('Carry this as a plan item until it is done'));
+    rail2.includes('No primary care physician'));
+  ok('and the gap is named rather than implied',
+    rail2.includes('Everything outside our list needs somebody'));
 
   // ---------------------------------------- 3b. the agreement, as a view
-  await p.click('.railfoot button:has-text("Scope of care")'); await p.waitForTimeout(600);
-  const scope = (await p.locator('.drawerbody').textContent()).replace(/\s+/g,' ');
-  ok('the scope drawer says this is a consulting practice',
+  await p.click('.ctab:has-text("Scope")'); await p.waitForTimeout(600);
+  const scope = (await p.locator('.tabbody').textContent()).replace(/\s+/g,' ');
+  ok('the scope tab says this is a consulting practice',
     scope.includes('not anybody\u2019s primary care'));
   ok('it lists what the membership includes',
     scope.includes('Scheduled consultations during the service periods'));
@@ -84,16 +86,23 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     scope.includes('Having a primary care physician'));
   ok('and for this patient that one is outstanding',
     scope.includes('outstanding for this patient'));
-  await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(300);
+  
 
   // ------------------------------------------ 4. the membership ledger
-  ok('the chart shows the year as a ledger',
-    rail2.includes('Membership year') && /\d+ of 250 minutes|Nothing used yet of 250/.test(rail2));
+  // Not in the clinical column. It is commercial before it is
+  // clinical, and it lives with the rest of the administration.
+  ok('the clinical column does not carry the ledger',
+    !rail2.includes('Membership year'));
+  await p.click('.ctab:has-text("Details")'); await p.waitForTimeout(500);
+  const det = (await p.locator('.tabbody').textContent()).replace(/\s+/g,' ');
+  ok('the year is a ledger on the details tab',
+    det.includes('Membership year')
+    && /\d+ of 250 minutes|Nothing used yet of 250/.test(det));
   ok('counting contacts as well as minutes',
-    /of 2 consultations/.test(rail2) && /of 3 care plan reviews/.test(rail2));
+    /of 2 consultations/.test(det) && /of 3 care plan reviews/.test(det));
 
   // ------------------------------------------- 5. before a closure
-  await p.click('.topbar button:has-text("Today")'); await p.waitForTimeout(600);
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Schedule")'); await p.waitForTimeout(600);
   const bar = await p.locator('.closingbar').count();
   ok('the run-up to a closure is on the day', bar===1);
   await p.click('.closingbar'); await p.waitForTimeout(800);
@@ -111,7 +120,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('open requests are found', close.includes('Waiting on them'));
 
   // ------------------------------------ 6. a closed day says it is closed
-  await p.click('.topbar button:has-text("Today")'); await p.waitForTimeout(600);
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Schedule")'); await p.waitForTimeout(600);
   for (let i=0;i<5;i++) { await p.click('button:has-text("+1m")'); await p.waitForTimeout(180); }
   const closedSeen = await p.locator('.closedbar').count();
   ok('a day inside a closure says so rather than looking empty',

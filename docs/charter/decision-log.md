@@ -1157,3 +1157,71 @@ D-039 guardrail 4b stands.
 panel passes the size the package fits; or the first real year
 produces actual minutes per patient to replace the planning averages.
 See `docs/systems/consultative-practice-model.md`.
+
+---
+
+## D-052. The schedule is a week, the chart is tabs, and the rail is five blocks
+
+**Date.** 2026-11-21.
+
+**Decision.** Four interface changes, taken together because they are
+one argument about where a physician's attention goes.
+
+**The way in is a week, not a day.** The schedule opens on the week
+and carries day and month views beside it. A week is the unit a solo
+practice plans in: whether Thursday has room, whether the reviews got
+pushed into Friday again, whether the run-up to a closure is as empty
+as it looks. A day cannot answer any of those and a month is too
+coarse. The day view keeps what only it can carry, which is the
+reconciliation count and the version number for each activity.
+
+**One menu instead of a bar of tabs.** The top bar had seven
+buttons, a keyboard hint, a theme toggle, a sign-in control and a
+reset. Every one was reachable and none was findable. It is now the
+logo, the clock, and an avatar menu. The clock stays out because it
+is not navigation: it is the control that changes what every screen
+says, and in a prototype about a longitudinal record it is used
+constantly.
+
+**The chart is a tab strip.** The care plan is still one document
+written in one place; the first four tabs are a reading position
+inside it rather than four records, and the rest are the source
+material it was built from. This replaced a drawer that slid over the
+chart. Drawers were cheaper to build and worse to use: the thing you
+were reading vanished under the thing you opened, and coming back
+meant finding a Close button. A physician comparing a lab against the
+plan wants both reachable in one move.
+
+**The right column is five blocks and nothing else.** Problem list,
+vitals, diagnostics, their team, medicines. The problem list carries
+its own evidence: the drugs for that problem, the measure it is
+followed by, and whether it is controlled. A problem list that is
+only names makes you go and find all three somewhere else, which is
+the work the column exists to remove.
+
+What came out of it: the reconciliation notice, the membership
+ledger, the encounter history, pending orders and follow-up. All real,
+none of them what a physician looks right while reading a chart. They
+are tabs now, except the ledger, which went to the details tab
+because it is commercial before it is clinical and does not belong
+between the problem list and the vitals.
+
+**Controlled, not at goal, in one place.** The rest of the chart says
+"At goal" and "Needs improvement", because those also have to cover
+preventative services and lifestyle prescriptions, where "controlled"
+means nothing. A problem list is only ever about diagnoses, and for a
+diagnosis the word a physician reads fastest is the clinical one. Same
+status underneath, read aloud differently in the one place where the
+subject is always a disease.
+
+**Two bugs this surfaced.** Opening an encounter from a chart minted
+a row every time, so clicking "Care plan review" three times left
+three unfinished identical encounters on the day; an encounter of the
+same kind, for the same patient, on the same day, that nobody has
+approved, is now the same encounter. And the rail was sticky with no
+height limit, so on a long chart the page looked like it had stopped
+scrolling until the bottom of the rail went past. It is capped to the
+viewport and scrolls inside.
+
+**Revisit when:** the week view has been used for a real week, or the
+tab strip grows past what fits without scrolling sideways.

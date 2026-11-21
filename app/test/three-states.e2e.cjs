@@ -27,16 +27,19 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('button:has-text("Load the day")'); await p.waitForTimeout(800);
 
   const open = async (name) => {
-    await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(350);
+    await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(350);
     await p.fill('input[aria-label="Search patients"]',name); await p.waitForTimeout(350);
     await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(600);
   };
-  const sectionText = async (n) =>
-    (await p.locator('.soap').nth(n).textContent()).replace(/\s+/g,' ');
+  const sectionText = async (n) => {
+    await p.locator('.ctab').nth(n).click(); await p.waitForTimeout(350);
+    return (await p.locator('.soap').first().textContent()).replace(/\s+/g,' ');
+  };
 
-  ok('the day opens on the day, not on a directory',
-    (await p.locator('.daylist .dayrow').count())===5);
-  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
+  ok('the app opens on the schedule, as a week',
+    (await p.locator('.weekgrid .wday').count())===7
+    && (await p.locator('.vtab.on').textContent())==='week');
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   ok('the demo is five charts, not a crowd',
     (await p.locator('table.rows tbody tr').count())===5);
 
@@ -61,7 +64,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   const sPlan = await sectionText(3);
   ok('the plan is written for every problem', !sPlan.includes('No plan written'));
   ok('and the follow-up interval is set',
-    (await p.locator('.railhead:has-text("Follow-up")').count())===1);
+    (await p.locator('.ctab:has-text("Follow-up")').count())===1);
 
   // ------------------------------------------------- 2. part filled
   await open('Marcus');

@@ -23,7 +23,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // ---------------------------------------------- 1. a real panel
   ok('first run offers a full panel', await p.locator('button:has-text("Load 120 patients")').isVisible());
   await p.click('button:has-text("Load 120 patients")'); await p.waitForTimeout(1400);
-  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(500);
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(500);
 
   const sub = await p.locator('.page-head .sub').first().textContent();
   const count = Number((sub.match(/(\d+) members/)||[])[1]);
@@ -62,8 +62,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // when there are not, so this looks for a chart that has some.
   let allergyHeader = await p.locator('.callergy').count()>0;
   for(let i=0;i<10 && !allergyHeader;i++){
-    if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
-    await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(250);
+    await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(250);
     await p.locator('table.rows tbody tr').nth(i).click(); await p.waitForTimeout(300);
     allergyHeader = await p.locator('.callergy').count()>0;
   }
@@ -72,18 +71,15 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // an unreadable outside record, found by walking the panel
   let foundGarble=false;
-  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
-  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.click('button:has-text("Needs reconciling")'); await p.waitForTimeout(400);
   const n = Math.min(await p.locator('table.rows tbody tr').count(), 14);
   for (let i=0;i<n && !foundGarble;i++){
-  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
-    await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(250);
+    await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(250);
     await p.click('button:has-text("Needs reconciling")'); await p.waitForTimeout(250);
     await p.locator('table.rows tbody tr').nth(i).click(); await p.waitForTimeout(350);
-    if (await p.locator('.railfoot button:has-text("Records")').count()===0) continue;
-  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
-    await p.click('.railfoot button:has-text("Records")'); await p.waitForTimeout(300);
+    if (await p.locator('.ctab:has-text("Records")').count()===0) continue; await p.waitForTimeout(250);
+    await p.click('.ctab:has-text("Records")'); await p.waitForTimeout(300);
     if (await p.locator('.garble').count()>0) foundGarble=true;
   }
   ok('an outside record that would not parse is shown as such', foundGarble);
@@ -95,15 +91,13 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.keyboard.press('Escape'); await p.waitForTimeout(200);
 
   // a patient with hypertension, so the whole scripted visit lands
-  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
-  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.fill('input[aria-label="Search patients"]','Essential hypertens'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(500);
   // Start a visit from the chart rather than booking one. The two
   // activities are startable from the Encounters block, which is the
   // path a physician uses when somebody turns up.
-  await p.click('.railhead:has-text("Encounters")'); await p.waitForTimeout(300);
-  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
+  await p.click('.ctab:has-text("Encounters")'); await p.waitForTimeout(300);
   await p.waitForTimeout(250);
   await p.click('.railbody button:has-text("Visit"), .rail button:has-text("Visit")');
   await p.waitForTimeout(800);

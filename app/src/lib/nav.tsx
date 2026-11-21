@@ -20,14 +20,14 @@ export type PortalTab =
   | 'home' | 'plan' | 'previsit' | 'track' | 'results' | 'meds' | 'visits' | 'ask' | 'records';
 
 export type Route =
-  | { name: 'today' }
+  | { name: 'schedule' }
   | { name: 'inbox' }
   | { name: 'closing' }
   | { name: 'patients' }
   | { name: 'new-patient' }
   | { name: 'metrics' }
   | { name: 'audit' }
-  | { name: 'schedule' }
+  | { name: 'capacity' }
   | { name: 'chart'; patientId: string }
   | { name: 'encounter'; encounterId: string }
   | { name: 'portal'; patientId: string; tab?: PortalTab };
@@ -44,9 +44,9 @@ interface Nav {
 const Ctx = createContext<Nav | null>(null);
 
 export function NavProvider({ children }: { children: ReactNode }) {
-  // The day is the way in. A solo practice opens the morning on what
-  // it has to do, not on a list of everybody it has ever seen.
-  const [stack, setStack] = useState<Route[]>([{ name: 'today' }]);
+  // The schedule is the way in. A solo practice opens on the week it
+  // has to work, not on a list of everybody it has ever seen.
+  const [stack, setStack] = useState<Route[]>([{ name: 'schedule' }]);
 
   const value = useMemo<Nav>(() => ({
     route: stack[stack.length - 1],

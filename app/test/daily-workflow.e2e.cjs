@@ -29,8 +29,16 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('the app opens on the day', await p.locator('button:has-text("Load the day")').isVisible());
   await p.click('button:has-text("Load the day")'); await p.waitForTimeout(900);
   ok('and lands on the schedule, not a directory',
-    (await p.locator('h1').first().textContent())==='Today');
+    (await p.locator('h1').first().textContent())==='Schedule');
+  ok('as a week, which is the unit a practice plans in',
+    (await p.locator('.vtab.on').textContent())==='week'
+    && (await p.locator('.weekgrid .wday').count())===7);
+  ok('with the week it is actually in',
+    (await p.locator('.page-head .sub').textContent()).includes('16 Nov 2026 to 22 Nov 2026'));
 
+  // The day is one of three views over the same list, and it is the
+  // one that carries what a physician needs before walking in.
+  await p.click('.vtab:has-text("day")'); await p.waitForTimeout(500);
   const rows = await p.locator('.dayrow').count();
   ok(`one list, five activities (${rows})`, rows===5);
   const kinds = [...new Set((await p.locator('.dayrow .dkind .chip').allTextContents()))];
@@ -38,6 +46,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     kinds.length===2 && kinds.includes('Visit') && kinds.includes('Care plan review'));
   ok('reviews come before the clinic fills up',
     (await p.locator('.dayrow').first().textContent()).includes('Care plan review'));
+  ok('and the month is there for finding a free fortnight',
+    await p.locator('.vtab:has-text("month")').isVisible());
   ok('each row says what is waiting on it',
     (await p.locator('.dayrow .dnew').first().textContent()).length>8);
   ok('and what version of the plan it opens on',
@@ -85,7 +95,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   const before = await p.locator('.panel:has-text("Living care plan") .psum').first().textContent();
   await p.click('.reviewgrid button:has-text("Approve")'); await p.waitForTimeout(1000);
-  ok('approving returns to the day', await p.locator('.daylist').isVisible());
+  ok('approving returns to the schedule', await p.locator('.weekgrid').isVisible());
+  await p.click('.vtab:has-text("day")'); await p.waitForTimeout(500);
   const sharon = await p.locator('.dayrow:has-text("Sharon White")').textContent();
   ok('the row is marked approved and the plan has moved on',
     sharon.includes('Approved') && sharon.includes('version 2'));
@@ -99,6 +110,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('the wellness elements are a thing you did, not a thing you booked',
     (await p.locator('.wellrow').textContent()).includes('never because the slot was booked'));
   await p.click('button:has-text("Leave without approving")'); await p.waitForTimeout(700);
+  await p.click('.vtab:has-text("day")'); await p.waitForTimeout(400);
 
   // ------------------------------------------------- 5. the inbox
   await p.click('.inboxbar:not(.closingbar)'); await p.waitForTimeout(700);
@@ -130,11 +142,12 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('and it is the same document as every other encounter',
     (await p.locator('.panel:has-text("Living care plan, working copy")').count())===1);
   await p.click('button:has-text("Leave without approving")'); await p.waitForTimeout(700);
+  await p.click('.vtab:has-text("day")'); await p.waitForTimeout(400);
   ok('and it did not add a sixth thing to the day',
     (await p.locator('.dayrow').count())===5);
 
   // ------------------------------------- 6. the negative assertion
-  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.fill('input[aria-label="Search patients"]',who.split(' ')[0]); await p.waitForTimeout(350);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(800);
   const line = await p.locator('.derivedfrom').textContent();

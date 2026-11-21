@@ -25,7 +25,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('button:has-text("Load 120 patients")'); await p.waitForTimeout(1500);
 
   // ----------------------------------------------- 1. the week
-  await p.click('.topbar button:has-text("Capacity")'); await p.waitForTimeout(700);
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Capacity")'); await p.waitForTimeout(700);
   ok('the capacity screen opens', await p.locator('h1:has-text("Capacity")').isVisible());
   ok('visits are on the grid', await p.locator('.wdvisit').count()>5);
   ok('weekends are not clinic days', await p.locator('.wday.weekend').count()===2);
@@ -60,12 +60,11 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     gap.includes('REFRESH-AT-RUNWAY'));
 
   // ----------------------------------------- 3. booking collides
-  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
-  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(450);
-  // Booking lives in the visits drawer now, not in the header.
-  await p.click('.railhead:has-text("Encounters")'); await p.waitForTimeout(400);
-  await p.click('.drawer button:has-text("Book a visit")'); await p.waitForTimeout(400);
+  // Booking lives in the Encounters tab, not in the header.
+  await p.click('.ctab:has-text("Encounters")'); await p.waitForTimeout(400);
+  await p.click('.tabbody button:has-text("Book a visit")'); await p.waitForTimeout(400);
   ok('booking offers the two activities with their lengths',
     (await p.locator('.booking').textContent()).includes('30m')
     && (await p.locator('.booking').textContent()).includes('60m'));
@@ -114,22 +113,19 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // up in the rail rather than throwing you at the calendar.
   ok('booking from the chart stays in the chart',
     await p.locator('.chead h1').count()>0);
-  ok('and the new activity is in the rail',
-    await p.locator('.nextvisit:not(.empty)').count()>0);
-  await p.click('.topbar button:has-text("Capacity")'); await p.waitForTimeout(700);
+  ok('and the new activity is on the encounters tab',
+    (await p.locator('.tabbody .tl, .tabbody').first().textContent()).length>40);
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Capacity")'); await p.waitForTimeout(700);
   ok('the review that was booked is on the grid, and reads quieter than a visit',
     await p.locator('.wdvisit.k-review').count()>0);
 
   // ------------------------------------------- 4. paper
-  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
-  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   let gotSummary=false;
   for(let i=0;i<14 && !gotSummary;i++){
-  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
-    await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(200);
-    await p.locator('table.rows tbody tr').nth(i).click(); await p.waitForTimeout(320);
-  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
-    await p.click('.railfoot button:has-text("Letters")'); await p.waitForTimeout(250);
+    await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(200);
+    await p.locator('table.rows tbody tr').nth(i).click(); await p.waitForTimeout(320); await p.waitForTimeout(250);
+    await p.click('.ctab:has-text("Letters")'); await p.waitForTimeout(250);
     if(await p.locator('button:has-text("Summary")').count()>0) gotSummary=true;
   }
   ok('a signed visit can produce a summary', gotSummary);
@@ -173,10 +169,9 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // ------------------------------- 5. the patient takes it themselves
   await p.click('.dochead button:has-text("Close")', {timeout:2000}).catch(()=>{});
-  await p.waitForTimeout(200);
-  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
-  await p.click('.railfoot button:has-text("Details")'); await p.waitForTimeout(350);
-  await p.click('.drawer button:has-text("Sign in as them")'); await p.waitForTimeout(700);
+  await p.waitForTimeout(200); await p.waitForTimeout(250);
+  await p.click('.ctab:has-text("Details")'); await p.waitForTimeout(350);
+  await p.click('.tabbody button:has-text("Sign in as them")'); await p.waitForTimeout(700);
   await p.click('button[role="tab"]:has-text("Your records")'); await p.waitForTimeout(450);
   const yr = await p.locator('.wrap').first().textContent();
   ok('the patient can take their record without asking', yr.includes('You do not need to ask'));

@@ -58,24 +58,42 @@ function Prose({ value, placeholder, onSave, rows = 3 }: {
   );
 }
 
-function Section({ letter, title, children }: {
-  letter: string; title: string; children: React.ReactNode;
+/**
+ * A lettered section, unless it is the only one on screen.
+ *
+ * The tab already says which letter you are reading. Repeating it
+ * immediately below is the kind of redundancy that makes a dense
+ * clinical page feel like a form.
+ */
+function Section({ letter, title, children, bare }: {
+  letter: string; title: string; children: React.ReactNode; bare?: boolean;
 }) {
   return (
     <section className="soap">
-      <div className="soaphead">
-        <span className="letter">{letter}</span>
-        <h2>{title}</h2>
-      </div>
+      {!bare && (
+        <div className="soaphead">
+          <span className="letter">{letter}</span>
+          <h2>{title}</h2>
+        </div>
+      )}
       <div className="soapbody">{children}</div>
     </section>
   );
 }
 
-export function MasterPlanView({ patientId, onOpen }: {
+export function MasterPlanView({ patientId, onOpen, only }: {
   patientId: string;
-  /** Drawer names, so a section can hand off to the full view. */
+  /** Tab names, so a section can hand off to the full view. */
   onOpen: (what: 'meds' | 'results' | 'prevention' | 'specialists' | 'notes' | 'encounters') => void;
+  /**
+   * One letter of SOAP, or the whole document.
+   *
+   * The care plan is one document and is still written as one. The
+   * tabs are a reading position within it, not four separate records:
+   * the same component renders all four, and asking for the whole
+   * thing gives you the scroll it always was.
+   */
+  only?: 'S' | 'O' | 'A' | 'P';
 }) {
   const st = useStore();
   const p = st.patient(patientId);
@@ -87,38 +105,53 @@ export function MasterPlanView({ patientId, onOpen }: {
   const P = mp?.plan ?? { byProblem: {}, prevention: '', lifestyle: '', followUp: '' };
 
 
+  const show = (letter: 'S' | 'O' | 'A' | 'P') => !only || only === letter;
+
   return (
     <div className="master">
       {/* ------------------------------------------------- subjective */}
-      <Section letter="S" title="Subjective">
+      {show('S') && (
+      <Section letter="S" title="Subjective" bare={!!only}>
         <Subjective patientId={patientId} onOpenSources={() => onOpen('encounters')} />
       </Section>
+      )}
 
       {/* -------------------------------------------------- objective */}
+      {show('O') && (
       <section className="soap">
-        <div className="soaphead">
-          <span className="letter">O</span>
-          <h2>Objective</h2>
-        </div>
+        {!only && (
+          <div className="soaphead">
+            <span className="letter">O</span>
+            <h2>Objective</h2>
+          </div>
+        )}
         <Objective patientId={patientId}
           onOpen={(w) => onOpen(w === 'studies' ? 'results' : w)} />
       </section>
+      )}
 
       {/* ------------------------------------------------- assessment */}
+      {show('A') && (
       <section className="soap">
-        <div className="soaphead">
-          <span className="letter">A</span>
-          <h2>Assessment</h2>
-        </div>
+        {!only && (
+          <div className="soaphead">
+            <span className="letter">A</span>
+            <h2>Assessment</h2>
+          </div>
+        )}
         <Assessment patientId={patientId} />
       </section>
+      )}
 
       {/* ------------------------------------------------------- plan */}
+      {show('P') && (
       <section className="soap">
-        <div className="soaphead">
-          <span className="letter">P</span>
-          <h2>Plan</h2>
-        </div>
+        {!only && (
+          <div className="soaphead">
+            <span className="letter">P</span>
+            <h2>Plan</h2>
+          </div>
+        )}
         <Plan
           patientId={patientId}
           master={mp}
@@ -145,12 +178,15 @@ export function MasterPlanView({ patientId, onOpen }: {
           <AddProblem patientId={patientId} />
         </div>
       </section>
+      )}
 
-      <p className="masterfoot">
-        {mp && <>Summary last updated {relative(mp.updated)} by {mp.updatedBy}. </>}
-        Visits are kept as they were signed.{' '}
-        <button className="linkish" onClick={() => onOpen('notes')}>Read the notes</button>
-      </p>
+      {(!only || only === 'P') && (
+        <p className="masterfoot">
+          {mp && <>Summary last updated {relative(mp.updated)} by {mp.updatedBy}. </>}
+          Visits are kept as they were signed.{' '}
+          <button className="linkish" onClick={() => onOpen('notes')}>Read the notes</button>
+        </p>
+      )}
     </div>
   );
 }

@@ -62,7 +62,7 @@ export function Closing() {
             outstanding{urgent.length > 0 && `, ${urgent.length} of them urgent`}.
           </div>
         </div>
-        <button className="btn ghost" onClick={() => nav.go({ name: 'today' })}>Today</button>
+        <button className="btn ghost" onClick={() => nav.go({ name: 'schedule' })}>Schedule</button>
       </div>
 
       <p className="small muted" style={{ maxWidth: '72ch', marginBottom: 14 }}>

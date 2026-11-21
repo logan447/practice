@@ -10,12 +10,11 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   await p.goto(U,{waitUntil:'networkidle'}); await p.waitForTimeout(300);
   await p.click('button:has-text("Load the day")'); await p.waitForTimeout(500);
-  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr:has-text("Marcus Reyes")').first().click();
-  await p.waitForTimeout(500);
-  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
-  await p.click('.railfoot button:has-text("Details")'); await p.waitForTimeout(350);
-  await p.click('.drawer button:has-text("Sign in as them")'); await p.waitForTimeout(500);
+  await p.waitForTimeout(500); await p.waitForTimeout(250);
+  await p.click('.ctab:has-text("Details")'); await p.waitForTimeout(350);
+  await p.click('.tabbody button:has-text("Sign in as them")'); await p.waitForTimeout(500);
   await p.click('button[role="tab"]:has-text("Track")'); await p.waitForTimeout(350);
   ok('Track tab opens', await p.locator('text=What are you recording?').isVisible());
   await p.screenshot({path:'t-1-track.png', fullPage:true});
@@ -61,29 +60,26 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.screenshot({path:'t-3-alert.png', fullPage:true});
 
   // physician side
-  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")');
   await p.click('.whoami'); await p.waitForTimeout(250);
   await p.click('.srow:has-text("L. DuBose")'); await p.waitForTimeout(500);
-  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr:has-text("Marcus Reyes")').first().click();
-  await p.waitForTimeout(600);
-  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
-  await p.click('.railhead:has-text("Labs and vitals")'); await p.waitForTimeout(350);
+  await p.waitForTimeout(600); await p.waitForTimeout(250);
+  await p.click('.ctab:has-text("Labs")'); await p.waitForTimeout(350);
   ok('results keeps patient data separate', await p.locator('text=Patient-measured, not clinic-measured').isVisible());
   await p.screenshot({path:'t-5-results.png', fullPage:true});
 
-  // encounter workspace shows what they logged
-  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
-  await p.click('.nextvisit'); await p.waitForTimeout(600);
+  // encounter workspace shows what they logged await p.waitForTimeout(250);
+  await p.click('.ctab:has-text("Encounters")'); await p.waitForTimeout(500);
+  await p.click('.startenc:has-text("Visit")'); await p.waitForTimeout(700);
   ok('visit workspace shows home readings', await p.locator('text=Home').first().isVisible());
 
   // persistence
   await p.goto(U,{waitUntil:'networkidle'}); await p.waitForTimeout(600);
-  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr:has-text("Marcus Reyes")').first().click();
-  await p.waitForTimeout(600);
-  if (await p.locator('.drawer').count()) await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(250);
-  await p.click('.railhead:has-text("Labs and vitals")'); await p.waitForTimeout(400);
+  await p.waitForTimeout(600); await p.waitForTimeout(250);
+  await p.click('.ctab:has-text("Labs")'); await p.waitForTimeout(400);
   ok('patient-logged data survives reload', await p.locator('text=Patient-measured, not clinic-measured').isVisible());
 
   const over=await p.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth+1);

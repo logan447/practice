@@ -361,7 +361,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       setChecked(true);
       return;
     }
-    nav.go({ name: 'today' });
+    nav.go({ name: 'schedule' });
   };
 
   const label = isReview ? 'Care plan review' : 'Visit';
@@ -384,14 +384,14 @@ export function Encounter({ encounterId }: { encounterId: string }) {
         <button className="btn ghost" onClick={() => nav.go({ name: 'chart', patientId })}>
           Open the chart
         </button>
-        <button className="btn ghost" onClick={() => nav.go({ name: 'today' })}>
+        <button className="btn ghost" onClick={() => nav.go({ name: 'schedule' })}>
           Leave without approving
         </button>
       </div>
 
       {checked && injected.length > 0 && (
         <DraftCheck audit={audit} signed={published}
-          onClose={() => (published ? nav.go({ name: 'today' }) : setChecked(false))} />
+          onClose={() => (published ? nav.go({ name: 'schedule' }) : setChecked(false))} />
       )}
 
       <div className="reviewgrid">

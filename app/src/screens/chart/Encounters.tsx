@@ -206,7 +206,22 @@ export function EncountersDrawer({ patientId, focus, onDone }: {
             if (sameDay) nav.go({ name: 'encounter', encounterId: id });
           }} />
       ) : (
-        <button className="btn" onClick={() => setBooking(true)}>Book a visit</button>
+        /*
+          * Book one for later, or start one now. The two starters
+          * used to live in the right column and came out with it;
+          * they belong here, beside the encounters they create.
+          */
+        <div className="row startrow" style={{ gap: 7, flexWrap: 'wrap' }}>
+          <button className="btn" onClick={() => setBooking(true)}>Book a visit</button>
+          <span className="spacer" />
+          <span className="small muted">Start one now:</span>
+          {([['visit', 'Visit'], ['review', 'Care plan review']] as const).map(([kind, label]) => (
+            <button key={kind} className="btn ghost startenc" onClick={() => {
+              const id = st.openEncounter(patientId, kind);
+              nav.go({ name: 'encounter', encounterId: id });
+            }}>{label}</button>
+          ))}
+        </div>
       )}
 
       <div className="row flow" style={{ gap: 6, flexWrap: 'wrap' }}>

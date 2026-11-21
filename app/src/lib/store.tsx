@@ -41,6 +41,23 @@ import { closureChecks, type ClosureCheck } from './closure';
  * only has to be right enough that two things do not land on top of
  * each other when a review is brought forward.
  */
+/**
+ * Reasons that named a service rather than an activity.
+ *
+ * Stored encounters carry the label they were created with, so a
+ * record written before the two activities still says "Behavioural
+ * health review" on a row the schedule now calls a care plan review.
+ * The old word is kept in `legacyKind`; the reason is the line a
+ * physician reads on the day, and it should say what they are about
+ * to do.
+ */
+const RETIRED_REASON: Record<string, string> = {
+  'Chronic care management review': 'Care plan review',
+  'Behavioural health review': 'Care plan review',
+  'Behavioral health review': 'Care plan review',
+  'Clinical visit': 'Visit',
+};
+
 function nextFreeStart(encounters: Encounter[], day: string): number {
   const taken = encounters
     .filter((e) => e.date === day && e.start != null)
@@ -214,6 +231,7 @@ function migrate(raw: State | null): State | null {
         kind: LEGACY_KIND[legacy] ?? 'visit',
         legacyKind: legacy,
         setting: e.setting ?? (legacy === 'home' ? 'home' : 'in-person'),
+        reason: RETIRED_REASON[e.reason] ?? e.reason,
       };
     }
     return e;
@@ -1423,13 +1441,31 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         return id;
       },
 
+      /**
+       * Open one, or go back to the one already open.
+       *
+       * Starting an encounter used to mint a row every time, so
+       * clicking "Care plan review" from a chart three times left
+       * three of them on the day, all unfinished and all identical.
+       * An encounter of the same kind, for the same patient, on the
+       * same day, that nobody has approved, is the same encounter.
+       */
       openEncounter: (patientId, kind) => {
+        const already = s.encounters.find(
+          (e) => e.patientId === patientId && e.kind === kind
+            && e.date === clockNow() && e.status === 'in-progress',
+        );
+        if (already) return already.id;
+
         const id = newId('en');
         const mins = ENCOUNTER_KINDS.find((k) => k.id === kind)?.mins ?? 30;
         setS((p) => ({
           ...p,
           encounters: [...p.encounters, {
             id, patientId, date: clockNow(), kind,
+            // An hour, so it lands somewhere real on the week rather
+            // than at the top of the morning with no time at all.
+            start: nextFreeStart(p.encounters, clockNow()),
             ...(kind === 'visit' ? { setting: 'in-person' as const } : {}),
             reason: kind === 'review'
               ? 'Care plan review'

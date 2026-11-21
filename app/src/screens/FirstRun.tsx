@@ -49,7 +49,7 @@ export function FirstRun() {
               Reyes is half written, Nina Alvarado joined last week with nothing
               on file. All fictional, and you can clear them at any time.
             </p>
-            <button className="btn ghost" onClick={() => { st.loadDemo(); nav.reset({ name: 'today' }); }}>
+            <button className="btn ghost" onClick={() => { st.loadDemo(); nav.reset({ name: 'schedule' }); }}>
               Load the day
             </button>
           </div>

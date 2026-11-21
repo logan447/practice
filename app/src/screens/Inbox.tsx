@@ -56,7 +56,7 @@ export function Inbox() {
         <button className="btn quiet sm" onClick={() => setShowDone((v) => !v)}>
           {showDone ? `Waiting (${waiting.length})` : `Handled (${handled.length})`}
         </button>
-        <button className="btn ghost" onClick={() => nav.go({ name: 'today' })}>Today</button>
+        <button className="btn ghost" onClick={() => nav.go({ name: 'schedule' })}>Schedule</button>
       </div>
 
       {list.length === 0 ? (

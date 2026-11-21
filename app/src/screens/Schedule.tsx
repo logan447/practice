@@ -1,341 +1,413 @@
 /**
- * The week, and the year behind it.
+ * The schedule, which is the way in.
  *
- * Two questions, one screen. The week answers "what does Tuesday
- * actually look like", which is the only way to find out whether a
- * ninety minute intake fits a day that already has two follow-ups and
- * a home visit. The capacity panel answers the question the practice
- * is built on: whether about 140 adults at five to six hours each fits
- * in thirty hours a week for thirty-nine weeks.
+ * A week by default, because a week is the unit a solo practice
+ * actually plans in: whether Thursday has room, whether the reviews
+ * got pushed into Friday again, whether the run-up to a closure is
+ * as empty as it looks. A day on its own cannot answer any of those,
+ * and a month is too coarse to answer them either.
  *
- * The arithmetic is shown rather than summarised, because every input
- * in it is a decision somebody made and might change.
+ * Three views over one list, and the list is the same list in all
+ * three. Week places things in time. Day is the one that carries the
+ * detail a physician needs before walking into something: what has
+ * arrived since the plan was last approved, and which version they
+ * are opening. Month is for finding a free fortnight.
+ *
+ * What is deliberately absent is as much the design as what is here.
+ * No separate queue for care management, behavioural health,
+ * preventative services or lifestyle medicine. Those happen inside
+ * an encounter, and giving each one a slot on a calendar is how a
+ * practice ends up with five diaries and no time.
  */
 import { useMemo, useState } from 'react';
 import { useStore } from '../lib/store';
 import { useNav } from '../lib/nav';
-import { Chip, Panel, Empty } from '../components/ui';
+import { Chip, Panel, Empty, Avatar } from '../components/ui';
 import { fmtDate } from '../lib/format';
 import { addDays } from '../lib/clock';
-import { kindLabel } from '../lib/clinical';
 import {
-  WORKING_YEAR, capacity, dayLoad, dayStatus, hhmm, weekStart,
+  hhmm, closureOn, nextClosure, dayStatus, weekStart, WORKING_YEAR,
 } from '../domain/schedule';
-import { toBooked } from '../components/Booking';
-import { PACKAGE, FIRST_YEAR_EXTRA, yearCapacity } from '../lib/membership';
-import { useActor } from '../lib/session';
+import type { Encounter } from '../domain/types';
+
+type View = 'day' | 'week' | 'month';
 
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const PX_PER_MIN = 0.9;
+const PX_PER_MIN = 0.78;
+
+/** "Closed, end of year" reads better mid-sentence as "the end-of-year closure". */
+const shortLabel = (label: string) =>
+  `the ${label.replace(/^Closed,\s*/i, '').trim().replace(/\s+/g, '-')} closure`;
+
+const monthStart = (iso: string) => `${iso.slice(0, 7)}-01`;
+const addMonths = (iso: string, n: number) => {
+  const [y, m] = iso.split('-').map(Number);
+  const t = y * 12 + (m - 1) + n;
+  return `${Math.floor(t / 12)}-${String((t % 12) + 1).padStart(2, '0')}-01`;
+};
+const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'];
 
 export function Schedule() {
   const st = useStore();
   const nav = useNav();
-  const me = useActor();
-  // On a Saturday the current week is already over, and a practice
-  // calendar opens on the week it can still do something about.
-  const [week, setWeek] = useState(() => {
-    const d = new Date(`${st.now}T12:00:00`).getDay();
-    return weekStart(d === 0 || d === 6 ? addDays(st.now, 2) : st.now);
-  });
+  const [view, setView] = useState<View>('week');
+  const [anchor, setAnchor] = useState(st.now);
 
-  const y = WORKING_YEAR;
-  const nameOf = (id: string) => st.patient(id)?.name ?? 'Someone';
+  const waiting = st.inbox().filter((x) => !x.triage);
+  const coming = nextClosure(st.now);
+  const closing = st.closureChecks();
+  const daysToClose = coming
+    ? Math.round((Date.parse(`${coming.from}T12:00:00`) - Date.parse(`${st.now}T12:00:00`)) / 86400000)
+    : undefined;
 
-  const days = useMemo(
-    () => Array.from({ length: 7 }, (_, i) => {
-      const iso = addDays(week, i);
-      return dayLoad(iso, toBooked(st.bookedOn(iso), nameOf));
-    }),
-    [week, st],
+  /** Everything booked, by date, which all three views read. */
+  const byDate = useMemo(() => {
+    const m = new Map<string, Encounter[]>();
+    for (const e of st.encounters) {
+      const xs = m.get(e.date) ?? [];
+      xs.push(e);
+      m.set(e.date, xs);
+    }
+    for (const xs of m.values()) {
+      xs.sort((a, b) => {
+        // Unscheduled sits after everything with a time rather than
+        // before it. An encounter somebody opened from a chart and
+        // left has no hour, and sorting it to the top of the morning
+        // is how the day stops being readable.
+        const at = a.start ?? 24 * 60;
+        const bt = b.start ?? 24 * 60;
+        if (at !== bt) return at - bt;
+        return (a.status === 'signed' ? 1 : 0) - (b.status === 'signed' ? 1 : 0);
+      });
+    }
+    return m;
+  }, [st.encounters]);
+
+  const on = (iso: string) => byDate.get(iso) ?? [];
+
+  const step = (n: number) => setAnchor(
+    view === 'day' ? addDays(anchor, n)
+      : view === 'week' ? addDays(anchor, n * 7)
+        : addMonths(anchor, n),
   );
 
-  /**
-   * The year so far, counted from what is actually in the record
-   * rather than from a plan. Signed visits are work done; scheduled
-   * ones are work promised, and both consume the same hours.
-   */
-  const cap = useMemo(() => {
-    // A rolling twelve months, because "hours per patient per year" is
-    // a rate. Counting every visit in a chart that goes back four
-    // years answers a different question.
-    const from = addDays(st.now, -365);
-    const to = addDays(st.now, 365);
-    const seen = new Set<string>();
-    let minutes = 0;
-    for (const e of st.encounters) {
-      if (e.date < from || e.date > to) continue;
-      minutes += e.duration ?? 30;
-      seen.add(e.date);
-    }
-    return capacity(minutes, seen.size, st.patients.length, y);
-  }, [st.encounters, st.patients.length, st.now, y]);
+  const range = view === 'day' ? fmtDate(anchor)
+    : view === 'week'
+      ? `${fmtDate(weekStart(anchor))} to ${fmtDate(addDays(weekStart(anchor), 6))}`
+      : `${MONTH_NAMES[Number(anchor.slice(5, 7)) - 1]} ${anchor.slice(0, 4)}`;
 
-  const overTarget = cap.panel > cap.panelAtHigh;
-  // At the target panel, not at whatever is enrolled today. A demo
-  // with five patients would otherwise report two thousand minutes
-  // each, which is true and useless.
-  const yc = yearCapacity(y.panelTarget, y);
-  const ycNow = st.patients.length > 0 ? yearCapacity(st.patients.length, y) : undefined;
-  const dayMinutes = y.dayEnd - y.dayStart;
+  const here = view === 'day' ? anchor === st.now
+    : view === 'week' ? weekStart(anchor) === weekStart(st.now)
+      : anchor.slice(0, 7) === st.now.slice(0, 7);
 
   return (
     <div className="wrap wide">
       <div className="page-head row" style={{ alignItems: 'flex-end' }}>
-        <div style={{ flex: 1 }}>
-          <h1>Capacity</h1>
-          <div className="sub">
-            {y.hoursPerWeek} hours a week for {y.weeksWorked} weeks, Monday to Friday.
-            Eight months open and four closed, in four blocks of about a month rather
-            than one block of four. Every number on this page comes from a logged
-            decision or is marked as an assumption. The day itself is on Today.
-          </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h1>Schedule</h1>
+          <div className="sub">{range}</div>
         </div>
-        <button className="btn ghost" onClick={() => nav.back()}>Back</button>
-      </div>
-
-      {/* ----------------------------------------------------- the week */}
-      <div className="row" style={{ marginBottom: 12, gap: 8 }}>
-        <button className="btn quiet sm" onClick={() => setWeek(addDays(week, -7))}>&larr; Week</button>
-        <strong style={{ fontSize: 14 }}>
-          {fmtDate(week)} to {fmtDate(addDays(week, 6))}
-        </strong>
-        <button className="btn quiet sm" onClick={() => setWeek(addDays(week, 7))}>Week &rarr;</button>
-        {week !== weekStart(st.now) && (
-          <button className="btn quiet sm" onClick={() => setWeek(weekStart(st.now))}>This week</button>
-        )}
-        <span className="spacer" />
-        <span className="small muted">
-          {days.reduce((a, d) => a + d.booked.length, 0)} booked this week,{' '}
-          {Math.round(days.reduce((a, d) => a + d.totalMinutes, 0) / 6) / 10} hours with admin
-        </span>
-      </div>
-
-      <div className="weekgrid">
-        {days.map((d) => {
-          const v = dayStatus(d.iso, y);
-          const today = d.iso === st.now;
-          return (
-            <div key={d.iso} className={`wday ${v.status}${today ? ' today' : ''}`}>
-              <div className="wdhead">
-                <span>{DAY_NAMES[new Date(`${d.iso}T12:00:00`).getDay()]}</span>
-                <span className="num">{d.iso.slice(8)}</span>
-                {today && <Chip tone="accent">Today</Chip>}
-              </div>
-
-              {v.status !== 'clinic' ? (
-                <div className="wdoff">{v.label ?? 'Not a clinic day'}</div>
-              ) : (
-                <div className="wdcol" style={{ height: dayMinutes * PX_PER_MIN }}>
-                  <div className="wdlunch" style={{
-                    top: (y.lunchStart - y.dayStart) * PX_PER_MIN,
-                    height: y.lunchMinutes * PX_PER_MIN,
-                  }} />
-                  {d.booked.map((b) => (
-                    <button key={b.id} className={`wdvisit k-${b.kind}`}
-                      style={{
-                        top: (b.start - y.dayStart) * PX_PER_MIN,
-                        height: Math.max(16, b.minutes * PX_PER_MIN - 2),
-                      }}
-                      onClick={() => nav.go({ name: 'encounter', encounterId: b.id })}>
-                      {/* The name comes first and always fits. A
-                          thirty minute block is two lines tall, so
-                          anything that does not fit is the label. */}
-                      <span className="line1">
-                        <span className="t">{hhmm(b.start)}</span>
-                        <span className="n">{b.label}</span>
-                      </span>
-                      {b.minutes >= 45 && (
-                        <span className="k">{kindLabel(b.kind as never)} &middot; {b.minutes}m</span>
-                      )}
-                    </button>
-                  ))}
-                  {d.booked.length === 0 && <div className="wdempty">Open</div>}
-                </div>
-              )}
-
-              {v.status === 'clinic' && (
-                <div className="wdfoot">
-                  {d.full
-                    ? <span style={{ color: 'var(--warn)' }}>Full</span>
-                    : `${Math.round(d.openMinutes / 6) / 10} h open`}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* ------------------------------------------------- the year */}
-      {/* ------------------------------------- the package, and whether it fits */}
-      <h2 style={{ fontSize: 17, margin: '26px 0 12px' }}>Does the year hold the panel?</h2>
-
-      <Panel title="What a membership year contains" eyebrow="Derived">
-        <div className="row flow" style={{ gap: 26, marginBottom: 12 }}>
-          <Stat n={yc.clinicalHours} u="clinical hours a year, after a fifth for admin" />
-          <Stat n={yc.minutesEach} u={`clinical minutes each at the target ${y.panelTarget}`} />
-          <Stat n={yc.minutesPlanned} u="minutes the package plans for" />
-          <Stat n={yc.panelThatFits} u="patients the package exactly fits" />
+        <div className="viewtabs">
+          {(['day', 'week', 'month'] as View[]).map((v) => (
+            <button key={v} className={`vtab${view === v ? ' on' : ''}`}
+              onClick={() => setView(v)}>{v}</button>
+          ))}
         </div>
-        <table className="rows">
-          <tbody>
-            <tr>
-              <td>Synchronous consultations</td>
-              <td className="small muted">
-                {PACKAGE.consultations.count} &times; {PACKAGE.consultations.minutes} min
-              </td>
-              <td className="num">{PACKAGE.consultations.count * PACKAGE.consultations.minutes}</td>
-            </tr>
-            <tr>
-              <td>Care plan reviews</td>
-              <td className="small muted">
-                {PACKAGE.reviews.count} &times; {PACKAGE.reviews.minutes} min
-              </td>
-              <td className="num">{PACKAGE.reviews.count * PACKAGE.reviews.minutes}</td>
-            </tr>
-            <tr>
-              <td>Messages, coordination and follow-up</td>
-              <td className="small muted">across the year</td>
-              <td className="num">{PACKAGE.messagingMinutes}</td>
-            </tr>
-            <tr>
-              <td><b>Total</b></td>
-              <td />
-              <td className="num"><b>{yc.minutesPlanned}</b></td>
-            </tr>
-          </tbody>
-        </table>
-        {ycNow && st.patients.length !== y.panelTarget && (
-          <p className="small muted" style={{ marginTop: 10, maxWidth: '74ch' }}>
-            <b>{st.patients.length} enrolled today</b>, which is {ycNow.minutesEach} clinical
-            minutes each. Every patient over {yc.panelThatFits} takes minutes from everybody
-            already here, which is why the panel number is a clinical parameter and not
-            only a commercial one.
-          </p>
+        <button className="btn quiet sm" onClick={() => step(-1)}>&larr;</button>
+        {!here && (
+          <button className="btn quiet sm" onClick={() => setAnchor(st.now)}>Today</button>
         )}
-        <p className="small muted" style={{ marginTop: 12, maxWidth: '74ch' }}>
-          Five physician contacts a year inside four service periods, which is a contact
-          roughly every seven weeks while the practice is open. The first year costs about
-          {' '}{FIRST_YEAR_EXTRA} minutes more, because a comprehensive assessment and a care
-          plan built from nothing is not the steady state. Either that year is a larger
-          package or enrolment is staged; staging is simpler and does not need a second price.
-        </p>
-        <p className="small muted" style={{ marginTop: 10, maxWidth: '74ch' }}>
-          <b>What this replaced.</b> A sixty minute care plan review every month is 720
-          minutes a patient a year. Across {y.panelTarget} patients that is{' '}
-          {y.panelTarget * 12} physician hours against the {cap.yearHours} the year contains,
-          over by a factor of {Math.round(((y.panelTarget * 12) / cap.yearHours) * 10) / 10}.
-          It was the right design for a smaller panel and a primary care scope, and it does
-          not survive either change. See docs/systems/consultative-practice-model.md.
-        </p>
-      </Panel>
-
-
-      <div className="grid g3">
-        <Panel title="Hours the year has" eyebrow="D-051">
-          <div className="metric">
-            <span className="v num">{cap.yearHours}</span>
-            <span className="u">hours</span>
-          </div>
-          <p className="small muted" style={{ marginTop: 8 }}>
-            {y.hoursPerWeek} hours a week times {y.weeksWorked} working weeks, which is
-            eight months open and four closed. A decision, not a measurement.
-          </p>
-        </Panel>
-
-        <Panel title="Gone before anything is booked" eyebrow="Assumed">
-          <div className="metric">
-            <span className="v num">{cap.messagingHours}</span>
-            <span className="u">hours</span>
-          </div>
-          <p className="small muted" style={{ marginTop: 8 }}>
-            {y.messagingPerWeek} minutes a week of messaging and results, for the
-            24 to 72 hour response in D-017 with no coverage clinician. Assumed, and
-            the first number to replace with a real one.
-          </p>
-        </Panel>
-
-        <Panel title="Panel this year could carry" eyebrow="Derived">
-          <div className="metric">
-            <span className="v num">{cap.panelAtLow}&ndash;{cap.panelAtHigh}</span>
-            <span className="u">adults</span>
-          </div>
-          <p className="small muted" style={{ marginTop: 8 }}>
-            {cap.yearHours - cap.messagingHours} usable hours divided by the sourced
-            {' '}{y.hoursPerPatientLow} to {y.hoursPerPatientHigh} hours per patient per year.
-            D-051 targets {cap.targetPanel}. Break-even is {cap.breakEven}.
-          </p>
-        </Panel>
+        <button className="btn quiet sm" onClick={() => step(1)}>&rarr;</button>
       </div>
 
-      <Panel title="The arithmetic disagrees with the target" style={{ marginTop: 16 }}>
-        <p style={{ fontSize: 14, maxWidth: '74ch' }}>
-          This model says the year can carry {cap.panelAtLow} to {cap.panelAtHigh} adults.
-          D-051 targets {cap.targetPanel}. Those are not the same number, and the
-          difference is about {cap.unexplainedHours} hours a year, which is roughly{' '}
-          {Math.round((cap.unexplainedHours / y.weeksWorked) * 10) / 10} hours a week.
-        </p>
-        <p className="small muted" style={{ marginTop: 10, maxWidth: '74ch' }}>
-          One of three things is true. The messaging assumption above is too small, which
-          is the most likely. Or the sourced 5 to 6 hours per patient already includes
-          work this model is double counting. Or D-018 held back capacity on purpose and
-          the reason was never written down. The gap is shown rather than tuned away,
-          because closing it by adjusting an assumption until the two agree would destroy
-          the only evidence that something is missing. <b>REFRESH-AT-RUNWAY</b>: the first
-          three months of real messaging and admin time settles it.
-        </p>
-      </Panel>
+      {/* ---------------------------------------- what is waiting, either way */}
+      {coming && daysToClose !== undefined && daysToClose > 0 && daysToClose <= 45
+        && closing && closing.checks.length > 0 && (
+        <button className="inboxbar closingbar" onClick={() => nav.go({ name: 'closing' })}>
+          <span>
+            <b>{closing.checks.length}</b>{' '}
+            {closing.checks.length === 1 ? 'patient has' : 'patients have'} something
+            outstanding before {shortLabel(coming.label)} in {daysToClose} days
+            {closing.checks.some((c) => c.items.some((i) => i.urgent)) && (
+              <span className="urgentmark">
+                {closing.checks.filter((c) => c.items.some((i) => i.urgent)).length} with
+                no other physician
+              </span>
+            )}
+          </span>
+          <span className="linkish">Check</span>
+        </button>
+      )}
 
-      <Panel title="Where this record currently stands" style={{ marginTop: 16 }}>
-        {st.patients.length === 0 ? <Empty>No patients yet.</Empty> : (
-          <>
-            <div className="row flow" style={{ gap: 26 }}>
-              <Stat n={cap.panel} u="adults enrolled" />
-              <Stat n={cap.bookedHours} u="hours of visits and admin in the record" />
-              <Stat n={cap.hoursPerPatient ?? 0} u="hours per patient so far" />
-              <Stat n={cap.freeHours} u="hours left in the year" />
-            </div>
-            <p className="small" style={{ marginTop: 14, maxWidth: '74ch' }}>
-              {overTarget ? (
-                <>
-                  <b style={{ color: 'var(--crit)' }}>The panel is larger than the hours.</b>{' '}
-                  {cap.panel} adults against {cap.panelAtLow} to {cap.panelAtHigh} this year
-                  can carry. At flat pricing that is not a revenue problem, it is a
-                  time problem, and it arrives as missed response times rather than as
-                  an empty diary.
-                </>
-              ) : (
-                <>
-                  {cap.panel} adults against the {cap.panelAtLow} to {cap.panelAtHigh} this
-                  year can carry. Hours per patient is the figure that decides whether flat
-                  pricing survives contact, and it is measured here rather than assumed.
-                </>
-              )}
-            </p>
-            <p className="small muted" style={{ marginTop: 10, maxWidth: '74ch' }}>
-              Hours per patient here counts only what is in this record. A real year also
-              contains the work nobody books: refills, forms, calls that do not become
-              visits, and the home visits that take two and a half hours each including
-              travel. Treat it as a floor.
-            </p>
-          </>
-        )}
-      </Panel>
+      {waiting.length > 0 && (
+        <button className="inboxbar" onClick={() => nav.go({ name: 'inbox' })}>
+          <span>
+            <b>{waiting.length}</b> waiting in the inbox
+            {waiting.filter((x) => x.urgent).length > 0 && (
+              <span className="urgentmark">
+                {waiting.filter((x) => x.urgent).length} flagged urgent
+              </span>
+            )}
+          </span>
+          <span className="linkish">Triage</span>
+        </button>
+      )}
 
-      {me.role !== 'physician' && (
-        <p className="small muted" style={{ marginTop: 16 }}>
-          The working year belongs to the practice, so it is read-only from here.
-        </p>
+      {view === 'day' && <DayView iso={anchor} list={on(anchor)} />}
+      {view === 'week' && (
+        <WeekView start={weekStart(anchor)} on={on}
+          onDay={(iso) => { setAnchor(iso); setView('day'); }} />
+      )}
+      {view === 'month' && (
+        <MonthView month={monthStart(anchor)} on={on}
+          onDay={(iso) => { setAnchor(iso); setView('day'); }} />
       )}
     </div>
   );
 }
 
-function Stat({ n, u }: { n: number; u: string }) {
+/* ------------------------------------------------------------------ day */
+
+/**
+ * The day, with what a physician needs before walking into it.
+ *
+ * The only view that carries the reconciliation count and the version
+ * number, because those are the two facts that change what happens in
+ * the next hour and neither of them fits in a block on a grid.
+ */
+function DayView({ iso, list }: { iso: string; list: Encounter[] }) {
+  const st = useStore();
+  const nav = useNav();
+  const shut = closureOn(iso);
+  const verdict = dayStatus(iso);
+
   return (
-    <div>
-      <div className="num" style={{ font: '600 26px/1 var(--serif)' }}>{n}</div>
-      <div className="small muted" style={{ marginTop: 4, maxWidth: '22ch' }}>{u}</div>
+    <>
+      {shut && (
+        <p className="closedbar">
+          <b>{shut.label}.</b> {fmtDate(shut.from)} to {fmtDate(shut.to)}. Nothing routine
+          is booked while the practice is closed. The dates are known before anybody enrols.
+        </p>
+      )}
+
+      {list.length === 0 ? (
+        <Panel title={shut ? 'Closed' : verdict.status === 'weekend' ? 'Not a clinic day' : 'Nothing booked'}>
+          <Empty>
+            {shut
+              ? 'The practice is closed. Nothing routine is booked, and the inbox is still '
+                + 'read, because an urgent message does not wait for a service period.'
+              : verdict.status === 'weekend'
+                ? 'The practice keeps business hours, Monday to Friday.'
+                : 'A clear day. The inbox is the other place work arrives, and a care plan '
+                  + 'review can be started from any chart.'}
+          </Empty>
+        </Panel>
+      ) : (
+        <div className="daylist">
+          {list.map((e) => {
+            const p = st.patient(e.patientId);
+            const fresh = st.newSince(e.patientId);
+            const v = st.currentVersion(e.patientId);
+            const done = e.status === 'signed';
+            return (
+              <button key={e.id} className={`dayrow${done ? ' done' : ''}`}
+                onClick={() => nav.go({ name: 'encounter', encounterId: e.id })}>
+                <span className="dtime">
+                  {e.start != null ? hhmm(e.start) : <span className="muted">no time</span>}
+                </span>
+                {p && <Avatar patient={p} />}
+                <span className="dwho">
+                  <span className="dname">{p?.name ?? 'Someone'}</span>
+                  <span className="dreason">{e.reason}</span>
+                </span>
+                <span className="dkind">
+                  <Chip tone={e.kind === 'review' ? undefined : 'accent'}>
+                    {e.kind === 'review' ? 'Care plan review' : 'Visit'}
+                  </Chip>
+                  <span className="small muted">{e.duration ?? 30} min</span>
+                </span>
+                <span className="dnew">
+                  {done ? (
+                    <Chip tone="ok">Approved</Chip>
+                  ) : fresh.count === 0 ? (
+                    <span className="small muted">Nothing new</span>
+                  ) : (
+                    <Chip tone={fresh.urgent > 0 ? 'crit' : 'warn'}>
+                      {fresh.count} to reconcile
+                    </Chip>
+                  )}
+                  <span className="small muted">
+                    {v ? `version ${v.version}` : 'no approved plan'}
+                  </span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </>
+  );
+}
+
+/* ----------------------------------------------------------------- week */
+
+function WeekView({ start, on, onDay }: {
+  start: string;
+  on: (iso: string) => Encounter[];
+  onDay: (iso: string) => void;
+}) {
+  const st = useStore();
+  const nav = useNav();
+  const y = WORKING_YEAR;
+  const days = Array.from({ length: 7 }, (_, i) => addDays(start, i));
+
+  /**
+   * The window the grid draws, which is not the working day.
+   *
+   * The working year says nine to five, and reviews get put at eight
+   * because that is when asynchronous work survives a clinic day. A
+   * grid that only draws the official hours puts those blocks at a
+   * negative offset, where they land on top of the date. So the
+   * window stretches to hold whatever is actually booked.
+   */
+  const booked = days.flatMap(on).filter((e) => e.start != null);
+  const from = Math.min(y.dayStart, ...booked.map((e) => e.start!));
+  const to = Math.max(y.dayEnd, ...booked.map((e) => e.start! + (e.duration ?? 30)));
+  const dayMinutes = to - from;
+
+  return (
+    <div className="weekgrid">
+      {days.map((iso) => {
+        const verdict = dayStatus(iso);
+        const today = iso === st.now;
+        const all = on(iso);
+        const timed = all.filter((e) => e.start != null);
+        const loose = all.filter((e) => e.start == null);
+        return (
+          <div key={iso} className={`wday ${verdict.status}${today ? ' today' : ''}`}>
+            <button className="wdhead" onClick={() => onDay(iso)}>
+              <span>{DAY_NAMES[new Date(`${iso}T12:00:00`).getDay()]}</span>
+              <span className="num">{iso.slice(8)}</span>
+              {today && <Chip tone="accent">Today</Chip>}
+            </button>
+
+            {verdict.status !== 'clinic' ? (
+              <div className="wdoff">{verdict.label ?? 'Not a clinic day'}</div>
+            ) : (
+              <div className="wdcol" style={{ height: dayMinutes * PX_PER_MIN }}>
+                <div className="wdlunch" style={{
+                  top: (y.lunchStart - from) * PX_PER_MIN,
+                  height: y.lunchMinutes * PX_PER_MIN,
+                }} />
+                {timed.map((e) => {
+                  const p = st.patient(e.patientId);
+                  const mins = e.duration ?? 30;
+                  return (
+                    <button key={e.id}
+                      className={`wdvisit k-${e.kind}${e.status === 'signed' ? ' signed' : ''}`}
+                      style={{
+                        top: (e.start! - from) * PX_PER_MIN,
+                        height: Math.max(16, mins * PX_PER_MIN - 2),
+                      }}
+                      onClick={() => nav.go({ name: 'encounter', encounterId: e.id })}>
+                      <span className="line1">
+                        <span className="t">{hhmm(e.start!)}</span>
+                        <span className="n">{p?.name ?? 'Someone'}</span>
+                      </span>
+                      {mins >= 40 && (
+                        <span className="k">
+                          {e.kind === 'review' ? 'Care plan review' : 'Visit'} &middot; {mins}m
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+                {timed.length === 0 && loose.length === 0 && <div className="wdempty">Open</div>}
+              </div>
+            )}
+
+            {/*
+              * Encounters somebody opened from a chart and never
+              * finished. They are real and they have no hour, so they
+              * sit under the day rather than being given a fictional
+              * one at the top of the morning.
+              */}
+            {loose.length > 0 && (
+              <div className="wdloose">
+                {loose.map((e) => (
+                  <button key={e.id} className="looserow"
+                    onClick={() => nav.go({ name: 'encounter', encounterId: e.id })}>
+                    {st.patient(e.patientId)?.name ?? 'Someone'}
+                    <span className="small muted">
+                      {e.status === 'signed' ? 'approved'
+                        : e.status === 'in-progress' ? 'started' : 'no time set'}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {verdict.status === 'clinic' && (
+              <div className="wdfoot">
+                {all.length === 0 ? 'Open' : `${all.length} booked`}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------- month */
+
+/**
+ * The month, for finding a free fortnight.
+ *
+ * Deliberately coarse. Counts and a closure band, nothing else: a
+ * month grid that tries to show who is booked ends up showing
+ * neither, and the day view is one click away.
+ */
+function MonthView({ month, on, onDay }: {
+  month: string;
+  on: (iso: string) => Encounter[];
+  onDay: (iso: string) => void;
+}) {
+  const st = useStore();
+  const first = new Date(`${month}T12:00:00`);
+  const lead = first.getDay();
+  const days = new Date(Date.UTC(first.getFullYear(), first.getMonth() + 1, 0)).getUTCDate();
+  const cells: (string | null)[] = [
+    ...Array.from({ length: lead }, () => null),
+    ...Array.from({ length: days }, (_, i) => `${month.slice(0, 8)}${String(i + 1).padStart(2, '0')}`),
+  ];
+  while (cells.length % 7 !== 0) cells.push(null);
+
+  return (
+    <div className="monthgrid">
+      {DAY_NAMES.map((d) => <div key={d} className="mhead">{d}</div>)}
+      {cells.map((iso, i) => {
+        if (!iso) return <div key={`b${i}`} className="mcell blank" />;
+        const verdict = dayStatus(iso);
+        const all = on(iso);
+        const visits = all.filter((e) => e.kind === 'visit').length;
+        const reviews = all.length - visits;
+        return (
+          <button key={iso} className={`mcell ${verdict.status}${iso === st.now ? ' today' : ''}`}
+            onClick={() => onDay(iso)}>
+            <span className="mnum">{Number(iso.slice(8))}</span>
+            {verdict.status === 'away' ? (
+              <span className="mclosed">Closed</span>
+            ) : all.length > 0 ? (
+              <span className="mcounts">
+                {visits > 0 && <span className="mv">{visits} visit{visits === 1 ? '' : 's'}</span>}
+                {reviews > 0 && <span className="mr">{reviews} review{reviews === 1 ? '' : 's'}</span>}
+              </span>
+            ) : null}
+          </button>
+        );
+      })}
     </div>
   );
 }

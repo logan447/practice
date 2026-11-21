@@ -19,7 +19,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.evaluate(()=>localStorage.clear());
   await p.reload({waitUntil:'networkidle'}); await p.waitForTimeout(400);
   await p.click('button:has-text("Load the day")'); await p.waitForTimeout(800);
-  await p.click('.topbar button:has-text("Patients")'); await p.waitForTimeout(400);
+  await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.click('text=Sharon White'); await p.waitForTimeout(700);
 
   // -------------------------------------------------- 1. the header
@@ -98,15 +98,17 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await subj.locator('.sprob .srcmark').first().click(); await p.waitForTimeout(150);
 
   // ------------------------------------------- 3. objective order
-  const sections = await p.locator('.soaphead h2').allTextContents();
-  ok(`SOAP in order: ${sections.join(', ')}`,
+  const sections = (await p.locator('.ctab').allTextContents()).slice(0, 4);
+  ok(`SOAP leads the tab strip, in order: ${sections.join(', ')}`,
     sections.join(',')==='Subjective,Objective,Assessment,Plan');
+  await p.click('.ctab:has-text("Objective")'); await p.waitForTimeout(400);
   ok('the most recent vitals only, with home behind a button',
     (await p.locator('.vitblock .vhead').allTextContents()).join('|').includes('Office')
     && (await p.locator('.vitblock.home').count())===0
     && (await p.locator('button:has-text("Home logs")').count())===1);
   ok('labs are fishbones', await p.locator('.bone').count()>=4);
-  const objText = (await p.locator('.soap').nth(1).textContent());
+  await p.click('.ctab:has-text("Objective")'); await p.waitForTimeout(400);
+  const objText = (await p.locator('.soap').first().textContent());
   ok('the examination comes before the labs',
     objText.indexOf('Physical examination') < objText.indexOf('Key labs'));
   const bone = await p.locator('.bone').first().textContent();
@@ -114,7 +116,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('the examination carries its own date', await p.locator('.examrow').count()>0);
 
   // ------------------------- 4. the assessment, in one vocabulary
-  const ass = p.locator('.soap').nth(2);
+  await p.click('.ctab:has-text("Assessment")'); await p.waitForTimeout(400);
+  const ass = p.locator('.soap').first();
   const line = await ass.locator('.oneliner').textContent();
   ok(`it opens with the clinical one-liner: "${line.slice(0,40)}..."`,
     /^60F with PMH of /.test(line));
@@ -137,7 +140,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
       await ass.locator('.catblock:has-text("Lifestyle medicine")').textContent()));
 
   // ------------------------------------- 5. plan follows the gauge
-  const plan = await p.locator('.soap').nth(3).textContent();
+  await p.locator('.ctab').nth(3).click(); await p.waitForTimeout(400);
+  const plan = await p.locator('.soap').first().textContent();
   ok('the plan no longer tells you what to intend',
     !plan.includes('Continue and keep pushing') && !plan.includes('Change course'));
   ok('medicines are coded to the problem they are for',
@@ -148,30 +152,34 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     plan.includes('Preventative care') && /Needs attention|Complete/.test(plan));
   ok('no summary badges counting things', !/\d+ outstanding|\d+ of \d+/.test(plan));
   ok('follow-up moved out of the plan and into the rail',
-    !plan.includes('FOLLOW-UP') && (await p.locator('.railhead:has-text("Follow-up")').count())===1);
+    !plan.includes('FOLLOW-UP') && (await p.locator('.ctab:has-text("Follow-up")').count())===1);
 
   // ------------------------------- 6. the sources, and adding to them
+  await p.click('.ctab:has-text("Subjective")'); await p.waitForTimeout(400);
   await p.click('.derivedfrom button'); await p.waitForTimeout(700);
   const tl = await p.locator('.tlitem').count();
   ok(`every record is here to open (${tl})`, tl>=20);
-  const drawer = (await p.locator('.drawerbody').textContent()).replace(/\s+/g,' ');
+  const tabtext = (await p.locator('.tabbody').textContent()).replace(/\s+/g,' ');
   ok('visits, updates, messages, letters and results together',
     ['Visit','Health update','Message','Specialist letter','Results']
-      .every((k)=>drawer.includes(k)));
+      .every((k)=>tabtext.includes(k)));
   ok('a message the patient sent is readable in full',
-    drawer.includes('shaky and sweaty') || drawer.includes('A friend sent me an article'));
+    tabtext.includes('shaky and sweaty') || tabtext.includes('A friend sent me an article'));
 
   // the claim: add a record, the summary moves, nothing was edited
+  await p.click('.ctab:has-text("Subjective")'); await p.waitForTimeout(400);
   const before = (await p.locator('.soap').first().textContent());
+  await p.click('.ctab:has-text("Encounters")'); await p.waitForTimeout(400);
   await p.click('button:has-text("A health update from the patient")');
   await p.waitForTimeout(600);
-  await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(500);
+  
+  await p.click('.ctab:has-text("Subjective")'); await p.waitForTimeout(400);
   const after = (await p.locator('.soap').first().textContent());
   ok('a new patient update changes the summary with no editing step',
     before!==after);
 
   // -------------------------------------------- 7. the packet
-  await p.click('.railfoot button:has-text("Export")'); await p.waitForTimeout(700);
+  await p.click('.ctab:has-text("Export")'); await p.waitForTimeout(700);
   const list = (await p.locator('.packetlist').textContent()).replace(/\s+/g,' ');
   ok(`the packet lists what is in it: ${list.slice(0,60)}`,
     await p.locator('.packetlist li').count()===7);
@@ -190,9 +198,9 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     pk.includes('the notes are the record'));
 
   // ------------------------------- 8. billing records kept apart
-  await p.click('.drawer > header button:has-text("Close")'); await p.waitForTimeout(300);
-  await p.click('.railfoot button:has-text("Coding")'); await p.waitForTimeout(700);
-  const doc = await p.locator('.drawerbody').textContent();
+  
+  await p.click('.ctab:has-text("Coding")'); await p.waitForTimeout(700);
+  const doc = await p.locator('.tabbody').textContent();
   ok('each visit records the elements a level rests on', doc.includes('Problems') && doc.includes('Risk'));
   ok('both routes to a level are shown', /gives 992\d\d\./.test(doc));
   ok('care management time is tracked per month', doc.includes('countable minutes'));
