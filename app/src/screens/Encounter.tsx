@@ -40,6 +40,7 @@ import { fmtDate } from '../lib/format';
 import { oneLiner } from './chart/AssessPlan';
 import { livingSubjective } from '../lib/subjective';
 import type { LivingSubjective } from '../lib/subjective';
+import type { Intervention } from '../lib/interventions';
 import { ambientScript, wasCaught, ERROR_LABEL, type InjectedError } from '../lib/ambient';
 import { Fishbone, OtherLabs } from './chart/Fishbone';
 import { TAB_LABEL } from './chart/drawers';
@@ -70,6 +71,54 @@ interface Item {
   doing: string;
   /** Where it stands, as the first draft of the assessment. */
   standing: string;
+  /**
+   * Where it stands in a sentence: the target, and if it is not
+   * there, why.
+   *
+   * The line between the heading and the bullets. A heading that
+   * says "Not at goal" and a list of drugs underneath it leaves the
+   * reader to work out what goal and how far off, which is the one
+   * thing the physician already knew and did not write down.
+   */
+  because: string;
+}
+
+/**
+ * One problem's interventions, as the points of its plan.
+ *
+ * A point in a plan is a verb and a thing: "Continue lisinopril
+ * 20 mg, one tablet each morning", not "Lisinopril 20 mg". The verb
+ * comes from the record where the record knows it, which is continue,
+ * start and hold; increase and decrease are decided in the room, so
+ * the verb is the first word of a line you can type over.
+ *
+ * Lifestyle collapses to one point. Every pillar has its own block
+ * further down this plan with its own prescription and its own
+ * barrier, and writing them out again under each condition that
+ * depends on them printed the same four prescriptions three times.
+ * The point here is the pointer.
+ */
+function planPoints(ivs: Intervention[]): string[] {
+  const out: string[] = [];
+  let lifestyle = false;
+  for (const iv of ivs) {
+    if (iv.kind === 'lifestyle') { lifestyle = true; continue; }
+    const tail = iv.note ? ` (${iv.note})` : '';
+    if (iv.kind === 'medicine') {
+      out.push(`${iv.verb} ${iv.label}${iv.detail ? `, ${iv.detail}` : ''}${tail}`);
+    } else if (iv.kind === 'specialist') {
+      out.push(`${iv.verb} ${iv.label}${iv.detail ? `, ${iv.detail}` : ''}${tail}`);
+    } else if (iv.kind === 'monitoring') {
+      out.push(`${iv.verb} ${iv.label}${tail}`);
+    } else {
+      out.push(`${iv.verb ? `${iv.verb} ` : ''}${iv.label}${tail}`);
+    }
+  }
+  // Last, because it is a cross-reference rather than an instruction
+  // of its own, and a cross-reference above the drugs reads as the
+  // first thing to do.
+  if (lifestyle) out.push('Lifestyle interventions as below');
+  return out;
 }
 
 /** The editable half. Everything else is derived or already on file. */
@@ -199,11 +248,10 @@ export function Encounter({ encounterId }: { encounterId: string }) {
          * the same facts three times down one screen.
          */
         said: pr.clauses.filter((c) => c.voice === 'patient').map((c) => c.text).join(' '),
-        doing: bullets(pr.interventions.map(
-          (iv) => `${iv.label}${iv.note ? ` \u2014 ${iv.note}` : ''}`,
-        )),
-        standing: pr.goal === 'at-goal' ? 'At goal.'
-          : pr.goal ? 'Not at goal.' : 'Not assessed yet.',
+        doing: bullets(planPoints(pr.interventions)),
+        standing: pr.goal === 'at-goal' ? 'At goal'
+          : pr.goal ? 'Not at goal' : 'Not assessed',
+        because: conditions.find((c) => c.id === pr.conditionId)?.goalNote ?? '',
       })),
       // Two prescriptions can share a domain, and two blocks both
       // called "Nutrition" is two you have to open to tell apart.
@@ -223,10 +271,14 @@ export function Encounter({ encounterId }: { encounterId: string }) {
           detail: same.length > 1 ? short : '',
           group: 'Lifestyle' as const,
           said: said('lifestyle', l.id),
-          doing: bullets([l.prescription, ...(l.barrier ? [`In the way: ${l.barrier}`] : [])]),
-          standing: l.status === 'achieved' ? 'Holding.'
-            : l.status === 'active' ? 'In progress.'
-              : l.status === 'struggling' ? 'Struggling.' : 'Not started.',
+          doing: bullets([l.prescription.replace(/\.$/, '')]),
+          standing: l.status === 'achieved' ? 'Holding'
+            : l.status === 'active' ? 'In progress'
+              : l.status === 'struggling' ? 'Struggling' : 'Not started',
+          // What is in the way is the reason it stands where it
+          // stands, so it is the sentence before the prescription
+          // rather than a bullet beside it.
+          because: l.barrier ?? '',
         };
       }),
       ...prevention.map((x) => ({
@@ -235,26 +287,26 @@ export function Encounter({ encounterId }: { encounterId: string }) {
         group: 'Preventative' as const,
         said: said('prevention', x.id),
         /*
-         * One line of dates, not three.
-         *
-         * "Last done" and "Due" and "No due date set" were three
-         * bullets for every service, and six services made eighteen
-         * lines of a plan in which nothing was being planned. The
-         * dates belong on one line; the note is the only part that
-         * says what to do.
+         * A bullet is a thing to do. The dates are why it is due,
+         * which is the sentence above, not a point in the plan:
+         * "Last done 11 Mar 2024" is not an action anybody takes.
          */
         doing: bullets([
+          x.status === 'current' ? 'No action until it is due again'
+            : `Order ${x.name.toLowerCase()}`,
+        ]),
+        standing: x.status === 'current' ? 'Up to date'
+          : x.status === 'overdue' ? 'Overdue' : 'Due',
+        because: [
           [
             x.lastDone ? `Last done ${fmtDate(x.lastDone)}` : 'Never recorded as done',
             x.dueBy ? `due ${fmtDate(x.dueBy)}` : '',
-          ].filter(Boolean).join(', '),
-          ...(x.note ? [x.note] : []),
-        ]),
-        standing: x.status === 'current' ? 'Up to date.'
-          : x.status === 'overdue' ? 'Overdue.' : 'Due.',
+          ].filter(Boolean).join(', ') + '.',
+          x.note ?? '',
+        ].filter(Boolean).join(' '),
       })),
     ];
-  }, [draft.problems, lifestyle, prevention, checkIns]);
+  }, [draft.problems, lifestyle, prevention, checkIns, conditions]);
 
   const [w, setW] = useState<Working>(() => ({ ...EMPTY_WORKING }));
   const [marks, setMarks] = useState<Marks>({});
@@ -344,70 +396,37 @@ export function Encounter({ encounterId }: { encounterId: string }) {
     );
 
     /*
-     * One block per thing, and nothing said twice.
+     * One block, in three parts.
      *
-     * The plan carried forward from the last approval already holds
-     * the lines that were generated for it, so adding the generated
-     * lines again printed the whole list twice. Anything already in
-     * the carried text is dropped.
-     */
-    /*
-     * The same point, keyed the same way wherever it is written.
+     *   Essential hypertension \u2014 At goal
+     *   Where it stands, what the target is, and if it is not there
+     *   why, running into what we are going to do about it.
+     *   \u2022 Continue lisinopril 20 mg, one tablet each morning
+     *   \u2022 Lifestyle interventions as below
+     *   \u2022 Continue with Dr. Ingrid Sorensen, Endocrinology
      *
-     * The carried plan writes a pillar into the condition that
-     * depends on it as "Nutrition \u2014 protein at breakfast"; the
-     * pillar writes it under its own heading as "protein at
-     * breakfast". They are one instruction, so the heading in front
-     * of it and the full stop after it come off before comparing.
+     * The sentence is the part a physician writes and the part that
+     * carries forward; the bullets are derived from the record every
+     * time. That order matters: carrying last visit's bullets
+     * forward is how a plan ends up listing a drug that was stopped
+     * in between, and a bullet is a thing to do now, not a thing
+     * that was true in October.
      */
-    const key = (line: string) => line
-      .replace(/^\s*[\u2022\-*]\s*/, '')
-      .replace(/^[^\u2014]{1,40}\u2014\s*/, '')
-      .trim().toLowerCase().replace(/[.\s]+$/, '');
-
-    /*
-     * Who owns each point.
-     *
-     * Every pillar and every service has a heading of its own in this
-     * plan. A condition that carries one does not need to restate it
-     * three lines above the heading that states it: that was the
-     * whole prescription list printed once per condition.
-     */
-    const owner = new Map<string, string>();
-    // Pillars and services claim their own prescriptions first. The
-    // conditions are listed first on the screen, but a condition is
-    // not where a prescription is written: it is where one is
-    // carried, and the carried copy is the one that goes.
-    const byOwner = [...items].sort((a, b) =>
-      Number(a.group === 'Problems') - Number(b.group === 'Problems'));
-    for (const it of byOwner) {
-      for (const line of it.doing.split('\n')) {
-        const k = key(line);
-        if (k && !owner.has(k)) owner.set(k, it.id);
-      }
-    }
-
-    /** One block's points, with nothing said twice and nothing borrowed. */
-    const points = (id: string, lines: string[]) => {
-      const seen = new Set<string>();
-      const out: string[] = [];
-      for (const raw of lines) {
-        for (const line of raw.split('\n')) {
-          const k = key(line);
-          if (!k || seen.has(k)) continue;
-          const own = owner.get(k);
-          if (own && own !== id) continue;
-          seen.add(k);
-          out.push(line);
-        }
-      }
-      return out.join('\n');
-    };
+    const prose = (text: string) => text.split('\n')
+      .map((l) => l.trim())
+      .filter((l) => l && !/^[\u2022\-*]/.test(l))
+      .join(' ');
 
     const plan = labelled(items.map((it) => ({
       group: it.group,
-      text: `${it.name}${it.detail ? `, ${it.detail}` : ''} \u2014 ${it.standing}\n${
-        points(it.id, [carried[it.id] ?? '', it.doing])}`.trim(),
+      text: [
+        `${it.name}${it.detail ? `, ${it.detail}` : ''} \u2014 ${it.standing}`,
+        // The physician's own sentence from last time sits after the
+        // derived one, because it is the part that was decided
+        // rather than the part that was measured.
+        [it.because, prose(carried[it.id] ?? '')].filter(Boolean).join(' '),
+        it.doing,
+      ].filter(Boolean).join('\n'),
     })));
 
     const lastOffice = st.vitalsFor(patientId).find((v) => v.source === 'office');
@@ -881,8 +900,14 @@ function ReadLine({ line }: { line: string }) {
   if (SERVICE_LABELS.has(line.trim())) {
     return <div className="nreadsec">{line.trim()}</div>;
   }
+  // A point in the plan, not a sentence about it: given a little
+  // air above the first of a run so the sentence that leads into
+  // them is not the first bullet's own first line.
+  const bullet = /^\s*[\u2022\-*]\s/.test(line);
   const i = line.indexOf('\u2014');
-  if (i < 0) return <div className="nreadline">{line}</div>;
+  if (bullet || i < 0) {
+    return <div className={`nreadline${bullet ? ' bull' : ''}`}>{line}</div>;
+  }
   return (
     <div className="nreadline">
       <strong>{line.slice(0, i).trim()}</strong>

@@ -105,9 +105,19 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('the plan arrives with the problems, pillars and services written into it',
     plan.includes('Essential hypertension') && plan.includes('Physical activity')
     && plan.includes('Mammogram'));
+  // Heading with the status, then the sentence that says what the
+  // target is and why it is or is not there, then points that are
+  // verbs: continue, start, hold, order, refer.
   ok(`each one with where it stands and what is being done: ${
-    plan.split('\n').slice(0, 3).join(' / ').slice(0, 60)}`,
-    /At goal\.|Not at goal\./.test(plan) && plan.includes('Lisinopril 20 mg'));
+    plan.split('\n').slice(1, 3).join(' / ').slice(0, 60)}`,
+    /\u2014 (At goal|Not at goal|Not assessed)$/m.test(plan)
+    && plan.includes('Continue Lisinopril 20 mg, one tablet each morning'));
+  ok('the points of the plan are verbs, not labels',
+    /\u2022 Referral to Dr\. /.test(plan)
+    && plan.includes('\u2022 Order mammogram')
+    && plan.includes('\u2022 Lifestyle interventions as below'));
+  ok('and a pillar is written once, under its own heading',
+    plan.split('Twenty minutes of walking').length === 2);
   ok('and the subjective with their own words about each',
     (await noteText(p,'subjective')).includes('Patient reports'));
   // Status is a sentence you wrote, not a button you picked.

@@ -520,6 +520,7 @@ function problemSummary(
       orders: input.orders,
       checkIns: input.checkIns,
       vitals: input.vitals,
+      today: input.now,
     }),
     sources,
     conflict,
@@ -690,6 +691,7 @@ function preventionSummary(
     goal: behind.length === 0 ? 'at-goal' : 'needs-improvement',
     clauses,
     interventions: input.prevention.map((x) => ({
+      kind: 'order' as const,
       label: x.name,
       status: x.status === 'current' ? 'complete' as const : 'needs-attention' as const,
       note: x.status === 'current' && x.lastDone
@@ -744,6 +746,7 @@ function lifestyleSummary(
     goal: stuck.length === 0 ? 'at-goal' : 'needs-improvement',
     clauses,
     interventions: input.lifestyle.map((li) => ({
+      kind: 'lifestyle' as const,
       label: DOMAIN_LABEL[li.domain] ?? li.domain,
       status: li.status === 'achieved' ? 'complete' as const
         : li.status === 'struggling' || li.status === 'not-started'

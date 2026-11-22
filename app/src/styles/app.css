@@ -2140,8 +2140,9 @@ blockquote.said footer {
 .grpnote { margin: 7px 0 0; font-size: 13px; color: var(--ink-3); }
 .grprows { margin-top: 2px; }
 
-/* When and what, flush left; the one tag flush right. A list of rows
-   reads down two edges rather than across three ragged columns. */
+/* What it is, flush left; the tag and then the date flush right. A
+   list of rows reads down two edges rather than across three ragged
+   columns. */
 .rec {
   display: flex; align-items: baseline; gap: 16px; width: 100%;
   padding: 11px 2px; text-align: left; background: none; border: 0;
@@ -2153,7 +2154,7 @@ blockquote.said footer {
 .rec.flat { cursor: default; }
 .rec.flat:hover { background: none; }
 .recwhen {
-  flex: none; width: 92px;
+  flex: none; width: 96px; text-align: right;
   font-size: 14px; color: var(--ink-3); font-variant-numeric: tabular-nums;
 }
 .rectag {
@@ -2162,7 +2163,10 @@ blockquote.said footer {
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .rectag.warn { color: var(--warn); }
-.recname { flex: 1; min-width: 0; font-size: 15px; color: var(--ink); }
+.recname {
+  flex: 1; min-width: 0; font-size: 15px; color: var(--ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 .norows { margin: 12px 2px; font-size: 14px; color: var(--ink-3); }
 
 /* ----------------------------------------------------------- sheet */
@@ -2456,6 +2460,10 @@ blockquote.said footer {
 .nbodytext p:last-child { margin-bottom: 0; }
 .nbodytext .planprob { margin-bottom: 12px; }
 .nbodytext .planprob:last-child { margin-bottom: 0; }
+
+/* The points of a plan, under the sentence that leads into them. */
+.nreadline.bull { padding-left: 3px; }
+.nreadline:not(.bull) + .nreadline.bull { margin-top: 7px; }
 
 /* The label over a run of the note: Medical, Lifestyle, Preventative.
    Bold and nothing else. A rule or a colour here would make three
