@@ -2461,6 +2461,70 @@ blockquote.said footer {
 .nbodytext .planprob { margin-bottom: 12px; }
 .nbodytext .planprob:last-child { margin-bottom: 0; }
 
+/* ------------------------------------------------- sending a note
+ * A fax is one bit per pixel: black on white, serif, no rules that
+ * depend on a tone. The form is a screen thing; the document it
+ * makes is only ever printed, so it is not drawn on screen at all
+ * and the print dialog is the preview.
+ */
+.faxform {
+  margin: 0 0 18px; padding: 14px 16px 16px;
+  border: 1px solid var(--line); border-radius: var(--r); background: var(--panel-2);
+}
+.faxform .fld { display: block; margin-bottom: 9px; }
+.faxform .fld > span {
+  display: block; margin-bottom: 3px; font-size: 12.5px; color: var(--ink-3);
+}
+.faxform .fld .search { width: 100%; }
+.faxout { display: none; }
+
+@media print {
+  /* The document stays in normal flow and everything else goes away.
+     Hiding by visibility and lifting the document out of flow is how
+     the other print views here work, and it costs them pagination:
+     out of flow, a long document prints as one clipped page. */
+  body > *:not(.faxout) { display: none !important; }
+  /* Two older print views in this stylesheet hide `body *` by
+     visibility to isolate themselves. That rule reaches in here too,
+     so the document says plainly that it is visible. */
+  .faxout, .faxout * { visibility: visible !important; }
+  .faxout { display: block; }
+  .fax {
+    font: 11pt/1.45 var(--serif); color: #000; background: #fff;
+  }
+  .fax h1 { font-size: 16pt; margin: 0 0 4pt; }
+  .fax h3 {
+    font-size: 11pt; margin: 14pt 0 3pt;
+    border-bottom: 1px solid #000; padding-bottom: 2pt;
+  }
+  .fax p { margin: 0 0 4pt; }
+  .fax .none { color: #000; font-style: italic; }
+  .fax .svc { font-weight: 700; margin-top: 8pt; }
+  .fax .pt { margin-left: 10pt; }
+  .faxcover { page-break-after: always; }
+  .faxto { border-collapse: collapse; margin: 10pt 0 6pt; }
+  .faxto th {
+    text-align: left; vertical-align: top; width: 70pt;
+    padding: 3pt 10pt 3pt 0; font-weight: 700;
+  }
+  .faxto td { padding: 3pt 0; }
+  .faxcontact { margin-top: 12pt; }
+  .faxsub { color: #000; margin: 0 0 2pt; }
+  .faxone { margin: 8pt 0 0; }
+  .faxsign { margin-top: 18pt; page-break-inside: avoid; }
+  .faxsign p { margin: 0; }
+  /* The identifier, repeated at the top of every page by the one
+     mechanism every engine implements. */
+  .faxpage { width: 100%; border-collapse: collapse; }
+  .faxpage td, .faxpage th { padding: 0; }
+  .faxrun {
+    text-align: left; font-weight: 400; font-size: 8.5pt;
+    padding-bottom: 3pt; border-bottom: 1px solid #000;
+  }
+  .faxnote { padding-top: 8pt; }
+  @page { margin: 14mm 16mm 16mm; }
+}
+
 /* ---------------------------------------------------- the lab plot
  * One series over real time. The reference range is a band behind
  * the line because it is the context the line is read against, not

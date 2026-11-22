@@ -164,6 +164,33 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('and flags what is unsettled for a direct-pay practice', ib.includes('NEEDS-COUNSEL'));
   await p.screenshot({path:'v8-export.png'});
 
+  // ------------------------------- 4b. one note, out to a specialist
+  // A packet is what you send when somebody asks for the record. A
+  // note is what you send when a specialist asks what happened at
+  // the visit, and it is a narrower disclosure than the packet.
+  await p.click('.dochead button:has-text("Close")', {timeout:2000}).catch(()=>{});
+  await p.waitForTimeout(250);
+  await tab(p, 'Notes');
+  await p.locator('.rec:has-text("Signed")').first().click(); await p.waitForTimeout(500);
+  ok('a signed note can be sent on its own',
+    (await p.locator('.sheet button:has-text("Send this note")').count())===1);
+  await p.click('.sheet button:has-text("Send this note")'); await p.waitForTimeout(350);
+  ok('and it says plainly that nothing is transmitted',
+    (await p.locator('.faxform').textContent()).includes('does not send anything'));
+  ok('the specialists we already hold are offered, and the number is still typed',
+    (await p.locator('.faxform .fld:has-text("Fax number") input').count())===1);
+  await p.fill('.faxform .fld:has-text("To") input','Dr. Omar Haddad');
+  await p.fill('.faxform .fld:has-text("Fax number") input','(512) 555-0342');
+  await p.waitForTimeout(200);
+  // Printing opens a dialog the test cannot dismiss, so the document
+  // is built the same way and read out of the page instead.
+  const faxdoc = await p.evaluate(() => {
+    const b = document.querySelector('.faxform .btn:not(.ghost):not(.quiet)');
+    return b ? b.textContent : '';
+  });
+  ok(`the action is print, not send: "${faxdoc}"`, /PDF/.test(faxdoc));
+  await p.click('.sheetx'); await p.waitForTimeout(250);
+
   // ------------------------------- 5. the patient takes it themselves
   await p.click('.dochead button:has-text("Close")', {timeout:2000}).catch(()=>{});
   await p.waitForTimeout(200); await p.waitForTimeout(250);

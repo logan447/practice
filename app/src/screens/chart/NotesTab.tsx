@@ -17,7 +17,11 @@
  * because it is the same document.
  */
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useStore } from '../../lib/store';
+import { useActor } from '../../lib/session';
+import { record } from '../../lib/audit';
+import { buildFaxNote } from '../../lib/faxNote';
 import { useNav } from '../../lib/nav';
 import { fmtDate } from '../../lib/format';
 import { SETTING_LABEL } from '../../domain/types';
@@ -31,6 +35,12 @@ export function NotesTab({ patientId }: { patientId: string }) {
   const encounters = st.encountersFor(patientId);
   const [open, setOpen] = useState<string | null>(null);
   const e = encounters.find((x) => x.id === open);
+  const [faxing, setFaxing] = useState(false);
+
+  // The sheet is closed and reopened by id, so the fax form must go
+  // with it: a form left standing over the next note is a form that
+  // sends the wrong one.
+  const show = (id: string | null) => { setFaxing(false); setOpen(id); };
 
   const state = (x: string) =>
     (x === 'signed' ? 'Signed' : x === 'in-progress' ? 'Unsigned' : 'Scheduled');
@@ -44,7 +54,7 @@ export function NotesTab({ patientId }: { patientId: string }) {
             tag={state(x.status)}
             warn={x.status === 'in-progress'}
             name={`Visit · ${SETTING_LABEL[x.setting ?? 'in-person']}`}
-            onOpen={() => setOpen(x.id)} />
+            onOpen={() => show(x.id)} />
         ))}
       </Rows>
 
@@ -55,12 +65,16 @@ export function NotesTab({ patientId }: { patientId: string }) {
             fmtDate(e.date),
             e.signedAt ? `signed ${fmtDate(e.signedAt)}` : state(e.status).toLowerCase(),
           ].join(' · ')}
-          onClose={() => setOpen(null)}
-          actions={e.status !== 'signed' && (
+          onClose={() => show(null)}
+          actions={e.status === 'signed' ? (faxing ? null : (
+            <button className="btn ghost" onClick={() => setFaxing(true)}>Send this note</button>
+          )) : (
             <button className="btn" onClick={() => nav.go({ name: 'encounter', encounterId: e.id })}>
               {e.status === 'in-progress' ? 'Continue' : 'Open'}
             </button>
           )}>
+          {faxing && p && <FaxNote patientId={patientId} encounterId={e.id}
+            onClose={() => setFaxing(false)} />}
           {!e.note ? <p className="muted">Not held yet, so there is no note.</p> : (
             <div className="note signednote">
               {/*
@@ -160,5 +174,122 @@ function Fold({ title, text, count, startShut, children, lead }: {
         */}
       {!shut && (children ?? <NoteText text={text ?? ''} />)}
     </section>
+  );
+}
+
+/**
+ * Sending one note out.
+ *
+ * Nothing here sends a fax. It produces the page that gets faxed,
+ * which in a browser means printing to PDF, and it says so rather
+ * than implying a transmission that did not happen.
+ *
+ * The recipient is typed rather than picked from a list, because a
+ * fax goes to a machine and the number on the cover is the only
+ * thing that decides where it lands. The specialists we already hold
+ * are offered as a starting point, and the number is still typed:
+ * the chart does not carry fax numbers and inventing one is how a
+ * note reaches a stranger.
+ *
+ * Sending is logged before the print dialog opens. A note leaving
+ * this practice is a disclosure, and the log is the part an audit
+ * actually asks for.
+ */
+function FaxNote({ patientId, encounterId, onClose }: {
+  patientId: string; encounterId: string; onClose: () => void;
+}) {
+  const st = useStore();
+  const me = useActor();
+  const p = st.patient(patientId);
+  const e = st.encounter(encounterId);
+  const specialists = st.specialistsFor(patientId);
+
+  const [to, setTo] = useState('');
+  const [toPractice, setPractice] = useState('');
+  const [faxNumber, setFax] = useState('');
+  const [reason, setReason] = useState('');
+  const [sheet, setSheet] = useState<string | null>(null);
+
+  if (!p || !e) return null;
+
+  const make = () => {
+    const built = buildFaxNote({
+      patient: p, encounter: e, to, toPractice, faxNumber, reason,
+      from: me.name, today: st.now,
+    });
+    record(me, st.now, {
+      action: 'create', resource: 'DocumentReference', resourceId: `fax-${e.id}-${st.now}`,
+      patientId,
+      summary: `Produced the ${fmtDate(e.date)} visit note for sending to ${
+        to || 'a recipient not named'}${faxNumber ? ` at ${faxNumber}` : ''}`,
+    });
+    setSheet(built.html);
+    setTimeout(() => window.print(), 160);
+  };
+
+  return (
+    <div className="faxform">
+      <div className="row flow" style={{ justifyContent: 'space-between' }}>
+        <h3 style={{ margin: 0 }}>Send this note</h3>
+        <button className="btn quiet" onClick={onClose}>Cancel</button>
+      </div>
+      <p className="small muted" style={{ maxWidth: '58ch' }}>
+        This makes a cover sheet and the note as one PDF, ready to fax.
+        It does not send anything.
+      </p>
+
+      {specialists.length > 0 && (
+        <div className="row flow" style={{ gap: 6, marginBottom: 10 }}>
+          {specialists.map((sp) => (
+            <button key={sp.id} className="btn ghost small"
+              onClick={() => { setTo(sp.name); setPractice(sp.practice ?? sp.specialty); }}>
+              {sp.name}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <label className="fld">
+        <span>To</span>
+        <input className="search" value={to} onChange={(ev) => setTo(ev.target.value)}
+          placeholder="Who it is going to" />
+      </label>
+      <label className="fld">
+        <span>Their practice</span>
+        <input className="search" value={toPractice}
+          onChange={(ev) => setPractice(ev.target.value)} placeholder="Optional" />
+      </label>
+      <label className="fld">
+        <span>Fax number</span>
+        <input className="search" value={faxNumber} onChange={(ev) => setFax(ev.target.value)}
+          placeholder="Printed on the cover so you can check it" />
+      </label>
+      <label className="fld">
+        <span>Why</span>
+        <input className="search" value={reason} onChange={(ev) => setReason(ev.target.value)}
+          placeholder="One line, optional" />
+      </label>
+
+      <div className="row flow" style={{ gap: 8, marginTop: 12 }}>
+        <button className="btn" onClick={make}>Print or save as PDF</button>
+      </div>
+      <p className="small muted" style={{ marginTop: 10, maxWidth: '58ch' }}>
+        The patient's name and date of birth print on every page. Pages get
+        separated at the other end. Leave headers and footers on in the print
+        dialog and it will number the pages for you.
+      </p>
+
+      {/*
+        * Put at the top of the body rather than left inside the
+        * drawer. A printed document has to be in normal flow to
+        * paginate: positioned out of flow, Chrome renders it as one
+        * page and clips whatever did not fit, which for a note is
+        * most of the plan.
+        */}
+      {sheet && createPortal(
+        <div className="faxout" dangerouslySetInnerHTML={{ __html: sheet }} />,
+        document.body,
+      )}
+    </div>
   );
 }
