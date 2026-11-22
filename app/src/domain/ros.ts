@@ -137,7 +137,11 @@ const SAID: { match: RegExp; system: string; symptom: string }[] = [
   { match: /\bshak(y|iness|ing)\b/i, system: 'endocrine', symptom: 'shakiness in the evenings' },
   { match: /\bthirst/i, system: 'endocrine', symptom: 'thirst' },
   { match: /\bknees?\b/i, system: 'musculoskeletal', symptom: 'knee pain' },
-  { match: /\b(joint|back) pain\b/i, system: 'musculoskeletal', symptom: 'joint pain' },
+  { match: /\bjoint pain\b/i, system: 'musculoskeletal', symptom: 'joint pain' },
+  {
+    match: /\bback (pain|ache)\b|\bback has been sore\b|\bsore back\b|\bback is sore\b/i,
+    system: 'musculoskeletal', symptom: 'back pain',
+  },
   { match: /\b(tired|fatigue|exhausted|worn out)\b/i, system: 'constitutional', symptom: 'fatigue' },
   { match: /\bheadaches?\b/i, system: 'neurological', symptom: 'headache' },
   { match: /\b(dizzy|dizziness|light-?headed)\b/i, system: 'neurological', symptom: 'dizziness' },

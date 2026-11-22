@@ -262,7 +262,25 @@ export function Encounter({ encounterId }: { encounterId: string }) {
          * below and in the assessment. Printing it here as well is
          * the same facts three times down one screen.
          */
-        said: pr.clauses.filter((c) => c.voice === 'patient').map((c) => c.text).join(' '),
+        /*
+         * Their voice only, and only where it is a voice.
+         *
+         * The derived subjective emits a placeholder clause when
+         * nothing is on file, which arrives here as "Patient reports
+         * nothing on file from the patient about this problem." A
+         * new member has that under every heading. What they wrote
+         * at intake is the real answer where there is one.
+         */
+        said: (() => {
+          const theirs = pr.clauses
+            .filter((c) => c.voice === 'patient')
+            .map((c) => c.text)
+            .filter((t) => !/^Nothing on file from the patient/i.test(t.trim()))
+            .join(' ');
+          if (theirs.trim()) return theirs;
+          const c = conditions.find((x) => x.id === pr.conditionId);
+          return c?.provenance?.author === 'patient' ? (c.note ?? '') : '';
+        })(),
         doing: bullets(planPoints(pr.interventions)),
         /*
          * Where it stands, and who else is holding it.
@@ -285,7 +303,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
           })(),
         ].filter(Boolean).join(', '),
         because: conditions.find((c) => c.id === pr.conditionId)?.goalNote ?? '',
-        silent: 'Not discussed at this visit.',
+        silent: 'Nothing new reported about this one.',
         /*
          * The three or four things you ask about because of this
          * problem, at the end of this problem's line. It is the
@@ -319,7 +337,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
             doing: '',
             standing: 'Not started',
             silent: 'Not started.',
-            because: 'Nothing prescribed here yet.',
+            because: '',
           };
         }
         return {
@@ -358,12 +376,17 @@ export function Encounter({ encounterId }: { encounterId: string }) {
            * underneath it has to answer. Capped at two lines further
            * down, so several barriers do not become a paragraph.
            */
-          because: mine.map((l) => l.barrier ?? '').filter(Boolean).join(' ')
-            || (mine.every((l) => l.status === 'not-started')
-              ? 'Prescribed and not started. Nothing has got in the way that she has named.'
-              : mine.some((l) => l.status === 'achieved')
+          /*
+           * Only where something has been worked on. A pillar that
+           * has not started has nothing to defend, and a sentence
+           * explaining that it has not started is the heading said
+           * twice.
+           */
+          because: mine.every((l) => l.status === 'not-started') ? ''
+            : (mine.map((l) => l.barrier ?? '').filter(Boolean).join(' ')
+              || (mine.some((l) => l.status === 'achieved')
                 ? 'Holding without effort now. Nothing in the way.'
-                : 'On the plan as agreed. Nothing in the way that she has named.'),
+                : 'On the plan as agreed. Nothing in the way that she has named.')),
         };
       }),
       ...prevention.map((x) => ({
@@ -431,10 +454,15 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       const t = text.trim();
       if (!t) return '';
       if (/^patient reports/i.test(t)) return t;
-      // Lowercase the first letter, unless it is the word "I": the
-      // patient's own sentence often starts with it and "Patient
-      // reports i know" is not a sentence anybody wrote.
-      const keep = /^I\b|^I['\u2019]/.test(t);
+      /*
+       * Lowercase the first letter, unless it is a word that is
+       * spelled that way. "Patient reports i know" is not a
+       * sentence anybody wrote, and neither is "Patient reports a1c
+       * 6.0": the first word is a name, not the start of a clause.
+       */
+      const keep = /^I\b|^I['\u2019]/.test(t)
+        || /^[A-Z]{2,}\b/.test(t)
+        || /^[A-Z][a-z]*\d/.test(t);
       return `Patient reports ${keep ? t : t[0].toLowerCase() + t.slice(1)}`;
     };
     const general = draft.overall
@@ -484,97 +512,76 @@ export function Encounter({ encounterId }: { encounterId: string }) {
      * record's own prose would find whatever the record happened to
      * mention.
      */
-    const theirWords = [general, ...items.map((it) => it.said)].filter(Boolean);
+    const theirWords = [
+      general,
+      ...items.map((it) => it.said),
+      ...st.updatesFor(patientId).slice(0, 2).map((u) => u.overall ?? ''),
+    ].filter(Boolean);
 
     /*
-     * Mood, where they raised it.
+     * Who holds a problem this practice does not.
      *
-     * Their own words, not the screens: the PHQ and the GAD are in
-     * the objective because they are measurements, and a number is
-     * not what somebody said about how they are. Where they said
-     * nothing the line says so, which is a different fact from a
-     * negative screen and is worth seeing beside one.
-     */
-    const feelings: Record<string, string> = {
-      better: 'things are better than they were',
-      same: 'things are about the same',
-      worse: 'things are worse than they were',
-      unsure: 'they are not sure how things are going',
-    };
-    const lastUpdate = st.updatesFor(patientId)[0];
-    const moodWords = theirWords.join(' ');
-    const moodHit = /\b(mood|anxious|anxiety|worried|stressed|down|overwhelmed|sleep)\b/i
-      .exec(moodWords);
-    const mood = [
-      lastUpdate?.feeling ? `Patient reports ${feelings[lastUpdate.feeling]}.` : '',
-      moodHit ? `Raised ${moodHit[0].toLowerCase()} without being asked.` : '',
-    ].filter(Boolean).join(' ') || 'Not raised at this visit.';
-
-    /*
-     * Every pillar and every service, whether or not they said
-     * anything about it.
-     *
-     * A subjective that lists only the four things the patient
-     * mentioned is a subjective that cannot be read as a check. The
-     * ones nobody has spoken about are the ones worth seeing: a
-     * pillar that has not started and a service nobody has asked
-     * about look identical to a pillar going well, if neither is on
-     * the page.
-     */
-    /*
-     * Everything on the history that this practice is not holding.
-     *
-     * Named at the foot of the medical run, with who does hold it.
-     * A problem list that shows only what we manage reads as the
-     * whole of the patient, and the question somebody else's note
-     * has to answer is not "what are you doing" but "what are you
-     * not doing, and does anybody know".
-     *
-     * A condition nobody is recorded as holding says so. That is the
-     * specific gap a consulting practice is exposed to, and it is
-     * worth a line on every note until it is closed.
+     * A named specialist, their own primary care physician, or
+     * nobody, which is the gap a consulting practice is most
+     * exposed to and is worth a line on every note until it closes.
      */
     const heldBy = (c: typeof conditions[number]): string => {
       const sp = specialistsAbout(c.name, specialists)[0];
       if (sp) {
         const waiting = !sp.lastSeen || (!!sp.outstanding && sp.outstanding !== 'None.');
         if (waiting) return `Referred to ${sp.name}, ${sp.specialty}. Appointment not confirmed.`;
-        return `Managed by ${sp.name}, ${sp.specialty}. ${
-          sp.nextSeen ? `Next seen ${fmtDate(sp.nextSeen)}.` : 'Next appointment not known.'}`;
+        return `Managed by ${sp.name}, ${sp.specialty}. Last seen ${fmtDate(sp.lastSeen!)}. ${
+          sp.nextSeen ? `Next seen ${fmtDate(sp.nextSeen)}.` : 'Next appointment not confirmed.'}`;
       }
       if (c.owner === 'theirs') {
-        return 'Managed by their primary care physician. Next appointment not known.';
+        return 'Managed by their primary care physician. Next appointment not confirmed.';
       }
       if (c.owner === 'shared') {
-        return 'Co-managed with their primary care physician. Next appointment not known.';
+        return 'Co-managed with their primary care physician. Next appointment not confirmed.';
       }
       return 'Nobody is recorded as managing it.';
     };
+
     /*
-     * The rest of the problem list, confirmed rather than worked on.
+     * The whole problem list, acute first.
      *
-     * Not addressed today, nothing new reported about them, and
-     * somebody is named as holding each one. A note that lists only
-     * what was worked on leaves the reader to wonder whether the
-     * rest was forgotten or decided about.
+     * Everything active, in one place, at the foot of the section.
+     * The ones worked on today say so and point at the detail above
+     * rather than repeating it; the rest are triaged, with who
+     * holds them, when they were last seen and when they are next
+     * seen.
+     *
+     * Acute first, because the acute ones are what changes between
+     * now and the next visit. Chronic is what almost everything
+     * else on a problem list is.
      */
-    const elsewhere = conditions
-      .filter((c) => c.status === 'active' && !c.managed)
+    // Everything this practice manages was on the agenda, whether
+    // or not the patient had something new to say about it.
+    const addressedIds = new Set(
+      items.filter((it) => it.group === 'Problems').map((it) => it.id),
+    );
+    const fullList = conditions
+      .filter((c) => c.status === 'active')
+      .slice()
+      .sort((a, b) => Number(b.acuity === 'acute') - Number(a.acuity === 'acute'))
       .map((c) => ({
         group: 'Problems' as const,
-        text: `${c.name} \u2014 Triaged as stable, nothing new reported. ${heldBy(c)}`,
+        text: `${c.name} (${c.acuity === 'acute' ? 'acute' : 'chronic'}) \u2014 ${
+          addressedIds.has(c.id)
+            ? 'Addressed at this visit, as above.'
+            : `Triaged as stable, nothing new reported. ${heldBy(c)}`}`,
       }));
-    const elsewhereBlock = elsewhere.length > 0
-      ? [{ group: 'Problems' as const, text: 'Not addressed this visit' }, ...elsewhere]
+    const listBlock = fullList.length > 0
+      ? [{ group: 'Problems' as const, text: 'Full problem list' }, ...fullList]
       : [];
 
     /*
      * The medicines, as reconciled.
      *
-     * Prescribed is not the same as taken, and the difference is the
-     * only thing on this list worth a reader's time. It sits in the
-     * subjective because that difference is something the patient
-     * told us, not something we measured.
+     * Prescribed is not the same as taken, and the difference is
+     * the only thing on this list worth a reader's time. It sits in
+     * the subjective because that difference is something the
+     * patient told us, not something we measured.
      */
     const took = (m: typeof medications[number]): string => {
       if (m.status === 'held') return 'held';
@@ -585,26 +592,22 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       return `not taking${m.changeNote ? `, ${m.changeNote.replace(/\.$/, '').toLowerCase()}` : ''}`;
     };
     const onMeds = medications.filter((m) => m.status !== 'stopped');
-    const medBlock = onMeds.length > 0
-      ? [
-        { group: 'Problems' as const, text: 'Medications' },
-        ...onMeds.map((m) => ({
+    const medBlock = [
+      { group: 'Problems' as const, text: 'Medications' },
+      ...(onMeds.length > 0
+        ? onMeds.map((m) => ({
           group: 'Problems' as const,
           text: `${m.name}${m.dose ? ` ${m.dose}` : ''} \u2014 ${
             m.sig ? `${m.sig.replace(/\.$/, '').replace(/^[A-Z]/, (ch) => ch.toLowerCase())}, ` : ''
           }${took(m)}.`,
-        })),
-      ]
-      : [{ group: 'Problems' as const, text: 'Medications' },
-        { group: 'Problems' as const, text: 'None on file.' }];
+        }))
+        : [{ group: 'Problems' as const, text: 'None on file.' }]),
+    ];
 
     /*
-     * Who else they see.
-     *
-     * Named, with when they were last seen and anything still
-     * waiting on them. A care team that exists only inside the
-     * problems it touches is a care team nobody can read off the
-     * page in one go.
+     * Who else they see, named, with what is still waiting on them.
+     * A care team that exists only inside the problems it touches
+     * is a care team nobody can read off the page in one go.
      */
     const teamBlock = specialists.length > 0
       ? [
@@ -613,6 +616,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
           group: 'Problems' as const,
           text: `${sp.name}, ${sp.specialty} \u2014 ${
             sp.lastSeen ? `last seen ${fmtDate(sp.lastSeen)}` : 'not seen yet'}${
+            sp.nextSeen ? `, next seen ${fmtDate(sp.nextSeen)}` : ''}${
             sp.outstanding && sp.outstanding !== 'None.'
               ? `. Outstanding: ${sp.outstanding.replace(/\.$/, '')}` : ''}.`,
         })),
@@ -621,18 +625,14 @@ export function Encounter({ encounterId }: { encounterId: string }) {
 
     const subjective = labelled(
       [
-        { group: 'Problems' as const, text: `Mood \u2014 ${mood}` },
-        { group: 'Problems' as const, text: 'Problems addressed at this visit' },
         ...items
-          .filter((it) => it.group === 'Problems' && it.said.trim())
+          .filter((it) => it.group === 'Problems')
           .map((it) => ({
             group: it.group,
-            text: `${it.name} \u2014 ${reports(it.said)}${
+            text: `${it.name} \u2014 ${
+              it.said.trim() ? reports(it.said) : it.silent}${
               it.denies ? ` ${it.denies}` : ''}`,
           })),
-        ...elsewhereBlock,
-        ...medBlock,
-        ...teamBlock,
         ...items
           .filter((it) => it.group !== 'Problems')
           .map((it) => ({
@@ -641,13 +641,17 @@ export function Encounter({ encounterId }: { encounterId: string }) {
               it.said.trim() ? reports(it.said) : it.silent}`,
           })),
       ],
-      [`General \u2014 ${reports(general) || 'Patient reports nothing new overall.'}`],
+      [],
       [
         review ? `Chart review \u2014 ${review}` : '',
         // The sweep for what the problem list would not have asked
-        // about. Last in the section, immediately before the
-        // objective, which is where it is read.
+        // about, then the list itself, then what they take and who
+        // else they see. The reference material goes under the
+        // reading, not in front of it.
         reviewOfSystems(theirWords),
+        ...listBlock.map((x) => x.text),
+        ...medBlock.map((x) => x.text),
+        ...teamBlock.map((x) => x.text),
       ],
     );
 
@@ -711,16 +715,11 @@ export function Encounter({ encounterId }: { encounterId: string }) {
         used += sentence.length + 1;
       }
       /*
-       * Never nothing. A heading saying "Not at goal" with a list of
-       * drugs under it and no sentence between them leaves the
-       * reader to work out what goal and how far off, which is the
-       * one thing the physician already knew.
+       * Nothing rather than filler. A line that says no assessment
+       * has been recorded is a line under every heading that has
+       * not been assessed, which is most of them on a first visit,
+       * and it says less than the blank it replaced.
        */
-      if (out.length === 0) {
-        return it.standing.startsWith('At goal')
-          ? 'At target on the last measurement, and nothing has been changed since.'
-          : 'No assessment recorded against this one yet.';
-      }
       return out.join(' ').trim();
     };
 
@@ -730,7 +729,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
      * person you are about to hear from, once as the person you are
      * about to make decisions about.
      */
-    const planHead = p ? oneLiner(p, conditions) : '';
+    const planHead = headline();
 
     const planBlock = (it: Item) => ({
       group: it.group,
@@ -756,8 +755,8 @@ export function Encounter({ encounterId }: { encounterId: string }) {
      */
     const plan = labelled([
       ...items.filter((it) => it.group === 'Problems').map(planBlock),
-      ...elsewhereBlock,
       ...items.filter((it) => it.group !== 'Problems').map(planBlock),
+      ...listBlock,
     ]);
 
     setW((v) => ({
@@ -796,6 +795,19 @@ export function Encounter({ encounterId }: { encounterId: string }) {
    * person who wrote it. No cover sheet: this one is not going
    * anywhere.
    */
+  /**
+   * The sentence the note opens with, in both places it opens.
+   *
+   * What is being addressed today rather than everything on the
+   * books: a note that says it is for five problems and then works
+   * on three is a note whose first line is wrong.
+   */
+  const headline = (): string => (p
+    ? oneLiner(p, conditions, items
+      .filter((it) => it.group === 'Problems')
+      .map((it) => it.name))
+    : '');
+
   const [proof, setProof] = useState<string | null>(null);
 
   const [openedAt] = useState(() => Date.now());
@@ -945,7 +957,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
 
   const note: VisitNote = {
     subjective: {
-      oneLiner: oneLiner(p, conditions),
+      oneLiner: headline(),
       reason: enc.reason,
       chartReview: reviewLine,
       diagnostics: '', specialists: '',
@@ -955,7 +967,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
     // record: a signed note that kept only the examination would be
     // a note whose vitals lived somewhere else.
     objective: { homeMeasures: '', vitals: w.measured, exam: w.objective },
-    assessment: { oneLiner: oneLiner(p, conditions), overall: '' },
+    assessment: { oneLiner: headline(), overall: '' },
     plan: {
       /*
        * The plan is one piece of prose with the problems written into
@@ -1106,7 +1118,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
             * columns made the top of the visit four things deep.
             */}
           <Box id="subjective" title="Subjective" value={w.subjective}
-            lead={oneLiner(p, conditions)}
+            lead={headline()}
             mark={marks.subjective} onChange={(v) => put('subjective', v)} />
           <Box id="objective" title="Objective" value={w.objective} startShut
             mark={marks.objective} onChange={(v) => put('objective', v)}

@@ -36,12 +36,12 @@ export const GROUP_LABEL = {
 export const NOTE_HEADINGS = new Set<string>([
   ...Object.values(GROUP_LABEL).filter(Boolean),
   'Review of systems',
-  'Problems addressed at this visit',
+  'Full problem list',
   'Medications',
   'Care team',
   'Vitals',
   'Labs',
-  'Not addressed this visit',
+
   'Physical Exam',
   'Surveys',
 ]);

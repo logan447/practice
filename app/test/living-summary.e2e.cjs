@@ -90,8 +90,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok(`the visit opens on the clinical one-liner: "${line.slice(0,40)}..."`,
     /^60F with PMH of /.test(line));
   ok('in shorthand rather than long form', line.includes('HTN') && line.includes('T2DM'));
-  ok('and names what we are following them for',
-    line.includes('following with our office for management of')
+  ok('and names what we are seeing them for today',
+    line.includes('presenting to my office today for management of')
     && line.includes('preventative services') && line.includes('lifestyle medicine'));
   const secs = await p.locator('.nboxtitle').allTextContents();
   ok(`the note runs in the order the conversation does: ${secs.join(', ')}`,
@@ -144,25 +144,37 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
    * the points. Checked structurally rather than by example,
    * because the failure is always one block that drifted.
    */
-  const SERVICE = /^(Lifestyle|Preventative Medicine Services|Not addressed this visit)$/;
-  const lines = plan.split('\n').map((l) => l.trim());
+  /*
+   * Every problem and every pillar the visit worked on has the same
+   * shape: the name and the status, then one or two lines defending
+   * that status, then the points. A pillar that has not started has
+   * nothing to defend and gets no line at all.
+   *
+   * Checked structurally rather than by example, because the
+   * failure is always the one block that drifted.
+   */
+  const SERVICE = /^(Lifestyle|Preventative Medicine Services)$/;
+  // The preventative services are one line each by design, and the
+  // full problem list at the foot is an index rather than blocks.
+  const upto = plan.split('Preventative Medicine Services')[0];
+  const lines = upto.split('\n').map((l) => l.trim());
   const isPoint = (l) => /^[\u2022\-*]/.test(l);
-  const isHead = (l) => l.includes('\u2014') && !isPoint(l)
-    && !/Triaged as stable/.test(l);
-  let blocks = 0;
+  const isHead = (l) => l.includes('\u2014') && !isPoint(l);
+  let worked = 0;
   let shaped = 0;
+  let bare = 0;
   for (let i = 0; i < lines.length; i++) {
     if (!isHead(lines[i])) continue;
     let prose = 0;
     let j = i + 1;
     while (j < lines.length && lines[j] && !isPoint(lines[j])
       && !isHead(lines[j]) && !SERVICE.test(lines[j])) { prose++; j++; }
-    blocks++;
-    if (prose >= 1 && prose <= 2) shaped++;
+    if (/\u2014 Not started\b/.test(lines[i])) { bare++; if (prose === 0) shaped++; }
+    else { worked++; if (prose >= 1 && prose <= 2) shaped++; }
   }
-  ok(`every problem and pillar is a status, one or two lines, then points (${
-    shaped} of ${blocks})`,
-  blocks >= 8 && shaped === blocks);
+  ok(`a status, one or two lines, then points, and nothing under "Not started" (${
+    shaped} of ${worked + bare})`,
+  worked >= 6 && bare >= 1 && shaped === worked + bare);
 
   ok('and a pillar carries only whether it has started',
     /Exercise \u2014 (In progress|Not started)/.test(plan)

@@ -71,6 +71,18 @@ export const priyaConditions: Condition[] = [
     goalNote: 'Two or three a month on a triptan alone. Target is fewer than four a month, so she is at it but with no preventer and no diary.',
     note: 'Two or three a month. Sumatriptan from a walk-in clinic.',
   },
+  /*
+   * The thing she actually came in about, which is not on anybody's
+   * problem list yet. A first visit usually has one.
+   */
+  {
+    id: 'pc5', patientId: P, name: 'Acute low back pain', code: 'M54.50',
+    status: 'active', managed: true, owner: 'ours', acuity: 'acute',
+    onset: '2026-10-28',
+    provenance: SELF,
+    goalNote: 'Six weeks of it since the desk job started. No red flags. Target is back to walking without it.',
+    note: 'Started about a month after the job change. Worse by the end of the day, better at the weekend.',
+  },
   {
     id: 'pc4', patientId: P, name: 'Iron deficiency anaemia', code: 'D50.9',
     status: 'resolved', managed: false, onset: '2022-06-01',
@@ -192,7 +204,8 @@ export const priyaUpdates: PatientUpdate[] = [
       + 'I was told I have prediabetes and then never heard anything else about it. '
       + 'The headaches are the same as they have always been. '
       + 'I changed jobs in March and I sit all day now, with an hour of commute each way. '
-      + 'I cannot sleep before one in the morning most nights and I am up at six.',
+      + 'I cannot sleep before one in the morning most nights and I am up at six. '
+      + 'My lower back has been sore for about six weeks, worse by the end of the day.',
     feeling: 'worse',
     interval: [],
   },

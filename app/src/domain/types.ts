@@ -202,6 +202,14 @@ export interface Condition {
    * Absent means nobody has judged it, which is its own finding and
    * is shown as needing improvement rather than as fine.
    */
+  /**
+   * Acute or chronic.
+   *
+   * Read first on a problem list, because the acute ones are the
+   * ones that change between now and the next visit. Absent means
+   * chronic, which is what almost everything on a problem list is.
+   */
+  acuity?: 'acute' | 'chronic';
   goal?: CareGoalStatus;
   goalNote?: string;
   goalAssessed?: string;

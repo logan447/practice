@@ -41,7 +41,18 @@ export function ActionRow({ iv }: { iv: Intervention }) {
  * is usually missing from a chart and the one that decides what the
  * rest of this document is about.
  */
-export function oneLiner(p: Patient, conditions: Condition[]): string {
+/**
+ * The sentence the note opens with, and the one the assessment
+ * opens with, which are the same sentence.
+ *
+ * Past medical history, then what this visit is for. The second
+ * list is what is being addressed today rather than everything on
+ * the books: a note that says it is for five problems and then
+ * works on three is a note whose first line is wrong.
+ */
+export function oneLiner(
+  p: Patient, conditions: Condition[], addressed?: string[],
+): string {
   const years = age(p.dob);
   const sex = p.sex === 'female' ? 'F' : p.sex === 'male' ? 'M' : '';
   const history = conditions.filter((c) => c.status !== 'resolved');
@@ -54,13 +65,17 @@ export function oneLiner(p: Patient, conditions: Condition[]): string {
         : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
 
   const pmh = list([...new Set(history.map((c) => abbrev(c.name)))]);
-  const following = list([
-    ...new Set(managed.map((c) => abbrev(c.name))),
+  const today = addressed && addressed.length > 0
+    ? addressed.map(abbrev)
+    : managed.map((c) => abbrev(c.name));
+  const forWhat = list([
+    ...new Set(today),
     ...(svc.preventative ? ['preventative services'] : []),
     ...(svc.lifestyle ? ['lifestyle medicine'] : []),
   ]);
 
-  return `${years}${sex} with PMH of ${pmh}, following with our office for management of ${following}.`;
+  return `${years}${sex} with PMH of ${pmh} presenting to my office today `
+    + `for management of ${forWhat}.`;
 }
 
 // ------------------------------------------------------------ assessment

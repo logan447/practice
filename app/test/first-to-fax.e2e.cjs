@@ -133,11 +133,17 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
       .test(flatpaper));
   // Not worked on today, triaged, and somebody named as holding it,
   // with when they next look at it where anybody has told us.
+  // Everything active in one place at the foot, acute first, with
+  // the ones worked on pointing at the detail and the rest triaged.
+  ok('a full problem list closes the section, acute first',
+    /Full problem list/.test(flatpaper)
+    && /Essential hypertension \(chronic\) \u2014 Addressed at this visit, as above\./
+      .test(flatpaper));
   ok('and the ones we did not work on are triaged, with who holds them',
-    /Not addressed this visit/.test(flatpaper)
-    && /Hypothyroidism \u2014 Triaged as stable, nothing new reported\. /
+    /Hypothyroidism \(chronic\) \u2014 Triaged as stable, nothing new reported\. /
       .test(flatpaper)
-    && /Managed by Dr\. Ingrid Sorensen, Endocrinology\. Next seen /.test(flatpaper));
+    && /Managed by Dr\. Ingrid Sorensen, Endocrinology\. Last seen .*Next seen /
+      .test(flatpaper));
   ok('it ends in the follow-up, in the form a patient repeats back',
     /Follow up on 15 Feb 2027 \(3 months\) for ongoing services\./.test(paper));
   ok('and it is signed, with how to reach us',
