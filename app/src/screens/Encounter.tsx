@@ -76,6 +76,15 @@ interface Item {
 interface Working {
   /** One box per section. The sections are the whole note. */
   subjective: string;
+  /**
+   * The vitals and the home readings, as two lines.
+   *
+   * Derived and not a field: a measurement is corrected where it was
+   * recorded, not retyped into a note, and a note that lets you type
+   * a different blood pressure from the one on the chart is a note
+   * that will eventually disagree with the chart.
+   */
+  measured: string;
   objective: string;
   plan: string;
   instructions: string;
@@ -83,7 +92,14 @@ interface Working {
 }
 
 const EMPTY_WORKING: Working = {
-  subjective: '', objective: '', plan: '', instructions: '', nextVisit: '',
+  subjective: '', measured: '', objective: '', plan: '', instructions: '', nextVisit: '',
+};
+
+/** The three services, over the runs of the note that belong to them. */
+const GROUP_LABEL: Record<Item['group'], string> = {
+  Problems: 'Medical',
+  Lifestyle: 'Lifestyle',
+  Preventative: 'Preventative',
 };
 
 type Marks = Record<string, 'ambient'>;
@@ -295,13 +311,37 @@ export function Encounter({ encounterId }: { encounterId: string }) {
      */
     const review = [said('notes'), said('subjective')].filter(Boolean).join(' ');
 
-    const subjective = [
-      `General \u2014 ${reports(general) || 'Patient reports nothing new overall.'}`,
-      ...items
-        .filter((it) => it.said.trim())
-        .map((it) => `${it.name}${it.detail ? `, ${it.detail}` : ''} \u2014 ${reports(it.said)}`),
-      review ? `Chart review \u2014 ${review}` : '',
-    ].filter(Boolean).join('\n\n');
+    /*
+     * The three things this practice sells, labelled.
+     *
+     * Medical, lifestyle and preventative are not three kinds of
+     * note: they are one conversation. But they are three kinds of
+     * service, and a reader scanning for "what are we doing about
+     * her prevention" was reading fourteen headings to find four of
+     * them. One bold word above each run, and nothing else.
+     */
+    const labelled = (
+      lines: { group: Item['group']; text: string }[],
+      head: string[] = [],
+      tail: string[] = [],
+    ) => {
+      const out = [...head];
+      let last = '';
+      for (const ln of lines) {
+        if (ln.group !== last) { out.push(GROUP_LABEL[ln.group]); last = ln.group; }
+        out.push(ln.text);
+      }
+      return [...out, ...tail].filter(Boolean).join('\n\n');
+    };
+
+    const subjective = labelled(
+      items.filter((it) => it.said.trim()).map((it) => ({
+        group: it.group,
+        text: `${it.name}${it.detail ? `, ${it.detail}` : ''} \u2014 ${reports(it.said)}`,
+      })),
+      [`General \u2014 ${reports(general) || 'Patient reports nothing new overall.'}`],
+      [review ? `Chart review \u2014 ${review}` : ''],
+    );
 
     /*
      * One block per thing, and nothing said twice.
@@ -364,13 +404,14 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       return out.join('\n');
     };
 
-    const plan = items
-      .map((it) => `${it.name}${it.detail ? `, ${it.detail}` : ''} \u2014 ${it.standing}\n${
-        points(it.id, [carried[it.id] ?? '', it.doing])}`.trim())
-      .join('\n\n');
+    const plan = labelled(items.map((it) => ({
+      group: it.group,
+      text: `${it.name}${it.detail ? `, ${it.detail}` : ''} \u2014 ${it.standing}\n${
+        points(it.id, [carried[it.id] ?? '', it.doing])}`.trim(),
+    })));
 
     const lastOffice = st.vitalsFor(patientId).find((v) => v.source === 'office');
-    const vitals = lastOffice
+    const vitalsLine = lastOffice
       ? `Vitals \u2014 ${[
         lastOffice.systolic ? `${lastOffice.systolic}/${lastOffice.diastolic}` : '',
         lastOffice.heartRate ? `HR ${lastOffice.heartRate}` : '',
@@ -400,12 +441,21 @@ export function Encounter({ encounterId }: { encounterId: string }) {
         return last ? `${ser.name} ${last.value} ${ser.unit} (${fmtDate(last.date)})` : '';
       }),
     ].filter(Boolean);
-    const home = homeBits.length ? `Home \u2014 ${homeBits.join(' \u00b7 ')}` : '';
+    const homeLine = homeBits.length ? `Home \u2014 ${homeBits.join(' \u00b7 ')}` : '';
 
     setW((v) => ({
       ...v,
       subjective,
-      objective: [vitals, home, EXAM, said('vitals'), said('results')]
+      measured: [vitalsLine, homeLine].filter(Boolean).join('\n'),
+      /*
+       * What was measured comes before what was examined, and the
+       * labs come with it: a physician reads the numbers that were
+       * taken off the patient, then the ones that came back from the
+       * lab, and only then writes down what they found with their
+       * hands. The examination is the part that is written today, so
+       * it is the part that is a field.
+       */
+      objective: [EXAM, said('vitals'), said('results')]
         .filter(Boolean).join('\n\n'),
       plan: [said('problems'), plan].filter(Boolean).join('\n\n'),
     }));
@@ -552,7 +602,10 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       diagnostics: '', specialists: '',
       additional: w.subjective,
     },
-    objective: { homeMeasures: '', vitals: w.objective, exam: '' },
+    // The measurements are derived on the screen and fixed in the
+    // record: a signed note that kept only the examination would be
+    // a note whose vitals lived somewhere else.
+    objective: { homeMeasures: '', vitals: w.measured, exam: w.objective },
     assessment: { oneLiner: oneLiner(p, conditions), overall: '' },
     plan: {
       /*
@@ -689,10 +742,14 @@ export function Encounter({ encounterId }: { encounterId: string }) {
             lead={oneLiner(p, conditions)}
             mark={marks.subjective} onChange={(v) => put('subjective', v)} />
           <Box id="objective" title="Objective" value={w.objective} startShut
-            mark={marks.objective} onChange={(v) => put('objective', v)}>
-            <Fishbone panels={st.panelsFor(patientId)} />
-            <OtherLabs panels={st.panelsFor(patientId)} />
-          </Box>
+            mark={marks.objective} onChange={(v) => put('objective', v)}
+            above={(
+              <div className="measured" id="objective-measured">
+                {w.measured.split('\n').map((ln, i) => <ReadLine key={i} line={ln} />)}
+                <Fishbone panels={st.panelsFor(patientId)} />
+                <OtherLabs panels={st.panelsFor(patientId)} />
+              </div>
+            )} />
           <Box id="plan" title="Assessment and plan" value={w.plan} startShut
             mark={marks.plan} onChange={(v) => put('plan', v)} />
         </div>
@@ -736,7 +793,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
  * folds that made the form bearable were an admission of that.
  */
 function Box({
-  id, title, value, onChange, rows = 3, mark, placeholder, lead, startShut, children,
+  id, title, value, onChange, rows = 3, mark, placeholder, lead, startShut, children, above,
 }: {
   id: string;
   title?: string;
@@ -751,6 +808,8 @@ function Box({
   startShut?: boolean;
   /** Derived content under the field, which is read rather than written. */
   children?: React.ReactNode;
+  /** Derived content above the field. What was measured, before what was found. */
+  above?: React.ReactNode;
 }) {
   const [shut, setShut] = useState(!!startShut);
   /*
@@ -790,6 +849,7 @@ function Box({
         </button>
         {lead && !shut && <p className="nboxlead">{lead}</p>}
       </div>
+      {!shut && above}
       {!shut && (
         editing ? (
           <textarea ref={ref} className="prose" rows={rows} value={value} autoFocus
@@ -811,9 +871,16 @@ function Box({
   );
 }
 
+const SERVICE_LABELS = new Set(Object.values(GROUP_LABEL));
+
 /** "Essential hypertension — Patient reports ..." with the name in bold. */
 function ReadLine({ line }: { line: string }) {
   if (!line.trim()) return <div className="nreadgap" />;
+  // A bare "Medical", "Lifestyle" or "Preventative" on its own line
+  // is the label over a run, not a finding about one of them.
+  if (SERVICE_LABELS.has(line.trim())) {
+    return <div className="nreadsec">{line.trim()}</div>;
+  }
   const i = line.indexOf('\u2014');
   if (i < 0) return <div className="nreadline">{line}</div>;
   return (

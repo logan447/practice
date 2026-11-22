@@ -1,5 +1,5 @@
 const {chromium}=require('playwright');
-const {tab, hasTab, noteText}=require('./tabs.cjs');
+const {tab, hasTab, openNote}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4700/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
@@ -75,8 +75,11 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // encounter workspace shows what they logged await p.waitForTimeout(250);
   await p.click('.startenc:has-text("Start a visit")'); await p.waitForTimeout(700);
+  // The measurements are derived above the examination field, so
+  // they are read from the page rather than out of a text field.
+  await openNote(p,'objective');
   ok('visit workspace shows home readings',
-    (await noteText(p,'objective')).includes('Home \u2014 '));
+    (await p.locator('#objective-measured').innerText()).includes('Home'));
 
   // persistence
   await p.goto(U,{waitUntil:'networkidle'}); await p.waitForTimeout(600);

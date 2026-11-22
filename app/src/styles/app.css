@@ -2140,8 +2140,8 @@ blockquote.said footer {
 .grpnote { margin: 7px 0 0; font-size: 13px; color: var(--ink-3); }
 .grprows { margin-top: 2px; }
 
-/* When, what kind, what it is. One tag, in a column of its own, so a
-   list of rows reads down as well as across. */
+/* When and what, flush left; the one tag flush right. A list of rows
+   reads down two edges rather than across three ragged columns. */
 .rec {
   display: flex; align-items: baseline; gap: 16px; width: 100%;
   padding: 11px 2px; text-align: left; background: none; border: 0;
@@ -2157,7 +2157,7 @@ blockquote.said footer {
   font-size: 14px; color: var(--ink-3); font-variant-numeric: tabular-nums;
 }
 .rectag {
-  flex: none; width: 124px;
+  flex: none; width: 150px; text-align: right;
   font-size: 14px; color: var(--ink-3);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
@@ -2457,79 +2457,50 @@ blockquote.said footer {
 .nbodytext .planprob { margin-bottom: 12px; }
 .nbodytext .planprob:last-child { margin-bottom: 0; }
 
+/* The label over a run of the note: Medical, Lifestyle, Preventative.
+   Bold and nothing else. A rule or a colour here would make three
+   sections out of one conversation. */
+.nreadsec {
+  margin: 20px 0 2px; font-weight: 700; font-size: 15px; color: var(--ink);
+}
+.nread > .nreadsec:first-child { margin-top: 0; }
+
+/* What was measured, above what was found. Read, never typed. */
+.measured { margin-bottom: 18px; }
+
 /* ------------------------------------------------------- fishbones
  * The position is the label. Seven chemistry values in a skeleton a
  * physician has read ten thousand times is faster to scan than seven
  * labelled rows, because looking for a creatinine becomes looking at
  * a place rather than reading a word.
+ *
+ * Drawn, not laid out: the bones are lines in an SVG rather than
+ * borders on a grid, because a skeleton built out of borders bends
+ * whenever a value is one character wider and a reader who has to
+ * check which cell they are in has lost the whole advantage.
  */
-.fishbones { margin: 14px 0 4px; }
-.fbrow { display: flex; gap: 38px; flex-wrap: wrap; align-items: flex-start; }
+.fishbones {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: 10px 44px; margin: 16px 0 6px;
+}
+.fbsvg { overflow: visible; }
+.fbbone { stroke: var(--ink-3); stroke-width: 1; }
+.fbnum {
+  font: 400 14px/1 var(--sans); fill: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.fbnum.muted { fill: var(--ink-3); }
+.fbnum.bad { fill: var(--warn); font-weight: 600; }
+.fbprev { font-size: 12px; fill: var(--ink-3); color: var(--ink-3); }
 
-.fb {
-  position: relative; display: grid; font-size: 14px;
-  color: var(--ink); font-variant-numeric: tabular-nums;
-}
-.fb::before {
-  content: ''; position: absolute; inset: 0;
-  pointer-events: none;
-}
-.fbcap {
-  position: absolute; left: 0; bottom: -17px;
-  font-size: 10px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-3);
-}
-
-/* CBC: the classic four-point star. */
-.fb.cbc {
-  grid-template-columns: auto 14px auto 14px auto;
-  grid-template-rows: auto auto auto; align-items: center;
-  column-gap: 4px; row-gap: 1px; margin-bottom: 20px;
-}
-.fb.cbc .fbw { grid-area: 2 / 1; text-align: right; }
-.fb.cbc .fbn { grid-area: 1 / 3; text-align: center; }
-.fb.cbc .fbs { grid-area: 3 / 3; text-align: center; }
-.fb.cbc .fbe { grid-area: 2 / 5; }
-.fb.cbc::before {
-  border-left: 1px solid var(--line);
-  border-right: 1px solid var(--line);
-  left: calc(50% - 1px); right: calc(50% - 1px);
-  top: 20%; bottom: 20%;
-  transform: none;
-}
-.fb.cbc .fbw::after, .fb.cbc .fbe::before { content: none; }
-
-/* CMP: two rows of three, then glucose off the end. */
-.fb.cmp {
-  grid-template-columns: auto auto auto auto;
-  grid-template-rows: auto auto; align-items: center;
-  column-gap: 11px; row-gap: 1px; margin-bottom: 20px;
-}
-.fb.cmp .c1 { grid-area: 1 / 1; }
-.fb.cmp .c2 { grid-area: 1 / 2; }
-.fb.cmp .c3 { grid-area: 1 / 3; }
-.fb.cmp .c4 { grid-area: 1 / 4 / 3 / 5; align-self: center; padding-left: 6px;
-  border-left: 1px solid var(--line); }
-.fb.cmp .c5 { grid-area: 2 / 1; }
-.fb.cmp .c6 { grid-area: 2 / 2; }
-.fb.cmp .c7 { grid-area: 2 / 3; }
-
-.fbval { white-space: nowrap; }
-.fbval.bad { color: var(--warn); font-weight: 600; }
-.fbprev { color: var(--ink-3); font-size: 12.5px; }
-
-.fbline {
-  display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
-  margin-top: 9px; font-size: 14px;
-}
-.fblabel {
-  flex: none; width: 64px; font-size: 11px; letter-spacing: 0.07em;
-  text-transform: uppercase; color: var(--ink-3);
-}
-.fbpair { white-space: nowrap; }
-.fbk { color: var(--ink-3); font-size: 12.5px; }
-.fbwhen { color: var(--ink-3); font-size: 12.5px; }
-
+/* Everything not on a skeleton: name, number, nothing else. The date
+   and the report it came from are on the hover, because a date
+   printed beside every value is a column nobody reads and the
+   question it answers is asked about one value at a time. */
 .otherlabs {
-  display: flex; flex-wrap: wrap; gap: 4px 16px;
-  margin-top: 12px; font-size: 13px; color: var(--ink-2);
+  display: flex; flex-wrap: wrap; gap: 5px 18px;
+  margin-top: 14px; font-size: 13.5px; color: var(--ink);
 }
+.olitem { white-space: nowrap; cursor: help; font-variant-numeric: tabular-nums; }
+.olitem.bad { color: var(--warn); font-weight: 600; }
+.olname { color: var(--ink-3); }

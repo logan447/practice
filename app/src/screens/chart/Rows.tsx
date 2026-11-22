@@ -21,10 +21,15 @@ import { useEffect } from 'react';
 /**
  * One row: when, what kind, what it is.
  *
- * Date on the left because a chart is read in time order, then one
- * tag, then the thing itself. One tag and no more: a row with three
- * labels on it is a row you parse rather than read, and the tab you
- * are standing in has already said what kind of record this is.
+ * Date on the left because a chart is read in time order, then the
+ * thing itself, then the tag against the right edge. Two edges and
+ * nothing floating in between: the eye runs down the left for when
+ * and what, and down the right for the one word that says whether to
+ * stop. Three columns all flush left made the middle one start in a
+ * different place on every tab, because the tag that preceded it was
+ * a different length. One tag and no more: a row with three labels
+ * on it is a row you parse rather than read, and the tab you are
+ * standing in has already said what kind of record this is.
  *
  * There are no headings inside a tab. Every group heading this record
  * used to carry ("We manage", "On the list, managed elsewhere",
@@ -44,8 +49,8 @@ export function Row({ name, when, tag, warn, onOpen }: {
   return (
     <Tag className={`rec${onOpen ? '' : ' flat'}`} onClick={onOpen}>
       <span className="recwhen">{when ?? ''}</span>
-      <span className={`rectag${warn ? ' warn' : ''}`}>{tag ?? ''}</span>
       <span className="recname">{name}</span>
+      <span className={`rectag${warn ? ' warn' : ''}`}>{tag ?? ''}</span>
     </Tag>
   );
 }
