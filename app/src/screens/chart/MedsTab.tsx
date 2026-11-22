@@ -12,7 +12,7 @@ import { InlineAdd, Field } from '../../components/InlineAdd';
 import { CodePicker } from '../../components/CodePicker';
 import { Interactions } from '../../components/Interactions';
 import { fmtDate } from '../../lib/format';
-import { Group, Row, Sheet, NoRows } from './Rows';
+import { Rows, Row, Sheet, NoRows } from './Rows';
 import { searchDrugs, searchConditions, resolveDrug } from '../../domain/terminology';
 import { check } from '../../lib/interactions';
 
@@ -52,30 +52,22 @@ export function MedsTab({ patientId }: { patientId: string }) {
   const sel = meds.find((m) => m.id === open);
   const selDrug = sel ? resolveDrug(sel.name, sel.rxcui) : undefined;
 
-  const list = (xs: typeof meds, note?: string) => xs.map((m) => (
-    <Row key={m.id} name={`${m.name} ${m.dose}`} note={note} warn={note === 'Held'}
-      when={fmtDate(m.started)} onOpen={() => setOpen(m.id)} />
-  ));
+  const LABEL = { active: 'Active', held: 'Held', stopped: 'Stopped' } as const;
+  const all = [...active, ...held, ...stopped];
 
   return (
     <>
       <Interactions alerts={standing} title="This list, checked" />
 
-      <Group title="Active" count={active.length}>
-        {active.length === 0 ? <NoRows>No medicines recorded.</NoRows> : list(active)}
-      </Group>
-
-      {held.length > 0 && (
-        <Group title="Held" count={held.length} note="Each one needs a decision.">
-          {list(held, 'Held')}
-        </Group>
-      )}
-
-      {stopped.length > 0 && (
-        <Group title="Stopped" count={stopped.length} note="Kept, with the reason.">
-          {list(stopped, 'Stopped')}
-        </Group>
-      )}
+      <Rows>
+        {all.length === 0 ? <NoRows>No medicines recorded.</NoRows> : all.map((m) => (
+          <Row key={m.id}
+            when={fmtDate(m.started)}
+            tag={LABEL[m.status]} warn={m.status === 'held'}
+            name={`${m.name} ${m.dose}`}
+            onOpen={() => setOpen(m.id)} />
+        ))}
+      </Rows>
 
       <InlineAdd
         label="Add a medicine" open={adding} setOpen={setAdding}

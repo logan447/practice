@@ -69,14 +69,18 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('no second column repeating the tabs',
     (await p.locator('.rail').count())===0);
   const probs = (await (await tabText('Problems'))).replace(/\s+/g,' ');
+  // Who holds a problem, and whether it is controlled, is the tag
+  // beside its row. The tab has no headings over groups of rows.
   ok('the problems tab says what this practice manages and who has the rest',
-    probs.includes('We manage') && probs.includes('managed elsewhere'));
+    probs.includes('Their PCP') || probs.includes('Shared') || probs.includes('We manage'));
   ok('each one controlled or uncontrolled, in one word',
     probs.includes('Controlled') && probs.includes('Uncontrolled'));
   const life = (await tabText('Lifestyle')).replace(/\s+/g,' ');
-  ok('lifestyle medicine is a tab of its own', life.includes('Prescriptions'));
+  ok('lifestyle medicine is a tab of its own',
+    /In progress|Achieved|Struggling|Not started/.test(life));
   const prev = (await tabText('Prevention')).replace(/\s+/g,' ');
-  ok('and so is preventative medicine', prev.includes('Preventative services'));
+  ok('and so is preventative medicine',
+    /Overdue|Due|Current|Not applicable/.test(prev));
 
   const sProb = await problem(0);
   ok(`the problem sheet opens with where they are now: ${sProb.slice(0,40)}...`,

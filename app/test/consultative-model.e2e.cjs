@@ -82,7 +82,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('a patient with no other physician is said so, not left blank',
     rail2.includes('No primary care physician'));
   ok('and the gap is named rather than implied',
-    rail2.includes('this patient has no physician'));
+    rail2.includes('Everything outside our list needs somebody'));
 
   // ---------------------------------------- 3b. the agreement, as a view
   await tab(p, 'Scope'); await p.waitForTimeout(200);

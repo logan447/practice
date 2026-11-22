@@ -18,42 +18,41 @@
  */
 import { useEffect } from 'react';
 
-export function Group({ title, note, count, children }: {
-  title: string;
-  /** One line under the heading, where the group needs a caveat. */
-  note?: string;
-  count?: number;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="grp">
-      <div className="grphead">
-        <h3>{title}</h3>
-        {count !== undefined && <span className="grpcount">{count}</span>}
-      </div>
-      {note && <p className="grpnote">{note}</p>}
-      <div className="grprows">{children}</div>
-    </section>
-  );
-}
-
-export function Row({ name, when, note, warn, onOpen }: {
+/**
+ * One row: when, what kind, what it is.
+ *
+ * Date on the left because a chart is read in time order, then one
+ * tag, then the thing itself. One tag and no more: a row with three
+ * labels on it is a row you parse rather than read, and the tab you
+ * are standing in has already said what kind of record this is.
+ *
+ * There are no headings inside a tab. Every group heading this record
+ * used to carry ("We manage", "On the list, managed elsewhere",
+ * "Active", "Held") said the same thing its rows can say, once each,
+ * in the tag.
+ */
+export function Row({ name, when, tag, warn, onOpen }: {
   name: string;
   when?: string;
-  note?: string;
-  /** The note is the kind you should not read past. */
+  /** One word or two about what this row is. Never a second one. */
+  tag?: string;
+  /** The tag is the kind you should not read past. */
   warn?: boolean;
   onOpen?: () => void;
 }) {
   const Tag = onOpen ? 'button' : 'div';
   return (
     <Tag className={`rec${onOpen ? '' : ' flat'}`} onClick={onOpen}>
+      <span className="recwhen">{when ?? ''}</span>
+      <span className={`rectag${warn ? ' warn' : ''}`}>{tag ?? ''}</span>
       <span className="recname">{name}</span>
-      {note && <span className={`recnote${warn ? ' warn' : ''}`}>{note}</span>}
-      {when && <span className="recwhen">{when}</span>}
     </Tag>
   );
 }
+
+/** A list of rows, and nothing above it. */
+export const Rows = ({ children }: { children: React.ReactNode }) =>
+  <div className="grprows">{children}</div>;
 
 export const NoRows = ({ children }: { children: React.ReactNode }) =>
   <p className="norows">{children}</p>;

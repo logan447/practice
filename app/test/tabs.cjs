@@ -71,15 +71,73 @@ async function planUpdatedOn(p) {
   return m ? m[1].trim() : '';
 }
 
-/** How many records the patient has sent, as the subjective counts them. */
+/**
+ * How many records the patient has sent.
+ *
+ * The tab used to carry two headings with counts on them. It is one
+ * list in time order now, so the count is the number of rows.
+ */
 async function sentCount(p) {
   await tab(p, 'Subjective');
-  const text = await p.locator('.tabbody').textContent();
-  const nums = [...text.matchAll(/(?:Patient updates|Patient inquiries)\s*(\d+)/g)]
-    .map((x) => Number(x[1]));
-  return nums.reduce((a, b) => a + b, 0);
+  return await p.locator('.rec').count();
+}
+
+/* ---- the visit note ------------------------------------------- */
+
+/**
+ * The heading over each section of a visit, by the id of its field.
+ *
+ * A section is shut or open, and when it is open it is read until you
+ * click it. None of that is reachable from the field's id, because
+ * when a section is shut the field is not in the page at all. The
+ * heading is.
+ */
+const SECTION = {
+  subjective: 'Subjective',
+  objective: 'Objective',
+  plan: 'Assessment and plan',
+};
+
+const noteBox = (p, id) => p.locator(`.nbox:has(.nboxtitle:text-is("${SECTION[id]}"))`);
+
+/** Unfold a section of the visit, if it is folded. */
+async function openNote(p, id) {
+  const box = noteBox(p, id);
+  await box.waitFor();
+  if (await box.evaluate((el) => el.classList.contains('shut'))) {
+    await box.locator('.nboxhead').click();
+    await p.waitForTimeout(280);
+  }
+  return box;
+}
+
+/** What a section of the visit says, whether it is being read or written. */
+async function noteText(p, id) {
+  await openNote(p, id);
+  if (await p.locator(`textarea#${id}`).count()) {
+    return await p.locator(`textarea#${id}`).inputValue();
+  }
+  return await p.locator(`#${id}-read`).innerText();
+}
+
+/** Put the caret in a section of the visit, and hand back the field. */
+async function noteField(p, id) {
+  await openNote(p, id);
+  if (!(await p.locator(`textarea#${id}`).count())) {
+    await p.click(`#${id}-read`);
+    await p.waitForTimeout(260);
+  }
+  return p.locator(`textarea#${id}`);
+}
+
+/** Write a section of the visit, the way a physician would. */
+async function writeNote(p, id, text) {
+  const field = await noteField(p, id);
+  await field.fill(text);
+  await p.waitForTimeout(250);
 }
 
 module.exports = {
   tab, hasTab, palette, openRec, closeSheet, planUpdatedOn, sentCount,
+  openNote, noteText, noteField, writeNote,
 };

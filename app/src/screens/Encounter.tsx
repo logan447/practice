@@ -41,8 +41,9 @@ import { oneLiner } from './chart/AssessPlan';
 import { livingSubjective } from '../lib/subjective';
 import type { LivingSubjective } from '../lib/subjective';
 import { ambientScript, wasCaught, ERROR_LABEL, type InjectedError } from '../lib/ambient';
+import { Fishbone, OtherLabs } from './chart/Fishbone';
 import { TAB_LABEL } from './chart/drawers';
-import { LIFESTYLE_DOMAINS } from '../domain/types';
+import { LIFESTYLE_DOMAINS, SETTING_LABEL } from '../domain/types';
 import type { VisitNote, Order, OrderKind } from '../domain/types';
 import { ORDER_KINDS } from '../domain/types';
 import {
@@ -60,6 +61,8 @@ import {
 interface Item {
   id: string;
   name: string;
+  /** Tells two prescriptions in one pillar apart, where there are two. */
+  detail?: string;
   group: 'Problems' | 'Lifestyle' | 'Preventative';
   /** The derived line: what the patient reports about this one. */
   said: string;
@@ -84,6 +87,28 @@ const EMPTY_WORKING: Working = {
 };
 
 type Marks = Record<string, 'ambient'>;
+
+/**
+ * The examination, by system, written out for you to correct.
+ *
+ * A template of normals is a known hazard: the fastest thing to do
+ * with it is nothing, and nothing is how a chart ends up documenting
+ * an examination that did not happen. It is here because writing
+ * seven headings from memory at the end of a visit is how the
+ * examination ends up documented as one line or not at all, and the
+ * headings are the part worth having. Every line says normal and
+ * every line is wrong until somebody looks.
+ */
+const EXAM = [
+  'Examination \u2014 not yet corrected. Each line is a template until it is edited.',
+  'General: alert, comfortable, no distress.',
+  'Cardiovascular: regular rate and rhythm, no murmur, no oedema.',
+  'Respiratory: clear to auscultation, no added sounds.',
+  'Abdomen: soft, non-tender.',
+  'Extremities: no swelling, pulses present.',
+  'Neurological: grossly intact.',
+  'Skin: no rash or ulceration.',
+].join('\n');
 
 export function Encounter({ encounterId }: { encounterId: string }) {
   const st = useStore();
@@ -168,10 +193,18 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       // called "Nutrition" is two you have to open to tell apart.
       ...lifestyle.map((l) => {
         const same = lifestyle.filter((x) => x.domain === l.domain);
-        const short = l.prescription.split(/[.,]/)[0].trim();
+        // Four words, not the whole prescription. It is there to tell
+        // two "Nutrition" blocks apart; the prescription itself is in
+        // the plan under the heading, and a sentence set in bold as a
+        // heading is a sentence nobody reads as one.
+        const short = l.prescription
+          .split(/[.,;]/)[0].trim().split(/\s+/).slice(0, 4).join(' ');
         return {
           id: l.id,
-          name: same.length > 1 ? `${dom(l.domain)}: ${short}` : dom(l.domain),
+          // The heading is the pillar. The prescription is the content
+          // under it, not a second half of its name.
+          name: dom(l.domain),
+          detail: same.length > 1 ? short : '',
           group: 'Lifestyle' as const,
           said: said('lifestyle', l.id),
           doing: bullets([l.prescription, ...(l.barrier ? [`In the way: ${l.barrier}`] : [])]),
@@ -185,9 +218,20 @@ export function Encounter({ encounterId }: { encounterId: string }) {
         name: x.name,
         group: 'Preventative' as const,
         said: said('prevention', x.id),
+        /*
+         * One line of dates, not three.
+         *
+         * "Last done" and "Due" and "No due date set" were three
+         * bullets for every service, and six services made eighteen
+         * lines of a plan in which nothing was being planned. The
+         * dates belong on one line; the note is the only part that
+         * says what to do.
+         */
         doing: bullets([
-          x.lastDone ? `Last done ${fmtDate(x.lastDone)}` : 'Never recorded as done',
-          x.dueBy ? `Due ${fmtDate(x.dueBy)}` : 'No due date set',
+          [
+            x.lastDone ? `Last done ${fmtDate(x.lastDone)}` : 'Never recorded as done',
+            x.dueBy ? `due ${fmtDate(x.dueBy)}` : '',
+          ].filter(Boolean).join(', '),
           ...(x.note ? [x.note] : []),
         ]),
         standing: x.status === 'current' ? 'Up to date.'
@@ -218,58 +262,154 @@ export function Encounter({ encounterId }: { encounterId: string }) {
     if (seeded.current || items.length === 0) return;
     seeded.current = true;
     const carried = approved?.plan.byProblem ?? master?.plan?.byProblem ?? {};
-    const block = (lines: string[]) => lines.filter(Boolean).join('\n');
-
-    const subjective = items
-      .filter((it) => it.said.trim())
-      .map((it) => block([it.name, it.said]))
-      .join('\n\n');
-
-    /*
-     * The problem, where it stands, what was agreed last time, then
-     * the points of what is actually being done. The last of those is
-     * the list a reader is looking for and it was being dropped
-     * whenever a prior plan existed, which is every visit after the
-     * first.
-     */
-    const plan = items
-      .map((it) => block([
-        it.name,
-        it.standing,
-        carried[it.id]?.trim() ?? '',
-        it.doing,
-      ]))
-      .join('\n\n');
-
-    /*
-     * What was said during the chart review, already in the boxes.
-     *
-     * It used to be offered on a line above the note with a link that
-     * put it in. Nobody opens a visit wanting to decline the chart
-     * review they just did, so the offer was a banner over the note
-     * whose only answer was yes.
-     */
     const said = (id: string) => (prechart?.notes[id] ?? '').trim();
 
+    /*
+     * Their voice, under their heading.
+     *
+     * Every line is "<thing> \u2014 Patient reports ...", because that
+     * is what the subjective is: what they told us, about each thing,
+     * in order. The heading reads bold and the sentence after the dash
+     * does not, which is the shape a physician writes by hand.
+     */
+    const reports = (text: string) => {
+      const t = text.trim();
+      if (!t) return '';
+      if (/^patient reports/i.test(t)) return t;
+      // Lowercase the first letter, unless it is the word "I": the
+      // patient's own sentence often starts with it and "Patient
+      // reports i know" is not a sentence anybody wrote.
+      const keep = /^I\b|^I['\u2019]/.test(t);
+      return `Patient reports ${keep ? t : t[0].toLowerCase() + t.slice(1)}`;
+    };
+    const general = draft.overall
+      .filter((c) => c.voice === 'patient').map((c) => c.text).join(' ');
+
+    /*
+     * The chart review is the physician's, and says so.
+     *
+     * It used to be folded into the General line, which put a
+     * physician's stream of consciousness behind the words "Patient
+     * reports". Everything under a subjective heading is the
+     * patient's voice except this, so this gets a heading of its own.
+     */
+    const review = [said('notes'), said('subjective')].filter(Boolean).join(' ');
+
+    const subjective = [
+      `General \u2014 ${reports(general) || 'Patient reports nothing new overall.'}`,
+      ...items
+        .filter((it) => it.said.trim())
+        .map((it) => `${it.name}${it.detail ? `, ${it.detail}` : ''} \u2014 ${reports(it.said)}`),
+      review ? `Chart review \u2014 ${review}` : '',
+    ].filter(Boolean).join('\n\n');
+
+    /*
+     * One block per thing, and nothing said twice.
+     *
+     * The plan carried forward from the last approval already holds
+     * the lines that were generated for it, so adding the generated
+     * lines again printed the whole list twice. Anything already in
+     * the carried text is dropped.
+     */
+    /*
+     * The same point, keyed the same way wherever it is written.
+     *
+     * The carried plan writes a pillar into the condition that
+     * depends on it as "Nutrition \u2014 protein at breakfast"; the
+     * pillar writes it under its own heading as "protein at
+     * breakfast". They are one instruction, so the heading in front
+     * of it and the full stop after it come off before comparing.
+     */
+    const key = (line: string) => line
+      .replace(/^\s*[\u2022\-*]\s*/, '')
+      .replace(/^[^\u2014]{1,40}\u2014\s*/, '')
+      .trim().toLowerCase().replace(/[.\s]+$/, '');
+
+    /*
+     * Who owns each point.
+     *
+     * Every pillar and every service has a heading of its own in this
+     * plan. A condition that carries one does not need to restate it
+     * three lines above the heading that states it: that was the
+     * whole prescription list printed once per condition.
+     */
+    const owner = new Map<string, string>();
+    // Pillars and services claim their own prescriptions first. The
+    // conditions are listed first on the screen, but a condition is
+    // not where a prescription is written: it is where one is
+    // carried, and the carried copy is the one that goes.
+    const byOwner = [...items].sort((a, b) =>
+      Number(a.group === 'Problems') - Number(b.group === 'Problems'));
+    for (const it of byOwner) {
+      for (const line of it.doing.split('\n')) {
+        const k = key(line);
+        if (k && !owner.has(k)) owner.set(k, it.id);
+      }
+    }
+
+    /** One block's points, with nothing said twice and nothing borrowed. */
+    const points = (id: string, lines: string[]) => {
+      const seen = new Set<string>();
+      const out: string[] = [];
+      for (const raw of lines) {
+        for (const line of raw.split('\n')) {
+          const k = key(line);
+          if (!k || seen.has(k)) continue;
+          const own = owner.get(k);
+          if (own && own !== id) continue;
+          seen.add(k);
+          out.push(line);
+        }
+      }
+      return out.join('\n');
+    };
+
+    const plan = items
+      .map((it) => `${it.name}${it.detail ? `, ${it.detail}` : ''} \u2014 ${it.standing}\n${
+        points(it.id, [carried[it.id] ?? '', it.doing])}`.trim())
+      .join('\n\n');
+
     const lastOffice = st.vitalsFor(patientId).find((v) => v.source === 'office');
-    const objective = lastOffice
-      ? [
+    const vitals = lastOffice
+      ? `Vitals \u2014 ${[
         lastOffice.systolic ? `${lastOffice.systolic}/${lastOffice.diastolic}` : '',
         lastOffice.heartRate ? `HR ${lastOffice.heartRate}` : '',
         lastOffice.weightLb ? `${lastOffice.weightLb} lb` : '',
         lastOffice.bmi ? `BMI ${lastOffice.bmi}` : '',
-      ].filter(Boolean).join(' \u00b7 ') + ` (${fmtDate(lastOffice.date)})`
+      ].filter(Boolean).join(' \u00b7 ')} (${fmtDate(lastOffice.date)})`
       : '';
+
+    /*
+     * What they measured at home, between visits.
+     *
+     * A practice that asks patients to take their own readings has to
+     * read them. The home cuff and the patient-logged series are the
+     * only measurements this practice has between one visit and the
+     * next, so they belong in the objective beside the clinic vitals,
+     * labelled as theirs rather than merged into ours.
+     */
+    const homeSets = st.vitalsFor(patientId).filter((v) => v.source === 'home');
+    const sys = homeSets.map((v) => v.systolic).filter((n): n is number => !!n);
+    const homeBits = [
+      sys.length
+        ? `BP ${Math.min(...sys)} to ${Math.max(...sys)} systolic over ${
+          sys.length} reading${sys.length === 1 ? '' : 's'}, last ${fmtDate(homeSets[0].date)}`
+        : '',
+      ...st.patientSeriesFor(patientId).map((ser) => {
+        const last = ser.points[ser.points.length - 1];
+        return last ? `${ser.name} ${last.value} ${ser.unit} (${fmtDate(last.date)})` : '';
+      }),
+    ].filter(Boolean);
+    const home = homeBits.length ? `Home \u2014 ${homeBits.join(' \u00b7 ')}` : '';
 
     setW((v) => ({
       ...v,
-      subjective: [said('subjective'), said('notes'), subjective]
+      subjective,
+      objective: [vitals, home, EXAM, said('vitals'), said('results')]
         .filter(Boolean).join('\n\n'),
-      objective: [said('vitals'), said('results'), objective]
-        .filter(Boolean).join('\n'),
       plan: [said('problems'), plan].filter(Boolean).join('\n\n'),
     }));
-  }, [items, approved, master, st, patientId, prechart]);
+  }, [items, approved, master, st, patientId, prechart, draft.overall]);
 
   // ------------------------------------------------------------ the clock
   const [openedAt] = useState(() => Date.now());
@@ -507,7 +647,9 @@ export function Encounter({ encounterId }: { encounterId: string }) {
           onClick={() => nav.go({ name: 'chart', patientId })}>
           &larr; {p.name}
         </button>
-        <span className="vwhen">Visit &middot; {fmtDate(enc.date)}</span>
+        <span className="vwhen">
+          Visit &middot; {SETTING_LABEL[enc.setting ?? 'in-person']} &middot; {fmtDate(enc.date)}
+        </span>
         <span className="spacer" />
         {!signed && (
           listening ? (
@@ -529,8 +671,6 @@ export function Encounter({ encounterId }: { encounterId: string }) {
         )}
       </div>
 
-      <p className="oneliner vone">{oneLiner(p, conditions)}</p>
-
       {checked && injected.length > 0 && (
         <DraftCheck audit={audit} signed={published}
           onClose={() => (published ? nav.go({ name: 'schedule' }) : setChecked(false))} />
@@ -539,11 +679,21 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       <div className="reviewgrid">
         {/* ============================================== the note itself */}
         <div className="note">
+          {/*
+            * The sentence about the patient sits under the first
+            * heading rather than above the whole page. It is what the
+            * subjective is about, and a line of its own over two
+            * columns made the top of the visit four things deep.
+            */}
           <Box id="subjective" title="Subjective" value={w.subjective}
+            lead={oneLiner(p, conditions)}
             mark={marks.subjective} onChange={(v) => put('subjective', v)} />
-          <Box id="objective" title="Objective" value={w.objective}
-            mark={marks.objective} onChange={(v) => put('objective', v)} />
-          <Box id="plan" title="Assessment and plan" value={w.plan}
+          <Box id="objective" title="Objective" value={w.objective} startShut
+            mark={marks.objective} onChange={(v) => put('objective', v)}>
+            <Fishbone panels={st.panelsFor(patientId)} />
+            <OtherLabs panels={st.panelsFor(patientId)} />
+          </Box>
+          <Box id="plan" title="Assessment and plan" value={w.plan} startShut
             mark={marks.plan} onChange={(v) => put('plan', v)} />
         </div>
 
@@ -585,7 +735,9 @@ export function Encounter({ encounterId }: { encounterId: string }) {
  * form; a note is a document somebody reads start to finish, and the
  * folds that made the form bearable were an admission of that.
  */
-function Box({ id, title, value, onChange, rows = 3, mark, placeholder }: {
+function Box({
+  id, title, value, onChange, rows = 3, mark, placeholder, lead, startShut, children,
+}: {
   id: string;
   title?: string;
   value: string;
@@ -593,20 +745,30 @@ function Box({ id, title, value, onChange, rows = 3, mark, placeholder }: {
   rows?: number;
   mark?: 'ambient';
   placeholder?: string;
+  /** A sentence between the heading and the rule under it. */
+  lead?: string;
+  /** Shut when the visit opens. Only the subjective is not. */
+  startShut?: boolean;
+  /** Derived content under the field, which is read rather than written. */
+  children?: React.ReactNode;
 }) {
+  const [shut, setShut] = useState(!!startShut);
   /*
-   * Folds, one level. A visit about one thing should be able to look
-   * like a visit about one thing, and a section you have finished
-   * writing should be able to get out of the way of the next one.
+   * Read until you click it.
+   *
+   * The headings are bold and the sentence after the dash is not,
+   * which is the shape a physician writes by hand and cannot be done
+   * inside a text field. Clicking anywhere in the text swaps it for
+   * the field, with the caret where it was; leaving it swaps back.
    */
-  const [shut, setShut] = useState(false);
+  const [editing, setEditing] = useState(false);
   const ref = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     el.style.height = 'auto';
     el.style.height = `${Math.max(el.scrollHeight, rows * 25 + 14)}px`;
-  }, [value, rows]);
+  }, [value, rows, editing]);
 
   if (!title) {
     return (
@@ -619,17 +781,47 @@ function Box({ id, title, value, onChange, rows = 3, mark, placeholder }: {
 
   return (
     <section className={`nbox${shut ? ' shut' : ''}`}>
-      <button className="nboxhead" onClick={() => setShut((v) => !v)}>
-        <span className="foldarrow" aria-hidden="true">{shut ? '\u203a' : '\u2304'}</span>
-        <span className="nboxtitle">{title}</span>
-        {mark && <span className="markchip">from the capture</span>}
-        {shut && <span className="nboxcount">{value.split('\n').filter(Boolean).length} lines</span>}
-      </button>
+      <div className="nboxtop">
+        <button className="nboxhead" onClick={() => setShut((v) => !v)}>
+          <span className="foldarrow" aria-hidden="true">{shut ? '\u203a' : '\u2304'}</span>
+          <span className="nboxtitle">{title}</span>
+          {mark && <span className="markchip">from the capture</span>}
+          {shut && <span className="nboxcount">{value.split('\n').filter(Boolean).length} lines</span>}
+        </button>
+        {lead && !shut && <p className="nboxlead">{lead}</p>}
+      </div>
       {!shut && (
-        <textarea ref={ref} className="prose" rows={rows} value={value} placeholder={placeholder}
-          id={id} onChange={(e) => onChange(e.target.value)} />
+        editing ? (
+          <textarea ref={ref} className="prose" rows={rows} value={value} autoFocus
+            placeholder={placeholder} id={id}
+            onBlur={() => setEditing(false)}
+            onChange={(e) => onChange(e.target.value)} />
+        ) : (
+          <div className="nread" id={`${id}-read`} role="textbox" tabIndex={0}
+            onClick={() => setEditing(true)}
+            onFocus={() => setEditing(true)}>
+            {value.trim()
+              ? value.split('\n').map((ln, i) => <ReadLine key={i} line={ln} />)
+              : <span className="muted">{placeholder ?? 'Nothing written yet.'}</span>}
+          </div>
+        )
       )}
+      {!shut && children}
     </section>
+  );
+}
+
+/** "Essential hypertension — Patient reports ..." with the name in bold. */
+function ReadLine({ line }: { line: string }) {
+  if (!line.trim()) return <div className="nreadgap" />;
+  const i = line.indexOf('\u2014');
+  if (i < 0) return <div className="nreadline">{line}</div>;
+  return (
+    <div className="nreadline">
+      <strong>{line.slice(0, i).trim()}</strong>
+      {' \u2014 '}
+      {line.slice(i + 1).trim()}
+    </div>
   );
 }
 

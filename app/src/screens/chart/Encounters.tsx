@@ -181,8 +181,8 @@ export function EncountersDrawer({ patientId, focus }: {
       {items.length === 0 ? <NoRows>Nothing on file.</NoRows> : (
         <div className="grprows">
           {items.map((i) => (
-            <Row key={i.id} name={i.title} note={i.by} when={fmtDate(i.date)}
-              onOpen={() => setOpen(i.id)} />
+            <Row key={i.id} when={fmtDate(i.date)} tag={TIMELINE_LABEL[i.kind]}
+              name={i.title} onOpen={() => setOpen(i.id)} />
           ))}
         </div>
       )}

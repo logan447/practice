@@ -9,7 +9,7 @@
  */
 import { useStore } from '../../lib/store';
 import { fmtDate } from '../../lib/format';
-import { Group, Row, NoRows } from './Rows';
+import { Rows, Row, NoRows } from './Rows';
 
 const line = (v: {
   systolic?: number; diastolic?: number; heartRate?: number;
@@ -24,23 +24,16 @@ const line = (v: {
 export function VitalsTab({ patientId }: { patientId: string }) {
   const st = useStore();
   const vitals = st.vitalsFor(patientId);
-  const office = vitals.filter((v) => v.source === 'office');
-  const home = vitals.filter((v) => v.source === 'home');
+
+  const all = [...vitals].sort((a, b) => b.date.localeCompare(a.date));
 
   return (
-    <>
-      <Group title="In clinic" count={office.length}>
-        {office.length === 0 ? <NoRows>None recorded.</NoRows> : office.map((v) => (
-          <Row key={v.id} name={line(v) || 'Recorded, no values'} when={fmtDate(v.date)} />
-        ))}
-      </Group>
-
-      <Group title="At home" count={home.length}
-        note="Patient-measured, not clinic-measured.">
-        {home.length === 0 ? <NoRows>None logged.</NoRows> : home.map((v) => (
-          <Row key={v.id} name={line(v) || 'Logged, no values'} when={fmtDate(v.date)} />
-        ))}
-      </Group>
-    </>
+    <Rows>
+      {all.length === 0 ? <NoRows>None recorded.</NoRows> : all.map((v) => (
+        <Row key={v.id} when={fmtDate(v.date)}
+          tag={v.source === 'home' ? 'At home' : 'In clinic'}
+          name={line(v) || 'Recorded, no values'} />
+      ))}
+    </Rows>
   );
 }

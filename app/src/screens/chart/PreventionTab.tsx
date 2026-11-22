@@ -8,7 +8,7 @@
 import { useState } from 'react';
 import { useStore } from '../../lib/store';
 import { fmtDate, relative } from '../../lib/format';
-import { Group, Row, Sheet, NoRows } from './Rows';
+import { Rows, Row, Sheet, NoRows } from './Rows';
 import type { PreventionStatus } from '../../domain/types';
 
 const LABEL: Record<PreventionStatus, string> = {
@@ -27,15 +27,16 @@ export function PreventionTab({ patientId }: { patientId: string }) {
 
   return (
     <>
-      <Group title="Preventative services" count={items.length}>
+      <Rows>
         {items.length === 0 ? <NoRows>Nothing scheduled yet.</NoRows> : items.map((i) => (
-          <Row key={i.id} name={i.name}
-            note={LABEL[i.status]}
+          <Row key={i.id}
+            when={i.dueBy ? fmtDate(i.dueBy) : i.lastDone ? fmtDate(i.lastDone) : undefined}
+            tag={LABEL[i.status]}
             warn={i.status === 'overdue' || i.status === 'due'}
-            when={i.dueBy ? relative(i.dueBy) : i.lastDone ? fmtDate(i.lastDone) : undefined}
+            name={i.name}
             onOpen={() => setOpen(i.id)} />
         ))}
-      </Group>
+      </Rows>
 
       {sel && (
         <Sheet title={sel.name} sub={LABEL[sel.status]} onClose={() => setOpen(null)}>

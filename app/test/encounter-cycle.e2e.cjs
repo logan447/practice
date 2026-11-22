@@ -12,7 +12,7 @@
  * workflow exists to make that safe rather than merely true.
  */
 const {chromium}=require('playwright');
-const {tab, planUpdatedOn, sentCount}=require('./tabs.cjs');
+const {tab, planUpdatedOn, sentCount, noteText, writeNote}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 /**
@@ -75,11 +75,11 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // ---------------------------------------------- 3. open a visit
   await p.click('button:has-text("Start a visit")'); await p.waitForTimeout(900);
   ok('the visit opens on the approved version',
-    (await p.locator('#subjective').inputValue()).includes('Patient reports'));
+    (await noteText(p,'subjective')).includes('Patient reports'));
   ok('and it writes the care plan, not a note about it',
     (await p.locator('.nboxtitle').count())===3);
   ok('and carries the plan forward from the approved version',
-    (await p.locator('#plan').inputValue()).includes('Essential hypertension'));
+    (await noteText(p,'plan')).includes('Essential hypertension'));
   // The clock runs from the moment the visit opens and is never
   // shown. Typing a number at the end is how a time record becomes an
   // estimate; a number nobody is asked for cannot be one.
@@ -87,8 +87,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     (await p.locator('input[type="number"]').count())===0);
 
   // ------------------------------------------------- 4. write it
-  await p.fill('#subjective','Says she is steadier than in the summer.');
-  await p.fill('#plan','Doing well overall. The urgent care visit and the podiatrist are the new facts.');
+  await writeNote(p,'subjective','Says she is steadier than in the summer.');
+  await writeNote(p,'plan','Doing well overall. The urgent care visit and the podiatrist are the new facts.');
   await p.fill('#instructions','Send your home readings before the next visit.');
   await p.fill('#nextvisit','2027-02-15');
   await p.waitForTimeout(250);
@@ -136,7 +136,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     (await planUpdatedOn(p))===now);
   await tab(p, 'Subjective');
   ok('it waits in the record instead, where the next visit will read it',
-    (await p.locator('.tabbody').textContent()).includes('Patient updates'));
+    (await p.locator('.rec:has-text("124 to 128")').count())>0);
 
   console.log([...pass,...fail].join('\n'));
   console.log(fail.length? `\n${fail.length} FAILED` : '\nALL PASSED');

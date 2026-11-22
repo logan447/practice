@@ -10,7 +10,7 @@ import { useState } from 'react';
 import { useStore } from '../../lib/store';
 import { InlineAdd, Field } from '../../components/InlineAdd';
 import { fmtDate } from '../../lib/format';
-import { Group, Row, Sheet, NoRows } from './Rows';
+import { Rows, Row, Sheet, NoRows } from './Rows';
 
 const BLANK = {
   name: '', specialty: '', practice: '', phone: '',
@@ -38,34 +38,27 @@ export function SpecialistsTab({ patientId }: { patientId: string }) {
         * A consulting practice manages named problems and this is the
         * list of who has the rest, so a blank where the primary care
         * physician should be is a clinical finding rather than a
-        * missing field. It says so in words.
+        * missing field. It says so in words, on its own row.
         */}
-      <Group title="Primary care">
+      <Rows>
         {noPcp ? (
-          <>
-            <Row name="No primary care physician" note="Outstanding" warn />
-            {pcp && 'plan' in pcp && pcp.plan && <p className="grpnote">{pcp.plan}</p>}
-            <p className="grpnote">
-              While this practice is closed, and for anything outside the list we manage,
-              this patient has no physician.
-            </p>
-          </>
+          <Row tag="Outstanding" warn
+            name="No primary care physician. Everything outside our list needs somebody." />
         ) : (
-          <Row name={'name' in pcp ? pcp.name : ''}
-            note={'practice' in pcp ? pcp.practice : undefined}
-            when={'since' in pcp && pcp.since ? pcp.since.slice(0, 4) : undefined} />
+          <Row when={'since' in pcp && pcp.since ? pcp.since.slice(0, 4) : undefined}
+            tag="Primary care"
+            name={['name' in pcp ? pcp.name : '', 'practice' in pcp ? pcp.practice : '']
+              .filter(Boolean).join(', ')} />
         )}
-      </Group>
-
-      <Group title="Specialists" count={specialists.length}>
         {specialists.length === 0 ? <NoRows>Nobody else recorded.</NoRows> : specialists.map((x) => (
-          <Row key={x.id} name={`${x.name}, ${x.specialty}`}
-            note={pending(x.outstanding) ? 'Outstanding' : undefined}
-            warn={pending(x.outstanding)}
+          <Row key={x.id}
             when={x.lastSeen ? fmtDate(x.lastSeen) : undefined}
+            tag={pending(x.outstanding) ? 'Outstanding' : x.specialty}
+            warn={pending(x.outstanding)}
+            name={x.name}
             onOpen={() => setOpen(x.id)} />
         ))}
-      </Group>
+      </Rows>
 
       <InlineAdd
         label="Add a specialist" open={adding} setOpen={setAdding}

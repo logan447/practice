@@ -11,8 +11,7 @@ import { useStore } from '../../lib/store';
 import { CodePicker } from '../../components/CodePicker';
 import { searchConditions } from '../../domain/terminology';
 import { fmtDate } from '../../lib/format';
-import { OWNER_LABEL } from '../../domain/types';
-import { Group, Row, NoRows } from './Rows';
+import { Rows, Row, NoRows } from './Rows';
 import { ProblemSheet } from './ProblemSheet';
 
 export function ProblemsTab({ patientId }: { patientId: string }) {
@@ -24,35 +23,41 @@ export function ProblemsTab({ patientId }: { patientId: string }) {
   const resolved = conditions.filter((c) => c.status !== 'active');
   const [open, setOpen] = useState<string | null>(null);
 
-  const state = (c: typeof conditions[number]) =>
-    (c.goal === 'at-goal' ? 'Controlled' : c.goal ? 'Uncontrolled' : 'Not assessed');
+  /**
+   * One tag, and the most useful one.
+   *
+   * For a problem this practice manages, that is whether it is
+   * controlled. For one somebody else has, it is who has it, because
+   * a control status we did not assess is not ours to state.
+   */
+  const tag = (c: typeof conditions[number]) => {
+    if (c.status !== 'active') return 'Resolved';
+    // Short enough for a tag column. The full sentence is in the
+    // problem's own sheet, where the question is actually asked.
+    if (!c.managed) {
+      return c.owner === 'theirs' ? 'Their PCP'
+        : c.owner === 'shared' ? 'Shared'
+          : c.owner === 'ours' ? 'We manage' : 'Nobody has said';
+    }
+    return c.goal === 'at-goal' ? 'Controlled'
+      : c.goal ? 'Uncontrolled' : 'Not assessed';
+  };
+  const warn = (c: typeof conditions[number]) =>
+    c.status === 'active' && (c.managed ? c.goal !== 'at-goal' : !c.owner);
+
+  const list = [...managed, ...theirs, ...resolved];
 
   return (
     <>
-      <Group title="We manage" count={managed.length}>
-        {managed.length === 0 ? <NoRows>Nothing is being managed here.</NoRows> : managed.map((c) => (
-          <Row key={c.id} name={c.name} note={state(c)} warn={c.goal !== 'at-goal'}
+      <Rows>
+        {list.length === 0 ? <NoRows>Nothing is being managed here.</NoRows> : list.map((c) => (
+          <Row key={c.id}
             when={c.goalAssessed ? fmtDate(c.goalAssessed) : undefined}
+            tag={tag(c)} warn={warn(c)}
+            name={c.name}
             onOpen={() => setOpen(c.id)} />
         ))}
-      </Group>
-
-      <Group title="On the list, managed elsewhere" count={theirs.length}>
-        {theirs.length === 0 ? <NoRows>Nothing else on the list.</NoRows> : theirs.map((c) => (
-          <Row key={c.id} name={c.name}
-            note={c.owner ? OWNER_LABEL[c.owner] : 'Nobody has said'}
-            warn={!c.owner}
-            onOpen={() => setOpen(c.id)} />
-        ))}
-      </Group>
-
-      {resolved.length > 0 && (
-        <Group title="Resolved" count={resolved.length}>
-          {resolved.map((c) => (
-            <Row key={c.id} name={c.name} note="Resolved" onOpen={() => setOpen(c.id)} />
-          ))}
-        </Group>
-      )}
+      </Rows>
 
       <AddProblem patientId={patientId} />
 

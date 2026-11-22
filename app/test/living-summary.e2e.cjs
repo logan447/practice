@@ -13,7 +13,7 @@
  * written.
  */
 const {chromium}=require('playwright');
-const {tab, hasTab, palette, planUpdatedOn, sentCount}=require('./tabs.cjs');
+const {tab, hasTab, palette, planUpdatedOn, sentCount, noteText, writeNote}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
@@ -38,8 +38,11 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('the header does not restate the first tab',
     (await p.locator('.csum').count())===0);
   await tab(p, 'Problems');
-  ok('which says what we manage and who has the rest',
-    (await p.locator('.tabbody').textContent()).includes('We manage'));
+  // Who holds a problem is a tag on its own row now, not a heading
+  // over a group of them.
+  ok('which says, problem by problem, who holds it',
+    (await p.locator('.rectag:text-is("Their PCP")').count())>0
+    && (await p.locator('.rectag:text-is("Controlled"), .rectag:text-is("Uncontrolled")').count())>0);
   ok('the header is words, not a wall of pills',
     await p.locator('.chead').evaluate((el)=>{
       const dx = el.querySelector('.dx');
@@ -83,7 +86,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // ------------------------------- 3. the note, inside the visit
   await p.click('.startenc:has-text("Start a visit")'); await p.waitForTimeout(900);
   const ws = (await p.locator('.wrap').textContent()).replace(/\s+/g,' ');
-  const line = await p.locator('.oneliner').textContent();
+  const line = await p.locator('.nboxlead').first().textContent();
   ok(`the visit opens on the clinical one-liner: "${line.slice(0,40)}..."`,
     /^60F with PMH of /.test(line));
   ok('in shorthand rather than long form', line.includes('HTN') && line.includes('T2DM'));
@@ -93,7 +96,12 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   const secs = await p.locator('.nboxtitle').allTextContents();
   ok(`the note runs in the order the conversation does: ${secs.join(', ')}`,
     secs.join(',')==='Subjective,Objective,Assessment and plan');
-  const plan = await p.locator('#plan').inputValue();
+  // Checked before anything reads a folded section open: a visit
+  // opens on what the patient says and folds the rest.
+  ok('three boxes, and the visit opens on the subjective alone',
+    (await p.locator('.note .nbox').count())===3
+    && (await p.locator('.note .nbox.shut').count())===2);
+  const plan = await noteText(p,'plan');
   ok('the plan arrives with the problems, pillars and services written into it',
     plan.includes('Essential hypertension') && plan.includes('Physical activity')
     && plan.includes('Mammogram'));
@@ -101,10 +109,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     plan.split('\n').slice(0, 3).join(' / ').slice(0, 60)}`,
     /At goal\.|Not at goal\./.test(plan) && plan.includes('Lisinopril 20 mg'));
   ok('and the subjective with their own words about each',
-    (await p.locator('#subjective').inputValue()).includes('Patient reports'));
-  ok('three boxes and no folds',
-    (await p.locator('.note textarea').count())===3
-    && (await p.locator('.note .fold').count())===0);
+    (await noteText(p,'subjective')).includes('Patient reports'));
   // Status is a sentence you wrote, not a button you picked.
   ok('nothing sets a status by button',
     (await p.locator('.note .btn').count())===0);
@@ -114,9 +119,9 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     (await p.locator('.panel:has-text("Patient instructions") #instructions').count())===1);
 
   // what was said during the chart review is offered, not retyped
-  await p.fill('#subjective','Feeling steadier overall.'); await p.waitForTimeout(250);
+  await writeNote(p,'subjective','Feeling steadier overall.');
   ok('what the physician writes stays written',
-    (await p.locator('#subjective').inputValue()).includes('steadier'));
+    (await noteText(p,'subjective')).includes('steadier'));
   ok('and nothing on the screen is a comment box beside a field',
     (await p.locator('.wfcommentbox').count())===0);
   ok('the right column is the instructions and the orders, and nothing else',
@@ -131,12 +136,14 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.click('text=Sharon White'); await p.waitForTimeout(700);
   await tab(p, 'Labs');
-  const labs = (await p.locator('.tabbody').textContent()).replace(/\s+/g,' ');
-  ok('reports, vitals and what is tracked over time, in that order',
-    labs.indexOf('Reports') < labs.indexOf('Vitals')
-    && labs.indexOf('Vitals') < labs.indexOf('Tracked over time'));
-  ok('what the patient measures is a group of its own, labelled',
-    labs.includes('Patient-measured, not clinic-measured'));
+  // One list in time order. What kind of thing each row is, and
+  // whether anyone has read it, is the tag beside its date.
+  const labtags = await p.locator('.rectag').allTextContents();
+  ok(`reports and what is tracked over time, all on one list: ${
+    [...new Set(labtags)].join(', ')}`,
+    labtags.includes('Report') && labtags.includes('Tracked'));
+  ok('what the patient measures says so on its own row',
+    (await p.locator('.rectag:text-is("Patient-measured")').count())>0);
   await p.locator('.rec').first().click(); await p.waitForTimeout(350);
   ok('a report opens to its values, not to a summary of them',
     (await p.locator('.sheet .rows tr').count())>3);
@@ -155,7 +162,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   await tab(p, 'Subjective');
   ok('what the patient has said is a tab of its own',
-    (await p.locator('.tabbody').textContent()).includes('Patient inquiries'));
+    (await p.locator('.rectag:text-is("Inquiry")').count())>0
+    && (await p.locator('.rectag:text-is("Update")').count())>0);
   await p.locator('.rec:has-text("Something I read about statins")').last().click();
   await p.waitForTimeout(350);
   ok('a message the patient sent is readable in full',

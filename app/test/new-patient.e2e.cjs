@@ -1,5 +1,5 @@
 const {chromium}=require('playwright');
-const {tab, hasTab}=require('./tabs.cjs');
+const {tab, hasTab, writeNote}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4600/';
 const step=[]; const fail=[];
 const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
@@ -55,8 +55,13 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   
   ok('reported conditions present in the history', await p.locator('.chead .dx:has-text("Trouble sleeping")').isVisible());
   await tab(p, 'Problems');
+  // Nothing is grouped under a heading any more, so the claim is
+  // about the row itself: a reported condition is on the list
+  // without a control status, which is what managing one gives it.
   ok('but not yet something we manage',
-    !(await p.locator('.grp:has-text("We manage")').textContent()).includes('Trouble sleeping'));
+    (await p.locator('.rec:has-text("Trouble sleeping") .rectag').count())===0
+    || !/Controlled|Uncontrolled|Not assessed/.test(
+      await p.locator('.rec:has-text("Trouble sleeping") .rectag').first().innerText()));
   await tab(p, 'Notes');
   ok('intake visit booked',
     (await p.locator('.tabbody').textContent()).includes('Scheduled'));
@@ -155,9 +160,8 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   ok('the visit opens on the care plan, not on a blank note',
     (await p.locator('.nboxtitle').count())===3);
   ok('and the one-liner is derived rather than typed',
-    (await p.locator('.oneliner').first().textContent()).includes('with PMH of'));
-  await p.fill('#subjective','Here with her mother. Sleeping five hours, broken.');
-  await p.waitForTimeout(150);
+    (await p.locator('.nboxlead').first().textContent()).includes('with PMH of'));
+  await writeNote(p,'subjective','Here with her mother. Sleeping five hours, broken.');
   await p.click('.vhead button:has-text("Sign")');
   await p.waitForTimeout(700);
   ok('approving returns to the schedule',

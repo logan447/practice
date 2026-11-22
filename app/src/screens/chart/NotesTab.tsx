@@ -21,7 +21,7 @@ import { useStore } from '../../lib/store';
 import { useNav } from '../../lib/nav';
 import { fmtDate } from '../../lib/format';
 import { SETTING_LABEL } from '../../domain/types';
-import { Group, Row, Sheet, NoRows } from './Rows';
+import { Rows, Row, Sheet, NoRows } from './Rows';
 
 export function NotesTab({ patientId }: { patientId: string }) {
   const st = useStore();
@@ -36,16 +36,16 @@ export function NotesTab({ patientId }: { patientId: string }) {
 
   return (
     <>
-      <Group title="Notes" count={encounters.length}>
+      <Rows>
         {encounters.length === 0 ? <NoRows>No visits yet.</NoRows> : encounters.map((x) => (
           <Row key={x.id}
-            name={`Visit · ${SETTING_LABEL[x.setting ?? 'in-person']}`}
-            note={state(x.status)}
-            warn={x.status === 'in-progress'}
             when={fmtDate(x.date)}
+            tag={state(x.status)}
+            warn={x.status === 'in-progress'}
+            name={`Visit · ${SETTING_LABEL[x.setting ?? 'in-person']}`}
             onOpen={() => setOpen(x.id)} />
         ))}
-      </Group>
+      </Rows>
 
       {e && p && (
         <Sheet title={p.name}
@@ -74,14 +74,14 @@ export function NotesTab({ patientId }: { patientId: string }) {
                 e.note.subjective.additional,
               ].filter(Boolean).join('\n\n')} />
 
-              <Fold title="Objective" text={[
+              <Fold title="Objective" startShut text={[
                 e.note.objective.homeMeasures, e.note.objective.vitals, e.note.objective.exam,
               ].filter(Boolean).join('\n\n')} />
 
-              <Fold title="Assessment" text={e.note.assessment.overall} />
+              <Fold title="Assessment" startShut text={e.note.assessment.overall} />
 
               {e.note.plan.problems.length > 0 && (
-                <Fold title="Plan" count={e.note.plan.problems.length}>
+                <Fold title="Plan" startShut count={e.note.plan.problems.length}>
                   {e.note.plan.problems.map((pr) => (
                     <div key={pr.id} className="planprob">
                       <div className="planprobname">{pr.problem}</div>
@@ -93,7 +93,7 @@ export function NotesTab({ patientId }: { patientId: string }) {
                 </Fold>
               )}
 
-              <Fold title="Patient instructions" text={e.note.plan.overall} />
+              <Fold title="Patient instructions" startShut text={e.note.plan.overall} />
             </div>
           )}
         </Sheet>
@@ -125,13 +125,15 @@ const points = (pr: {
  * it. Silent when it has nothing: a heading over an empty section in
  * a clinical document reads as a finding of nothing.
  */
-function Fold({ title, text, count, children }: {
+function Fold({ title, text, count, startShut, children }: {
   title: string;
   text?: string;
   count?: number;
+  /** Shut when the note opens. Only the subjective is not. */
+  startShut?: boolean;
   children?: React.ReactNode;
 }) {
-  const [shut, setShut] = useState(false);
+  const [shut, setShut] = useState(!!startShut);
   if (!text && !children) return null;
   return (
     <section className={`nbox${shut ? ' shut' : ''}`}>

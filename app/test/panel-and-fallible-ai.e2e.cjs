@@ -10,7 +10,7 @@
  * longer being measured.
  */
 const {chromium}=require('playwright');
-const {tab, hasTab}=require('./tabs.cjs');
+const {tab, hasTab, noteText, openNote, writeNote}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
@@ -115,16 +115,23 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('button:has-text("Listen")');
   await p.waitForTimeout(13600);
 
-  const narrative = p.locator('#subjective');
-  const hist = await narrative.inputValue();
+  const hist = await noteText(p,'subjective');
   ok('drafted history arrived', hist.length>60);
   ok('the draft fabricated a review of systems', hist.includes('Denies chest pain'));
   ok('the draft swapped the side', hist.includes('Left knee'));
 
   /** Every field value in the visit, concatenated. */
-  const allFields = async () => p.evaluate(() =>
-    Array.from(document.querySelectorAll('.reviewgrid textarea, .reviewgrid input'))
-      .map((el) => el.value).join(' \n '));
+  const allFields = async () => {
+    // Every section is read until it is clicked, so what the capture
+    // wrote is in the page as text and not only as a field value.
+    await openNote(p,'objective'); await openNote(p,'plan');
+    return p.evaluate(() =>
+      Array.from(document.querySelectorAll('.reviewgrid textarea, .reviewgrid input'))
+        .map((el) => el.value)
+        .concat(Array.from(document.querySelectorAll('.reviewgrid .nread'))
+          .map((el) => el.textContent))
+        .join(' \n '));
+  };
 
   const fields = await allFields();
   ok('the draft named a drug he is not on', fields.includes('losartan'));
@@ -145,7 +152,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // now fix two of them, the way a physician reading the draft would
   const fixed = hist.replace('Left knee','Right knee').replace(' Denies chest pain, shortness of breath and palpitations.','');
-  await narrative.fill(fixed); await p.waitForTimeout(300);
+  await writeNote(p,'subjective',fixed);
 
   await p.click('button:has-text("Check the draft")'); await p.waitForTimeout(400);
   const score1 = await p.locator('.draftcheck .score').textContent();

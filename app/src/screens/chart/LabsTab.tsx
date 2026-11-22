@@ -14,20 +14,18 @@ import { useState } from 'react';
 import { useStore } from '../../lib/store';
 import { Trend } from '../../components/ui';
 import { fmtDate } from '../../lib/format';
-import { Group, Row, Sheet, NoRows } from './Rows';
+import { Rows, Row, Sheet, NoRows } from './Rows';
 import type { LabPanel } from '../../domain/types';
 
 export function LabsTab({ patientId }: { patientId: string }) {
   const st = useStore();
   const panels = st.panelsFor(patientId);
-  const vitals = st.vitalsFor(patientId);
   const series = st.clinicalSeriesFor(patientId);
   const selfTracked = st.patientSeriesFor(patientId);
   const reports = st.reportsFor(patientId);
 
   const [panel, setPanel] = useState<string | null>(null);
   const [measure, setMeasure] = useState<string | null>(null);
-  const [showVitals, setShowVitals] = useState(false);
 
   const openPanel = panels.find((p) => p.id === panel);
   const openSeries = [...series, ...selfTracked].find((s) => s.id === measure);
@@ -37,68 +35,59 @@ export function LabsTab({ patientId }: { patientId: string }) {
     reports.some((r) => !r.acknowledged && r.panel === p.name);
   const pending = reports.filter((r) => !r.acknowledged);
 
+  /*
+   * One list. Reports, the measures tracked across them, and what the
+   * patient measures themselves, which is a different measurement and
+   * says so on every row rather than once over a heading.
+   */
+  const feed = [
+    ...panels.map((x) => ({
+      key: x.id, iso: x.date,
+      tag: unreviewed(x) ? 'Not yet reviewed' : 'Report',
+      warn: unreviewed(x), name: x.name,
+      open: () => setPanel(x.id),
+    })),
+    ...pending.filter((r) => !panels.some((x) => x.name === r.panel)).map((r) => ({
+      key: r.id, iso: r.resulted, tag: 'Not yet reviewed',
+      warn: true, name: r.panel,
+      open: () => st.acknowledgeReport(r.id),
+    })),
+    ...series.map((x) => {
+      const last = x.points[x.points.length - 1];
+      return {
+        key: x.id, iso: last.date,
+        tag: last.flag === 'normal' ? 'Tracked' : last.flag,
+        warn: last.flag !== 'normal',
+        name: `${x.name} ${last.value} ${x.unit}`,
+        open: () => setMeasure(x.id),
+      };
+    }),
+    ...selfTracked.map((x) => {
+      const last = x.points[x.points.length - 1];
+      return {
+        key: x.id, iso: last.date, tag: 'Patient-measured',
+        warn: false,
+        name: `${x.name} ${last.value} ${x.unit}`,
+        open: () => setMeasure(x.id),
+      };
+    }),
+    // Sorted on the stored date, never on the printed one: "9 Nov"
+    // sorts before "29 Oct" when you sort the words.
+  ].sort((a, b) => b.iso.localeCompare(a.iso));
+
   return (
     <>
       {/*
-        * The one thing on this screen that can hurt somebody, first
-        * and in words. A report can arrive without a panel behind it,
-        * so this group is built from the reports themselves rather
-        * than from what happens to have values attached.
+        * Panels and the measures they feed, in one list in time order.
+        * An unreviewed report says so on its own row: it is the one
+        * thing here that can hurt somebody.
         */}
-      {pending.length > 0 && (
-        <Group title="Needs review" count={pending.length}>
-          {pending.map((r) => (
-            <Row key={r.id} name={r.panel} note="Not yet reviewed" warn
-              when={fmtDate(r.resulted)}
-              onOpen={() => {
-                const match = panels.find((x) => x.name === r.panel);
-                if (match) setPanel(match.id); else st.acknowledgeReport(r.id);
-              }} />
-          ))}
-        </Group>
-      )}
-
-      <Group title="Reports" count={panels.length}>
-        {panels.length === 0 ? <NoRows>None on file.</NoRows> : panels.map((p) => (
-          <Row key={p.id} name={p.name} when={fmtDate(p.date)}
-            note={unreviewed(p) ? 'Not yet reviewed' : undefined}
-            warn={unreviewed(p)}
-            onOpen={() => setPanel(p.id)} />
+      <Rows>
+        {feed.length === 0 ? <NoRows>None on file.</NoRows> : feed.map((x) => (
+          <Row key={x.key} when={fmtDate(x.iso)} tag={x.tag} warn={x.warn} name={x.name}
+            onOpen={x.open} />
         ))}
-      </Group>
-
-      <Group title="Vitals" count={vitals.length}>
-        {vitals.length === 0 ? <NoRows>None recorded.</NoRows> : (
-          <Row name="Every reading, in clinic and at home" when={fmtDate(vitals[0].date)}
-            onOpen={() => setShowVitals(true)} />
-        )}
-      </Group>
-
-      <Group title="Tracked over time" count={series.length}>
-        {series.length === 0 ? <NoRows>No results on file.</NoRows> : series.map((s) => {
-          const last = s.points[s.points.length - 1];
-          return (
-            <Row key={s.id} name={s.name} when={fmtDate(last.date)}
-              note={`${last.value} ${s.unit}`}
-              warn={last.flag !== 'normal'}
-              onOpen={() => setMeasure(s.id)} />
-          );
-        })}
-      </Group>
-
-      {selfTracked.length > 0 && (
-        <Group title="Tracked by the patient" count={selfTracked.length}
-          note="Patient-measured, not clinic-measured.">
-          {selfTracked.map((s) => {
-            const last = s.points[s.points.length - 1];
-            return (
-              <Row key={s.id} name={s.name} when={fmtDate(last.date)}
-                note={`${last.value} ${s.unit}`}
-                onOpen={() => setMeasure(s.id)} />
-            );
-          })}
-        </Group>
-      )}
+      </Rows>
 
       {openPanel && (
         <Sheet title={openPanel.name} sub={fmtDate(openPanel.date)}
@@ -149,28 +138,6 @@ export function LabsTab({ patientId }: { patientId: string }) {
         </Sheet>
       )}
 
-      {showVitals && (
-        <Sheet title="Vitals" sub={`${vitals.length} readings`}
-          onClose={() => setShowVitals(false)}>
-          <table className="rows">
-            <thead>
-              <tr><th>Date</th><th>Where</th><th>BP</th><th>HR</th><th>Weight</th><th>BMI</th></tr>
-            </thead>
-            <tbody>
-              {vitals.map((v) => (
-                <tr key={v.id}>
-                  <td className="small">{fmtDate(v.date)}</td>
-                  <td className="small muted">{v.source}</td>
-                  <td className="num">{v.systolic ? `${v.systolic}/${v.diastolic}` : '—'}</td>
-                  <td className="num">{v.heartRate ?? '—'}</td>
-                  <td className="num">{v.weightLb ?? '—'}</td>
-                  <td className="num">{v.bmi ?? '—'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Sheet>
-      )}
     </>
   );
 }

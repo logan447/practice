@@ -2140,8 +2140,10 @@ blockquote.said footer {
 .grpnote { margin: 7px 0 0; font-size: 13px; color: var(--ink-3); }
 .grprows { margin-top: 2px; }
 
+/* When, what kind, what it is. One tag, in a column of its own, so a
+   list of rows reads down as well as across. */
 .rec {
-  display: flex; align-items: baseline; gap: 14px; width: 100%;
+  display: flex; align-items: baseline; gap: 16px; width: 100%;
   padding: 11px 2px; text-align: left; background: none; border: 0;
   border-bottom: 1px solid var(--line-2);
   font: inherit; color: inherit; cursor: pointer;
@@ -2150,13 +2152,17 @@ blockquote.said footer {
 .rec:hover { background: var(--panel-2); }
 .rec.flat { cursor: default; }
 .rec.flat:hover { background: none; }
-.recname { flex: 1; min-width: 0; font-size: 15px; color: var(--ink); }
-.recnote { flex: none; font-size: 13px; color: var(--ink-3); }
-.recnote.warn { color: var(--warn); }
 .recwhen {
-  flex: none; width: 92px; text-align: right;
-  font-size: 13px; color: var(--ink-3); font-variant-numeric: tabular-nums;
+  flex: none; width: 92px;
+  font-size: 14px; color: var(--ink-3); font-variant-numeric: tabular-nums;
 }
+.rectag {
+  flex: none; width: 124px;
+  font-size: 14px; color: var(--ink-3);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.rectag.warn { color: var(--warn); }
+.recname { flex: 1; min-width: 0; font-size: 15px; color: var(--ink); }
 .norows { margin: 12px 2px; font-size: 14px; color: var(--ink-3); }
 
 /* ----------------------------------------------------------- sheet */
@@ -2375,12 +2381,26 @@ blockquote.said footer {
 
 .nbox { margin-bottom: 26px; }
 .nbox:first-child { margin-top: 0; }
+/* The rule belongs to the block, not to the heading: a lead sentence
+   sits between the two. */
+.nboxtop { border-bottom: 1px solid var(--line); margin-bottom: 9px; padding-bottom: 7px; }
 .nboxhead {
   display: flex; align-items: baseline; gap: 9px; width: 100%;
-  padding: 0 0 7px; margin-bottom: 9px; border: 0;
-  border-bottom: 1px solid var(--line); background: none; text-align: left;
+  padding: 0; border: 0; background: none; text-align: left;
   font: 700 15px/1.6 var(--sans); color: var(--ink); cursor: pointer;
 }
+.nboxlead { margin: 3px 0 0; font-size: 15px; line-height: 1.6; color: var(--ink-2); }
+
+/* The note, read. Headings bold, the sentence after the dash not. */
+.nread {
+  font-size: 15px; line-height: 1.6; color: var(--ink);
+  border: 1px solid transparent; border-radius: 6px;
+  padding: 7px 9px; margin: -7px -9px; cursor: text;
+}
+.nread:hover { border-color: var(--line-2); }
+.nread:focus { outline: none; border-color: var(--accent-line); }
+.nreadline { margin: 0; }
+.nreadgap { height: 11px; }
 .nboxhead .foldarrow { flex: none; width: 11px; color: var(--ink-3); font-size: 13px; }
 .nboxtitle { flex: 1; min-width: 0; }
 .nboxcount { flex: none; font-size: 13px; font-weight: 400; color: var(--ink-3); }
@@ -2436,3 +2456,80 @@ blockquote.said footer {
 .nbodytext p:last-child { margin-bottom: 0; }
 .nbodytext .planprob { margin-bottom: 12px; }
 .nbodytext .planprob:last-child { margin-bottom: 0; }
+
+/* ------------------------------------------------------- fishbones
+ * The position is the label. Seven chemistry values in a skeleton a
+ * physician has read ten thousand times is faster to scan than seven
+ * labelled rows, because looking for a creatinine becomes looking at
+ * a place rather than reading a word.
+ */
+.fishbones { margin: 14px 0 4px; }
+.fbrow { display: flex; gap: 38px; flex-wrap: wrap; align-items: flex-start; }
+
+.fb {
+  position: relative; display: grid; font-size: 14px;
+  color: var(--ink); font-variant-numeric: tabular-nums;
+}
+.fb::before {
+  content: ''; position: absolute; inset: 0;
+  pointer-events: none;
+}
+.fbcap {
+  position: absolute; left: 0; bottom: -17px;
+  font-size: 10px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-3);
+}
+
+/* CBC: the classic four-point star. */
+.fb.cbc {
+  grid-template-columns: auto 14px auto 14px auto;
+  grid-template-rows: auto auto auto; align-items: center;
+  column-gap: 4px; row-gap: 1px; margin-bottom: 20px;
+}
+.fb.cbc .fbw { grid-area: 2 / 1; text-align: right; }
+.fb.cbc .fbn { grid-area: 1 / 3; text-align: center; }
+.fb.cbc .fbs { grid-area: 3 / 3; text-align: center; }
+.fb.cbc .fbe { grid-area: 2 / 5; }
+.fb.cbc::before {
+  border-left: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+  left: calc(50% - 1px); right: calc(50% - 1px);
+  top: 20%; bottom: 20%;
+  transform: none;
+}
+.fb.cbc .fbw::after, .fb.cbc .fbe::before { content: none; }
+
+/* CMP: two rows of three, then glucose off the end. */
+.fb.cmp {
+  grid-template-columns: auto auto auto auto;
+  grid-template-rows: auto auto; align-items: center;
+  column-gap: 11px; row-gap: 1px; margin-bottom: 20px;
+}
+.fb.cmp .c1 { grid-area: 1 / 1; }
+.fb.cmp .c2 { grid-area: 1 / 2; }
+.fb.cmp .c3 { grid-area: 1 / 3; }
+.fb.cmp .c4 { grid-area: 1 / 4 / 3 / 5; align-self: center; padding-left: 6px;
+  border-left: 1px solid var(--line); }
+.fb.cmp .c5 { grid-area: 2 / 1; }
+.fb.cmp .c6 { grid-area: 2 / 2; }
+.fb.cmp .c7 { grid-area: 2 / 3; }
+
+.fbval { white-space: nowrap; }
+.fbval.bad { color: var(--warn); font-weight: 600; }
+.fbprev { color: var(--ink-3); font-size: 12.5px; }
+
+.fbline {
+  display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+  margin-top: 9px; font-size: 14px;
+}
+.fblabel {
+  flex: none; width: 64px; font-size: 11px; letter-spacing: 0.07em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+.fbpair { white-space: nowrap; }
+.fbk { color: var(--ink-3); font-size: 12.5px; }
+.fbwhen { color: var(--ink-3); font-size: 12.5px; }
+
+.otherlabs {
+  display: flex; flex-wrap: wrap; gap: 4px 16px;
+  margin-top: 12px; font-size: 13px; color: var(--ink-2);
+}

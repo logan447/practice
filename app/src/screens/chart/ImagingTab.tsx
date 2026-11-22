@@ -8,7 +8,7 @@
 import { useState } from 'react';
 import { useStore } from '../../lib/store';
 import { fmtDate } from '../../lib/format';
-import { Group, Row, Sheet, NoRows } from './Rows';
+import { Rows, Row, Sheet, NoRows } from './Rows';
 
 export function ImagingTab({ patientId }: { patientId: string }) {
   const st = useStore();
@@ -18,13 +18,14 @@ export function ImagingTab({ patientId }: { patientId: string }) {
 
   return (
     <>
-      <Group title="Imaging and procedures" count={studies.length}>
+      <Rows>
         {studies.length === 0 ? <NoRows>None on file.</NoRows> : studies.map((d) => (
-          <Row key={d.id} name={d.name} when={fmtDate(d.date)}
-            note={d.significant ? 'Significant' : undefined} warn={d.significant}
+          <Row key={d.id} when={fmtDate(d.date)}
+            tag={d.significant ? 'Significant' : d.kind} warn={d.significant}
+            name={d.name}
             onOpen={() => setOpen(d.id)} />
         ))}
-      </Group>
+      </Rows>
 
       {sel && (
         <Sheet title={sel.name}

@@ -11,7 +11,7 @@
  * answer a question they never asked.
  */
 import { useStore } from '../../lib/store';
-import { Group, Row, NoRows } from './Rows';
+import { Rows, Row, NoRows } from './Rows';
 
 export function MoreTab({ patientId }: { patientId: string }) {
   const st = useStore();
@@ -26,48 +26,43 @@ export function MoreTab({ patientId }: { patientId: string }) {
     ['Work', social?.work],
     ['Living situation', social?.living],
   ];
-  const asked = socialRows.filter(([, v]) => v);
+
+  const rows = [
+    ...allergies.map((a) => ({
+      key: a.id, tag: 'Allergy', warn: a.severity === 'severe',
+      name: [a.substance, a.reaction].filter(Boolean).join(' \u2014 '),
+    })),
+    ...(h?.family ?? []).map((f, i) => ({
+      key: `f${i}`, tag: 'Family', warn: false,
+      name: [`${f.relation}: ${f.condition}`, f.note].filter(Boolean).join(' \u2014 '),
+    })),
+    ...(h?.surgical ?? []).map((x, i) => ({
+      key: `s${i}`, tag: 'Surgical', warn: false, when: x.year,
+      name: [x.name, x.note].filter(Boolean).join(' \u2014 '),
+    })),
+    ...socialRows.map(([k, v]) => ({
+      key: k, tag: 'Social', warn: !v,
+      name: `${k}: ${v ?? 'not asked, or asked and not recorded'}`,
+    })),
+  ];
 
   return (
-    <>
-      <Group title="Allergies" count={allergies.length}>
-        {allergies.length === 0 ? (
-          <NoRows>None on file. Not the same as no known allergies.</NoRows>
-        ) : allergies.map((a) => (
-          <Row key={a.id} name={a.substance}
-            note={a.severity === 'severe' ? 'Severe' : a.reaction}
-            warn={a.severity === 'severe'} />
-        ))}
-      </Group>
-
-      <Group title="Family history" count={h?.family?.length ?? 0}>
-        {!h?.family || h.family.length === 0 ? (
-          <NoRows>Not asked, or asked and not recorded.</NoRows>
-        ) : h.family.map((f, i) => (
-          <Row key={i} name={`${f.relation}: ${f.condition}`} note={f.note} />
-        ))}
-      </Group>
-
-      <Group title="Surgical history" count={h?.surgical?.length ?? 0}>
-        {!h?.surgical || h.surgical.length === 0 ? (
-          <NoRows>Not asked, or asked and not recorded.</NoRows>
-        ) : h.surgical.map((x, i) => (
-          <Row key={i} name={x.name} note={x.note} when={x.year} />
-        ))}
-      </Group>
-
-      <Group title="Social history" count={asked.length}>
-        {asked.length === 0 ? (
-          <NoRows>Not asked, or asked and not recorded.</NoRows>
-        ) : (
-          <>
-            {socialRows.map(([k, v]) => (
-              <Row key={k} name={k} note={v ?? 'Not asked'} warn={!v} />
-            ))}
-            {social?.note && <p className="grpnote" style={{ marginTop: 10 }}>{social.note}</p>}
-          </>
-        )}
-      </Group>
-    </>
+    <Rows>
+      {allergies.length === 0 && (
+        <Row tag="Allergy" warn name="None on file. Not the same as no known allergies." />
+      )}
+      {!h?.family?.length && (
+        <Row tag="Family" warn name="Not asked, or asked and not recorded." />
+      )}
+      {!h?.surgical?.length && (
+        <Row tag="Surgical" warn name="Not asked, or asked and not recorded." />
+      )}
+      {rows.length === 0 && <NoRows>Nothing on file.</NoRows>}
+      {rows.map((r) => (
+        <Row key={r.key} when={(r as { when?: string }).when}
+          tag={r.tag} warn={r.warn} name={r.name} />
+      ))}
+      {social?.note && <Row tag="Social" name={social.note} />}
+    </Rows>
   );
 }

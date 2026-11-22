@@ -15,7 +15,7 @@ import { useStore } from '../../lib/store';
 import { fmtDate } from '../../lib/format';
 import { LIFESTYLE_DOMAINS, LIFESTYLE_STATUS_LABEL } from '../../domain/types';
 import type { LifestyleStatus } from '../../domain/types';
-import { Group, Row, Sheet, NoRows } from './Rows';
+import { Rows, Row, Sheet, NoRows } from './Rows';
 
 const ORDER: Record<LifestyleStatus, number> = {
   struggling: 0, 'not-started': 1, active: 2, achieved: 3,
@@ -33,18 +33,18 @@ export function LifestyleTab({ patientId }: { patientId: string }) {
 
   return (
     <>
-      <Group title="Prescriptions" count={items.length}>
+      <Rows>
         {items.length === 0 ? <NoRows>Nothing prescribed yet.</NoRows> : items.map((l) => (
           <Row key={l.id}
+            when={fmtDate(l.reviewed ?? l.started)}
+            tag={LIFESTYLE_STATUS_LABEL[l.status]}
+            warn={l.status === 'struggling' || l.status === 'not-started'}
             name={items.filter((x) => x.domain === l.domain).length > 1
               ? `${domain(l.domain)}: ${l.prescription.split(/[.,]/)[0].trim()}`
               : domain(l.domain)}
-            note={LIFESTYLE_STATUS_LABEL[l.status]}
-            warn={l.status === 'struggling' || l.status === 'not-started'}
-            when={fmtDate(l.reviewed ?? l.started)}
             onOpen={() => setOpen(l.id)} />
         ))}
-      </Group>
+      </Rows>
 
       {sel && (
         <Sheet title={domain(sel.domain)}

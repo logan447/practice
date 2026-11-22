@@ -46,7 +46,7 @@ const OLD = {
     (await p.locator('.chead h1').textContent())==='Sharon White');
   await p.click('.ctabs > .ctab:has-text("Problems")'); await p.waitForTimeout(400);
   ok('the problem list still derives from whatever records survived',
-    (await p.locator('.tabbody').textContent()).includes('We manage'));
+    (await p.locator('.rectag').count())>0);
   ok('the problem renders rather than throwing',
     (await p.locator('.rec').count())>=1);
   await p.locator('.rec').first().click(); await p.waitForTimeout(400);

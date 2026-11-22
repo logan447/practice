@@ -15,7 +15,7 @@
 import { useState } from 'react';
 import { useStore } from '../../lib/store';
 import { fmtDate } from '../../lib/format';
-import { Group, Row, Sheet, NoRows } from './Rows';
+import { Rows, Row, Sheet, NoRows } from './Rows';
 import { FEELING_LABEL, ON_PLAN_LABEL, INTERVAL_LABEL } from '../../domain/types';
 
 export function SubjectiveTab({ patientId }: { patientId: string }) {
@@ -28,6 +28,21 @@ export function SubjectiveTab({ patientId }: { patientId: string }) {
   const [message, setMessage] = useState<string | null>(null);
   const u = updates.find((x) => x.id === update);
   const m = messages.find((x) => x.id === message);
+
+  /*
+   * One list, in time order. Updates and inquiries were two headings
+   * over two lists of the same thing: the patient, writing to us.
+   */
+  const feed = [
+    ...updates.map((x) => ({
+      id: x.id, kind: 'update' as const, date: x.date, urgent: !!x.urgent,
+      title: x.overall ? x.overall.slice(0, 110) : 'Patient update',
+    })),
+    ...messages.map((x) => ({
+      id: x.id, kind: 'message' as const, date: x.date, urgent: !!x.urgent,
+      title: x.subject ?? x.body.slice(0, 110),
+    })),
+  ].sort((a, b) => b.date.localeCompare(a.date));
 
   const conditions = st.conditionsFor(patientId);
   const lifestyle = st.lifestyleFor(patientId);
@@ -48,21 +63,14 @@ export function SubjectiveTab({ patientId }: { patientId: string }) {
 
   return (
     <>
-      <Group title="Patient updates" count={updates.length}>
-        {updates.length === 0 ? <NoRows>None on file.</NoRows> : updates.map((x) => (
-          <Row key={x.id} name={x.overall ? x.overall.slice(0, 90) : 'Patient update'}
-            when={fmtDate(x.date)} note={x.urgent ? 'Urgent' : undefined} warn={x.urgent}
-            onOpen={() => setUpdate(x.id)} />
+      <Rows>
+        {feed.length === 0 ? <NoRows>None on file.</NoRows> : feed.map((x) => (
+          <Row key={x.id} when={fmtDate(x.date)}
+            tag={x.kind === 'update' ? 'Update' : 'Inquiry'} warn={x.urgent}
+            name={x.title}
+            onOpen={() => (x.kind === 'update' ? setUpdate(x.id) : setMessage(x.id))} />
         ))}
-      </Group>
-
-      <Group title="Patient inquiries" count={messages.length}>
-        {messages.length === 0 ? <NoRows>None on file.</NoRows> : messages.map((x) => (
-          <Row key={x.id} name={x.subject ?? x.body.slice(0, 90)} when={fmtDate(x.date)}
-            note={x.urgent ? 'Urgent' : undefined} warn={x.urgent}
-            onOpen={() => setMessage(x.id)} />
-        ))}
-      </Group>
+      </Rows>
 
       {u && (
         <Sheet title="Patient update" sub={fmtDate(u.date)} onClose={() => setUpdate(null)}>

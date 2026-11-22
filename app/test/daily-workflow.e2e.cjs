@@ -12,7 +12,7 @@
  * approves an encounter.
  */
 const {chromium}=require('playwright');
-const {tab, planUpdatedOn, sentCount}=require('./tabs.cjs');
+const {tab, planUpdatedOn, sentCount, noteText}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
@@ -63,16 +63,20 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // ------------------------------------------- 3. the chart review
   await p.locator('.dayrow:has-text("Sharon White")').click(); await p.waitForTimeout(900);
   ok('a visit opens on the care plan rather than a blank note',
-    (await p.locator('#subjective').inputValue()).includes('Patient reports'));
+    (await noteText(p,'subjective')).includes('Patient reports'));
   const secs = await p.locator('.nboxtitle').allTextContents();
   ok(`the note is three boxes, in the order the conversation goes: ${secs.join(', ')}`,
     secs.join(',')==='Subjective,Objective,Assessment and plan');
   // One box per section, with the problems written into it, rather
   // than thirty fields behind three depths of fold.
-  ok('one box per section and no folds',
-    (await p.locator('.note textarea').count())===3
-    && (await p.locator('.note .fold').count())===0);
-  const planText = await p.locator('#plan').inputValue();
+  ok('one box per section',
+    (await p.locator('.note .nbox').count())===3);
+  // It opens on the subjective and folds the rest: a visit starts
+  // with what the patient says, not with a wall of every section.
+  ok('and it opens on the subjective alone',
+    (await p.locator('.note .nbox.shut').count())===2
+    && !(await p.locator('.note .nbox').first().evaluate((el)=>el.classList.contains('shut'))));
+  const planText = await noteText(p,'plan');
   ok('the plan arrives with every problem, pillar and service in it',
     planText.includes('Essential hypertension') && planText.includes('Physical activity')
     && planText.includes('Mammogram'));
@@ -123,7 +127,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // wanting to decline the review they just did, so the offer was a
   // banner over the note whose only answer was yes.
   ok('and the visit has it already, rather than making you type it again',
-    (await p.locator('#subjective').inputValue()).includes(said.slice(0, 24)));
+    (await noteText(p,'subjective')).includes(said.slice(0, 24)));
   ok('the right column is the instructions and the orders, and nothing else',
     (await p.locator('.panel h2:has-text("Patient instructions")').count())===1
     && (await p.locator('.panel h2:has-text("Orders")').count())===1
