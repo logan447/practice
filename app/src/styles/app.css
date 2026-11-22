@@ -884,6 +884,10 @@ kbd {
 
 
 /* --------------------------------------------------------- workspace */
+/* The chart is one column. Its right column was the standing summary
+   and every block of it is a tab now, read in the order a chart
+   review reads them. The visit still has two. */
+.workspace.one { display: block; }
 .workspace {
   display: grid; grid-template-columns: minmax(0, 1fr) 268px;
   gap: 40px; align-items: start; margin-top: 22px;
@@ -2003,9 +2007,12 @@ blockquote.said footer {
  * because a strip that reflows to two rows moves the tab you were
  * about to click.
  */
+/* The strip starts where the records under it start. A tab's own
+   padding used to indent its label past the heading of the list it
+   opens, which reads as a mistake because it is one. */
 .ctabs {
-  display: flex; align-items: stretch; gap: 1px;
-  margin: 14px 0 0; padding: 0 2px;
+  display: flex; align-items: stretch; gap: 2px;
+  margin: 14px 0 0 -11px; padding: 0;
   border-bottom: 1px solid var(--line);
   overflow-x: auto; scrollbar-width: thin;
 }
@@ -2014,15 +2021,18 @@ blockquote.said footer {
   content: ''; display: block; width: 1px; height: 15px; margin: 7px auto 0;
   background: var(--line);
 }
+/* The same size as the records it opens. A strip two sizes smaller
+   than everything under it reads as chrome rather than as the index
+   it is. */
 .ctab {
   flex: none; position: relative;
-  padding: 9px 12px 8px; border: 0; background: none; cursor: pointer;
-  font: 500 12.5px/1 var(--sans); color: var(--ink-3); white-space: nowrap;
+  padding: 10px 11px 9px; border: 0; background: none; cursor: pointer;
+  font: 500 15px/1.2 var(--sans); color: var(--ink-3); white-space: nowrap;
 }
 .ctab:hover { color: var(--ink); background: var(--panel-2); }
 .ctab.on { color: var(--accent); font-weight: 600; }
 .ctab.on::after {
-  content: ''; position: absolute; left: 6px; right: 6px; bottom: -1px;
+  content: ''; position: absolute; left: 11px; right: 11px; bottom: -1px;
   height: 2px; background: var(--accent); border-radius: 1px;
 }
 
@@ -2123,8 +2133,8 @@ blockquote.said footer {
   padding-bottom: 7px; border-bottom: 1px solid var(--line);
 }
 .grphead h3 {
-  margin: 0; font-family: var(--sans); font-size: 12px; font-weight: 700;
-  letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3);
+  margin: 0; font-family: var(--sans); font-size: 15px; font-weight: 600;
+  color: var(--ink-2);
 }
 .grpcount { font-size: 12px; color: var(--ink-3); }
 .grpnote { margin: 7px 0 0; font-size: 13px; color: var(--ink-3); }
@@ -2340,6 +2350,10 @@ blockquote.said footer {
  * note is a document somebody reads start to finish.
  * =================================================================== */
 
+/* The note's first heading sits level with the top of the first panel
+   beside it: a panel's heading has 15px of padding above its text. */
+.reviewgrid > .note { padding-top: 15px; }
+
 /* Two lines at the top: the way back, what this is, and what you do. */
 .vhead {
   display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
@@ -2347,19 +2361,30 @@ blockquote.said footer {
 }
 .vhead .backlink { margin: 0; font-size: 15px; font-weight: 600; }
 .vwhen { font-size: 14px; color: var(--ink-3); }
-.vone {
+/* The opening sentence runs the width of the screen, over both
+   columns, because it is about the patient rather than about either
+   of them. `.oneliner` caps itself at 76ch for reading; here the
+   sentence is a header and the cap is what made it look like a
+   column of its own. */
+.vone.oneliner {
   font-family: var(--sans); font-size: 15px; line-height: 1.6;
-  margin: 0 0 22px; color: var(--ink-2); max-width: 78ch;
+  margin: 0 0 20px; color: var(--ink-2); max-width: none;
 }
 
 .note { font-size: 15px; line-height: 1.6; color: var(--ink); }
 
 .nbox { margin-bottom: 26px; }
+.nbox:first-child { margin-top: 0; }
 .nboxhead {
-  display: flex; align-items: baseline; gap: 9px;
-  padding-bottom: 7px; margin-bottom: 9px; border-bottom: 1px solid var(--line);
-  font-size: 15px; font-weight: 700; color: var(--ink);
+  display: flex; align-items: baseline; gap: 9px; width: 100%;
+  padding: 0 0 7px; margin-bottom: 9px; border: 0;
+  border-bottom: 1px solid var(--line); background: none; text-align: left;
+  font: 700 15px/1.6 var(--sans); color: var(--ink); cursor: pointer;
 }
+.nboxhead .foldarrow { flex: none; width: 11px; color: var(--ink-3); font-size: 13px; }
+.nboxtitle { flex: 1; min-width: 0; }
+.nboxcount { flex: none; font-size: 13px; font-weight: 400; color: var(--ink-3); }
+.nbox.shut { margin-bottom: 10px; }
 .note .prose, .nbox .prose {
   font-family: var(--sans); font-size: 15px; line-height: 1.6;
 }
@@ -2390,3 +2415,24 @@ blockquote.said footer {
 .planprobname { font-weight: 600; }
 .planpoints { margin: 4px 0 0; padding-left: 17px; }
 .planpoints li { margin-bottom: 2px; }
+
+/* Orders, as a running list under the box that adds them. */
+.orderlist { margin-top: 14px; border-top: 1px solid var(--line-2); }
+.orderrow {
+  display: flex; align-items: baseline; gap: 9px;
+  padding: 8px 0; border-bottom: 1px solid var(--line-2); font-size: 14px;
+}
+.orderrow:last-child { border-bottom: 0; }
+.orderkind {
+  flex: none; width: 74px; font-size: 11px; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+.ordertext { flex: 1; min-width: 0; }
+
+/* A signed note, read in the same shape the visit wrote it. */
+.signednote .vone { margin-bottom: 18px; }
+.signednote .nbox { margin-bottom: 18px; }
+.nbodytext p { margin: 0 0 9px; }
+.nbodytext p:last-child { margin-bottom: 0; }
+.nbodytext .planprob { margin-bottom: 12px; }
+.nbodytext .planprob:last-child { margin-bottom: 0; }

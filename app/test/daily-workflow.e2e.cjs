@@ -64,7 +64,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.locator('.dayrow:has-text("Sharon White")').click(); await p.waitForTimeout(900);
   ok('a visit opens on the care plan rather than a blank note',
     (await p.locator('#subjective').inputValue()).includes('Patient reports'));
-  const secs = await p.locator('.nboxhead').allTextContents();
+  const secs = await p.locator('.nboxtitle').allTextContents();
   ok(`the note is three boxes, in the order the conversation goes: ${secs.join(', ')}`,
     secs.join(',')==='Subjective,Objective,Assessment and plan');
   // One box per section, with the problems written into it, rather
@@ -119,12 +119,11 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('it records what was opened and what was said',
     (await p.locator('.wrline.on').count())===11);
   await p.click('button:has-text("Start the visit")'); await p.waitForTimeout(1100);
-  ok('and the visit offers it rather than making you type it again',
-    (await p.locator('.visitmeta').textContent())
-      .includes('Put what you said into this note'));
-  await p.click('.visitmeta .linkish'); await p.waitForTimeout(400);
-  ok('taking it fills the note',
-    (await p.locator('#subjective').inputValue()).length>10);
+  // The chart review is taken, not offered. Nobody opens a visit
+  // wanting to decline the review they just did, so the offer was a
+  // banner over the note whose only answer was yes.
+  ok('and the visit has it already, rather than making you type it again',
+    (await p.locator('#subjective').inputValue()).includes(said.slice(0, 24)));
   ok('the right column is the instructions and the orders, and nothing else',
     (await p.locator('.panel h2:has-text("Patient instructions")').count())===1
     && (await p.locator('.panel h2:has-text("Orders")').count())===1
@@ -166,7 +165,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('reviewing now brings their visit forward, not a new kind of thing',
     (await p.locator('.vwhen').textContent()).startsWith('Visit'));
   ok('and it is the same document as every other encounter',
-    (await p.locator('.nboxhead').count())===3);
+    (await p.locator('.nboxtitle').count())===3);
   await p.click('.backlink'); await p.waitForTimeout(700);
   await p.click('.acctbtn'); await p.waitForTimeout(150);
   await p.click('.acctrow:has-text("Schedule")'); await p.waitForTimeout(700);

@@ -61,8 +61,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // an uncoded problem is called out as uncheckable
   await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(300);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(400);
-  // Adding a problem lives in the right column now, under the list of
-  // what this practice has taken on.
+  // Adding a problem lives under the list it joins.
+  await tab(p, 'Problems');
   await p.locator('.addproblem:has-text("Problem")').scrollIntoViewIfNeeded();
   await p.click('.addproblem:has-text("Problem")'); await p.waitForTimeout(300);
   await p.fill('input[placeholder="Type a diagnosis"]','gout'); await p.waitForTimeout(400);
@@ -74,7 +74,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click(`button:has-text("${addBtn.trim()}")`); await p.waitForTimeout(400);
   ok('the coded problem joins the header history', await p.locator('.chead .dx').count()>0);
   ok('and the practice is shown as managing it',
-    (await p.locator('.csum').textContent()).includes('Gout'));
+    (await p.locator('.tabbody').textContent()).includes('Gout'));
 
   // ------------------------------- 2. the log, derived not declared await p.waitForTimeout(250);
   await tab(p, 'History');

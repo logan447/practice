@@ -55,10 +55,9 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.waitForTimeout(800);
   // Who owns a problem is asked on the problem, in its own sheet.
   const owners = [];
-  for (let i = 0; i < await p.locator('.sumrow').count(); i++) {
-    await p.locator('.sumrow').nth(i).click(); await p.waitForTimeout(350);
-    // Only a condition has a plan to open. Lifestyle and preventative
-    // medicine are summaries of a tab and go there instead.
+  await tab(p, 'Problems');
+  for (let i = 0; i < await p.locator('.rec').count(); i++) {
+    await p.locator('.rec').nth(i).click(); await p.waitForTimeout(350);
     if (!(await p.locator('.sheet').count())) continue;
     if (await p.locator('.sheet .ownerrow').count()) {
       owners.push(await p.locator('.sheet .ownerrow').textContent());
@@ -70,19 +69,20 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     ownerText.includes('We manage this') && ownerText.includes('Their PCP manages this'));
   ok('and shared care is its own answer, not a half-tick',
     ownerText.includes('Shared with their PCP'));
-  const rail = (await p.locator('.rail').textContent()).replace(/\s+/g,' ');
-  ok('their own physician heads the team block',
-    rail.includes('Dr. Samuel Okafor') && rail.includes('Primary care'));
+  await tab(p, 'Specialists');
+  const team = (await p.locator('.tabbody').textContent()).replace(/\s+/g,' ');
+  ok('their own physician is on the care team', team.includes('Dr. Samuel Okafor'));
 
   // ----------------------------------- 3. the patient with nobody else
   await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr:has-text("Dana")').first().click();
   await p.waitForTimeout(800);
-  const rail2 = (await p.locator('.rail').textContent()).replace(/\s+/g,' ');
+  await tab(p, 'Specialists');
+  const rail2 = (await p.locator('.tabbody').textContent()).replace(/\s+/g,' ');
   ok('a patient with no other physician is said so, not left blank',
     rail2.includes('No primary care physician'));
   ok('and the gap is named rather than implied',
-    rail2.includes('Everything outside our list needs somebody'));
+    rail2.includes('this patient has no physician'));
 
   // ---------------------------------------- 3b. the agreement, as a view
   await tab(p, 'Scope'); await p.waitForTimeout(200);

@@ -30,8 +30,7 @@ import { markChartOpen } from '../lib/metrics';
 import { useActor, ROLE_LABEL, signInAs } from '../lib/session';
 import { can } from '../lib/permissions';
 import { recordRead, record } from '../lib/audit';
-import { practiceSummary, demographicLine } from '../lib/clinical';
-import { Rail } from './chart/Rail';
+import { demographicLine } from '../lib/clinical';
 import { VisitsDrawer } from './chart/VisitsDrawer';
 import {
   TAB_LABEL, CHART_TABS,
@@ -45,7 +44,6 @@ import { ProblemsTab } from './chart/ProblemsTab';
 import { LifestyleTab } from './chart/LifestyleTab';
 import { MoreTab } from './chart/MoreTab';
 import { Booking } from '../components/Booking';
-import { ProblemSheet } from './chart/ProblemSheet';
 import { ChartReview } from './chart/ChartReview';
 import { Documentation } from './chart/Documentation';
 import { Scope } from './chart/Scope';
@@ -84,7 +82,6 @@ export function Chart({ patientId }: { patientId: string }) {
   useEffect(() => { if (routeBook) setBooking(true); }, [routeBook]);
   const [booking, setBooking] = useState(false);
   const [walk, setWalk] = useState(false);
-  const [problem, setProblem] = useState<string | null>(null);
 
   useEffect(() => { markChartOpen(); }, [patientId]);
 
@@ -117,7 +114,6 @@ export function Chart({ patientId }: { patientId: string }) {
   const conditions = st.conditionsFor(p.id);
   const history = conditions.filter((c) => c.status !== 'resolved');
   const allergies = st.allergiesFor(p.id);
-  const { managed, services } = practiceSummary(p, conditions);
 
 
   return (
@@ -162,17 +158,15 @@ export function Chart({ patientId }: { patientId: string }) {
             )}
           </p>
 
-          {(managed.length > 0 || services.length > 0) && (
-            <p className="csum">
-              <span className="lead">Following for management of</span>
-              {managed.map((c) => (
-                <span key={c.id} className="dx on" title={c.code}>{c.name}</span>
-              ))}
-              {services.map((sv) => (
-                <span key={sv} className="dx svc">{sv}</span>
-              ))}
-            </p>
-          )}
+          {/*
+            * No "following for management of" line.
+            *
+            * It was the practice's own summary of itself, generated
+            * from the problem list and the two service switches, and
+            * every one of those is a tab now: the problems tab says
+            * which problems we manage and who has the rest. A header
+            * that restates the first tab is a header nobody reads.
+            */}
 
           {/*
             * The one clinical fact that goes back in a minimal header.
@@ -222,7 +216,17 @@ export function Chart({ patientId }: { patientId: string }) {
         </nav>
 
         {/* -------------------------------------------- the workspace */}
-        <div className="workspace">
+        {/*
+          * One column.
+          *
+          * The right column was the standing summary: what this
+          * practice is managing, the vitals, the diagnostics, the care
+          * team. Every one of those is a tab now, in the order a
+          * chart review reads them, and a column repeating them beside
+          * the tab you are standing in was the same record twice on
+          * one screen.
+          */}
+        <div className="workspace one">
           <div className="tabbody">
             {tab === 'visits' && <VisitsDrawer patientId={p.id} onDone={() => setTab('notes')} />}
             {tab === 'subjective' && <SubjectiveTab patientId={p.id} />}
@@ -248,17 +252,10 @@ export function Chart({ patientId }: { patientId: string }) {
             {tab === 'notes' && <NotesTab patientId={p.id} />}
             {tab === 'encounters' && <EncountersDrawer patientId={p.id} />}
           </div>
-          <div>
-            <Rail patientId={p.id} open={setTab} onJump={setProblem} />
-          </div>
         </div>
 
         {walk && <ChartReview patientId={p.id} onClose={() => setWalk(false)} />}
 
-        {problem && (
-          <ProblemSheet patientId={p.id} conditionId={problem}
-            onClose={() => setProblem(null)} />
-        )}
       </div>
     </div>
   );

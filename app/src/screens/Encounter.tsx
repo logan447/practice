@@ -36,12 +36,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '../lib/store';
 import { useNav } from '../lib/nav';
 import { Chip, Panel } from '../components/ui';
-import { fmtDate, relative } from '../lib/format';
+import { fmtDate } from '../lib/format';
 import { oneLiner } from './chart/AssessPlan';
 import { livingSubjective } from '../lib/subjective';
 import type { LivingSubjective } from '../lib/subjective';
 import { ambientScript, wasCaught, ERROR_LABEL, type InjectedError } from '../lib/ambient';
-import { REVIEW } from '../lib/prechart';
 import { TAB_LABEL } from './chart/drawers';
 import { LIFESTYLE_DOMAINS } from '../domain/types';
 import type { VisitNote, Order, OrderKind } from '../domain/types';
@@ -199,7 +198,6 @@ export function Encounter({ encounterId }: { encounterId: string }) {
 
   const [w, setW] = useState<Working>(() => ({ ...EMPTY_WORKING }));
   const [marks, setMarks] = useState<Marks>({});
-  const [usedPrechart, setUsedPrechart] = useState(false);
 
   /*
    * Fill the three boxes once, from the record.
@@ -243,6 +241,16 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       ]))
       .join('\n\n');
 
+    /*
+     * What was said during the chart review, already in the boxes.
+     *
+     * It used to be offered on a line above the note with a link that
+     * put it in. Nobody opens a visit wanting to decline the chart
+     * review they just did, so the offer was a banner over the note
+     * whose only answer was yes.
+     */
+    const said = (id: string) => (prechart?.notes[id] ?? '').trim();
+
     const lastOffice = st.vitalsFor(patientId).find((v) => v.source === 'office');
     const objective = lastOffice
       ? [
@@ -253,8 +261,15 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       ].filter(Boolean).join(' \u00b7 ') + ` (${fmtDate(lastOffice.date)})`
       : '';
 
-    setW((v) => ({ ...v, subjective, objective, plan }));
-  }, [items, approved, master, st, patientId]);
+    setW((v) => ({
+      ...v,
+      subjective: [said('subjective'), said('notes'), subjective]
+        .filter(Boolean).join('\n\n'),
+      objective: [said('vitals'), said('results'), objective]
+        .filter(Boolean).join('\n'),
+      plan: [said('problems'), plan].filter(Boolean).join('\n\n'),
+    }));
+  }, [items, approved, master, st, patientId, prechart]);
 
   // ------------------------------------------------------------ the clock
   const [openedAt] = useState(() => Date.now());
@@ -326,29 +341,6 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       else if (m[field]) { countAiEdit(); delete next[field]; }
       return next;
     });
-  };
-
-  /**
-   * Pull the chart review in.
-   *
-   * What was said about each section while reading it is the first
-   * draft of the subjective and the assessment, and typing it again
-   * is the thing this is meant to stop. One click, and it is editable
-   * like everything else.
-   */
-  const pullPrechart = () => {
-    if (!prechart) return;
-    const n = prechart.notes;
-    const take = (id: string) => (n[id] ?? '').trim();
-    setW((v) => ({
-      ...v,
-      subjective: [take('subjective'), take('notes'), v.subjective]
-        .filter(Boolean).join('\n\n'),
-      objective: [v.objective, take('vitals'), take('results')]
-        .filter(Boolean).join('\n'),
-      plan: [take('problems'), v.plan].filter(Boolean).join('\n\n'),
-    }));
-    setUsedPrechart(true);
   };
 
   const startListening = () => {
@@ -547,16 +539,6 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       <div className="reviewgrid">
         {/* ============================================== the note itself */}
         <div className="note">
-          {prechart && !usedPrechart && !signed && (
-            <p className="visitmeta">
-              Chart review {relative(prechart.date)}: {prechart.reviewed.length} of{' '}
-              {REVIEW.length} sections.{' '}
-              <button className="linkish" onClick={pullPrechart}>
-                Put what you said into this note
-              </button>
-            </p>
-          )}
-
           <Box id="subjective" title="Subjective" value={w.subjective}
             mark={marks.subjective} onChange={(v) => put('subjective', v)} />
           <Box id="objective" title="Objective" value={w.objective}
@@ -574,7 +556,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
             */}
           <Panel title="Patient instructions">
             <Box id="instructions" value={w.instructions} mark={marks.instructions}
-              rows={8} onChange={(v) => put('instructions', v)}
+              rows={4} onChange={(v) => put('instructions', v)}
               placeholder={'One step per line, in their words.\nBring your home readings.\nStart the half tablet on Monday.'} />
             <div className="nextvis">
               <label className="wflabel" htmlFor="nextvisit">Next visit</label>
@@ -603,7 +585,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
  * form; a note is a document somebody reads start to finish, and the
  * folds that made the form bearable were an admission of that.
  */
-function Box({ id, title, value, onChange, rows = 10, mark, placeholder }: {
+function Box({ id, title, value, onChange, rows = 3, mark, placeholder }: {
   id: string;
   title?: string;
   value: string;
@@ -612,6 +594,12 @@ function Box({ id, title, value, onChange, rows = 10, mark, placeholder }: {
   mark?: 'ambient';
   placeholder?: string;
 }) {
+  /*
+   * Folds, one level. A visit about one thing should be able to look
+   * like a visit about one thing, and a section you have finished
+   * writing should be able to get out of the way of the next one.
+   */
+  const [shut, setShut] = useState(false);
   const ref = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
     const el = ref.current;
@@ -620,16 +608,27 @@ function Box({ id, title, value, onChange, rows = 10, mark, placeholder }: {
     el.style.height = `${Math.max(el.scrollHeight, rows * 25 + 14)}px`;
   }, [value, rows]);
 
+  if (!title) {
+    return (
+      <section className="nbox">
+        <textarea ref={ref} className="prose" rows={rows} value={value} placeholder={placeholder}
+          id={id} onChange={(e) => onChange(e.target.value)} />
+      </section>
+    );
+  }
+
   return (
-    <section className="nbox">
-      {(title || mark) && (
-        <div className="nboxhead">
-          {title}
-          {mark && <span className="markchip">from the capture</span>}
-        </div>
+    <section className={`nbox${shut ? ' shut' : ''}`}>
+      <button className="nboxhead" onClick={() => setShut((v) => !v)}>
+        <span className="foldarrow" aria-hidden="true">{shut ? '\u203a' : '\u2304'}</span>
+        <span className="nboxtitle">{title}</span>
+        {mark && <span className="markchip">from the capture</span>}
+        {shut && <span className="nboxcount">{value.split('\n').filter(Boolean).length} lines</span>}
+      </button>
+      {!shut && (
+        <textarea ref={ref} className="prose" rows={rows} value={value} placeholder={placeholder}
+          id={id} onChange={(e) => onChange(e.target.value)} />
       )}
-      <textarea ref={ref} className="prose" rows={rows} value={value} placeholder={placeholder}
-        id={id} onChange={(e) => onChange(e.target.value)} />
     </section>
   );
 }
@@ -647,31 +646,40 @@ function Orders({ encounterId, patientId, orders }: {
     st.addOrder(patientId, encounterId, kind, text.trim());
     setText('');
   };
+  /*
+   * The box first, the list under it.
+   *
+   * The list used to be above, so every order pushed the field you
+   * were typing in further down the column. Adding three in a row
+   * meant chasing it.
+   */
   return (
     <Panel title="Orders" right={<span className="small muted">{orders.length}</span>}>
-      <div className="stack-sm">
-        {orders.length === 0 && <span className="small muted">None yet.</span>}
-        {orders.map((o) => (
-          <div key={o.id} className="row" style={{ alignItems: 'flex-start' }}>
-            <Chip tone="accent">{ORDER_KINDS.find((k) => k.id === o.kind)?.label}</Chip>
-            <div style={{ flex: 1, minWidth: 0 }}><div className="small">{o.text}</div></div>
-            <button className="btn quiet sm" onClick={() => st.removeOrder(o.id)}>&times;</button>
-          </div>
+      <div className="row flow" style={{ gap: 5, marginBottom: 8 }}>
+        {ORDER_KINDS.map((k) => (
+          <button key={k.id} className={`btn sm ${kind === k.id ? '' : 'ghost'}`}
+            onClick={() => setKind(k.id)}>{k.label}</button>
         ))}
       </div>
-      <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--line-2)' }}>
-        <div className="row flow" style={{ gap: 5, marginBottom: 8 }}>
-          {ORDER_KINDS.map((k) => (
-            <button key={k.id} className={`btn sm ${kind === k.id ? '' : 'ghost'}`}
-              onClick={() => setKind(k.id)}>{k.label}</button>
+      <input className="search" value={text} placeholder="A1c and lipid panel in 6 weeks"
+        onChange={(e) => setText(e.target.value)}
+        onKeyDown={(e) => { if (e.key === 'Enter') add(); }} />
+      <button className="btn sm" style={{ marginTop: 8 }} disabled={!text.trim()}
+        onClick={add}>Add order</button>
+
+      {orders.length > 0 && (
+        <div className="orderlist">
+          {orders.map((o) => (
+            <div key={o.id} className="orderrow">
+              <span className="orderkind">
+                {ORDER_KINDS.find((k) => k.id === o.kind)?.label}
+              </span>
+              <span className="ordertext">{o.text}</span>
+              <button className="btn quiet sm" onClick={() => st.removeOrder(o.id)}>&times;</button>
+            </div>
           ))}
         </div>
-        <input className="search" value={text} placeholder="A1c and lipid panel in 6 weeks"
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') add(); }} />
-        <button className="btn sm" style={{ marginTop: 8 }} disabled={!text.trim()}
-          onClick={add}>Add order</button>
-      </div>
+      )}
     </Panel>
   );
 }

@@ -104,7 +104,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.click('.startenc:has-text("Start a visit")'); await p.waitForTimeout(800);
 
   ok('a visit is open, on the care plan rather than a blank note',
-    (await p.locator('.nboxhead').count())===3);
+    (await p.locator('.nboxtitle').count())===3);
 
   // The capture is always fallible. It used to be a toggle in the
   // header, and a toggle invites turning it off, which is the setting

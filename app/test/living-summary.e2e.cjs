@@ -33,10 +33,13 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   const head = (await p.locator('.chead').textContent()).replace(/\s+/g,' ');
   ok('age and sex only', head.includes('60 F'));
   ok('past medical history carries everything', head.includes('Hypothyroidism'));
-  ok('managed problems are named separately from the history',
-    (await p.locator('.csum .dx.on').count())===3);
-  ok('services are named in the same sentence',
-    (await p.locator('.csum .dx.svc').allTextContents()).join('|')==='Preventative Services|Lifestyle Medicine');
+  // The header is the patient, not the practice. What this practice
+  // manages is the first thing in the problems tab.
+  ok('the header does not restate the first tab',
+    (await p.locator('.csum').count())===0);
+  await tab(p, 'Problems');
+  ok('which says what we manage and who has the rest',
+    (await p.locator('.tabbody').textContent()).includes('We manage'));
   ok('the header is words, not a wall of pills',
     await p.locator('.chead').evaluate((el)=>{
       const dx = el.querySelector('.dx');
@@ -46,7 +49,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     (await p.locator('.cacts .btn').count())===2);
 
   // ------------- 2. the problem sheet: derived, traceable, not typed
-  await p.locator('.sumrow').first().click(); await p.waitForTimeout(450);
+  await p.locator('.rec').first().click(); await p.waitForTimeout(450);
   const sheet = p.locator('.sheet');
   ok('the sheet is the problem, not the document',
     (await sheet.locator('h2').textContent())==='Essential hypertension');
@@ -87,7 +90,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('and names what we are following them for',
     line.includes('following with our office for management of')
     && line.includes('preventative services') && line.includes('lifestyle medicine'));
-  const secs = await p.locator('.nboxhead').allTextContents();
+  const secs = await p.locator('.nboxtitle').allTextContents();
   ok(`the note runs in the order the conversation does: ${secs.join(', ')}`,
     secs.join(',')==='Subjective,Objective,Assessment and plan');
   const plan = await p.locator('#plan').inputValue();
@@ -161,7 +164,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // The claim this design rests on: a record arriving is counted,
   // and changes nothing a clinician has approved.
-  await p.locator('.sumrow').first().click(); await p.waitForTimeout(400);
+  await tab(p, 'Problems');
+  await p.locator('.rec').first().click(); await p.waitForTimeout(400);
   const before = await p.locator('.sheet .psum').textContent();
   await p.click('.sheetx'); await p.waitForTimeout(350);
   const countBefore = await sentCount(p);
@@ -169,7 +173,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   const countAfter = await sentCount(p);
   ok(`the arriving record is kept (${countBefore} then ${countAfter})`,
     countAfter > countBefore);
-  await p.locator('.sumrow').first().click(); await p.waitForTimeout(500);
+  await tab(p, 'Problems');
+  await p.locator('.rec').first().click(); await p.waitForTimeout(500);
   const after = await p.locator('.sheet .psum').textContent();
   ok('and the approved plan does not move because of it', before===after);
   await p.click('.sheetx'); await p.waitForTimeout(250);

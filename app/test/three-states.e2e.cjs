@@ -37,7 +37,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(600);
   };
   const problem = async (n) => {
-    await p.locator('.sumrow').nth(n).click(); await p.waitForTimeout(400);
+    await tab(p, 'Problems');
+    await p.locator('.rec').nth(n).click(); await p.waitForTimeout(400);
     const t = (await p.locator('.sheet').textContent()).replace(/\s+/g,' ');
     return t;
   };
@@ -63,18 +64,19 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok(`the tabs are in the order a chart review happens: ${strip}`,
     strip==='Notes|Subjective|Vitals|Problems|Lifestyle|Prevention|Meds|Labs|Imaging|Specialists|More');
 
-  const rail = (await p.locator('.rail').textContent()).replace(/\s+/g,' ');
-  ok('the column says what the practice is managing, in those words',
-    rail.includes('Our office is managing:'));
-  ok('lifestyle and preventative medicine sit with the conditions',
-    rail.includes('Lifestyle medicine') && rail.includes('Preventative medicine'));
-  ok('each managed thing carries its own evidence, not just a name',
-    rail.includes('Lisinopril') && /\d/.test(rail));
-  ok('a condition is controlled or uncontrolled, in one word',
-    rail.includes('Controlled') && rail.includes('Uncontrolled'));
-  ok('diagnostics carries a count', (await p.locator('.rcount').count())>0);
-  ok('and medicines are not a block of their own any more',
-    !/\bMedicines\b/.test(rail));
+  // The chart is one column. What the right column used to say is a
+  // tab, in the order a chart review reads them.
+  ok('no second column repeating the tabs',
+    (await p.locator('.rail').count())===0);
+  const probs = (await (await tabText('Problems'))).replace(/\s+/g,' ');
+  ok('the problems tab says what this practice manages and who has the rest',
+    probs.includes('We manage') && probs.includes('managed elsewhere'));
+  ok('each one controlled or uncontrolled, in one word',
+    probs.includes('Controlled') && probs.includes('Uncontrolled'));
+  const life = (await tabText('Lifestyle')).replace(/\s+/g,' ');
+  ok('lifestyle medicine is a tab of its own', life.includes('Prescriptions'));
+  const prev = (await tabText('Prevention')).replace(/\s+/g,' ');
+  ok('and so is preventative medicine', prev.includes('Preventative services'));
 
   const sProb = await problem(0);
   ok(`the problem sheet opens with where they are now: ${sProb.slice(0,40)}...`,
@@ -97,11 +99,11 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // ------------------------------------------------- 2. part filled
   await open('Marcus');
-  const mRail = (await p.locator('.rail').textContent()).replace(/\s+/g,' ');
-  ok('the column still draws every block', mRail.includes('Vitals')
-    && mRail.includes('Diagnostics') && mRail.includes('Care team'));
+  const mProbs = (await tabText('Problems')).replace(/\s+/g,' ');
   ok('a problem nobody judged says so rather than looking fine',
-    mRail.includes('Not assessed'));
+    mProbs.includes('Not assessed'));
+  ok('and every other tab still draws',
+    (await tabText('Vitals')).length>10 && (await tabText('Specialists')).length>10);
   const mProb = await problem(0);
   ok('a problem with nothing from the patient says that out loud',
     /Nothing on file from the patient|No plan written/.test(mProb));
@@ -109,14 +111,10 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // ----------------------------------------------------- 3. empty
   await open('Nina');
-  const nRail = (await p.locator('.rail').textContent()).replace(/\s+/g,' ');
   ok('an empty chart says nothing is being managed',
-    nRail.includes('Nothing is being managed here yet'));
-  ok('and every other block says it is empty rather than vanishing',
-    nRail.includes('Nothing recorded') && nRail.includes('Nothing on file'));
+    (await tabText('Problems')).includes('Nothing is being managed here'));
   ok('a missing primary care physician is a finding, not a blank',
-    nRail.includes('No primary care physician'));
-  ok('the four blocks are all drawn', (await p.locator('.railblock').count())===4);
+    (await tabText('Specialists')).includes('Nobody else recorded'));
 
   // Nina has one booked first visit and nothing else, so the two tabs
   // that know about it show it rather than claiming to be empty.
@@ -133,7 +131,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   }
 
   // nothing anywhere renders as an empty box
-  const blanks = await p.locator('.grp, .railblock').evaluateAll(
+  const blanks = await p.locator('.grp').evaluateAll(
     (els)=>els.filter((e)=>e.textContent.replace(/\s+/g,'').length < 12).length);
   ok('no section renders blank', blanks===0);
 

@@ -54,10 +54,12 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
     (await p.locator('.tabbody').textContent()).includes('Cares for her mother full time'));
   
   ok('reported conditions present in the history', await p.locator('.chead .dx:has-text("Trouble sleeping")').isVisible());
+  await tab(p, 'Problems');
   ok('but not yet something we manage',
-    (await p.locator('.csum').textContent().catch(()=>'')).includes('Trouble sleeping')===false);
+    !(await p.locator('.grp:has-text("We manage")').textContent()).includes('Trouble sleeping'));
   await tab(p, 'Notes');
-  ok('intake visit booked', (await p.locator('.tabbody').textContent()).includes('First full visit'));
+  ok('intake visit booked',
+    (await p.locator('.tabbody').textContent()).includes('Scheduled'));
   await p.screenshot({path:'e2e-3-newchart.png', fullPage:true});
 
   // 4 — medicines parsed from free text await p.waitForTimeout(250);
@@ -151,7 +153,7 @@ const ok=(n,c)=>{ (c?step:fail).push((c?'PASS  ':'FAIL  ')+n); };
   await p.waitForTimeout(300);
   await p.click('.startenc:has-text("Start a visit")'); await p.waitForTimeout(700);
   ok('the visit opens on the care plan, not on a blank note',
-    (await p.locator('.nboxhead').count())===3);
+    (await p.locator('.nboxtitle').count())===3);
   ok('and the one-liner is derived rather than typed',
     (await p.locator('.oneliner').first().textContent()).includes('with PMH of'));
   await p.fill('#subjective','Here with her mother. Sleeping five hours, broken.');

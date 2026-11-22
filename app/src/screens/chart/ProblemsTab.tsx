@@ -8,6 +8,8 @@
  */
 import { useState } from 'react';
 import { useStore } from '../../lib/store';
+import { CodePicker } from '../../components/CodePicker';
+import { searchConditions } from '../../domain/terminology';
 import { fmtDate } from '../../lib/format';
 import { OWNER_LABEL } from '../../domain/types';
 import { Group, Row, NoRows } from './Rows';
@@ -52,9 +54,54 @@ export function ProblemsTab({ patientId }: { patientId: string }) {
         </Group>
       )}
 
+      <AddProblem patientId={patientId} />
+
       {open && (
         <ProblemSheet patientId={patientId} conditionId={open} onClose={() => setOpen(null)} />
       )}
     </>
   );
 }
+
+/**
+ * A new problem, coded.
+ *
+ * Under the list it joins. It used to be under the right column's
+ * version of that list, and the right column is gone: every one of
+ * its blocks was a tab, read in the order a chart review reads them.
+ */
+function AddProblem({ patientId }: { patientId: string }) {
+  const st = useStore();
+  const [open, setOpen] = useState(false);
+  const [f, setF] = useState({ name: '', code: '' });
+
+  if (!open) {
+    return (
+      <button className="linkish addproblem" onClick={() => setOpen(true)}>+ Problem</button>
+    );
+  }
+  return (
+    <div className="addproblembox">
+      <CodePicker
+        label="Add a problem" value={f.name} autoFocus
+        placeholder="Type a diagnosis"
+        hint="ICD-10-CM"
+        onText={(v) => setF({ name: v, code: '' })}
+        search={(q) => searchConditions(q).map((c) => ({ id: c.code, primary: c.name, code: c.code }))}
+        onPick={(r) => setF({ name: r.primary, code: r.code })}
+      />
+      <div className="row" style={{ marginTop: 9, gap: 7 }}>
+        <button className="btn sm" disabled={!f.name.trim()}
+          onClick={() => {
+            st.addCondition(patientId, f.name.trim(), f.code);
+            setF({ name: '', code: '' });
+            setOpen(false);
+          }}>
+          Add{f.code ? ` ${f.code}` : ' without a code'}
+        </button>
+        <button className="btn ghost sm" onClick={() => setOpen(false)}>Cancel</button>
+      </div>
+    </div>
+  );
+}
+

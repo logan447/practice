@@ -16,15 +16,17 @@ const {tab, planUpdatedOn, sentCount}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 /**
- * The approved plan, read the way the chart now offers it: one sheet
- * per managed problem, off the right column. There is no care plan
- * tab any more and no single element holding the whole document.
+ * The approved plan, read the way the chart offers it: one sheet per
+ * problem, off the problems tab. There is no care plan tab and no
+ * single element holding the whole document.
  */
 const planText = async (p) => {
-  const n = await p.locator('.sumrow').count();
-  let out = (await p.locator('.rail').textContent());
+  await p.click('.ctabs > .ctab:has-text("Problems")');
+  await p.waitForTimeout(400);
+  const n = await p.locator('.rec').count();
+  let out = (await p.locator('.tabbody').textContent());
   for (let i = 0; i < n; i++) {
-    await p.locator('.sumrow').nth(i).click(); await p.waitForTimeout(350);
+    await p.locator('.rec').nth(i).click(); await p.waitForTimeout(350);
     if (await p.locator('.sheet').count()) {
       out += ' ' + (await p.locator('.sheet').textContent());
       await p.click('.sheetx'); await p.waitForTimeout(200);
@@ -75,7 +77,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('the visit opens on the approved version',
     (await p.locator('#subjective').inputValue()).includes('Patient reports'));
   ok('and it writes the care plan, not a note about it',
-    (await p.locator('.nboxhead').count())===3);
+    (await p.locator('.nboxtitle').count())===3);
   ok('and carries the plan forward from the approved version',
     (await p.locator('#plan').inputValue()).includes('Essential hypertension'));
   // The clock runs from the moment the visit opens and is never
@@ -102,10 +104,14 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   const now = await planUpdatedOn(p);
   ok(`the chart advances when somebody signs (${was} then ${now})`, was!==now);
   const nowText = await planText(p);
-  ok('the published version now contains what was reviewed',
-    nowText.includes('podiatrist') || nowText.includes('urgent care'));
-  ok('the chart changed only because somebody signed',
-    before!==nowText);
+  ok('the chart changed only because somebody signed', before!==nowText);
+  // What the patient told us is kept in their own words, whether or
+  // not a clause of the summary happens to repeat it.
+  await tab(p, 'Subjective');
+  await p.locator('.rec').first().click(); await p.waitForTimeout(400);
+  ok('and what they said arrived with is kept in their own words',
+    (await p.locator('.sheet').textContent()).includes('urgent care place'));
+  await p.click('.sheetx'); await p.waitForTimeout(250);
 
   // ------------------------------------- 7. the patient answers
   await p.keyboard.press('Meta+k'); await p.waitForTimeout(300);

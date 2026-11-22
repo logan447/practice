@@ -1,10 +1,10 @@
 /**
  * The care team.
  *
- * Who else is involved, what they found, what they advised, and what
- * is still outstanding. The last one is the point: co-management
- * fails at the handoff, not at the consultation, so it is the word
- * that appears on the row.
+ * Their own physician, then everybody else: what they found, what
+ * they advised, and what is still outstanding. The last one is the
+ * point, because co-management fails at the handoff rather than at
+ * the consultation, so it is the word that appears on the row.
  */
 import { useState } from 'react';
 import { useStore } from '../../lib/store';
@@ -21,6 +21,9 @@ const pending = (s?: string) => !!s && !/^(none|nothing|n\/a|no)\b/i.test(s.trim
 
 export function SpecialistsTab({ patientId }: { patientId: string }) {
   const st = useStore();
+  const patient = st.patient(patientId);
+  const pcp = patient?.pcp;
+  const noPcp = !pcp || ('none' in pcp && pcp.none);
   const [adding, setAdding] = useState(false);
   const [f, setF] = useState(BLANK);
   const [open, setOpen] = useState<string | null>(null);
@@ -29,6 +32,31 @@ export function SpecialistsTab({ patientId }: { patientId: string }) {
 
   return (
     <>
+      {/*
+        * Their own physician first.
+        *
+        * A consulting practice manages named problems and this is the
+        * list of who has the rest, so a blank where the primary care
+        * physician should be is a clinical finding rather than a
+        * missing field. It says so in words.
+        */}
+      <Group title="Primary care">
+        {noPcp ? (
+          <>
+            <Row name="No primary care physician" note="Outstanding" warn />
+            {pcp && 'plan' in pcp && pcp.plan && <p className="grpnote">{pcp.plan}</p>}
+            <p className="grpnote">
+              While this practice is closed, and for anything outside the list we manage,
+              this patient has no physician.
+            </p>
+          </>
+        ) : (
+          <Row name={'name' in pcp ? pcp.name : ''}
+            note={'practice' in pcp ? pcp.practice : undefined}
+            when={'since' in pcp && pcp.since ? pcp.since.slice(0, 4) : undefined} />
+        )}
+      </Group>
+
       <Group title="Specialists" count={specialists.length}>
         {specialists.length === 0 ? <NoRows>Nobody else recorded.</NoRows> : specialists.map((x) => (
           <Row key={x.id} name={`${x.name}, ${x.specialty}`}

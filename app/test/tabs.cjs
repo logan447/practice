@@ -61,7 +61,8 @@ const closeSheet = async (p) => { await p.click('.sheetx'); await p.waitForTimeo
  * look to ask whether the plan they are reading is current.
  */
 async function planUpdatedOn(p) {
-  await p.locator('.sumrow').first().click();
+  await tab(p, 'Problems');
+  await p.locator('.rec').first().click();
   await p.waitForTimeout(450);
   const text = await p.locator('.sheet').textContent();
   await p.click('.sheetx');

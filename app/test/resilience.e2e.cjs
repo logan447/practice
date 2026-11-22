@@ -44,11 +44,12 @@ const OLD = {
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(700);
   ok('the chart draws rather than going blank',
     (await p.locator('.chead h1').textContent())==='Sharon White');
-  ok('the standing summary still derives from whatever records survived',
-    (await p.locator('.rail').textContent()).includes('Our office is managing:'));
+  await p.click('.ctabs > .ctab:has-text("Problems")'); await p.waitForTimeout(400);
+  ok('the problem list still derives from whatever records survived',
+    (await p.locator('.tabbody').textContent()).includes('We manage'));
   ok('the problem renders rather than throwing',
-    (await p.locator('.sumrow').count())>=1);
-  await p.locator('.sumrow').first().click(); await p.waitForTimeout(400);
+    (await p.locator('.rec').count())>=1);
+  await p.locator('.rec').first().click(); await p.waitForTimeout(400);
   ok('and opens, on a chart missing half its records',
     (await p.locator('.sheet').count())===1);
   await p.click('.sheetx'); await p.waitForTimeout(250);
@@ -72,6 +73,13 @@ const OLD = {
   await p.click('.acctrow:has-text("Patients")').catch(()=>{}); await p.waitForTimeout(400);
   await p.locator('table.rows tbody tr').first().click().catch(()=>{});
   await p.waitForTimeout(700);
+  // The chart opens on the notes, which do not read a problem's name,
+  // so nothing breaks until the record that is broken is opened. That
+  // is the right behaviour and it is where the boundary has to catch.
+  await p.click('.ctabs > .ctab:has-text("Problems")').catch(()=>{});
+  await p.waitForTimeout(350);
+  await p.locator('.rec').first().click().catch(()=>{});
+  await p.waitForTimeout(500);
   ok('a crash is a screen, not a white page',
     (await p.locator('.crashbox').count())===1);
   const crash = (await p.locator('.crashbox').textContent()).replace(/\s+/g,' ');
