@@ -916,6 +916,14 @@ export interface Specialist {
   practice?: string;
   phone?: string;
   lastSeen?: string;
+  /**
+   * When they are next seen, where anybody has told us.
+   *
+   * The question a reader asks about a problem somebody else holds
+   * is not only who holds it but when they next look at it, and the
+   * answer is usually known to the patient and nowhere in a chart.
+   */
+  nextSeen?: string;
   /** What they found and what they advised. Kept verbatim where possible. */
   findings?: string;
   recommendations?: string;
@@ -995,7 +1003,8 @@ export interface Task {
  * not billable as one either.
  */
 export type LifestyleDomain =
-  | 'nutrition' | 'activity' | 'sleep' | 'stress' | 'connection' | 'substances';
+  | 'nutrition' | 'activity' | 'sleep' | 'stress' | 'connection' | 'substances'
+  | 'financial';
 
 /*
  * The six pillars, in the order they are worked through. The stored
@@ -1009,6 +1018,14 @@ export const LIFESTYLE_DOMAINS: { id: LifestyleDomain; label: string }[] = [
   { id: 'stress', label: 'Stress' },
   { id: 'substances', label: 'Substances' },
   { id: 'connection', label: 'Social' },
+  /*
+   * Money is a determinant of health the way sleep is, and it is the
+   * one a practice can act on without a referral: a prescription
+   * nobody fills and an appointment nobody keeps are usually about
+   * cost, and the pillar that would have caught it is missing from
+   * every list of six.
+   */
+  { id: 'financial', label: 'Financial' },
 ];
 
 export type LifestyleStatus = 'not-started' | 'active' | 'achieved' | 'struggling';

@@ -22,7 +22,7 @@ import { ROS_LINE } from '../../domain/ros';
 export const GROUP_LABEL = {
   Problems: '',
   Lifestyle: 'Lifestyle',
-  Preventative: 'Preventative',
+  Preventative: 'Preventative Medicine Services',
 } as const;
 
 /**
@@ -36,12 +36,12 @@ export const GROUP_LABEL = {
 export const NOTE_HEADINGS = new Set<string>([
   ...Object.values(GROUP_LABEL).filter(Boolean),
   'Review of systems',
-  'Problem list',
+  'Problems addressed at this visit',
   'Medications',
   'Care team',
   'Vitals',
   'Labs',
-  'Managed elsewhere',
+  'Not addressed this visit',
   'Physical Exam',
   'Surveys',
 ]);

@@ -138,6 +138,32 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('a preventative service is one line, ending in the next step',
     /Mammogram \u2014 Overdue, last done [^,]+, order today/.test(plan)
     && /Colonoscopy \u2014 Up to date, last done [^,]+, no next date set/.test(plan));
+  /*
+   * Every block the visit works on has the same shape: the name and
+   * the status, then one or two lines defending that status, then
+   * the points. Checked structurally rather than by example,
+   * because the failure is always one block that drifted.
+   */
+  const SERVICE = /^(Lifestyle|Preventative Medicine Services|Not addressed this visit)$/;
+  const lines = plan.split('\n').map((l) => l.trim());
+  const isPoint = (l) => /^[\u2022\-*]/.test(l);
+  const isHead = (l) => l.includes('\u2014') && !isPoint(l)
+    && !/Triaged as stable/.test(l);
+  let blocks = 0;
+  let shaped = 0;
+  for (let i = 0; i < lines.length; i++) {
+    if (!isHead(lines[i])) continue;
+    let prose = 0;
+    let j = i + 1;
+    while (j < lines.length && lines[j] && !isPoint(lines[j])
+      && !isHead(lines[j]) && !SERVICE.test(lines[j])) { prose++; j++; }
+    blocks++;
+    if (prose >= 1 && prose <= 2) shaped++;
+  }
+  ok(`every problem and pillar is a status, one or two lines, then points (${
+    shaped} of ${blocks})`,
+  blocks >= 8 && shaped === blocks);
+
   ok('and a pillar carries only whether it has started',
     /Exercise \u2014 (In progress|Not started)/.test(plan)
     && !/\u2014 (Holding|Struggling)/.test(plan));

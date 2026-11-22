@@ -207,7 +207,7 @@ export const priyaSpecialists: Specialist[] = [
   {
     id: 'psp1', patientId: P, name: 'Dr. Amara Nwosu', specialty: 'Gynaecology',
     practice: 'Hill Country Women’s Health', phone: '(512) 555-0388',
-    lastSeen: '2026-08-14',
+    lastSeen: '2026-08-14', nextSeen: '2027-02-10',
     findings: 'Polycystic ovaries on ultrasound. Cycles regular on the combined pill.',
     recommendations: 'Continue the pill. Metabolic screening and weight management with primary care.',
     outstanding: 'They have asked for our metabolic plan before her next review.',

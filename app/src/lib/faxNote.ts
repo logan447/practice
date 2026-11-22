@@ -87,6 +87,13 @@ export interface FaxInput {
  */
 const PRACTICE_FAX = '(512) 555-0199';
 const PRACTICE_SITE = 'www.lpmc.com';
+/*
+ * A placeholder, like the fax number above, and for the same reason:
+ * a street address on a clinical document is where records get sent.
+ * The state matches the licence rather than the phone number, which
+ * is a 979 and wants reconciling before any of this is real.
+ */
+const PRACTICE_ADDRESS = '123 Main Street, Suite 200, Arlington, VA 22201';
 
 const esc = (s: string): string => s
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -102,8 +109,9 @@ const esc = (s: string): string => s
  */
 const SERVICES = new Set([
   'Lifestyle', 'Preventative', 'Review of systems',
-  'Vitals', 'Labs', 'Physical Exam', 'Surveys', 'Managed elsewhere',
-  'Problem list', 'Medications', 'Care team',
+  'Vitals', 'Labs', 'Physical Exam', 'Surveys', 'Not addressed this visit',
+  'Problems addressed at this visit', 'Medications', 'Care team',
+  'Preventative Medicine Services',
 ]);
 
 const SURVEY_LINE =
@@ -253,11 +261,11 @@ export function buildFaxNote(input: FaxInput): { html: string; pages: string } {
         <div class="faxsign">
           ${e.signedAt ? '<p class="faxhand">Logan DuBose</p>' : ''}
           <p><b>Logan L. DuBose, MD, MBA, DipIBLM</b></p>
-          <p>General Practitioner, licensed in VA</p>
-          <p>Lifestyle and Preventative Medicine Clinic</p>
+          <p>General Practitioner (GP), Licensed in VA</p>
+          <p>Lifestyle and Preventative Medicine Clinic, ${esc(PRACTICE_SITE)}</p>
+          <p>${esc(PRACTICE_ADDRESS)}</p>
           <p>Phone: (979) 481-9110 &nbsp;|&nbsp; Fax: ${esc(PRACTICE_FAX)}
             &nbsp;|&nbsp; Email: logandubose960@lpmc.com</p>
-          <p>${esc(PRACTICE_SITE)}</p>
           <p>${e.signedAt
     ? `Signed ${fmtDate(e.signedAt)}.`
     : 'This note is not signed. It is a draft and should not be filed as a record.'}</p>

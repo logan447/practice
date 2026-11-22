@@ -358,7 +358,12 @@ export function Encounter({ encounterId }: { encounterId: string }) {
            * underneath it has to answer. Capped at two lines further
            * down, so several barriers do not become a paragraph.
            */
-          because: mine.map((l) => l.barrier ?? '').filter(Boolean).join(' '),
+          because: mine.map((l) => l.barrier ?? '').filter(Boolean).join(' ')
+            || (mine.every((l) => l.status === 'not-started')
+              ? 'Prescribed and not started. Nothing has got in the way that she has named.'
+              : mine.some((l) => l.status === 'achieved')
+                ? 'Holding without effort now. Nothing in the way.'
+                : 'On the plan as agreed. Nothing in the way that she has named.'),
         };
       }),
       ...prevention.map((x) => ({
@@ -482,6 +487,30 @@ export function Encounter({ encounterId }: { encounterId: string }) {
     const theirWords = [general, ...items.map((it) => it.said)].filter(Boolean);
 
     /*
+     * Mood, where they raised it.
+     *
+     * Their own words, not the screens: the PHQ and the GAD are in
+     * the objective because they are measurements, and a number is
+     * not what somebody said about how they are. Where they said
+     * nothing the line says so, which is a different fact from a
+     * negative screen and is worth seeing beside one.
+     */
+    const feelings: Record<string, string> = {
+      better: 'things are better than they were',
+      same: 'things are about the same',
+      worse: 'things are worse than they were',
+      unsure: 'they are not sure how things are going',
+    };
+    const lastUpdate = st.updatesFor(patientId)[0];
+    const moodWords = theirWords.join(' ');
+    const moodHit = /\b(mood|anxious|anxiety|worried|stressed|down|overwhelmed|sleep)\b/i
+      .exec(moodWords);
+    const mood = [
+      lastUpdate?.feeling ? `Patient reports ${feelings[lastUpdate.feeling]}.` : '',
+      moodHit ? `Raised ${moodHit[0].toLowerCase()} without being asked.` : '',
+    ].filter(Boolean).join(' ') || 'Not raised at this visit.';
+
+    /*
      * Every pillar and every service, whether or not they said
      * anything about it.
      *
@@ -509,19 +538,34 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       const sp = specialistsAbout(c.name, specialists)[0];
       if (sp) {
         const waiting = !sp.lastSeen || (!!sp.outstanding && sp.outstanding !== 'None.');
-        return waiting
-          ? `Referred to ${sp.name}, ${sp.specialty}. Appointment not confirmed.`
-          : `Managed by ${sp.name}, ${sp.specialty}.`;
+        if (waiting) return `Referred to ${sp.name}, ${sp.specialty}. Appointment not confirmed.`;
+        return `Managed by ${sp.name}, ${sp.specialty}. ${
+          sp.nextSeen ? `Next seen ${fmtDate(sp.nextSeen)}.` : 'Next appointment not known.'}`;
       }
-      if (c.owner === 'theirs') return 'Managed by their primary care physician.';
-      if (c.owner === 'shared') return 'Co-managed with their primary care physician.';
+      if (c.owner === 'theirs') {
+        return 'Managed by their primary care physician. Next appointment not known.';
+      }
+      if (c.owner === 'shared') {
+        return 'Co-managed with their primary care physician. Next appointment not known.';
+      }
       return 'Nobody is recorded as managing it.';
     };
+    /*
+     * The rest of the problem list, confirmed rather than worked on.
+     *
+     * Not addressed today, nothing new reported about them, and
+     * somebody is named as holding each one. A note that lists only
+     * what was worked on leaves the reader to wonder whether the
+     * rest was forgotten or decided about.
+     */
     const elsewhere = conditions
       .filter((c) => c.status === 'active' && !c.managed)
-      .map((c) => ({ group: 'Problems' as const, text: `${c.name} \u2014 ${heldBy(c)}` }));
+      .map((c) => ({
+        group: 'Problems' as const,
+        text: `${c.name} \u2014 Triaged as stable, nothing new reported. ${heldBy(c)}`,
+      }));
     const elsewhereBlock = elsewhere.length > 0
-      ? [{ group: 'Problems' as const, text: 'Managed elsewhere' }, ...elsewhere]
+      ? [{ group: 'Problems' as const, text: 'Not addressed this visit' }, ...elsewhere]
       : [];
 
     /*
@@ -577,13 +621,13 @@ export function Encounter({ encounterId }: { encounterId: string }) {
 
     const subjective = labelled(
       [
+        { group: 'Problems' as const, text: `Mood \u2014 ${mood}` },
+        { group: 'Problems' as const, text: 'Problems addressed at this visit' },
         ...items
-          .filter((it) => it.group !== 'Problems' || it.said.trim())
-          .filter((it) => it.group === 'Problems')
+          .filter((it) => it.group === 'Problems' && it.said.trim())
           .map((it) => ({
             group: it.group,
-            text: `${it.name} \u2014 ${
-              it.said.trim() ? reports(it.said) : it.silent}${
+            text: `${it.name} \u2014 ${reports(it.said)}${
               it.denies ? ` ${it.denies}` : ''}`,
           })),
         ...elsewhereBlock,
@@ -665,6 +709,17 @@ export function Encounter({ encounterId }: { encounterId: string }) {
         if (out.length > 0 && used + sentence.length > TWO_LINES) break;
         out.push(sentence);
         used += sentence.length + 1;
+      }
+      /*
+       * Never nothing. A heading saying "Not at goal" with a list of
+       * drugs under it and no sentence between them leaves the
+       * reader to work out what goal and how far off, which is the
+       * one thing the physician already knew.
+       */
+      if (out.length === 0) {
+        return it.standing.startsWith('At goal')
+          ? 'At target on the last measurement, and nothing has been changed since.'
+          : 'No assessment recorded against this one yet.';
       }
       return out.join(' ').trim();
     };

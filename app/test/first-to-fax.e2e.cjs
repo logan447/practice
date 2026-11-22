@@ -131,10 +131,13 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('a problem we hold says who else holds it',
     /Type 2 diabetes mellitus \u2014 At goal, co-managed with Dr\. Ingrid Sorensen/
       .test(flatpaper));
-  ok('and the ones we do not hold are named with who does',
-    /Managed elsewhere/.test(flatpaper)
-    && /Hypothyroidism \u2014 Managed by Dr\. Ingrid Sorensen, Endocrinology\./
-      .test(flatpaper));
+  // Not worked on today, triaged, and somebody named as holding it,
+  // with when they next look at it where anybody has told us.
+  ok('and the ones we did not work on are triaged, with who holds them',
+    /Not addressed this visit/.test(flatpaper)
+    && /Hypothyroidism \u2014 Triaged as stable, nothing new reported\. /
+      .test(flatpaper)
+    && /Managed by Dr\. Ingrid Sorensen, Endocrinology\. Next seen /.test(flatpaper));
   ok('it ends in the follow-up, in the form a patient repeats back',
     /Follow up on 15 Feb 2027 \(3 months\) for ongoing services\./.test(paper));
   ok('and it is signed, with how to reach us',

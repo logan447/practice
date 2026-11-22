@@ -203,6 +203,11 @@ const LIFESTYLE_POOL: Record<LifestyleDomain, string[]> = {
     'Nicotine replacement from the quit date, with a follow-up call in two weeks.',
     'No alcohol on the nights before an early shift.',
   ],
+  financial: [
+    'Ninety day fills on the two long-term medicines, which halves the pharmacy trips and the cost.',
+    'Check the assistance programme for the insulin before the next refill is due.',
+    'One appointment a month rather than two, so the time off work is one morning.',
+  ],
 };
 
 const DOMAINS_FOR: Record<string, LifestyleDomain[]> = {

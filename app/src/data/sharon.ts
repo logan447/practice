@@ -180,7 +180,8 @@ export const sharonPrevention: PreventionItem[] = [
 
 export const sharonSpecialists: Specialist[] = [
   { id: 'ss1', patientId: 'p0', name: 'Dr. Ingrid Sorensen', specialty: 'Endocrinology',
-    practice: 'Capital Family Practice', phone: '(512) 555-0311', lastSeen: '2026-02-03',
+    practice: 'Capital Family Practice', phone: '(512) 555-0311',
+    lastSeen: '2026-02-03', nextSeen: '2027-02-09',
     findings: 'Thyroid stable on 88 mcg. No change.',
     recommendations: 'Annual TSH. Primary care to manage the diabetes.',
     outstanding: 'None.' },
