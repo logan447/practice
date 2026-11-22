@@ -37,7 +37,17 @@ export const NOTE_HEADINGS = new Set<string>([
   ...Object.values(GROUP_LABEL).filter(Boolean),
   'Review of systems',
   'Examination',
+  'Surveys',
 ]);
+
+/**
+ * A survey line, and whether it is a positive screen.
+ *
+ * "PHQ-2: 1 of 6" and "GAD-2: 3 of 6 · Positive" are the same shape
+ * and only one of them is a reason to do something, so the word that
+ * says which gets the same colour the review's positives get.
+ */
+const SURVEY_LINE = /^(PHQ-2|GAD-2|PHQ-9|GAD-7|AUDIT-C|Mini-Cog|Flourishing): /;
 
 
 /**
@@ -75,6 +85,18 @@ export function ReadLine({ line, inRos }: { line: string; inRos?: boolean }) {
   // Only inside the review. "Cardiovascular: regular rate and
   // rhythm" is an examination line and reads as one.
   if (inRos && ROS_LINE.test(line.trim())) return <RosLine line={line.trim()} />;
+  if (SURVEY_LINE.test(line.trim())) {
+    const t = line.trim();
+    const at = t.indexOf(':');
+    const rest = t.slice(at + 1).trim();
+    const hit = / Positive\b|Possible impairment/.test(rest);
+    return (
+      <div className="nreadline rosline">
+        <strong>{t.slice(0, at)}:</strong>{' '}
+        <span className={hit ? 'rospos' : undefined}>{rest}</span>
+      </div>
+    );
+  }
   // A point in the plan, not a sentence about it: given a little air
   // above the first of a run so the sentence that leads into them is
   // not the first bullet's own first line.

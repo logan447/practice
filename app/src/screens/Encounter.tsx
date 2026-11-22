@@ -47,6 +47,7 @@ import { ReadLine, readLines, GROUP_LABEL } from './chart/NoteText';
 import { TAB_LABEL } from './chart/drawers';
 import { LIFESTYLE_DOMAINS, SETTING_LABEL } from '../domain/types';
 import { pertinentNegatives, reviewOfSystems } from '../domain/ros';
+import { surveysText } from '../lib/surveys';
 import type { VisitNote, Order, OrderKind } from '../domain/types';
 import { ORDER_KINDS } from '../domain/types';
 import {
@@ -566,7 +567,15 @@ export function Encounter({ encounterId }: { encounterId: string }) {
        * hands. The examination is the part that is written today, so
        * it is the part that is a field.
        */
-      objective: [EXAM, said('vitals'), said('results')]
+      /*
+       * Vitals and labs are above this field, derived. What is
+       * written here is the examination and then the surveys, which
+       * are measurements the patient produced: a number with a date
+       * and a scale, comparable with the last one, rather than
+       * something they said.
+       */
+      objective: [EXAM, said('vitals'), said('results'),
+        surveysText(st.scoresFor(patientId), enc?.date)]
         .filter(Boolean).join('\n\n'),
       plan: [planHead, said('problems'), plan].filter(Boolean).join('\n\n'),
     }));

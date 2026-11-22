@@ -1139,12 +1139,25 @@ export interface DiagnosticStudy {
  * is what the clinical work actually turns on.
  */
 export type InstrumentId =
-  | 'phq-9' | 'phq-2' | 'gad-7' | 'audit-c' | 'mini-cog' | 'phq-9-item-9';
+  | 'phq-9' | 'phq-2' | 'gad-7' | 'gad-2' | 'audit-c' | 'mini-cog'
+  | 'phq-9-item-9' | 'flourishing';
 
 export const INSTRUMENTS: {
   id: InstrumentId; label: string; max: number;
   /** What the score means, in bands. */
   bands: { at: number; label: string }[];
+  /**
+   * A high score is a good result, not a worse one.
+   *
+   * True for wellbeing measures and false for every screener here.
+   * Without it a flourishing score of 96 out of 120 is read as the
+   * worst band on the scale.
+   */
+  higherIsBetter?: boolean;
+  /** The score at or above which this is a positive screen. */
+  positiveAt?: number;
+  /** Where the cut-off comes from. Never an invented number. */
+  source?: string;
 }[] = [
   {
     id: 'phq-9', label: 'PHQ-9', max: 27,
@@ -1154,7 +1167,26 @@ export const INSTRUMENTS: {
       { at: 20, label: 'Severe' },
     ],
   },
-  { id: 'phq-2', label: 'PHQ-2', max: 6, bands: [{ at: 0, label: 'Negative' }, { at: 3, label: 'Positive' }] },
+  {
+    id: 'phq-2', label: 'PHQ-2', max: 6, positiveAt: 3,
+    bands: [{ at: 0, label: 'Negative' }, { at: 3, label: 'Positive' }],
+    source: 'Kroenke, Spitzer and Williams, Med Care 2003: 3 or more is a positive screen.',
+  },
+  {
+    id: 'gad-2', label: 'GAD-2', max: 6, positiveAt: 3,
+    bands: [{ at: 0, label: 'Negative' }, { at: 3, label: 'Positive' }],
+    source: 'Kroenke et al, Ann Intern Med 2007: 3 or more is a positive screen.',
+  },
+  /*
+   * Twelve items, nought to ten each, across six domains. Higher is
+   * better and there is no clinical cut-off, so none is invented
+   * here: the number is read against this patient's own last one.
+   */
+  {
+    id: 'flourishing', label: 'Flourishing', max: 120, higherIsBetter: true,
+    bands: [],
+    source: 'VanderWeele, PNAS 2017, Flourishing Measure. No validated cut-off.',
+  },
   {
     id: 'gad-7', label: 'GAD-7', max: 21,
     bands: [

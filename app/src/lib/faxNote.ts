@@ -73,8 +73,10 @@ const esc = (s: string): string => s
  * only one of the three service labels is a heading of its own.
  */
 const SERVICES = new Set([
-  'Lifestyle', 'Preventative', 'Review of systems', 'Examination',
+  'Lifestyle', 'Preventative', 'Review of systems', 'Examination', 'Surveys',
 ]);
+
+const SURVEY_LINE = /^(PHQ-2|GAD-2|PHQ-9|GAD-7|AUDIT-C|Mini-Cog|Flourishing): /;
 
 /**
  * One line of the formal review, with the positive marked.
@@ -107,6 +109,13 @@ const body = (text?: string): string => {
     if (line === 'Review of systems') inRos = true;
     if (SERVICES.has(line)) return `<p class="svc">${esc(line)}</p>`;
     if (inRos && ROS_LINE.test(line)) return rosLine(line);
+    if (SURVEY_LINE.test(line)) {
+      const at = line.indexOf(':');
+      const rest = line.slice(at + 1).trim();
+      const hit = / Positive\b|Possible impairment/.test(rest);
+      return `<p class="rosline"><b>${esc(line.slice(0, at))}:</b> `
+        + (hit ? `<span class="rospos">${esc(rest)}</span>` : esc(rest)) + '</p>';
+    }
     if (/^[•\-*]\s/.test(line)) {
       return `<p class="pt">${esc(line.replace(/^[•\-*]\s*/, '• '))}</p>`;
     }

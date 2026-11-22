@@ -358,4 +358,17 @@ export const sharonScores: InstrumentScore[] = [
     id: 'is6', patientId: P, instrument: 'audit-c', date: '2026-01-20',
     score: 1, by: 'patient', encounterId: 'se1',
   },
+  /*
+   * The short screens and the wellbeing measure, sent with the
+   * pre-visit update rather than asked in the room. Two minutes of
+   * the visit back, and a number that can be compared with the last
+   * one instead of a memory of how she seemed.
+   */
+  { id: 'is7', patientId: P, instrument: 'phq-2', date: '2026-11-12', score: 1, by: 'patient' },
+  { id: 'is8', patientId: P, instrument: 'gad-2', date: '2026-11-12', score: 3, by: 'patient',
+    note: 'Positive screen. The carer load is the thing she names when asked.' },
+  { id: 'is9', patientId: P, instrument: 'flourishing', date: '2026-11-12', score: 79, by: 'patient' },
+  { id: 'is10', patientId: P, instrument: 'phq-2', date: '2026-06-18', score: 2, by: 'patient' },
+  { id: 'is11', patientId: P, instrument: 'gad-2', date: '2026-06-18', score: 2, by: 'patient' },
+  { id: 'is12', patientId: P, instrument: 'flourishing', date: '2026-06-18', score: 71, by: 'patient' },
 ];

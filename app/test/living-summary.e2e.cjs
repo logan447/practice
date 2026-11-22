@@ -101,6 +101,21 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('three boxes, and the visit opens on the subjective alone',
     (await p.locator('.note .nbox').count())===3
     && (await p.locator('.note .nbox.shut').count())===2);
+  // The objective, in the order it is read: what was measured, what
+  // came back from the lab, what was found by hand, then the scored
+  // questionnaires, which are measurements the patient produced.
+  const obj = await noteText(p,'objective');
+  ok(`the objective runs vitals, labs, examination, surveys: ${
+    obj.split('\n').filter((l)=>/^(Examination|Surveys)$/.test(l.trim())).join(', ')}`,
+    obj.indexOf('Examination') < obj.indexOf('Surveys'));
+  ok('a short screen carries its score, the one before it, and what it means',
+    /PHQ-2: 1 of 6 \(2\) \u00b7 Negative/.test(obj)
+    && /GAD-2: 3 of 6 \(2\) \u00b7 Positive/.test(obj));
+  ok('and a wellbeing measure carries no cut-off, because it has none',
+    /Flourishing: 79 of 120 \(71\)/.test(obj) && !/Flourishing[^\n]*Positive/.test(obj));
+  ok('the positive screen is the part that is marked',
+    (await p.locator('.nbox:has(.nboxtitle:text-is("Objective")) .rospos').count())===1);
+
   const plan = await noteText(p,'plan');
   ok('the plan arrives with the problems, pillars and services written into it',
     plan.includes('Essential hypertension') && plan.includes('Physical activity')
@@ -150,8 +165,9 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     /Musculoskeletal: knee pain\./.test(subj)
     && /Endocrine: shakiness in the evenings\./.test(subj));
   ok('and the positives are the part that is marked',
-    (await p.locator('.rospos').count())===2
-    && (await p.locator('.rospos').first().textContent()).includes('knee pain'));
+    (await p.locator('.nbox:has(.nboxtitle:text-is("Subjective")) .rospos').count())===2
+    && (await p.locator('.nbox:has(.nboxtitle:text-is("Subjective")) .rospos')
+      .first().textContent()).includes('knee pain'));
   // Status is a sentence you wrote, not a button you picked.
   ok('nothing sets a status by button',
     (await p.locator('.note .btn').count())===0);
