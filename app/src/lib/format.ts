@@ -57,8 +57,8 @@ export function interval(fromIso: string, toIso: string): string {
   return `${y} year${y === 1 ? '' : 's'}`;
 }
 
-export function age(dob: string): number {
-  const t = asDate(now());
+export function age(dob: string, on?: string): number {
+  const t = asDate(on ?? now());
   const d = asDate(dob);
   let a = t.getFullYear() - d.getFullYear();
   const m = t.getMonth() - d.getMonth();

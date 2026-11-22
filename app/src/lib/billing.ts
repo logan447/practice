@@ -26,7 +26,16 @@ const RANK: Record<MdmLevel, number> = {
   straightforward: 0, low: 1, moderate: 2, high: 3,
 };
 const CODE_BY_RANK = ['99212', '99213', '99214', '99215'] as const;
-type EmCode = typeof CODE_BY_RANK[number];
+/**
+ * The same four levels, for somebody this practice has not seen.
+ *
+ * A new patient is a different code family at the same medical
+ * decision making, and billing an established code for a first visit
+ * is the most common coding error in a practice that has only just
+ * started having first visits.
+ */
+const NEW_BY_RANK = ['99202', '99203', '99204', '99205'] as const;
+type EmCode = typeof CODE_BY_RANK[number] | typeof NEW_BY_RANK[number];
 
 /**
  * Minutes at which each established-patient code is reachable.
@@ -73,14 +82,26 @@ export interface EmComputation {
  * element its level is CPT content, and this file computes over the
  * physician's own reading of it rather than reproducing it.
  */
-export function emLevel(em: EmRecord): EmComputation {
+export function emLevel(em: EmRecord, newPatient = false): EmComputation {
   const ranks = [em.problemsLevel, em.dataLevel, em.riskLevel]
     .map((l) => RANK[l]).sort((a, b) => b - a);
   const two = ranks[1];
   const mdmLevel = (Object.keys(RANK) as MdmLevel[]).find((k) => RANK[k] === two)!;
-  const byMdm = CODE_BY_RANK[two];
+  const byMdm = (newPatient ? NEW_BY_RANK : CODE_BY_RANK)[two];
   const m = em.totalMinutes;
 
+  /*
+   * The new-patient time table is CPT's in all four rows, so the
+   * chart says nothing about it rather than guessing. For an
+   * established patient CMS publishes the two ends and not the
+   * middle, which is the gap EM_TIME_FLOOR documents.
+   */
+  if (newPatient) {
+    return {
+      mdmLevel, byMdm, timeUnknown: true, agree: false,
+      byTime: `${m} minutes recorded. The CPT time table for 99202 to 99205 decides.`,
+    };
+  }
   if (m >= 40) {
     return { mdmLevel, byMdm, byTime: '99215', timeUnknown: false, agree: byMdm === '99215' };
   }
@@ -90,6 +111,165 @@ export function emLevel(em: EmRecord): EmComputation {
   return {
     mdmLevel, byMdm, timeUnknown: true, agree: false,
     byTime: 'at least 99212, and above that the CPT time table decides',
+  };
+}
+
+/* ------------------------------------------------------------------ */
+/* what it costs                                                       */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The membership fee, in dollars.
+ *
+ * The one price this practice has decided on (D-039, 2026-11-12).
+ * REFRESH-AT-RUNWAY.
+ */
+export const MONTHLY_FEE = 99;
+export const YEARLY_FEE = MONTHLY_FEE * 12;
+
+/**
+ * What one visit costs when somebody pays for visits.
+ *
+ * ASSUMPTION, owned and not sourced. Nobody has set this price.
+ *
+ * It has to be its own number rather than the membership divided by
+ * the visits, which is what it was until this was written. Divide
+ * the membership and the two ways of paying cost the same by
+ * construction, every saving comes out as zero, and the comparison
+ * is arithmetic about itself. The saving on the page is this number
+ * times the visits, less the membership, so if this number is wrong
+ * the saving is wrong by the visits times the error.
+ *
+ * The repo rule is that unset inputs stay UNSET, and in the charter's
+ * terms this one is UNSET: D-039 decided one price, $99 a month, and
+ * a per-visit price is not a thing anybody has decided. It carries a
+ * number here only because a prototype cannot render a comparison
+ * against a blank, and the number is a placeholder standing in for a
+ * decision, not the decision.
+ *
+ * So: do not quote it to a patient, do not put it in a print piece,
+ * and do not let it reach anything outside this prototype until it
+ * has been decided and logged.
+ */
+export const VISIT_FEE = 350;
+
+export interface QuotedVisit {
+  date: string;
+  /** What the visit is for, in the words it was booked in. */
+  why: string;
+  price: number;
+}
+
+export interface Quote {
+  /** Nothing is charged for the first assessment. */
+  proBonoFirst: boolean;
+  visits: QuotedVisit[];
+  total: number;
+  /** The per-visit price every line was charged at. */
+  each: number;
+}
+
+export interface Comparison {
+  visits: number;
+  /** The same visits, paid for one at a time. */
+  payPerVisit: number;
+  membership: number;
+  /** Positive when the membership is cheaper. */
+  saving: number;
+  /** How many visits it takes before the membership is the cheaper one. */
+  breakEven: number;
+}
+
+/**
+ * The year, paid two ways.
+ *
+ * Paying per visit is the baseline, because it is what the quote
+ * above already is. The membership is the alternative, and the only
+ * honest way to compare them is to count the visits actually planned
+ * and price both.
+ *
+ * On a light year the membership loses, and the note says so. That
+ * is the point of printing the break-even: it tells the patient how
+ * many visits it takes to turn, and one unplanned illness is usually
+ * what turns it. The comparison also leaves out what only the
+ * membership covers, the acute visit nobody booked and every message
+ * in between, so the gap it shows is the conservative one.
+ */
+export function compare(visitCount: number, visitFee = VISIT_FEE): Comparison {
+  const payPerVisit = Math.round(visitCount * visitFee * 100) / 100;
+  return {
+    visits: visitCount,
+    payPerVisit,
+    membership: YEARLY_FEE,
+    saving: Math.round((payPerVisit - YEARLY_FEE) * 100) / 100,
+    breakEven: Math.ceil(YEARLY_FEE / visitFee),
+  };
+}
+
+/**
+ * The twelve months behind a visit, counted in charged visits.
+ *
+ * A quote says what a year was expected to hold. This says what it
+ * held, which is a different number whenever anything went wrong,
+ * and the difference is the only honest basis for telling somebody
+ * what a membership would have saved them.
+ *
+ * The patient's first ever visit is left out, because a first
+ * assessment is free and a free visit is not a thing anybody saved
+ * money on. Everything else signed inside the window counts,
+ * including the visit being written, because it is being charged for.
+ */
+export function yearBehind(
+  encounters: { id: string; date: string; status: string }[], upTo: string,
+): { visits: number; since: string } | undefined {
+  const signed = encounters
+    .filter((e) => e.status === 'signed' && e.date <= upTo)
+    .sort((a, b) => a.date.localeCompare(b.date));
+  if (signed.length === 0) return undefined;
+  const first = signed[0];
+  /*
+   * A year back from the visit, by the calendar rather than by 365
+   * days, so an annual on the anniversary of the first visit counts
+   * the first visit as inside the year it closes.
+   */
+  const d = new Date(`${upTo}T00:00:00Z`);
+  d.setUTCFullYear(d.getUTCFullYear() - 1);
+  const from = d.toISOString().slice(0, 10);
+
+  const charged = signed.filter((e) => e.id !== first.id && e.date >= from);
+  if (charged.length === 0) return undefined;
+  return {
+    visits: charged.length,
+    // Where the free first visit is inside the window it is still
+    // where the year started, and saying so is more use than the
+    // date of the first visit that happened to be charged for.
+    since: first.date >= from ? first.date : charged[0].date,
+  };
+}
+
+/**
+ * The year ahead, priced at the visit that plans it.
+ *
+ * A patient paying cash wants to know the year, not today. So the
+ * visits booked out of this encounter are the quote: the same number
+ * of lines, in the same order, with a price on each and a total at
+ * the foot. Quoted once and fixed, and quoted again at the next
+ * annual when the next year is planned.
+ *
+ * Every line is priced at VISIT_FEE, the same whoever is sitting in
+ * the chair and whatever the visit turns out to hold. A practice
+ * paid in cash can say what a visit costs before it happens, which
+ * is most of why anybody would choose to be paid this way.
+ */
+export function quoteYear(
+  booked: { date: string; why: string }[], firstVisit: boolean,
+): Quote {
+  const visits = booked.filter((v) => v.date);
+  return {
+    proBonoFirst: firstVisit,
+    each: VISIT_FEE,
+    visits: visits.map((v) => ({ ...v, price: VISIT_FEE })),
+    total: Math.round(VISIT_FEE * visits.length * 100) / 100,
   };
 }
 

@@ -22,6 +22,8 @@ import { useStore } from '../../lib/store';
 import { useActor } from '../../lib/session';
 import { record } from '../../lib/audit';
 import { buildFaxNote } from '../../lib/faxNote';
+import { quoteYear, yearBehind } from '../../lib/billing';
+import type { Encounter } from '../../domain/types';
 import { useNav } from '../../lib/nav';
 import { fmtDate } from '../../lib/format';
 import { SETTING_LABEL } from '../../domain/types';
@@ -53,7 +55,19 @@ export function NotesTab({ patientId }: { patientId: string }) {
             when={fmtDate(x.date)}
             tag={state(x.status)}
             warn={x.status === 'in-progress'}
-            name={`Visit · ${SETTING_LABEL[x.setting ?? 'in-person']}`}
+            /*
+             * What the visit was for, because a year of them is
+             * otherwise five identical rows reading "Visit · In
+             * person" and the only way to tell them apart is to open
+             * each one. The setting leads only when it is not the
+             * usual one, which is the case where it is worth knowing
+             * before you click.
+             */
+            name={[
+              (x.setting ?? 'in-person') === 'in-person'
+                ? '' : SETTING_LABEL[x.setting ?? 'in-person'],
+              x.reason?.trim() || 'Visit',
+            ].filter(Boolean).join(' · ')}
             onOpen={() => show(x.id)} />
         ))}
       </Rows>
@@ -229,6 +243,11 @@ function FaxNote({ patientId, encounterId, onClose }: {
       panels: st.panelsFor(patientId).filter((pl) => pl.date <= e.date),
       vitals: st.vitalsFor(patientId).filter((v) => v.date <= e.date),
       series: st.patientSeriesFor(patientId),
+      newPatient: !st.encountersFor(patientId)
+        .some((x) => x.status === 'signed' && x.date < e.date),
+      booked: e.note?.plan.booked ?? [],
+      quotedAt: quotedAt(st, patientId, e),
+      yearBehind: yearBehind(st.encountersFor(patientId), e.date),
     });
     setSheet(built.html);
   };
@@ -321,4 +340,25 @@ function FaxNote({ patientId, encounterId, onClose }: {
       )}
     </div>
   );
+}
+
+/**
+ * What this visit cost, from the quote that planned it.
+ *
+ * A visit inside a quoted year has a price already: the year was
+ * divided by its visits at the encounter that booked them. So the
+ * answer is found by looking back for the note that booked this
+ * date, not by pricing it again now.
+ */
+function quotedAt(
+  st: ReturnType<typeof useStore>, patientId: string, e: Encounter,
+): { price: number; on: string; of: number } | undefined {
+  for (const prior of st.encountersFor(patientId)) {
+    if (prior.id === e.id || prior.date >= e.date) continue;
+    const booked = prior.note?.plan.booked ?? [];
+    if (!booked.some((v) => v.date === e.date)) continue;
+    const q = quoteYear(booked, false);
+    return { price: q.each, on: prior.date, of: booked.length };
+  }
+  return undefined;
 }

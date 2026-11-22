@@ -37,6 +37,7 @@ import { SETTING_LABEL } from '../domain/types';
 import { fmtDate, age } from './format';
 import { labsHtml } from './fishbone';
 import { vitalsHtml } from './vitals';
+import { quoteYear, compare, MONTHLY_FEE, VISIT_FEE } from './billing';
 import { ROS_LINE } from '../domain/ros';
 
 export interface FaxInput {
@@ -64,6 +65,22 @@ export interface FaxInput {
   /** The vitals, read the same way the labs are. */
   vitals?: VitalsSet[];
   series?: ResultSeries[];
+  /** Whether this practice had seen them before today. */
+  newPatient?: boolean;
+  /** The visits booked out of this encounter, which are the quote. */
+  booked?: { date: string; why: string }[];
+  /** What this visit itself costs, where it was quoted at an earlier one. */
+  quotedAt?: { price: number; on: string; of: number };
+  /**
+   * The twelve months behind this visit, where there are any.
+   *
+   * Counted by the caller from the signed visits in the year before
+   * this one, which is the only count worth printing: a quote says
+   * what a year was expected to hold and this says what it held.
+   * The two differ by whatever went wrong, and the difference is
+   * the whole of the argument for paying by the year instead.
+   */
+  yearBehind?: { visits: number; since: string };
   /**
    * Whether to put a cover sheet on the front.
    *
@@ -164,9 +181,153 @@ const body = (text?: string): string => {
   }).join('');
 };
 
-/** A section, left out entirely when it is empty. */
-const sec = (title: string, text?: string): string =>
-  ((text ?? '').trim() ? `<h3>${esc(title)}</h3>${body(text)}` : '');
+/**
+ * What to do between now and the next visit, numbered.
+ *
+ * A numbered list is a list somebody can work through and report
+ * back on; a paragraph is a list they remember one item of. The
+ * numbers are added here rather than typed, so a step moved or
+ * removed does not leave the list counting wrong.
+ */
+const steps = (text: string): string => {
+  const lines = text.split('\n').map((l) => l.trim().replace(/^\d+[.)]\s*/, ''))
+    .filter(Boolean);
+  if (lines.length === 0) return '';
+  return `<ol class="faxsteps">${lines.map((l) => `<li>${esc(l)}</li>`).join('')}</ol>`;
+};
+
+
+/**
+ * What this costs, and what the year costs.
+ *
+ * Cash. There is no claim, no code and no payer, so there is nothing
+ * to translate: the number on this page is the number the patient
+ * pays, which is the whole argument for charging this way.
+ *
+ * A first assessment is free. What is charged is the year that comes
+ * out of it, quoted at the visit that plans it and fixed for twelve
+ * months, then quoted again at the next annual when the next year is
+ * planned. So the section reads differently on a first visit, where
+ * it is a quote, than on the visits inside that year, where it is a
+ * receipt against one.
+ */
+function billing(input: FaxInput): string {
+  const booked = (input.booked ?? []).filter((v) => v.date);
+  const rows: string[] = [];
+
+  if (input.newPatient) {
+    rows.push('<tr><th>This visit</th><td>No charge. A first assessment is '
+      + 'pro bono.</td></tr>');
+    if (booked.length > 0) {
+      const q = quoteYear(booked, true);
+      const lines = q.visits.map((v) => `<tr><td>${fmtDate(v.date)}</td>`
+        + `<td>${esc(v.why || 'review')}</td>`
+        + `<td class="faxmoney">$${v.price.toFixed(2)}</td></tr>`).join('');
+      rows.push(`<tr><th>The year ahead</th><td>Quoted today and fixed for twelve `
+        + `months. ${q.visits.length} `
+        + `${q.visits.length === 1 ? 'visit' : 'visits'} `
+        + `at $${q.each.toFixed(2)}${q.visits.length === 1 ? '' : ' each'}.`
+        + `<table class="faxquote"><tbody>${lines}`
+        + `<tr class="faxtotal"><td></td><td>Total</td>`
+        + `<td class="faxmoney">$${q.total.toFixed(2)}</td></tr></tbody></table></td></tr>`);
+      const c = compare(booked.length);
+      rows.push('<tr><th>Or a membership</th><td>'
+        + `$${MONTHLY_FEE} a month, $${c.membership.toFixed(2)} for the year, `
+        + 'covering the visits above and any other visit this year, with no '
+        + 'charge per visit. Against the '
+        + `$${c.payPerVisit.toFixed(2)} above it is `
+        + (c.saving > 0
+          ? `$${c.saving.toFixed(2)} less`
+          : `$${Math.abs(c.saving).toFixed(2)} more`)
+        + `, and it turns at ${c.breakEven} visits in a year. `
+        + `${c.visits} ${c.visits === 1 ? 'is' : 'are'} booked, so one unplanned `
+        + 'illness is what decides it.</td></tr>');
+    } else {
+      rows.push('<tr><th>The year ahead</th><td>Not quoted: no visits were booked '
+        + 'at this one, so there is no year to price.</td></tr>');
+    }
+  } else if (input.quotedAt) {
+    rows.push(`<tr><th>This visit</th><td>$${input.quotedAt.price.toFixed(2)}, quoted on `
+      + `${fmtDate(input.quotedAt.on)} as one of ${input.quotedAt.of} visits for the `
+      + 'year.</td></tr>');
+  } else {
+    rows.push('<tr><th>This visit</th><td>Not in the year that was quoted. Priced at '
+      + 'the same rate as a planned visit and added to the year.</td></tr>');
+  }
+
+  if (!input.newPatient && booked.length > 0) {
+    /*
+     * The year that just ended, priced both ways.
+     *
+     * Only at the visit that closes a quoted year and prices the next
+     * one, which in practice is the annual. Printed at a visit in the
+     * middle of a year it would set three months of visits against
+     * twelve months of membership and make paying per visit look
+     * cheap for the arithmetic reason that the year is not over.
+     *
+     * It is also the one place the comparison is made out of what
+     * happened rather than out of what somebody expected to happen,
+     * which is the only honest way to tell somebody what a membership
+     * would have saved them.
+     */
+    const yb = input.yearBehind;
+    if (yb && yb.visits > 0) {
+      const c = compare(yb.visits);
+      rows.push('<tr><th>The year behind</th><td>'
+        + `${yb.visits} charged visit${yb.visits === 1 ? '' : 's'} since `
+        + `${fmtDate(yb.since)}, which came to $${c.payPerVisit.toFixed(2)}. `
+        + `A membership for the same year would have been $${c.membership.toFixed(2)}, `
+        + (c.saving > 0
+          ? `so paying by the visit cost $${c.saving.toFixed(2)} more than a `
+            + 'membership would have.'
+          : c.saving < 0
+            ? `so paying by the visit cost $${Math.abs(c.saving).toFixed(2)} less `
+              + 'than a membership would have.'
+            : 'so the two came to the same.')
+        + '</td></tr>');
+    }
+    const q = quoteYear(booked, false);
+    const lines = q.visits.map((v) => `<tr><td>${fmtDate(v.date)}</td>`
+      + `<td>${esc(v.why || 'review')}</td>`
+      + `<td class="faxmoney">$${v.price.toFixed(2)}</td></tr>`).join('');
+    rows.push('<tr><th>The year ahead</th><td>'
+      + `Quoted today and fixed for twelve months. ${q.visits.length} `
+      + `${q.visits.length === 1 ? 'visit' : 'visits'} `
+      + `at $${q.each.toFixed(2)}${q.visits.length === 1 ? '' : ' each'}.`
+      + `<table class="faxquote"><tbody>${lines}`
+      + '<tr class="faxtotal"><td></td><td>Total</td>'
+      + `<td class="faxmoney">$${q.total.toFixed(2)}</td></tr>`
+      + '</tbody></table></td></tr>');
+    const c = compare(q.visits.length);
+    rows.push('<tr><th>Or a membership</th><td>'
+      + `$${MONTHLY_FEE} a month, $${c.membership.toFixed(2)} for the year, `
+      + 'covering the visits above and any other visit, with no charge per visit. '
+      + `Against the $${c.payPerVisit.toFixed(2)} above it is `
+      + (c.saving > 0
+        ? `$${c.saving.toFixed(2)} less`
+        : `$${Math.abs(c.saving).toFixed(2)} more`)
+      + `, and it turns at ${c.breakEven} visits in a year`
+      + (input.yearBehind
+        ? `. The year just gone held ${input.yearBehind.visits}.</td></tr>`
+        : '.</td></tr>'));
+  }
+
+  rows.push(
+    '<tr><th>Included</th><td>Each visit above, and the messaging and coordination '
+      + 'between them. There is no charge for a message, a phone call or a letter '
+      + 'like this one, whichever way the visits are paid for.</td></tr>',
+    '<tr><th>Not included</th><td>Laboratory tests, imaging, medicines and anything '
+      + 'done by another practice. Those are billed to the patient by whoever '
+      + 'provides them.</td></tr>',
+    `<tr><th>How it is set</th><td>$${VISIT_FEE.toFixed(2)} a visit, whoever is in `
+      + 'the chair and whatever the visit turns out to hold, or '
+      + `$${MONTHLY_FEE} a month, which covers every visit in the year. Two prices, `
+      + 'decided once and the same for everybody. Sliding-scale and pro bono '
+      + 'places exist and are arranged separately.</td></tr>',
+  );
+
+  return `<h3>Billing</h3><table class="faxto faxbill"><tbody>${rows.join('')}</tbody></table>`;
+}
 
 export function buildFaxNote(input: FaxInput): { html: string; pages: string } {
   const { patient: p, encounter: e, today } = input;
@@ -230,7 +391,7 @@ export function buildFaxNote(input: FaxInput): { html: string; pages: string } {
         -->
         <p class="faxrun">${esc(p.name)}
           &middot; ${fmtDate(p.dob)}
-          &middot; ${age(p.dob)} ${p.sex === 'female' ? 'F' : 'M'}
+          &middot; ${age(p.dob, e.date)} ${p.sex === 'female' ? 'F' : 'M'}
           &middot; ${fmtDate(e.date)},
           ${esc(SETTING_LABEL[e.setting ?? 'in-person'].toLowerCase())}
           &middot; ${e.signedAt ? `signed ${fmtDate(e.signedAt)}` : 'not signed'}</p>
@@ -253,10 +414,14 @@ export function buildFaxNote(input: FaxInput): { html: string; pages: string } {
         ${n?.assessment.overall?.trim() ? body(n.assessment.overall) : ''}
         ${body(plan)}
 
-        ${sec('Patient instructions', n?.plan.overall)}
+        ${n?.plan.overall?.trim() ? `<h3>Before your next visit</h3>${steps(n.plan.overall)}` : ''}
 
         ${n?.plan.followUp?.trim()
-    ? `<p class="faxfollow">${esc(n.plan.followUp.trim())}</p>` : ''}
+    ? n.plan.followUp.trim().split('\n')
+      .map((l) => `<p class="faxfollow">${esc(l.trim())}</p>`).join('')
+    : ''}
+
+        ${billing(input)}
 
         <div class="faxsign">
           ${e.signedAt ? '<p class="faxhand">Logan DuBose</p>' : ''}

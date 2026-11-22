@@ -78,9 +78,9 @@ export const priyaConditions: Condition[] = [
   {
     id: 'pc5', patientId: P, name: 'Acute low back pain', code: 'M54.50',
     status: 'active', managed: true, owner: 'ours', acuity: 'acute',
-    onset: '2026-10-28',
+    onset: '2026-10-28', goal: 'needs-improvement', goalAssessed: '2026-11-16',
     provenance: SELF,
-    goalNote: 'Six weeks of it since the desk job started. No red flags. Target is back to walking without it.',
+    goalNote: 'Six weeks, mechanical, worse by the end of a sitting day and better at the weekend. No red flags: no trauma, no fever, no weight loss, no leg symptoms and no bladder or bowel change.',
     note: 'Started about a month after the job change. Worse by the end of the day, better at the weekend.',
   },
   {
@@ -99,6 +99,13 @@ export const priyaMeds: Medication[] = [
     indication: 'Prediabetes', provenance: SELF,
     adherence: { status: 'not-taking', reported: '2026-11-13', by: 'patient' },
     changeNote: 'Stopped on her own after two weeks. Nausea.',
+  },
+  {
+    id: 'pm4', patientId: P, name: 'Naproxen', rxcui: '7258', dose: '500 mg',
+    sig: 'One tablet twice daily with food, as needed, for up to ten days',
+    started: '2026-11-16', status: 'active', indication: 'Acute low back pain',
+    provenance: MD,
+    adherence: { status: 'taking', reported: '2026-11-16', by: 'clinician' },
   },
   {
     id: 'pm2', patientId: P, name: 'Sumatriptan', rxcui: '37418', dose: '50 mg',

@@ -65,8 +65,17 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('the labs have no previous value, because there is no previous visit',
     !/\(\d/.test((await p.locator('.otherlabs:not(.vitalrow)').innerText()).split('\n')[0]));
 
-  await p.fill('#instructions','Start with the evening walk, twenty minutes, four days a week.');
-  await p.fill('#nextvisit','2027-02-16'); await p.waitForTimeout(250);
+  await p.fill('#instructions',
+    'Walk twenty minutes after dinner, four evenings a week.\n'
+    + 'Take the metformin again, one tablet with the evening meal only.');
+  await p.fill('#nextvisit','2027-02-16'); await p.waitForTimeout(150);
+  await p.fill('.nextvis .whyvis','the back pain and the repeat A1c');
+  // A visit is the one moment somebody will put a date in a diary,
+  // so everything it justifies gets booked while they are there.
+  await p.click('button:has-text("Book another visit")'); await p.waitForTimeout(250);
+  await p.locator('.nextvis').nth(1).locator('input[type="date"]').fill('2027-11-16');
+  await p.locator('.nextvis').nth(1).locator('.whyvis').fill('the annual visit');
+  await p.waitForTimeout(250);
 
   // Read your own note back in the shape it will be read in, before
   // signing it. No cover sheet: this one is not going anywhere.
@@ -80,6 +89,48 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('and it says it is not signed yet', proof.includes('not signed'));
   // Once, at the top. It used to repeat at the head of every page.
   const flat = proof.replace(/\s+/g, ' ');
+  // Numbered, because a numbered list is one somebody can work
+  // through and report back on. innerText runs the cells together,
+  // so these match on the words rather than on the spacing.
+  ok('what to do before the next visit is numbered',
+    /Before your next visit/.test(flat)
+    && (await p.locator('.faxout .faxsteps li').count())>=2);
+  // A visit is the one moment somebody will put a date in a diary.
+  ok('and every visit the day justified is booked, not only the soonest',
+    /Follow up on 16 Feb 2027 \(3 months\) for the back pain and the repeat A1c\./
+      .test(flat)
+    && /Follow up on 16 Nov 2027 \(1 year\) for the annual visit\./.test(flat));
+  /*
+   * Cash. There is no claim, no code and no payer, so the number on
+   * the page is the number the patient pays. A first assessment is
+   * free and what is charged is the year that comes out of it,
+   * quoted at the visit that plans it.
+   */
+  ok('a first assessment is free and says so',
+    /This visit\s*No charge\. A first assessment is pro bono\./.test(flat));
+  // Two visits booked above, each at the one visit price, so the year
+  // is what those two cost and not a figure derived from anything else.
+  ok('and the year is quoted off the visits the day booked',
+    /The year ahead\s*Quoted today and fixed for twelve months\. 2 visits at \$350\.00 each/
+      .test(flat)
+    && /Total\s*\$700\.00/.test(flat));
+  /*
+   * The membership is the alternative, priced against that quote
+   * rather than derived from it. On a two visit year it loses, and
+   * the note has to say so: a comparison that always favours the
+   * thing being sold is not a comparison, and the break-even is the
+   * number that makes it an honest one.
+   */
+  ok('the membership is offered against that quote, not instead of it',
+    /Or a membership\s*\$99 a month, \$1188\.00 for the year/.test(flat));
+  ok('and it says the membership is dearer on this year, not cheaper',
+    /Against the \$700\.00 above it is \$488\.00 more/.test(flat)
+    && /turns at 4 visits in a year/.test(flat));
+  ok('what the fee covers and what it does not are both stated',
+    /Included/.test(flat) && /Not included/.test(flat)
+    && /Laboratory tests, imaging, medicines/.test(flat));
+  ok('and nothing on the page mentions a payer, a code or a claim',
+    !/Medicare|Medicaid|insurance company|CPT|9920[0-9]|9921[0-9]/.test(flat));
   ok('the identifier is on the first line and nowhere else',
     flat.split('11 Feb 1991').length === 2);
   await p.click('.vhead button:has-text("Sign")'); await p.waitForTimeout(1300);

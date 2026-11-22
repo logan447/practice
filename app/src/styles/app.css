@@ -2416,6 +2416,7 @@ blockquote.said footer {
   font-family: var(--sans); font-size: 15px; line-height: 1.6;
 }
 
+.whyvis { flex: 1; min-width: 0; }
 .nextvis { display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
 .nextvis .wflabel { margin: 0; font-size: 14px; color: var(--ink-3); }
 .nextvis input[type="date"] { max-width: 180px; }

@@ -1225,3 +1225,57 @@ viewport and scrolls inside.
 
 **Revisit when:** the week view has been used for a real week, or the
 tab strip grows past what fits without scrolling sideways.
+
+---
+
+## D-053. Cash per visit, priced against the membership, with the per-visit price still UNSET
+
+**Decided 2026-11-22, owner direction, for the prototype.** Asked for
+in these words: "i want to see what this would look like if i was
+just straight up cash pay, did intial assessments probono and the
+quote a year at a time and the next annual and then keep quoting
+thigns each year at the annual where a full review is done", then
+"once we have an idea of how we do this system ... we can quote the
+savings for them if they just did a annual membership".
+
+**This is a second model, not a replacement for D-039.** D-039 says
+the practice is membership-based at $99 a month, and that is still
+what the site, the brochure and the charter say. What the prototype
+now also shows is a straight cash practice: nothing charged for a
+first assessment, the year planned at that visit and quoted visit by
+visit, every planned visit the same price, and the next year quoted
+again at each annual when the full review is done. Nothing about
+D-039 has been changed and no patient-facing piece carries any of
+this.
+
+**The membership is quoted against it rather than instead of it.**
+The note prices the year both ways at the two visits where a year is
+being priced: the first assessment, and each annual. It prints the
+break-even in visits, and at an annual it prints what the year just
+gone actually cost next to what a membership would have cost. It does
+not print the comparison at a visit in the middle of a year, because
+three months of visits set against twelve months of membership makes
+paying per visit look cheap for the arithmetic reason that the year
+is not over.
+
+**The comparison is allowed to lose.** On the worked case the first
+visit quotes three visits, and the note says a membership would cost
+$138 more than that. The patient then has one unplanned illness, the
+year holds four visits, and the annual says paying by the visit cost
+$212 more than a membership would have. A comparison that always
+favours the thing being sold is not a comparison, and the honest
+version is the one that makes the case when the case is real.
+
+**The per-visit price is UNSET.** Everything above is arithmetic on
+one number nobody has decided. The code carries $350 because a
+prototype cannot render a comparison against a blank; it is a
+placeholder standing in for a decision, it is labelled as one in
+`app/src/lib/billing.ts`, and every saving figure on every note moves
+with it. It must not reach a patient, a print piece, or the site
+until it has been decided and logged here. Until then the only
+decided price in this practice is still $99 a month.
+
+**Revisit when:** a per-visit price is decided, or the owner decides
+the cash model is not being offered at all, in which case the
+comparison comes off the note rather than being left to argue from a
+number nobody chose.

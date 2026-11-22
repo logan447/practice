@@ -79,6 +79,8 @@ import * as clinical from '../data/sharon-clinical';
 import * as medicare from '../data/medicare';
 import * as day from '../data/day';
 import * as priya from '../data/priya';
+import * as series from '../data/series';
+import * as visits from '../data/series-visits';
 import * as demo from '../data/demo-states';
 import * as contact from '../data/sharon-contact';
 import * as versions from '../data/sharon-versions';
@@ -270,7 +272,8 @@ function migrate(raw: State | null): State | null {
  * only the last it never has to hold four years of numbers.
  */
 // p4 is the patient you meet for the first time: see data/priya.ts.
-const DEMO_IDS = ['p0', 'p1', 'p2', 'p3', 'p4', 'p9'];
+// p10 is one patient across one whole year: see data/series.ts.
+const DEMO_IDS = ['p0', 'p1', 'p2', 'p3', 'p4', 'p9', 'p10'];
 
 function demoState(): State {
   const keep = <T extends { patientId: string }>(xs: T[]) =>
@@ -280,9 +283,10 @@ function demoState(): State {
       sharon.sharon,
       ...fixtures.patients.filter((p) => DEMO_IDS.includes(p.id)),
       demo.nina,
+      series.teal,
     ],
-    conditions: [...sharon.sharonConditions, ...keep(fixtures.conditions), ...priya.priyaConditions],
-    medications: [...sharon.sharonMeds, ...keep(fixtures.medications), ...priya.priyaMeds],
+    conditions: [...sharon.sharonConditions, ...keep(fixtures.conditions), ...priya.priyaConditions, ...series.tealConditions],
+    medications: [...sharon.sharonMeds, ...keep(fixtures.medications), ...priya.priyaMeds, ...series.tealMeds],
     allergies: [],
     documents: sharon.sharonDocuments,
     resultSeries: [...sharon.sharonSeries, ...keep(fixtures.resultSeries)],
@@ -290,32 +294,32 @@ function demoState(): State {
     carePlans: [sharon.sharonPlan, ...keep(fixtures.carePlans)],
     encounters: [
       ...sharon.sharonEncounters, ...keep(fixtures.encounters), ...demo.ninaEncounters,
-      ...day.todaySchedule,
+      ...day.todaySchedule, ...visits.tealEncounters,
     ],
-    prevention: [...sharon.sharonPrevention, ...keep(fixtures.prevention), ...priya.priyaPrevention],
+    prevention: [...sharon.sharonPrevention, ...keep(fixtures.prevention), ...priya.priyaPrevention, ...series.tealPrevention],
     patientEntries: keep(fixtures.patientEntries),
     aiDrafts: keep(fixtures.aiDrafts),
     tasks: [...sharon.sharonTasks, ...keep(fixtures.tasks)],
-    specialists: [...sharon.sharonSpecialists, ...keep(fixtures.specialists), ...priya.priyaSpecialists],
+    specialists: [...sharon.sharonSpecialists, ...keep(fixtures.specialists), ...priya.priyaSpecialists, ...series.tealSpecialists],
     preVisits: keep(fixtures.preVisits),
     orders: [...sharon.sharonOrders, ...keep(fixtures.orders)],
     masterPlans: [sharon.sharonMaster, demo.marcusMaster],
-    vitals: [...clinical.sharonVitals, ...demo.marcusVitals, ...day.weekendVitals, ...priya.priyaVitals],
-    labPanels: [...clinical.sharonPanels, ...demo.marcusPanels, ...priya.priyaPanels],
+    vitals: [...clinical.sharonVitals, ...demo.marcusVitals, ...day.weekendVitals, ...priya.priyaVitals, ...series.tealVitals],
+    labPanels: [...clinical.sharonPanels, ...demo.marcusPanels, ...priya.priyaPanels, ...series.tealPanels],
     exams: [...clinical.sharonExams, ...demo.marcusExams],
     studies: [...clinical.sharonStudies, ...demo.marcusStudies],
-    emRecords: clinical.sharonEm,
+    emRecords: [...clinical.sharonEm, ...day.todayEm],
     careLog: [...clinical.sharonCareLog, ...medicare.arthurCareLog],
     consents: [...clinical.sharonConsents, ...medicare.arthurConsents],
     checkIns: [...contact.sharonCheckIns, ...demo.marcusCheckIns],
-    scores: [...clinical.sharonScores, ...medicare.arthurScores, ...priya.priyaScores],
+    scores: [...clinical.sharonScores, ...medicare.arthurScores, ...priya.priyaScores, ...series.tealScores],
     attestations: [], claims: [], triage: [], precharts: [],
     chartVersions: [...versions.sharonVersions],
     infoRequests: [...versions.sharonAsks],
     updates: [...contact.sharonUpdates, ...priya.priyaUpdates],
     messages: [...contact.sharonMessages, ...day.weekendMessages],
     requests: contact.sharonRequests,
-    lifestyle: [...clinical.sharonLifestyle, ...demo.marcusLifestyle, ...priya.priyaLifestyle],
+    lifestyle: [...clinical.sharonLifestyle, ...demo.marcusLifestyle, ...priya.priyaLifestyle, ...series.tealLifestyle],
     now: ORIGIN,
     lastEvents: [],
   };

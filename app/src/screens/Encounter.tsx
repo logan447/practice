@@ -46,6 +46,7 @@ import type { Intervention } from '../lib/interventions';
 import { ambientScript, wasCaught, ERROR_LABEL, type InjectedError } from '../lib/ambient';
 import { Fishbone, OtherLabs } from './chart/Fishbone';
 import { buildFaxNote } from '../lib/faxNote';
+import { quoteYear, yearBehind } from '../lib/billing';
 import { specialistsAbout } from './chart/relate';
 import { readLines, GROUP_LABEL } from './chart/NoteText';
 import { TAB_LABEL } from './chart/drawers';
@@ -156,10 +157,20 @@ interface Working {
   plan: string;
   instructions: string;
   nextVisit: string;
+  /**
+   * Everything booked out of this visit, not only the next one.
+   *
+   * A visit is the one moment a patient is in front of you and
+   * willing to put a date in a diary. Booking only the soonest of
+   * them is how the annual and the lifestyle review become the two
+   * appointments that never get made.
+   */
+  nextVisits: { date: string; why: string }[];
 }
 
 const EMPTY_WORKING: Working = {
-  subjective: '', measured: '', objective: '', plan: '', instructions: '', nextVisit: '',
+  subjective: '', measured: '', objective: '', plan: '', instructions: '',
+  nextVisit: '', nextVisits: [],
 };
 
 
@@ -948,11 +959,39 @@ export function Encounter({ encounterId }: { encounterId: string }) {
    * A date, how far off it is, and what it is for. "Next visit: 15
    * Feb 2027" is a diary entry; this is a plan.
    */
+  /**
+   * What this visit costs, from the quote that planned it.
+   *
+   * A visit inside a quoted year has a price already: the year was
+   * divided by its visits at the encounter that booked them. So
+   * the answer is looked up rather than worked out again, and a
+   * visit nobody booked has no price from a quote, which is also
+   * an answer.
+   */
+  const pricedAt = (on: string, self: string) => {
+    for (const prior of st.encountersFor(patientId)) {
+      if (prior.id === self || prior.date >= on) continue;
+      const was = prior.note?.plan.booked ?? [];
+      if (!was.some((v) => v.date === on)) continue;
+      return { price: quoteYear(was, false).each, on: prior.date, of: was.length };
+    }
+    return undefined;
+  };
+
+  /** Everything booked out of this visit, soonest first. */
+  const bookedVisits = (): { date: string; why: string }[] => [
+    ...(w.nextVisit ? [{ date: w.nextVisit, why: w.nextVisits[0]?.why ?? '' }] : []),
+    ...w.nextVisits.slice(1).filter((v) => v.date),
+  ].sort((a, b) => a.date.localeCompare(b.date));
+
   const followUpLine = (): string => {
-    if (!w.nextVisit) return '';
-    const gap = interval(enc.date, w.nextVisit);
-    return `Follow up on ${fmtDate(w.nextVisit)}${gap ? ` (${gap})` : ''}`
-      + ' for ongoing services.';
+    const booked = bookedVisits();
+    if (booked.length === 0) return '';
+    return booked.map((v) => {
+      const gap = interval(enc.date, v.date);
+      return `Follow up on ${fmtDate(v.date)}${gap ? ` (${gap})` : ''} for ${
+        v.why.trim() || 'ongoing services'}.`;
+    }).join('\n');
   };
 
   const note: VisitNote = {
@@ -987,6 +1026,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       }).filter((x) => x.problem),
       overall: w.instructions,
       followUp: followUpLine(),
+      booked: bookedVisits(),
     },
   };
 
@@ -1083,6 +1123,11 @@ export function Encounter({ encounterId }: { encounterId: string }) {
               panels: st.panelsFor(patientId).filter((pl) => pl.date <= enc.date),
               vitals: st.vitalsFor(patientId).filter((v) => v.date <= enc.date),
               series: st.patientSeriesFor(patientId),
+              newPatient: !st.encountersFor(patientId)
+                .some((x) => x.status === 'signed' && x.date < enc.date),
+              booked: bookedVisits(),
+              quotedAt: pricedAt(enc.date, encounterId),
+              yearBehind: yearBehind(st.encountersFor(patientId), enc.date),
             }).html);
             setTimeout(() => window.print(), 80);
           }}>
@@ -1147,12 +1192,53 @@ export function Encounter({ encounterId }: { encounterId: string }) {
           <Panel title="Patient instructions">
             <Box id="instructions" value={w.instructions} mark={marks.instructions}
               rows={4} onChange={(v) => put('instructions', v)}
-              placeholder={'One step per line, in their words.\nBring your home readings.\nStart the half tablet on Monday.'} />
+              placeholder={'One step per line, in their words. Three or four at most.\nBring your home readings.\nStart the half tablet on Monday.'} />
+            {/*
+              * Everything booked out of this visit. One row for the
+              * next one, and a row for every other appointment the
+              * visit justifies: a problem review, a lifestyle
+              * review, next year's annual. They are made while the
+              * patient is still in the room.
+              */}
             <div className="nextvis">
               <label className="wflabel" htmlFor="nextvisit">Next visit</label>
               <input id="nextvisit" className="search" type="date" value={w.nextVisit}
                 onChange={(e) => put('nextVisit', e.target.value)} />
+              <input className="search whyvis" value={w.nextVisits[0]?.why ?? ''}
+                placeholder="what for"
+                onChange={(e) => setW((v) => ({
+                  ...v,
+                  nextVisits: [{ date: '', why: e.target.value }, ...v.nextVisits.slice(1)],
+                }))} />
             </div>
+            {w.nextVisits.slice(1).map((row, i) => (
+              <div className="nextvis" key={i}>
+                <input className="search" type="date" value={row.date}
+                  onChange={(e) => setW((v) => {
+                    const next = [...v.nextVisits];
+                    next[i + 1] = { ...next[i + 1], date: e.target.value };
+                    return { ...v, nextVisits: next };
+                  })} />
+                <input className="search whyvis" value={row.why} placeholder="what for"
+                  onChange={(e) => setW((v) => {
+                    const next = [...v.nextVisits];
+                    next[i + 1] = { ...next[i + 1], why: e.target.value };
+                    return { ...v, nextVisits: next };
+                  })} />
+              </div>
+            ))}
+            {!signed && (
+              <button className="btn ghost small" style={{ marginTop: 8 }}
+                onClick={() => setW((v) => ({
+                  ...v,
+                  nextVisits: [
+                    ...(v.nextVisits.length ? v.nextVisits : [{ date: '', why: '' }]),
+                    { date: '', why: '' },
+                  ],
+                }))}>
+                Book another visit
+              </button>
+            )}
           </Panel>
 
           {!signed && (

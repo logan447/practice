@@ -451,6 +451,15 @@ export interface VisitNote {
      * the patient and the next clinician read.
      */
     followUp?: string;
+    /**
+     * Everything booked out of this visit, as dates.
+     *
+     * The same appointments the follow-up lines describe, kept as
+     * data because the year's quote is priced off them. A quote
+     * parsed back out of its own sentence changes when somebody
+     * edits a word of it.
+     */
+    booked?: { date: string; why: string }[];
   };
 }
 

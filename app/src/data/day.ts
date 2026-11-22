@@ -23,6 +23,7 @@
  */
 import type { Encounter, Message, VitalsSet } from '../domain/types';
 import { ORIGIN } from '../lib/clock';
+import type { EmRecord } from '../domain/types';
 
 const at = (h: number, m = 0) => h * 60 + m;
 
@@ -130,5 +131,44 @@ export const weekendVitals: VitalsSet[] = [
   {
     id: 'wv3', patientId: 'p1', date: '2026-11-15', source: 'home',
     systolic: 118, diastolic: 74, weightLb: 197,
+  },
+];
+
+/**
+ * The medical decision making for today's two worked visits.
+ *
+ * Entered by the physician, not computed. The chart has no business
+ * deciding that three chronic problems is moderate: that is the CPT
+ * grid, the grid is not reproduced here, and a chart that quietly
+ * assigns a level has made a billing decision on somebody else's
+ * licence. See lib/billing.ts.
+ */
+export const todayEm: EmRecord[] = [
+  {
+    // The first visit. Four problems including one acute, outside
+    // records to reconcile, and a drug she stopped on her own.
+    encounterId: 'd0',
+    problemsAddressed: ['pc5', 'pc1', 'pc2', 'pc3'],
+    dataReviewed: [
+      'Reviewed outside records, Travis Family Medicine',
+      'Reviewed CMP, A1c and lipid panel from May 2025',
+      'Reviewed PHQ-2, GAD-2, GAD-7, AUDIT-C and the flourishing measure',
+      'Ordered A1c, CMP, lipid panel and ferritin',
+    ],
+    problemsLevel: 'moderate', dataLevel: 'moderate', riskLevel: 'moderate',
+    totalMinutes: 90,
+  },
+  {
+    // The follow-up. Three chronic problems, two at target, one with
+    // an adherence problem and a prescription decision in it.
+    encounterId: 'd1',
+    problemsAddressed: ['sc1', 'sc2', 'sc3'],
+    dataReviewed: [
+      'Reviewed CBC, CMP, lipid panel, A1c and UACR from 29 Oct',
+      'Reviewed six home blood pressure readings',
+      'Reviewed the ophthalmology letter',
+    ],
+    problemsLevel: 'moderate', dataLevel: 'moderate', riskLevel: 'moderate',
+    totalMinutes: 30,
   },
 ];
