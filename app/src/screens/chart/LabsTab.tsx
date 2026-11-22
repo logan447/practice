@@ -12,7 +12,7 @@
  */
 import { useState } from 'react';
 import { useStore } from '../../lib/store';
-import { Trend } from '../../components/ui';
+import { LabPlot } from './LabPlot';
 import { fmtDate } from '../../lib/format';
 import { Rows, Row, Sheet, NoRows } from './Rows';
 import type { LabPanel } from '../../domain/types';
@@ -26,8 +26,31 @@ export function LabsTab({ patientId }: { patientId: string }) {
 
   const [panel, setPanel] = useState<string | null>(null);
   const [measure, setMeasure] = useState<string | null>(null);
+  /*
+   * One analyte out of a panel, trended across every panel that has
+   * it. A sodium read off a chemistry from October is a number; the
+   * same sodium across the last six chemistries is the finding, and
+   * it was two clicks and a different tab away.
+   */
+  const [analyte, setAnalyte] = useState<string | null>(null);
 
   const openPanel = panels.find((p) => p.id === panel);
+  const trended = analyte
+    ? (() => {
+      const hits = panels
+        .flatMap((pl) => pl.values.filter((v) => v.key === analyte).map((v) => ({ v, d: pl.date })))
+        .sort((a, b) => a.d.localeCompare(b.d));
+      if (hits.length === 0) return null;
+      const last = hits[hits.length - 1].v;
+      return {
+        name: last.name,
+        unit: last.unit,
+        refLow: last.refLow,
+        refHigh: last.refHigh,
+        points: hits.map((h) => ({ date: h.d, value: h.v.value, flag: h.v.flag })),
+      };
+    })()
+    : null;
   const openSeries = [...series, ...selfTracked].find((s) => s.id === measure);
   // A panel is "not yet reviewed" when a report of the same name and
   // date is still unacknowledged. Same fact, said on the row.
@@ -100,7 +123,7 @@ export function LabsTab({ patientId }: { patientId: string }) {
           <table className="rows">
             <tbody>
               {openPanel.values.map((v) => (
-                <tr key={v.key}>
+                <tr key={v.key} className="clickrow" onClick={() => setAnalyte(v.key)}>
                   <td>{v.name}</td>
                   <td className={`num${v.flag !== 'normal' ? ' flagged' : ''}`}>
                     {v.value} {v.unit}
@@ -122,7 +145,12 @@ export function LabsTab({ patientId }: { patientId: string }) {
         <Sheet title={openSeries.name}
           sub={`LOINC ${openSeries.code}${openSeries.unit ? ` · ${openSeries.unit}` : ''}`}
           onClose={() => setMeasure(null)}>
-          <Trend series={openSeries} w={540} h={120} />
+          <LabPlot name={openSeries.name} unit={openSeries.unit}
+            refLow={openSeries.refLow} refHigh={openSeries.refHigh}
+            source={openSeries.source}
+            points={openSeries.points.map((pt) => ({
+              date: pt.date, value: pt.value, flag: pt.flag,
+            }))} />
           <table className="rows" style={{ marginTop: 16 }}>
             <tbody>
               {[...openSeries.points].reverse().map((pt) => (
@@ -138,6 +166,28 @@ export function LabsTab({ patientId }: { patientId: string }) {
         </Sheet>
       )}
 
+      {trended && (
+        <Sheet title={trended.name}
+          sub={`${trended.points.length} readings \u00b7 ${
+            fmtDate(trended.points[0].date)} to ${
+            fmtDate(trended.points[trended.points.length - 1].date)}`}
+          onClose={() => setAnalyte(null)}>
+          <LabPlot {...trended} />
+          <table className="rows" style={{ marginTop: 16 }}>
+            <tbody>
+              {[...trended.points].reverse().map((pt) => (
+                <tr key={pt.date}>
+                  <td className="small">{fmtDate(pt.date)}</td>
+                  <td className={`num${pt.flag !== 'normal' ? ' flagged' : ''}`}>
+                    {pt.value} {trended.unit}
+                  </td>
+                  <td className="small">{pt.flag !== 'normal' ? pt.flag : ''}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Sheet>
+      )}
     </>
   );
 }

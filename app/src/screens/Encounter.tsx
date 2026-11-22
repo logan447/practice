@@ -43,6 +43,7 @@ import type { LivingSubjective } from '../lib/subjective';
 import type { Intervention } from '../lib/interventions';
 import { ambientScript, wasCaught, ERROR_LABEL, type InjectedError } from '../lib/ambient';
 import { Fishbone, OtherLabs } from './chart/Fishbone';
+import { ReadLine, GROUP_LABEL } from './chart/NoteText';
 import { TAB_LABEL } from './chart/drawers';
 import { LIFESTYLE_DOMAINS, SETTING_LABEL } from '../domain/types';
 import type { VisitNote, Order, OrderKind } from '../domain/types';
@@ -144,12 +145,7 @@ const EMPTY_WORKING: Working = {
   subjective: '', measured: '', objective: '', plan: '', instructions: '', nextVisit: '',
 };
 
-/** The three services, over the runs of the note that belong to them. */
-const GROUP_LABEL: Record<Item['group'], string> = {
-  Problems: 'Medical',
-  Lifestyle: 'Lifestyle',
-  Preventative: 'Preventative',
-};
+
 
 type Marks = Record<string, 'ambient'>;
 
@@ -417,6 +413,28 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       .filter((l) => l && !/^[\u2022\-*]/.test(l))
       .join(' ');
 
+    const bare = (t: string) => t.trim().toLowerCase().replace(/[.\s]+$/, '');
+
+    /*
+     * The sentence under the heading, with the heading not said twice.
+     *
+     * A carried plan whose whole prose was "Holding." printed
+     *
+     *   Sleep \u2014 Holding
+     *   Holding.
+     *
+     * which is a line that tells the reader what the line above it
+     * told them. Any sentence that is only the status comes out; if
+     * that is all there was, there is no sentence and the points
+     * follow the heading.
+     */
+    const narrative = (it: Item) => [it.because, prose(carried[it.id] ?? '')]
+      .filter(Boolean).join(' ')
+      .split(/(?<=[.!?])\s+/)
+      .filter((sentence) => sentence.trim() && bare(sentence) !== bare(it.standing))
+      .join(' ')
+      .trim();
+
     const plan = labelled(items.map((it) => ({
       group: it.group,
       text: [
@@ -424,7 +442,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
         // The physician's own sentence from last time sits after the
         // derived one, because it is the part that was decided
         // rather than the part that was measured.
-        [it.because, prose(carried[it.id] ?? '')].filter(Boolean).join(' '),
+        narrative(it),
         it.doing,
       ].filter(Boolean).join('\n'),
     })));
@@ -887,33 +905,6 @@ function Box({
       )}
       {!shut && children}
     </section>
-  );
-}
-
-const SERVICE_LABELS = new Set(Object.values(GROUP_LABEL));
-
-/** "Essential hypertension — Patient reports ..." with the name in bold. */
-function ReadLine({ line }: { line: string }) {
-  if (!line.trim()) return <div className="nreadgap" />;
-  // A bare "Medical", "Lifestyle" or "Preventative" on its own line
-  // is the label over a run, not a finding about one of them.
-  if (SERVICE_LABELS.has(line.trim())) {
-    return <div className="nreadsec">{line.trim()}</div>;
-  }
-  // A point in the plan, not a sentence about it: given a little
-  // air above the first of a run so the sentence that leads into
-  // them is not the first bullet's own first line.
-  const bullet = /^\s*[\u2022\-*]\s/.test(line);
-  const i = line.indexOf('\u2014');
-  if (bullet || i < 0) {
-    return <div className={`nreadline${bullet ? ' bull' : ''}`}>{line}</div>;
-  }
-  return (
-    <div className="nreadline">
-      <strong>{line.slice(0, i).trim()}</strong>
-      {' \u2014 '}
-      {line.slice(i + 1).trim()}
-    </div>
   );
 }
 

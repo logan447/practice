@@ -105,6 +105,28 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok(`the chart advances when somebody signs (${was} then ${now})`, was!==now);
   const nowText = await planText(p);
   ok('the chart changed only because somebody signed', before!==nowText);
+  // The signed note reads the way the visit that wrote it read: the
+  // sentence about the patient inside the subjective rather than
+  // over the whole drawer, the subjective open and the rest folded.
+  await tab(p, 'Notes');
+  await p.locator('.rec:has-text("Signed")').first().click(); await p.waitForTimeout(500);
+  ok('the signed note opens on the subjective and folds the rest',
+    !(await p.locator('.sheet .nbox').first().evaluate((el)=>el.classList.contains('shut')))
+    && (await p.locator('.sheet .nbox.shut').count())>=1);
+  ok('the one-liner is inside the subjective, not a caption on the drawer',
+    (await p.locator('.sheet .nbox').first().locator('.nboxlead').count())===1
+    && (await p.locator('.sheet .nboxlead').first().textContent()).includes('with PMH of'));
+  // The subjective and the plan were typed over by hand further up,
+  // so the objective is the section that still carries what the
+  // visit generated. Opened, it is written the way the visit screen
+  // wrote it rather than as flat paragraphs.
+  await p.locator('.sheet .nboxhead:has-text("Objective")').click();
+  await p.waitForTimeout(300);
+  ok('and it is written with its headings, the same as the visit screen',
+    (await p.locator('.sheet .nread').count())>0
+    && (await p.locator('.sheet .nreadline strong').count())>0);
+  await p.click('.sheetx'); await p.waitForTimeout(250);
+
   // What the patient told us is kept in their own words, whether or
   // not a clause of the summary happens to repeat it.
   await tab(p, 'Subjective');

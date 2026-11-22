@@ -22,6 +22,7 @@ import { useNav } from '../../lib/nav';
 import { fmtDate } from '../../lib/format';
 import { SETTING_LABEL } from '../../domain/types';
 import { Rows, Row, Sheet, NoRows } from './Rows';
+import { NoteText } from './NoteText';
 
 export function NotesTab({ patientId }: { patientId: string }) {
   const st = useStore();
@@ -62,11 +63,14 @@ export function NotesTab({ patientId }: { patientId: string }) {
           )}>
           {!e.note ? <p className="muted">Not held yet, so there is no note.</p> : (
             <div className="note signednote">
-              {e.note.subjective.oneLiner && (
-                <p className="oneliner vone">{e.note.subjective.oneLiner}</p>
-              )}
-
-              <Fold title="Subjective" text={[
+              {/*
+                * The sentence about the patient belongs to the
+                * subjective, which is the section that is about the
+                * patient. Standing above the first heading it read
+                * as a caption on the drawer, and the drawer already
+                * has one.
+                */}
+              <Fold title="Subjective" lead={e.note.subjective.oneLiner} text={[
                 e.note.subjective.reason,
                 e.note.subjective.chartReview,
                 e.note.subjective.diagnostics,
@@ -125,30 +129,36 @@ const points = (pr: {
  * it. Silent when it has nothing: a heading over an empty section in
  * a clinical document reads as a finding of nothing.
  */
-function Fold({ title, text, count, startShut, children }: {
+function Fold({ title, text, count, startShut, children, lead }: {
   title: string;
   text?: string;
   count?: number;
   /** Shut when the note opens. Only the subjective is not. */
   startShut?: boolean;
   children?: React.ReactNode;
+  /** The sentence between the heading and the rule under it. */
+  lead?: string;
 }) {
   const [shut, setShut] = useState(!!startShut);
-  if (!text && !children) return null;
+  if (!text && !children && !lead) return null;
   return (
     <section className={`nbox${shut ? ' shut' : ''}`}>
-      <button className="nboxhead" onClick={() => setShut((v) => !v)}>
-        <span className="foldarrow" aria-hidden="true">{shut ? '›' : '⌄'}</span>
-        <span className="nboxtitle">{title}</span>
-        {count !== undefined && <span className="nboxcount">{count}</span>}
-      </button>
-      {!shut && (
-        <div className="nbodytext">
-          {children ?? (text ?? '').split('\n\n').map((para, i) => (
-            <p key={i} style={{ whiteSpace: 'pre-line' }}>{para}</p>
-          ))}
-        </div>
-      )}
+      <div className="nboxtop">
+        <button className="nboxhead" onClick={() => setShut((v) => !v)}>
+          <span className="foldarrow" aria-hidden="true">{shut ? '›' : '⌄'}</span>
+          <span className="nboxtitle">{title}</span>
+          {count !== undefined && <span className="nboxcount">{count}</span>}
+        </button>
+        {lead && !shut && <p className="nboxlead">{lead}</p>}
+      </div>
+      {/*
+        * Rendered by the same reader as the visit screen, because it
+        * is the same document: bold headings, bold service labels,
+        * points indented under the sentence that leads into them.
+        * Paragraphs here and a note there meant the physician signed
+        * one thing and read back another.
+        */}
+      {!shut && (children ?? <NoteText text={text ?? ''} />)}
     </section>
   );
 }

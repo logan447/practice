@@ -2461,6 +2461,35 @@ blockquote.said footer {
 .nbodytext .planprob { margin-bottom: 12px; }
 .nbodytext .planprob:last-child { margin-bottom: 0; }
 
+/* ---------------------------------------------------- the lab plot
+ * One series over real time. The reference range is a band behind
+ * the line because it is the context the line is read against, not
+ * a thing being compared with it.
+ */
+.labplot { margin: 2px 0 4px; }
+.labplotsvg { display: block; width: 100%; height: auto; }
+.lpband { fill: var(--accent-soft); opacity: .55; }
+.lpgrid { stroke: var(--line-2); stroke-width: 1; }
+.lpaxisline { stroke: var(--line); stroke-width: 1; }
+.lpaxis { font: 400 11.5px/1 var(--sans); fill: var(--ink-3); }
+.lpcross { stroke: var(--line); stroke-width: 1; stroke-dasharray: 3 3; }
+.lpline {
+  fill: none; stroke: var(--accent); stroke-width: 2;
+  stroke-linejoin: round; stroke-linecap: round;
+}
+/* Patient-measured is a different measurement, not a different
+   colour of the same one. */
+.lpline.patient { stroke: var(--info); stroke-dasharray: 5 3; }
+.lpdot { fill: var(--accent); stroke: var(--panel); stroke-width: 2; }
+.lpline.patient ~ .lpdot { fill: var(--info); }
+.lpdot.bad { fill: var(--warn); }
+.lpdot.on { stroke-width: 2.5; }
+.lpread { margin: 4px 0 0; font-size: 13.5px; color: var(--ink); }
+.lpflag { color: var(--warn); }
+/* A value in a panel opens its own trend. */
+.clickrow { cursor: pointer; }
+.clickrow:hover { background: var(--panel-2); }
+
 /* The points of a plan, under the sentence that leads into them. */
 .nreadline.bull { padding-left: 3px; }
 .nreadline:not(.bull) + .nreadline.bull { margin-top: 7px; }

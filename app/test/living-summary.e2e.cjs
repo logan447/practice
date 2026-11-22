@@ -154,10 +154,28 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     labtags.includes('Report') && labtags.includes('Tracked'));
   ok('what the patient measures says so on its own row',
     (await p.locator('.rectag:text-is("Patient-measured")').count())>0);
-  await p.locator('.rec').first().click(); await p.waitForTimeout(350);
+  await p.locator('.rec:has-text("Comprehensive metabolic panel")').first().click();
+  await p.waitForTimeout(400);
   ok('a report opens to its values, not to a summary of them',
     (await p.locator('.sheet .rows tr').count())>3);
-  await p.click('.sheetx'); await p.waitForTimeout(250);
+
+  // A value in a report is a number; the same value across every
+  // report that holds it is the finding, and it used to be two
+  // clicks and a different tab away.
+  await p.locator('.clickrow:has-text("Creatinine")').first().click();
+  await p.waitForTimeout(450);
+  ok('one value out of a report opens its own trend, plotted',
+    (await p.locator('.labplotsvg').count())===1
+    && (await p.locator('.lpdot').count())>=2);
+  ok('with the reference range drawn behind it, not as two more lines',
+    (await p.locator('.lpband').count())===1);
+  ok('and the readings underneath, so the plot is not the only way to read it',
+    (await p.locator('.sheet').last().locator('.rows tr').count())>=2);
+  const lpread = await p.locator('.lpread').textContent();
+  ok(`the latest reading is named in words: "${lpread.trim().slice(0,34)}"`,
+    /mg\/dL/.test(lpread) && /reference/.test(lpread));
+  await p.locator('.sheetx').last().click(); await p.waitForTimeout(250);
+  await p.locator('.sheetx').last().click(); await p.waitForTimeout(250);
 
   // ------------------------------- 5. the sources, and adding to them
   // Everything on file is still one list, off the strip: the chart
