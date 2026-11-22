@@ -36,7 +36,8 @@ export const GROUP_LABEL = {
 export const NOTE_HEADINGS = new Set<string>([
   ...Object.values(GROUP_LABEL).filter(Boolean),
   'Review of systems',
-  'Examination',
+  'Labs',
+  'Physical Exam',
   'Surveys',
 ]);
 
@@ -47,7 +48,8 @@ export const NOTE_HEADINGS = new Set<string>([
  * and only one of them is a reason to do something, so the word that
  * says which gets the same colour the review's positives get.
  */
-const SURVEY_LINE = /^(PHQ-2|GAD-2|PHQ-9|GAD-7|AUDIT-C|Mini-Cog|Flourishing): /;
+const SURVEY_LINE =
+  /^(PHQ-2|GAD-2|PHQ-9|GAD-7|AUDIT-C|Tobacco|Other drugs|Mini-Cog|Flourishing): /;
 
 
 /**
@@ -89,7 +91,7 @@ export function ReadLine({ line, inRos }: { line: string; inRos?: boolean }) {
     const t = line.trim();
     const at = t.indexOf(':');
     const rest = t.slice(at + 1).trim();
-    const hit = / Positive\b|Possible impairment/.test(rest);
+    const hit = / (Positive|Current use)\b|Possible impairment/.test(rest);
     return (
       <div className="nreadline rosline">
         <strong>{t.slice(0, at)}:</strong>{' '}

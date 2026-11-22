@@ -53,8 +53,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     && (await p.locator('.vtab.on').textContent())==='week');
   await p.click('.acctbtn'); await p.waitForTimeout(150);
   await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
-  ok('the demo is five charts, not a crowd',
-    (await p.locator('table.rows tbody tr').count())===5);
+  ok('the demo is six charts, not a crowd',
+    (await p.locator('table.rows tbody tr').count())===6);
 
   // -------------------------------------------------- 1. filled out
   await open('Sharon');

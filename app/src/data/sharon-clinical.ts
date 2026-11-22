@@ -371,4 +371,8 @@ export const sharonScores: InstrumentScore[] = [
   { id: 'is10', patientId: P, instrument: 'phq-2', date: '2026-06-18', score: 2, by: 'patient' },
   { id: 'is11', patientId: P, instrument: 'gad-2', date: '2026-06-18', score: 2, by: 'patient' },
   { id: 'is12', patientId: P, instrument: 'flourishing', date: '2026-06-18', score: 71, by: 'patient' },
+  /* Asked every visit, the same as the two-item screens. */
+  { id: 'is13', patientId: P, instrument: 'tobacco', date: '2026-11-12', score: 0, by: 'patient' },
+  { id: 'is14', patientId: P, instrument: 'drug-use', date: '2026-11-12', score: 0, by: 'patient' },
+  { id: 'is15', patientId: P, instrument: 'audit-c', date: '2026-11-12', score: 2, by: 'patient' },
 ];

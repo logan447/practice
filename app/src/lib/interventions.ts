@@ -55,6 +55,8 @@ export interface Intervention {
   verb?: string;
   /** How it is taken, or who it is with. */
   detail?: string;
+  /** The second half of the instruction, where there is one. */
+  tail?: string;
 }
 
 export interface InterventionInput {
@@ -150,11 +152,19 @@ export function interventionsFor(
     const waiting = !!sp.outstanding && sp.outstanding !== 'None.';
     out.push({
       kind: 'specialist',
-      // Somebody they have never seen, or one with something
-      // outstanding, is a referral. Somebody they see is a person to
-      // keep seeing, and is written with their name, because
-      // "Endocrinology" is not who anybody is going to see.
-      verb: !sp.lastSeen || waiting ? 'Referral to' : 'Continue with',
+      /*
+       * A referral is two acts, and the second one is the one that
+       * gets dropped: sending it and finding out whether they were
+       * seen. Somebody they already see is a different instruction,
+       * which is to keep reading what comes back.
+       *
+       * Written with the person's name, because "Endocrinology" is
+       * not who anybody is going to see.
+       */
+      verb: !sp.lastSeen || waiting ? 'Send referral to' : 'Continue following with',
+      tail: !sp.lastSeen || waiting
+        ? 'Confirm the appointment.'
+        : 'Will follow up on their recommendations.',
       label: sp.name,
       detail: sp.specialty,
       status: waiting ? 'needs-attention' : 'complete',

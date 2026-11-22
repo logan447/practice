@@ -41,7 +41,10 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // one that carries what a physician needs before walking in.
   await p.click('.vtab:has-text("day")'); await p.waitForTimeout(500);
   const rows = await p.locator('.dayrow').count();
-  ok(`one list, five activities (${rows})`, rows===5);
+  // Six: five follow-ups and the first visit of a new member, which
+  // is the one kind of day a practice that has not started cannot
+  // otherwise show.
+  ok(`one list, six activities (${rows})`, rows===6);
   // One kind of thing on the day. The care plan review was a second
   // kind and is gone: two flows meant the second was the one skipped.
   const day = (await p.locator('.dayrow').allTextContents()).join(' | ');
@@ -51,8 +54,10 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     await p.locator('.vtab:has-text("month")').isVisible());
   ok('each row says what is waiting on it',
     (await p.locator('.dayrow .dnew').first().textContent()).length>8);
+  // The first row is a first visit, which has no plan to open on.
   ok('and what version of the plan it opens on',
-    (await p.locator('.dayrow .dnew').first().textContent()).includes('version'));
+    (await p.locator('.dayrow:has-text("Sharon White") .dnew').first().textContent())
+      .includes('version'));
 
   // ------------------------------------------- 2. the inbox is separate
   const bar = await p.locator('.inboxbar').textContent();
@@ -78,7 +83,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     && !(await p.locator('.note .nbox').first().evaluate((el)=>el.classList.contains('shut'))));
   const planText = await noteText(p,'plan');
   ok('the plan arrives with every problem, pillar and service in it',
-    planText.includes('Essential hypertension') && planText.includes('Physical activity')
+    planText.includes('Essential hypertension') && planText.includes('Exercise')
     && planText.includes('Mammogram'));
   ok('a visit listens', (await p.locator('button:has-text("Listen")').count())===1);
 

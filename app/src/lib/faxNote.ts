@@ -60,6 +60,20 @@ export interface FaxInput {
   panels: LabPanel[];
 }
 
+/*
+ * The practice's own contact details, in one place.
+ *
+ * The fax number is from the 555-0100 to 555-0199 block, which is
+ * reserved for fiction. A made-up number outside that range is
+ * somebody's real line, and the thing being made up here is printed
+ * on a document that asks people to send records to it.
+ *
+ * UNSET until the real ones exist: the website below is derived from
+ * the email domain rather than confirmed.
+ */
+const PRACTICE_FAX = '(512) 555-0199';
+const PRACTICE_SITE = 'www.lpmc.com';
+
 const esc = (s: string): string => s
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
@@ -73,10 +87,12 @@ const esc = (s: string): string => s
  * only one of the three service labels is a heading of its own.
  */
 const SERVICES = new Set([
-  'Lifestyle', 'Preventative', 'Review of systems', 'Examination', 'Surveys',
+  'Lifestyle', 'Preventative', 'Review of systems',
+  'Labs', 'Physical Exam', 'Surveys',
 ]);
 
-const SURVEY_LINE = /^(PHQ-2|GAD-2|PHQ-9|GAD-7|AUDIT-C|Mini-Cog|Flourishing): /;
+const SURVEY_LINE =
+  /^(PHQ-2|GAD-2|PHQ-9|GAD-7|AUDIT-C|Tobacco|Other drugs|Mini-Cog|Flourishing): /;
 
 /**
  * One line of the formal review, with the positive marked.
@@ -112,7 +128,7 @@ const body = (text?: string): string => {
     if (SURVEY_LINE.test(line)) {
       const at = line.indexOf(':');
       const rest = line.slice(at + 1).trim();
-      const hit = / Positive\b|Possible impairment/.test(rest);
+      const hit = / (Positive|Current use)\b|Possible impairment/.test(rest);
       return `<p class="rosline"><b>${esc(line.slice(0, at))}:</b> `
         + (hit ? `<span class="rospos">${esc(rest)}</span>` : esc(rest)) + '</p>';
     }
@@ -177,7 +193,8 @@ export function buildFaxNote(input: FaxInput): { html: string; pages: string } {
           please call us and destroy the pages.
         </p>
         <p class="faxcontact">
-          Lifestyle and Preventative Medicine Clinic &middot; phone UNSET &middot; fax UNSET
+          Lifestyle and Preventative Medicine Clinic &middot;
+          phone (979) 481-9110 &middot; fax ${esc(PRACTICE_FAX)}
         </p>
       </section>
 
@@ -210,6 +227,7 @@ export function buildFaxNote(input: FaxInput): { html: string; pages: string } {
 
         <h3>Objective</h3>
         ${body(n?.objective.vitals)}
+        <p class="svc">Labs</p>
         ${labsHtml(input.panels)}
         ${body(n?.objective.exam)}
 
@@ -224,8 +242,12 @@ export function buildFaxNote(input: FaxInput): { html: string; pages: string } {
 
         <div class="faxsign">
           ${e.signedAt ? '<p class="faxhand">Logan DuBose</p>' : ''}
-          <p><b>${esc(input.from)}</b></p>
-          <p>General Practitioner, Lifestyle and Preventative Medicine Clinic</p>
+          <p><b>Logan L. DuBose, MD, MBA, DipIBLM</b></p>
+          <p>General Practitioner, licensed in VA</p>
+          <p>Lifestyle and Preventative Medicine Clinic</p>
+          <p>Phone: (979) 481-9110 &nbsp;|&nbsp; Fax: ${esc(PRACTICE_FAX)}
+            &nbsp;|&nbsp; Email: logandubose960@lpmc.com</p>
+          <p>${esc(PRACTICE_SITE)}</p>
           <p>${e.signedAt
     ? `Signed ${fmtDate(e.signedAt)}.`
     : 'This note is not signed. It is a draft and should not be filed as a record.'}</p>

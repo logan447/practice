@@ -176,7 +176,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     (await p.locator('.sheet button:has-text("Send this note")').count())===1);
   await p.click('.sheet button:has-text("Send this note")'); await p.waitForTimeout(350);
   ok('and it says plainly that nothing is transmitted',
-    (await p.locator('.faxform').textContent()).includes('does not send anything'));
+    (await p.locator('.faxform').textContent()).includes('nothing here sends it'));
   ok('the specialists we already hold are offered, and the number is still typed',
     (await p.locator('.faxform .fld:has-text("Fax number") input').count())===1);
   await p.fill('.faxform .fld:has-text("To") input','Dr. Omar Haddad');
@@ -184,11 +184,14 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.waitForTimeout(200);
   // Printing opens a dialog the test cannot dismiss, so the document
   // is built the same way and read out of the page instead.
-  const faxdoc = await p.evaluate(() => {
-    const b = document.querySelector('.faxform .btn:not(.ghost):not(.quiet)');
-    return b ? b.textContent : '';
-  });
-  ok(`the action is print, not send: "${faxdoc}"`, /PDF/.test(faxdoc));
+  // The document is shown before it goes anywhere. Looking at it is
+  // not disclosing it, so nothing is logged until the print step.
+  await p.click('.faxform .btn:has-text("Preview the note")'); await p.waitForTimeout(500);
+  ok('the document is shown before it is sent',
+    (await p.locator('.faxpaper .fax').count())===1
+    && (await p.locator('.faxpaper').textContent()).includes('Fax cover sheet'));
+  ok('and the action after it is print, not send',
+    (await p.locator('.faxform .btn:has-text("Print or save as PDF")').count())===1);
   await p.click('.sheetx'); await p.waitForTimeout(250);
 
   // ------------------------------- 5. the patient takes it themselves

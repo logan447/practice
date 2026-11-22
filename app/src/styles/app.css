@@ -2481,6 +2481,88 @@ blockquote.said footer {
 .faxform .fld .search { width: 100%; }
 .faxout { display: none; }
 
+/* The preview: the page itself, on a sheet of paper, before it goes
+   anywhere. The print dialog is a preview too, but it is a preview
+   you have to decide to open, and the decision this screen is about
+   is whether the document is right. */
+.faxpaper {
+  margin: 14px 0 2px; padding: 0.5in; background: #fff;
+  border: 1px solid var(--line); border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(20, 30, 30, .08);
+  max-height: 62vh; overflow: auto;
+}
+
+/* ----------------------------------------------- the faxed document
+ * Described once, so the preview on screen is the page rather than a
+ * likeness of it. Only the page mechanics below are print-only.
+ */
+/* Arial, 11pt, single spaced, justified, half-inch margins. The
+   conventions of a business document, which is what a fax to
+   another practice is. Everything is 11pt: a heading is bold and
+   a rule under it, not a size. */
+.fax {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11pt; line-height: 1.15; text-align: justify;
+  color: #000; background: #fff;
+}
+/* Arial, like the rest of it. The app sets a serif on headings. */
+.fax h1, .fax h2, .fax h3, .fax b, .fax strong, .fax th {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.fax h1 { font-size: 11pt; margin: 0 0 6pt; }
+.fax h3 {
+  font-size: 11pt; margin: 12pt 0 3pt; text-align: left;
+  border-bottom: 1px solid #000; padding-bottom: 2pt;
+}
+.fax p { margin: 0 0 3pt; }
+/* Justification wants hyphenation, or a long name leaves a line of
+   white. The last line of a paragraph is never stretched. */
+.fax p, .fax td { hyphens: auto; }
+.fax .none { color: #000; font-style: italic; }
+.fax .svc { font-weight: 700; margin-top: 8pt; text-align: left; }
+.fax .rosline { text-align: left; margin: 0; }
+/* Red for a reader on a screen or a saved PDF, bold so it survives
+   a fax, which turns every colour into the same grey. */
+.fax .rospos { color: #b3261e; font-weight: 700; }
+/* Room under the cross for the month stamp. */
+.fax .fbgroup .fbstamp { margin-top: 1pt; }
+/* A point is an instruction. Justifying one stretches four words
+   across six inches. */
+.fax .pt { margin-left: 12pt; text-align: left; }
+.faxcover { page-break-after: always; }
+.faxto { border-collapse: collapse; margin: 8pt 0 6pt; text-align: left; }
+.faxto th {
+  text-align: left; vertical-align: top; width: 70pt;
+  padding: 3pt 10pt 3pt 0; font-weight: 700;
+}
+.faxto td { padding: 3pt 0; }
+.faxcontact { margin-top: 12pt; }
+.faxsub { color: #000; margin: 0 0 2pt; text-align: left; }
+.faxone { margin: 8pt 0 0; }
+.faxfollow { margin: 12pt 0 0; text-align: left; font-weight: 700; }
+.faxsign { margin-top: 16pt; page-break-inside: avoid; text-align: left; }
+.faxsign p { margin: 0; }
+/* The signature. A rendering in a script face, not a scan: it is
+   the physician's own name on their own note, and the typed name
+   and the date under it are what actually authenticate it. */
+.faxhand {
+  font-family: 'Dancing Script', cursive;
+  font-size: 24pt; line-height: 1.1; margin: 0 0 2pt;
+}
+/* The identifier, repeated at the top of every page by the one
+   mechanism every engine implements. */
+/* Fixed, or the cell sizes to its longest paragraph and the text
+   runs off the right edge of the page. */
+.faxpage { width: 100%; table-layout: fixed; border-collapse: collapse; }
+.faxpage td, .faxpage th { padding: 0; }
+/* No rule under it. It is the line the note starts with, not a
+   banner over the note. */
+.faxrun {
+  text-align: left; font-weight: 400; font-size: 11pt;
+  padding-bottom: 2pt;
+}
+.faxnote { padding-top: 0; }
+
 @media print {
   /* The document stays in normal flow and everything else goes away.
      Hiding by visibility and lifting the document out of flow is how
@@ -2492,100 +2574,35 @@ blockquote.said footer {
      so the document says plainly that it is visible. */
   .faxout, .faxout * { visibility: visible !important; }
   .faxout { display: block; }
-  /* Arial, 11pt, single spaced, justified, half-inch margins. The
-     conventions of a business document, which is what a fax to
-     another practice is. Everything is 11pt: a heading is bold and
-     a rule under it, not a size. */
-  .fax {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 11pt; line-height: 1.15; text-align: justify;
-    color: #000; background: #fff;
-  }
-  /* Arial, like the rest of it. The app sets a serif on headings. */
-  .fax h1, .fax h2, .fax h3, .fax b, .fax strong, .fax th {
-    font-family: Arial, Helvetica, sans-serif;
-  }
-  .fax h1 { font-size: 11pt; margin: 0 0 6pt; }
-  .fax h3 {
-    font-size: 11pt; margin: 12pt 0 3pt; text-align: left;
-    border-bottom: 1px solid #000; padding-bottom: 2pt;
-  }
-  .fax p { margin: 0 0 3pt; }
-  /* Justification wants hyphenation, or a long name leaves a line of
-     white. The last line of a paragraph is never stretched. */
-  .fax p, .fax td { hyphens: auto; }
-  .fax .none { color: #000; font-style: italic; }
-  .fax .svc { font-weight: 700; margin-top: 8pt; text-align: left; }
-  .fax .rosline { text-align: left; margin: 0; }
-  /* Red for a reader on a screen or a saved PDF, bold so it survives
-     a fax, which turns every colour into the same grey. */
-  .fax .rospos { color: #b3261e; font-weight: 700; }
-  /* Room under the cross for the month stamp. */
-  .fax .fbgroup .fbstamp { margin-top: 1pt; }
-  /* A point is an instruction. Justifying one stretches four words
-     across six inches. */
-  .fax .pt { margin-left: 12pt; text-align: left; }
-  .faxcover { page-break-after: always; }
-  .faxto { border-collapse: collapse; margin: 8pt 0 6pt; text-align: left; }
-  .faxto th {
-    text-align: left; vertical-align: top; width: 70pt;
-    padding: 3pt 10pt 3pt 0; font-weight: 700;
-  }
-  .faxto td { padding: 3pt 0; }
-  .faxcontact { margin-top: 12pt; }
-  .faxsub { color: #000; margin: 0 0 2pt; text-align: left; }
-  .faxone { margin: 8pt 0 0; }
-  .faxfollow { margin: 12pt 0 0; text-align: left; font-weight: 700; }
-  .faxsign { margin-top: 16pt; page-break-inside: avoid; text-align: left; }
-  .faxsign p { margin: 0; }
-  /* The signature. A rendering in a script face, not a scan: it is
-     the physician's own name on their own note, and the typed name
-     and the date under it are what actually authenticate it. */
-  .faxhand {
-    font-family: 'Dancing Script', cursive;
-    font-size: 24pt; line-height: 1.1; margin: 0 0 2pt;
-  }
-  /* The identifier, repeated at the top of every page by the one
-     mechanism every engine implements. */
-  /* Fixed, or the cell sizes to its longest paragraph and the text
-     runs off the right edge of the page. */
-  .faxpage { width: 100%; table-layout: fixed; border-collapse: collapse; }
-  .faxpage td, .faxpage th { padding: 0; }
-  /* No rule under it. It is the line the note starts with, not a
-     banner over the note. */
-  .faxrun {
-    text-align: left; font-weight: 400; font-size: 11pt;
-    padding-bottom: 2pt;
-  }
-  .faxnote { padding-top: 0; }
   @page { margin: 0.5in; }
-
-  /* The lab shorthand prints as it is drawn, in black. */
-  .fax .fishbones {
-    display: flex; flex-wrap: wrap; align-items: center;
-    gap: 6pt 30pt; margin: 4pt 0 6pt;
-  }
-  .fax .fbbone { stroke: #000; }
-  .fax .fbnum { font-family: Arial, Helvetica, sans-serif; font-size: 10pt; fill: #000; }
-  /* A fax is one bit per pixel, so an abnormal value is bold rather
-     than coloured. Colour arrives at the other end as grey. */
-  .fax .fbnum.bad { fill: #000; font-weight: 700; }
-  .fax .fbprev { font-size: 9pt; fill: #000; }
-  /* Flex, so the nowrap items break between themselves. As inline
-     spans joined without whitespace there is no break opportunity
-     and the row runs off the page. */
-  .fax .otherlabs {
-    display: flex; flex-wrap: wrap; gap: 1pt 12pt;
-    margin: 2pt 0 6pt; text-align: left; font-size: 11pt;
-  }
-  .fax .olitem { display: inline-flex; flex-direction: column; white-space: nowrap; }
-  .fax .olitem.bad .olval { color: #000; font-weight: 700; }
-  .fax .olitem.bad .olname { font-weight: 400; }
-  .fax .fbstamp { display: block; font-size: 8pt; line-height: 1.2; }
-  .fax .fbgroup { display: inline-flex; flex-direction: column; align-items: center; }
-  .fax .labsnote { font-size: 9pt; margin: 2pt 0 6pt; text-align: left; }
-  .fax .olname { color: #000; }
 }
+
+/* The lab shorthand prints as it is drawn, in black. */
+.fax .fishbones {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: 6pt 30pt; margin: 4pt 0 6pt;
+}
+.fax .fbbone { stroke: #000; }
+.fax .fbnum { font-family: Arial, Helvetica, sans-serif; font-size: 10pt; fill: #000; }
+/* A fax is one bit per pixel, so an abnormal value is bold rather
+   than coloured. Colour arrives at the other end as grey. */
+.fax .fbnum.bad { fill: #000; font-weight: 700; }
+.fax .fbprev { font-size: 9pt; fill: #000; }
+/* Flex, so the nowrap items break between themselves. As inline
+   spans joined without whitespace there is no break opportunity
+   and the row runs off the page. */
+.fax .otherlabs {
+  display: flex; flex-wrap: wrap; gap: 1pt 12pt;
+  margin: 2pt 0 6pt; text-align: left; font-size: 11pt;
+}
+.fax .olitem { display: inline-flex; flex-direction: column; white-space: nowrap; }
+.fax .olitem.bad .olval { color: #000; font-weight: 700; }
+.fax .olitem.bad .olname { font-weight: 400; }
+.fax .fbstamp { display: block; font-size: 8pt; line-height: 1.2; }
+.fax .fbgroup { display: inline-flex; flex-direction: column; align-items: center; }
+.fax .labsnote { font-size: 9pt; margin: 2pt 0 6pt; text-align: left; }
+.fax .olname { color: #000; }
+
 
 /* ---------------------------------------------------- the lab plot
  * One series over real time. The reference range is a band behind

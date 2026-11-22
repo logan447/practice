@@ -119,7 +119,8 @@ function planPoints(ivs: Intervention[]): string[] {
     if (iv.kind === 'medicine') {
       out.push(`${iv.verb} ${iv.label}${iv.detail ? `, ${iv.detail}` : ''}${tail}`);
     } else if (iv.kind === 'specialist') {
-      out.push(`${iv.verb} ${iv.label}${iv.detail ? `, ${iv.detail}` : ''}${tail}`);
+      out.push(`${iv.verb} ${iv.label}${iv.detail ? `, ${iv.detail}` : ''}.${
+        iv.tail ? ` ${iv.tail}` : ''}${tail}`);
     } else if (iv.kind === 'monitoring') {
       out.push(`${iv.verb} ${iv.label}${tail}`);
     } else {
@@ -172,7 +173,7 @@ type Marks = Record<string, 'ambient'>;
  * every line is wrong until somebody looks.
  */
 const EXAM = [
-  'Examination',
+  'Physical Exam',
   'General: alert, comfortable, no distress.',
   'Cardiovascular: regular rate and rhythm, no murmur, no oedema.',
   'Respiratory: clear to auscultation, no added sounds.',
@@ -269,10 +270,34 @@ export function Encounter({ encounterId }: { encounterId: string }) {
          */
         denies: pertinentNegatives(pr.name),
       })),
-      // Two prescriptions can share a domain, and two blocks both
-      // called "Nutrition" is two you have to open to tell apart.
-      ...lifestyle.map((l) => {
-        const same = lifestyle.filter((x) => x.domain === l.domain);
+      /*
+       * All six pillars, prescribed or not.
+       *
+       * The pillars are a fixed list, not a list of prescriptions.
+       * Showing only the ones with something written against them
+       * makes a first visit look like a patient with no lifestyle
+       * at all, when what is true is that nobody has prescribed
+       * anything yet, which is the finding.
+       *
+       * Two prescriptions can share a pillar, and two blocks both
+       * called "Diet" is two you have to open to tell apart.
+       */
+      ...LIFESTYLE_DOMAINS.flatMap((d) => {
+        const mine = lifestyle.filter((x) => x.domain === d.id);
+        if (mine.length === 0) {
+          return [{
+            id: `pillar-${d.id}`,
+            name: d.label,
+            group: 'Lifestyle' as const,
+            said: '',
+            doing: '',
+            standing: 'Not started',
+            silent: 'Not started.',
+            because: 'Nothing prescribed here yet.',
+          }];
+        }
+        return mine.map((l) => {
+        const same = mine;
         // Four words, not the whole prescription. It is there to tell
         // two "Nutrition" blocks apart; the prescription itself is in
         // the plan under the heading, and a sentence set in bold as a
@@ -302,11 +327,18 @@ export function Encounter({ encounterId }: { encounterId: string }) {
           // a fact about us: it exists and nobody has asked how it
           // is going, which is the one worth seeing on the page.
           silent: l.status === 'not-started' ? 'Not started.' : 'Unknown.',
-          // The barrier belongs to the conversation, not to the
-          // plan: a second line under every pillar was the plan
-          // explaining itself rather than saying what to do.
-          because: '',
+          /*
+           * What is in the way is what defends the status: a pillar
+           * that is in progress rather than holding is in progress
+           * for a reason, and the reason is the thing the plan
+           * underneath it has to answer.
+           */
+          because: [
+            l.barrier ?? '',
+            l.status === 'achieved' ? 'Holding without effort now.' : '',
+          ].filter(Boolean).join(' '),
         };
+        });
       }),
       ...prevention.map((x) => ({
         id: x.id,
@@ -495,12 +527,30 @@ export function Encounter({ encounterId }: { encounterId: string }) {
      * that is all there was, there is no sentence and the points
      * follow the heading.
      */
-    const narrative = (it: Item) => [it.because, prose(carried[it.id] ?? '')]
-      .filter(Boolean).join(' ')
-      .split(/(?<=[.!?])\s+/)
-      .filter((sentence) => sentence.trim() && bare(sentence) !== bare(it.standing))
-      .join(' ')
-      .trim();
+    /*
+     * Two lines, and they have to earn both.
+     *
+     * The job of this sentence is to defend the status in the line
+     * above it and run into the points below: where the number is,
+     * what it is being read against, and why that is or is not good
+     * enough. Everything past that belongs in the conversation, and
+     * a paragraph here pushes the plan off the screen.
+     */
+    const TWO_LINES = 190;
+    const narrative = (it: Item) => {
+      const sentences = [it.because, prose(carried[it.id] ?? '')]
+        .filter(Boolean).join(' ')
+        .split(/(?<=[.!?])\s+/)
+        .filter((sentence) => sentence.trim() && bare(sentence) !== bare(it.standing));
+      const out: string[] = [];
+      let used = 0;
+      for (const sentence of sentences) {
+        if (out.length > 0 && used + sentence.length > TWO_LINES) break;
+        out.push(sentence);
+        used += sentence.length + 1;
+      }
+      return out.join(' ').trim();
+    };
 
     /*
      * The assessment opens with the same sentence the subjective
@@ -522,43 +572,47 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       ].filter(Boolean).join('\n'),
     })));
 
-    const lastOffice = st.vitalsFor(patientId).find((v) => v.source === 'office');
-    const vitalsLine = lastOffice
-      ? `Vitals \u2014 ${[
-        lastOffice.systolic ? `${lastOffice.systolic}/${lastOffice.diastolic}` : '',
-        lastOffice.heartRate ? `HR ${lastOffice.heartRate}` : '',
-        lastOffice.weightLb ? `${lastOffice.weightLb} lb` : '',
-        lastOffice.bmi ? `BMI ${lastOffice.bmi}` : '',
-      ].filter(Boolean).join(' \u00b7 ')} (${fmtDate(lastOffice.date)})`
-      : '';
-
     /*
-     * What they measured at home, between visits.
+     * One vitals line.
      *
-     * A practice that asks patients to take their own readings has to
-     * read them. The home cuff and the patient-logged series are the
-     * only measurements this practice has between one visit and the
-     * next, so they belong in the objective beside the clinic vitals,
-     * labelled as theirs rather than merged into ours.
+     * What was measured in the office, written plainly, and then
+     * anything the patient measured at home with "(home)" after the
+     * number. A separate Home line made two measurements of the same
+     * thing look like two different findings, and the only part a
+     * reader needs is which cuff it came off.
      */
+    const lastOffice = st.vitalsFor(patientId).find((v) => v.source === 'office');
+    const office = lastOffice ? [
+      lastOffice.systolic ? `${lastOffice.systolic}/${lastOffice.diastolic}` : '',
+      lastOffice.heartRate ? `HR ${lastOffice.heartRate}` : '',
+      lastOffice.weightLb ? `${lastOffice.weightLb} lb` : '',
+      lastOffice.bmi ? `BMI ${lastOffice.bmi}` : '',
+    ].filter(Boolean) : [];
+
     const homeSets = st.vitalsFor(patientId).filter((v) => v.source === 'home');
     const sys = homeSets.map((v) => v.systolic).filter((n): n is number => !!n);
-    const homeBits = [
+    const home = [
       sys.length
-        ? `BP ${Math.min(...sys)} to ${Math.max(...sys)} systolic over ${
-          sys.length} reading${sys.length === 1 ? '' : 's'}, last ${fmtDate(homeSets[0].date)}`
+        ? `${Math.min(...sys)} to ${Math.max(...sys)} systolic (home, ${
+          sys.length} reading${sys.length === 1 ? '' : 's'} to ${fmtDate(homeSets[0].date)})`
         : '',
       ...st.patientSeriesFor(patientId).map((ser) => {
         const last = ser.points[ser.points.length - 1];
-        return last ? `${ser.name} ${last.value} ${ser.unit} (${fmtDate(last.date)})` : '';
+        return last ? `${ser.name} ${last.value} ${ser.unit} (home, ${
+          fmtDate(last.date)})` : '';
       }),
     ].filter(Boolean);
-    const homeLine = homeBits.length ? `Home \u2014 ${homeBits.join(' \u00b7 ')}` : '';
+
+    const vitalsLine = [...office, ...home].length
+      ? `Vitals \u2014 ${office.join(' \u00b7 ')}${
+        lastOffice ? ` (${fmtDate(lastOffice.date)})` : ''}${
+        home.length ? `${office.length ? ' \u00b7 ' : ''}${home.join(' \u00b7 ')}` : ''}`
+      : '';
 
     setW((v) => ({
       ...v,
       subjective,
-      measured: [vitalsLine, homeLine].filter(Boolean).join('\n'),
+      measured: vitalsLine,
       /*
        * What was measured comes before what was examined, and the
        * labs come with it: a physician reads the numbers that were
@@ -876,6 +930,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
             above={(
               <div className="measured" id="objective-measured">
                 {w.measured.split('\n').map((ln, i) => <ReadLine key={i} line={ln} />)}
+                <div className="nreadsec">Labs</div>
                 <Fishbone panels={st.panelsFor(patientId)} />
                 <OtherLabs panels={st.panelsFor(patientId)} />
               </div>

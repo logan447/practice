@@ -391,9 +391,9 @@ export const encounters: Encounter[] = [
     setting: 'telehealth',
     reason: 'Three-month check. Sleep anchor not holding.',
     status: 'signed', signedAt: '2026-11-13', duration: 60, minutes: 55 },
-  { id: 'e6', patientId: 'p4', date: '2026-11-20', kind: 'visit', legacyKind: 'initial',
+  { id: 'e6', patientId: 'p4', date: '2027-02-16', kind: 'visit', legacyKind: 'follow-up',
     setting: 'in-person',
-    reason: 'First full visit. Records from previous practice received.', status: 'scheduled', duration: 90 },
+    reason: 'Three month review', status: 'scheduled', duration: 60 },
 ];
 
 export const prevention: PreventionItem[] = [

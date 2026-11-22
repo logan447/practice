@@ -997,13 +997,18 @@ export interface Task {
 export type LifestyleDomain =
   | 'nutrition' | 'activity' | 'sleep' | 'stress' | 'connection' | 'substances';
 
+/*
+ * The six pillars, in the order they are worked through. The stored
+ * ids are unchanged, so a prescription written before this list was
+ * relabelled still belongs to the same pillar.
+ */
 export const LIFESTYLE_DOMAINS: { id: LifestyleDomain; label: string }[] = [
-  { id: 'nutrition', label: 'Nutrition' },
-  { id: 'activity', label: 'Physical activity' },
+  { id: 'activity', label: 'Exercise' },
+  { id: 'nutrition', label: 'Diet' },
   { id: 'sleep', label: 'Sleep' },
   { id: 'stress', label: 'Stress' },
-  { id: 'connection', label: 'Social connection' },
   { id: 'substances', label: 'Substances' },
+  { id: 'connection', label: 'Social' },
 ];
 
 export type LifestyleStatus = 'not-started' | 'active' | 'achieved' | 'struggling';
@@ -1140,7 +1145,7 @@ export interface DiagnosticStudy {
  */
 export type InstrumentId =
   | 'phq-9' | 'phq-2' | 'gad-7' | 'gad-2' | 'audit-c' | 'mini-cog'
-  | 'phq-9-item-9' | 'flourishing';
+  | 'phq-9-item-9' | 'flourishing' | 'tobacco' | 'drug-use';
 
 export const INSTRUMENTS: {
   id: InstrumentId; label: string; max: number;
@@ -1194,7 +1199,28 @@ export const INSTRUMENTS: {
       { at: 10, label: 'Moderate' }, { at: 15, label: 'Severe' },
     ],
   },
-  { id: 'audit-c', label: 'AUDIT-C', max: 12, bands: [{ at: 0, label: 'Negative' }, { at: 3, label: 'Positive' }] },
+  {
+    id: 'audit-c', label: 'AUDIT-C', max: 12, positiveAt: 3,
+    bands: [{ at: 0, label: 'Negative' }, { at: 3, label: 'Positive' }],
+    source: 'Bush et al, Arch Intern Med 1998: 3 or more in women, 4 or more in men.',
+  },
+  /*
+   * Tobacco and other drugs, as single questions.
+   *
+   * Asked of every adult at every visit, which is what makes a
+   * single item the right instrument: a scale nobody has time to
+   * administer is a scale that does not get administered.
+   */
+  {
+    id: 'tobacco', label: 'Tobacco', max: 1, positiveAt: 1,
+    bands: [{ at: 0, label: 'Never or former' }, { at: 1, label: 'Current use' }],
+    source: 'USPSTF A recommendation: ask every adult about tobacco use.',
+  },
+  {
+    id: 'drug-use', label: 'Other drugs', max: 1, positiveAt: 1,
+    bands: [{ at: 0, label: 'Negative' }, { at: 1, label: 'Positive' }],
+    source: 'NIDA single-question screen: once or more in the past year is positive.',
+  },
   { id: 'mini-cog', label: 'Mini-Cog', max: 5, bands: [{ at: 0, label: 'Possible impairment' }, { at: 3, label: 'Negative' }] },
 ];
 

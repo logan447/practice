@@ -19,6 +19,7 @@ import { INSTRUMENTS, bandFor } from '../domain/types';
 import { fmtMonthYear } from './format';
 
 export interface SurveyLine {
+  id: string;
   label: string;
   text: string;
   /** A positive screen, by the instrument's own published cut-off. */
@@ -42,6 +43,7 @@ export function surveyLines(scores: InstrumentScore[], onOrBefore?: string): Sur
     const band = spec.bands.length ? bandFor(row.instrument, row.score) : '';
     const positive = spec.positiveAt !== undefined && row.score >= spec.positiveAt;
     out.push({
+      id: spec.id,
       label: spec.label,
       positive,
       text: [
@@ -52,11 +54,31 @@ export function surveyLines(scores: InstrumentScore[], onOrBefore?: string): Sur
       ].filter(Boolean).join(' '),
     });
   }
-  // The screens first, then the wellbeing measure: one is a question
-  // about whether to act, the other is a number to watch.
-  const order = ['PHQ-2', 'GAD-2', 'PHQ-9', 'GAD-7', 'AUDIT-C', 'Mini-Cog', 'Flourishing'];
-  const rank = (l: string) => (order.indexOf(l) < 0 ? order.length : order.indexOf(l));
-  return out.sort((a, b) => rank(a.label) - rank(b.label));
+  /*
+   * The short screen is asked every visit; the long one only when
+   * the short one was positive.
+   *
+   * A PHQ-9 on a patient whose PHQ-2 was negative is nine questions
+   * nobody needed to ask, and a note carrying both every time is a
+   * note where the escalation means nothing. So the long form is
+   * shown when its own screen is positive, and otherwise left out
+   * even if a score for it is on file from some earlier visit.
+   */
+  const positive = (id: string) => out.some((x) => x.id === id && x.positive);
+  const kept = out.filter((x) => {
+    if (x.id === 'phq-9') return positive('phq-2');
+    if (x.id === 'gad-7') return positive('gad-2');
+    return true;
+  });
+
+  // The two short screens with whatever they escalated to, then what
+  // is being taken, then the one number that is not a screen at all.
+  const order = [
+    'phq-2', 'phq-9', 'gad-2', 'gad-7',
+    'audit-c', 'tobacco', 'drug-use', 'mini-cog', 'flourishing',
+  ];
+  const rank = (id: string) => (order.indexOf(id) < 0 ? order.length : order.indexOf(id));
+  return kept.sort((a, b) => rank(a.id) - rank(b.id));
 }
 
 /** The block as it is written into the note. */

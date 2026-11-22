@@ -78,8 +78,10 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // The measurements are derived above the examination field, so
   // they are read from the page rather than out of a text field.
   await openNote(p,'objective');
+  // One vitals line. What the patient measured is marked "(home)"
+  // on the number rather than split into a finding of its own.
   ok('visit workspace shows home readings',
-    (await p.locator('#objective-measured').innerText()).includes('Home'));
+    /\(home[,)]/.test(await p.locator('#objective-measured').innerText()));
 
   // persistence
   await p.goto(U,{waitUntil:'networkidle'}); await p.waitForTimeout(600);

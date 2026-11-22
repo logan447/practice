@@ -118,7 +118,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   const plan = await noteText(p,'plan');
   ok('the plan arrives with the problems, pillars and services written into it',
-    plan.includes('Essential hypertension') && plan.includes('Physical activity')
+    plan.includes('Essential hypertension') && plan.includes('Exercise')
     && plan.includes('Mammogram'));
   // Heading with the status, then the sentence that says what the
   // target is and why it is or is not there, then points that are
@@ -128,7 +128,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     /\u2014 (At goal|Not at goal|Not assessed)$/m.test(plan)
     && plan.includes('Continue Lisinopril 20 mg, one tablet each morning'));
   ok('the points of the plan are verbs, not labels',
-    /\u2022 Referral to Dr\. /.test(plan)
+    /\u2022 Send referral to Dr\. /.test(plan)
     && /\u2022 Continue \w+ \d/.test(plan)
     && plan.includes('\u2022 Lifestyle interventions as below'));
   // A preventative service is one line: where it stands, when it was
@@ -139,7 +139,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     /Mammogram \u2014 Overdue, last done [^,]+, order today/.test(plan)
     && /Colonoscopy \u2014 Up to date, last done [^,]+, no next date set/.test(plan));
   ok('and a pillar carries only whether it has started',
-    /Physical activity \u2014 (In progress|Not started)/.test(plan)
+    /Exercise \u2014 (In progress|Not started)/.test(plan)
     && !/\u2014 (Holding|Struggling)/.test(plan));
   ok('and a pillar is written once, under its own heading',
     plan.split('Twenty minutes of walking').length === 2);

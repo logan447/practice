@@ -50,8 +50,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('the morning opens on the schedule, not a patient list',
     (await p.locator('.weekgrid .wday').count())===7);
   await p.click('.vtab:has-text("day")'); await p.waitForTimeout(500);
-  ok('and the day holds five activities',
-    (await p.locator('.daylist .dayrow').count())===5);
+  ok('and the day holds six activities',
+    (await p.locator('.daylist .dayrow').count())===6);
   const kinds = (await p.locator('.dayrow').allTextContents()).join(' ');
   ok('and it holds one kind of activity and no others',
     !/Care plan review|CCM|BHI|Annual|Acute|Paperwork/.test(kinds));

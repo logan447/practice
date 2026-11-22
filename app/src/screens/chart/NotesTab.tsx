@@ -214,7 +214,12 @@ function FaxNote({ patientId, encounterId, onClose }: {
 
   if (!p || !e) return null;
 
-  const make = () => {
+  /*
+   * Build it and show it. Nothing is logged yet: looking at a
+   * document is not disclosing it, and a log that records a
+   * disclosure which never happened is worse than no log.
+   */
+  const preview = () => {
     const built = buildFaxNote({
       patient: p, encounter: e, to, toPractice, faxNumber, reason,
       from: me.name, today: st.now,
@@ -223,14 +228,18 @@ function FaxNote({ patientId, encounterId, onClose }: {
       // front of anybody when it was written.
       panels: st.panelsFor(patientId).filter((pl) => pl.date <= e.date),
     });
+    setSheet(built.html);
+  };
+
+  /* The disclosure. Logged here, because this is where it happens. */
+  const send = () => {
     record(me, st.now, {
       action: 'create', resource: 'DocumentReference', resourceId: `fax-${e.id}-${st.now}`,
       patientId,
       summary: `Produced the ${fmtDate(e.date)} visit note for sending to ${
         to || 'a recipient not named'}${faxNumber ? ` at ${faxNumber}` : ''}`,
     });
-    setSheet(built.html);
-    setTimeout(() => window.print(), 160);
+    setTimeout(() => window.print(), 60);
   };
 
   return (
@@ -241,7 +250,7 @@ function FaxNote({ patientId, encounterId, onClose }: {
       </div>
       <p className="small muted" style={{ maxWidth: '58ch' }}>
         This makes a cover sheet and the note as one PDF, ready to fax.
-        It does not send anything.
+        You see it before it goes anywhere, and nothing here sends it.
       </p>
 
       {specialists.length > 0 && (
@@ -277,13 +286,25 @@ function FaxNote({ patientId, encounterId, onClose }: {
       </label>
 
       <div className="row flow" style={{ gap: 8, marginTop: 12 }}>
-        <button className="btn" onClick={make}>Print or save as PDF</button>
+        {sheet ? (
+          <>
+            <button className="btn" onClick={send}>Print or save as PDF</button>
+            <button className="btn ghost" onClick={() => setSheet(null)}>
+              Change something
+            </button>
+          </>
+        ) : (
+          <button className="btn" onClick={preview}>Preview the note</button>
+        )}
       </div>
       <p className="small muted" style={{ marginTop: 10, maxWidth: '58ch' }}>
         The patient's name and date of birth print on every page. Pages get
         separated at the other end. Leave headers and footers on in the print
         dialog and it will number the pages for you.
       </p>
+
+      {/* The page, before it goes anywhere. */}
+      {sheet && <div className="faxpaper" dangerouslySetInnerHTML={{ __html: sheet }} />}
 
       {/*
         * Put at the top of the body rather than left inside the

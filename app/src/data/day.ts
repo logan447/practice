@@ -61,6 +61,18 @@ export const todaySchedule: Encounter[] = [
     reason: 'Follow-up visit, second of the year',
     status: 'scheduled', start: at(10, 45), duration: 30,
   },
+  /*
+   * The first visit of the day is a first visit.
+   *
+   * A schedule of nothing but follow-ups is a practice that has
+   * already been running for a year, which is the one thing a
+   * practice that has not started yet cannot show anybody.
+   */
+  {
+    id: 'd0', patientId: 'p4', date: ORIGIN, kind: 'visit', legacyKind: 'initial',
+    reason: 'First visit. Joined last week, records from her old practice have arrived.',
+    status: 'scheduled', start: at(7, 30), duration: 90,
+  },
   {
     id: 'd5', patientId: 'p9', date: ORIGIN, kind: 'visit', setting: 'telehealth',
     reason: 'Comprehensive assessment, first of the year',
