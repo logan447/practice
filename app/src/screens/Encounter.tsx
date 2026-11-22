@@ -43,8 +43,8 @@ import type { LivingSubjective } from '../lib/subjective';
 import { ambientScript, wasCaught, ERROR_LABEL, type InjectedError } from '../lib/ambient';
 import { REVIEW } from '../lib/prechart';
 import { TAB_LABEL } from './chart/drawers';
-import { LIFESTYLE_DOMAINS, SETTING_LABEL } from '../domain/types';
-import type { VisitSetting, VisitNote, Order, OrderKind } from '../domain/types';
+import { LIFESTYLE_DOMAINS } from '../domain/types';
+import type { VisitNote, Order, OrderKind } from '../domain/types';
 import { ORDER_KINDS } from '../domain/types';
 import {
   startVisit as metricStart, signVisit as metricSign, endVisit,
@@ -72,21 +72,16 @@ interface Item {
 
 /** The editable half. Everything else is derived or already on file. */
 interface Working {
-  sOverall: string;
-  sItems: Record<string, string>;
-  oMeasures: string;
-  oExam: string;
-  aOverall: string;
-  aItems: Record<string, string>;
-  pItems: Record<string, string>;
+  /** One box per section. The sections are the whole note. */
+  subjective: string;
+  objective: string;
+  plan: string;
   instructions: string;
   nextVisit: string;
 }
 
 const EMPTY_WORKING: Working = {
-  sOverall: '', sItems: {}, oMeasures: '', oExam: '',
-  aOverall: '', aItems: {}, pItems: {},
-  instructions: '', nextVisit: '',
+  subjective: '', objective: '', plan: '', instructions: '', nextVisit: '',
 };
 
 type Marks = Record<string, 'ambient'>;
@@ -203,46 +198,73 @@ export function Encounter({ encounterId }: { encounterId: string }) {
   }, [draft.problems, lifestyle, prevention, checkIns]);
 
   const [w, setW] = useState<Working>(() => ({ ...EMPTY_WORKING }));
+  const [marks, setMarks] = useState<Marks>({});
+  const [usedPrechart, setUsedPrechart] = useState(false);
 
   /*
-   * Fill the fields once, from the record.
+   * Fill the three boxes once, from the record.
    *
-   * Every field starts with what the chart already knows written into
-   * it rather than with a grey hint about what to type. Editing a
-   * draft is a different act from writing from nothing, and the
-   * second one is why notes get written after clinic instead of
-   * during it.
+   * Each section is one field with its subsections written into it,
+   * rather than a field per problem behind a fold. A note is a
+   * document somebody reads start to finish; a form of thirty boxes
+   * is a form, and the folds that made it bearable were an admission
+   * of that.
+   *
+   * What goes in is what the chart already knows: their own sentence
+   * about each problem in the subjective, where each one stands and
+   * what is being done about it in the plan. Editing a draft is a
+   * different act from writing from nothing.
    */
   const seeded = useRef(false);
   useEffect(() => {
     if (seeded.current || items.length === 0) return;
     seeded.current = true;
     const carried = approved?.plan.byProblem ?? master?.plan?.byProblem ?? {};
-    setW((v) => ({
-      ...v,
-      sItems: Object.fromEntries(items.map((it) => [it.id, it.said])),
-      aItems: Object.fromEntries(items.map((it) => [it.id, it.standing])),
-      pItems: Object.fromEntries(items.map(
-        (it) => [it.id, carried[it.id]?.trim() ? carried[it.id] : it.doing],
-      )),
-    }));
-  }, [items, approved, master]);
-  const [marks, setMarks] = useState<Marks>({});
-  const [setting, setSetting] = useState<VisitSetting>(enc?.setting ?? 'in-person');
-  const [usedPrechart, setUsedPrechart] = useState(false);
-  /**
-   * Which folds are shut. Absent means open, so a new problem on the
-   * list is never hiding behind a closed heading somebody has to find.
-   */
-  const [open, setOpen] = useState<Record<string, boolean>>({});
-  /** Records the state asked for, so the default can differ per depth. */
-  const toggle = (id: string, next: boolean) =>
-    setOpen((v) => ({ ...v, [id]: next }));
+    const block = (lines: string[]) => lines.filter(Boolean).join('\n');
+
+    const subjective = items
+      .filter((it) => it.said.trim())
+      .map((it) => block([it.name, it.said]))
+      .join('\n\n');
+
+    /*
+     * The problem, where it stands, what was agreed last time, then
+     * the points of what is actually being done. The last of those is
+     * the list a reader is looking for and it was being dropped
+     * whenever a prior plan existed, which is every visit after the
+     * first.
+     */
+    const plan = items
+      .map((it) => block([
+        it.name,
+        it.standing,
+        carried[it.id]?.trim() ?? '',
+        it.doing,
+      ]))
+      .join('\n\n');
+
+    const lastOffice = st.vitalsFor(patientId).find((v) => v.source === 'office');
+    const objective = lastOffice
+      ? [
+        lastOffice.systolic ? `${lastOffice.systolic}/${lastOffice.diastolic}` : '',
+        lastOffice.heartRate ? `HR ${lastOffice.heartRate}` : '',
+        lastOffice.weightLb ? `${lastOffice.weightLb} lb` : '',
+        lastOffice.bmi ? `BMI ${lastOffice.bmi}` : '',
+      ].filter(Boolean).join(' \u00b7 ') + ` (${fmtDate(lastOffice.date)})`
+      : '';
+
+    setW((v) => ({ ...v, subjective, objective, plan }));
+  }, [items, approved, master, st, patientId]);
 
   // ------------------------------------------------------------ the clock
   const [openedAt] = useState(() => Date.now());
   const [minutes, setMinutes] = useState(0);
-  const [running, setRunning] = useState(true);
+  /*
+   * The clock runs from the moment the visit opens and is never shown.
+   * Typing a number at the end is how a time record becomes an
+   * estimate; a number nobody is asked for cannot be one.
+   */
+  const running = true;
   useEffect(() => {
     if (!running) return undefined;
     const t = setInterval(
@@ -296,26 +318,12 @@ export function Encounter({ encounterId }: { encounterId: string }) {
 
   const signed = enc.status === 'signed';
 
-  const put = (field: 'sOverall' | 'oMeasures' | 'oExam' | 'aOverall' | 'instructions' | 'nextVisit',
-    value: string, fromCapture?: boolean) => {
+  const put = (field: keyof Working, value: string, fromCapture?: boolean) => {
     setW((v) => ({ ...v, [field]: value }));
     setMarks((m) => {
       const next = { ...m };
       if (fromCapture) { next[field] = 'ambient'; countAiSection(1); }
       else if (m[field]) { countAiEdit(); delete next[field]; }
-      return next;
-    });
-  };
-
-  const putItem = (
-    bucket: 'sItems' | 'aItems' | 'pItems', id: string, value: string, fromCapture?: boolean,
-  ) => {
-    setW((v) => ({ ...v, [bucket]: { ...v[bucket], [id]: value } }));
-    const key = `${bucket}:${id}`;
-    setMarks((m) => {
-      const next = { ...m };
-      if (fromCapture) { next[key] = 'ambient'; countAiSection(1); }
-      else if (m[key]) { countAiEdit(); delete next[key]; }
       return next;
     });
   };
@@ -334,9 +342,11 @@ export function Encounter({ encounterId }: { encounterId: string }) {
     const take = (id: string) => (n[id] ?? '').trim();
     setW((v) => ({
       ...v,
-      sOverall: [v.sOverall, take('subjective'), take('notes')].filter(Boolean).join(' '),
-      oMeasures: [v.oMeasures, take('vitals'), take('results')].filter(Boolean).join(' '),
-      aOverall: [v.aOverall, take('problems')].filter(Boolean).join(' '),
+      subjective: [take('subjective'), take('notes'), v.subjective]
+        .filter(Boolean).join('\n\n'),
+      objective: [v.objective, take('vitals'), take('results')]
+        .filter(Boolean).join('\n'),
+      plan: [take('problems'), v.plan].filter(Boolean).join('\n\n'),
     }));
     setUsedPrechart(true);
   };
@@ -351,16 +361,24 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       || draft.problems.some((pr) => pr.name.toLowerCase().includes(step.match)));
     setInjected(steps.flatMap((x) => x.errors));
     timers.current = steps.map((step) => window.setTimeout(() => {
+      /*
+       * The capture appends rather than replaces. There is one box
+       * per section now and it arrives with the record in it, so
+       * writing over that would throw away the thing the physician
+       * opened the visit to read.
+       */
       if (step.kind === 'text') {
-        const field = step.section === 'subjective' ? 'sOverall'
-          : step.section === 'objective' ? 'oMeasures' : 'aOverall';
-        put(field, step.text, true);
+        const field = step.section === 'subjective' ? 'subjective'
+          : step.section === 'objective' ? 'objective' : 'plan';
+        setW((v) => ({ ...v, [field]: `${v[field]}\n\n${step.text}`.trim() }));
+        setMarks((m) => { countAiSection(1); return { ...m, [field]: 'ambient' as const }; });
       } else {
         const hit = draft.problems.find((pr) => pr.name.toLowerCase().includes(step.match));
-        if (hit) {
-          putItem('pItems', hit.conditionId,
-            [step.fields.treatment, step.fields.orders, step.fields.followUp]
-              .filter(Boolean).join(' '), true);
+        const text = [step.fields.treatment, step.fields.orders, step.fields.followUp]
+          .filter(Boolean).join(' ');
+        if (hit && text) {
+          setW((v) => ({ ...v, plan: `${v.plan}\n\n${hit.name}\n${text}`.trim() }));
+          setMarks((m) => { countAiSection(1); return { ...m, plan: 'ambient' as const }; });
         }
       }
       if (step === steps[steps.length - 1]) setListening(false);
@@ -374,28 +392,20 @@ export function Encounter({ encounterId }: { encounterId: string }) {
 
   // ------------------------------------------- what the capture got wrong
   const fieldText = (id: string): string => {
-    if (id === 'plan.problems') return Object.values(w.pItems).join(' ');
-    if (id === 'subjective.additional') return w.sOverall;
-    if (id === 'objective.vitals') return w.oMeasures;
-    if (id === 'assessment.overall') return w.aOverall;
+    if (id === 'plan.problems') return w.plan;
+    if (id === 'subjective.additional') return w.subjective;
+    if (id === 'objective.vitals') return w.objective;
+    if (id === 'assessment.overall') return w.plan;
     return '';
   };
   const audit = injected.map((e) => ({ err: e, caught: wasCaught(e, fieldText(e.field)) }));
   const missed = audit.filter((a) => !a.caught);
 
-  const written = [
-    w.sOverall, w.oMeasures, w.oExam, w.aOverall, w.instructions,
-    ...Object.values(w.sItems), ...Object.values(w.aItems), ...Object.values(w.pItems),
-  ].some((x) => x.trim().length > 0);
+  const written = [w.subjective, w.objective, w.plan, w.instructions]
+    .some((x) => x.trim().length > 0);
   const anyChange = written || fresh.count > 0;
 
   // ------------------------------------------------------------ the note
-  const byGroup = (g: Item['group']) => items.filter((x) => x.group === g);
-  const joinGroup = (bucket: 'sItems' | 'aItems' | 'pItems', g: Item['group']) =>
-    byGroup(g)
-      .map((x) => (w[bucket][x.id] ? `${x.name}: ${w[bucket][x.id]}` : ''))
-      .filter(Boolean).join('\n');
-
   const reviewLine = prechart
     ? `Chart review completed ${fmtDate(prechart.date)} by ${prechart.by}. Sections reviewed: ${
       prechart.reviewed.map((id) => TAB_LABEL[id as keyof typeof TAB_LABEL] ?? id).join(', ')
@@ -408,30 +418,27 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       reason: enc.reason,
       chartReview: reviewLine,
       diagnostics: '', specialists: '',
-      additional: [
-        w.sOverall,
-        joinGroup('sItems', 'Problems'),
-        joinGroup('sItems', 'Lifestyle'),
-        joinGroup('sItems', 'Preventative'),
-      ].filter(Boolean).join('\n\n'),
+      additional: w.subjective,
     },
-    objective: { homeMeasures: '', vitals: w.oMeasures, exam: w.oExam },
-    assessment: {
-      oneLiner: oneLiner(p, conditions),
-      overall: [
-        w.aOverall,
-        joinGroup('aItems', 'Problems'),
-        joinGroup('aItems', 'Lifestyle'),
-        joinGroup('aItems', 'Preventative'),
-      ].filter(Boolean).join('\n\n'),
-    },
+    objective: { homeMeasures: '', vitals: w.objective, exam: '' },
+    assessment: { oneLiner: oneLiner(p, conditions), overall: '' },
     plan: {
-      problems: items.filter((x) => w.pItems[x.id] || w.aItems[x.id]).map((x) => ({
-        id: `pp-${x.id}`, problem: x.name,
-        assessment: w.aItems[x.id] ?? '',
-        treatment: w.pItems[x.id] ?? '',
-        orders: '', followUp: '',
-      })),
+      /*
+       * The plan is one piece of prose with the problems written into
+       * it, so it is split back into blocks on the blank lines: the
+       * first line of each is the problem, the rest is what is being
+       * done about it.
+       */
+      problems: w.plan.split(/\n\s*\n/).map((blk, i) => {
+        const lines = blk.split('\n').map((x) => x.trim()).filter(Boolean);
+        return {
+          id: `pp-${i}`,
+          problem: lines[0] ?? '',
+          assessment: '',
+          treatment: lines.slice(1).join('\n'),
+          orders: '', followUp: '',
+        };
+      }).filter((x) => x.problem),
       overall: [
         w.instructions,
         w.nextVisit ? `Next visit: ${fmtDate(w.nextVisit)}.` : '',
@@ -446,18 +453,22 @@ export function Encounter({ encounterId }: { encounterId: string }) {
         (pr) => [pr.conditionId, pr.goal ?? 'needs-improvement'],
       )),
       plan: {
-        byProblem: w.pItems,
-        prevention: joinGroup('pItems', 'Preventative'),
-        lifestyle: joinGroup('pItems', 'Lifestyle'),
+        // The plan is prose now, so the per-problem map is rebuilt
+        // from it by matching each block's first line to a problem.
+        byProblem: Object.fromEntries(
+          items.map((it) => [it.id, blockFor(w.plan, it.name)]).filter(([, v]) => v),
+        ),
+        prevention: '',
+        lifestyle: '',
         followUp: [w.instructions, w.nextVisit ? `Next visit ${fmtDate(w.nextVisit)}.` : '']
           .filter(Boolean).join(' '),
       },
       minutes: Math.max(minutes, 1),
-      planUpdated: Object.values(w.pItems).some((x) => x.trim()),
+      planUpdated: w.plan.trim().length > 0,
       problems: draft.problems.map((pr) => pr.conditionId),
       noChange: !anyChange,
       note,
-      setting,
+      setting: 'in-person',
       wellness: undefined,
     });
     metricSign(enc.id);
@@ -474,30 +485,59 @@ export function Encounter({ encounterId }: { encounterId: string }) {
   approveRef.current = signed ? null : approve;
   captureRef.current = signed ? null : (listening ? stopCapture : startListening);
 
-  const groups: Item['group'][] = ['Problems', 'Lifestyle', 'Preventative'];
-  /** The first few words of a field, for a shut block's own line. */
-  const short = (v?: string) => {
-    const t = (v ?? '').replace(/\s+/g, ' ').replace(/^\u2022\s*/, '').trim();
-    return t.length > 64 ? `${t.slice(0, 64)}\u2026` : t;
+  /**
+   * The block of the plan that belongs to one problem.
+   *
+   * The plan is prose with the problem names written into it, so a
+   * block is found by its first line and kept with its name, which is
+   * how it is stored back against the condition.
+   */
+  const blockFor = (text: string, name: string): string => {
+    const blk = text.split(/\n\s*\n/).find(
+      (x) => x.split('\n')[0]?.trim().toLowerCase() === name.toLowerCase(),
+    );
+    return blk ? blk.split('\n').slice(1).join('\n').trim() : '';
   };
 
   return (
     <div className="wrap wide">
       {/*
-        * One way out, and it goes to the chart. Leaving for the day
-        * was a second button saying the same thing in a way that
-        * sounded like abandoning the visit, which nothing here does:
-        * the working copy is not published until it is signed.
+        * Two lines at the top, not four.
+        *
+        * The way back, what this is and who it is about, and the two
+        * things you can do, all on one row; then the sentence you
+        * would say out loud about this patient. There used to be a
+        * back link, a page title, a name and date line and the
+        * one-liner stacked above the first word of the note.
         */}
-      <button className="btn quiet backlink"
-        onClick={() => nav.go({ name: 'chart', patientId })}>
-        &larr; Back to the chart
-      </button>
-
-      <div className="page-head">
-        <h1>Visit</h1>
-        <div className="sub">{p.name} &middot; {fmtDate(enc.date)}</div>
+      <div className="vhead">
+        <button className="btn quiet backlink"
+          onClick={() => nav.go({ name: 'chart', patientId })}>
+          &larr; {p.name}
+        </button>
+        <span className="vwhen">Visit &middot; {fmtDate(enc.date)}</span>
+        <span className="spacer" />
+        {!signed && (
+          listening ? (
+            <button className="btn listening" onClick={stopCapture}>
+              <span className="pulse" /> Stop &middot;{' '}
+              {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')}
+            </button>
+          ) : (
+            <button className="btn ghost" onClick={startListening}>Listen</button>
+          )
+        )}
+        {!signed && injected.length > 0 && !listening && (
+          <button className="btn ghost" onClick={() => setChecked(true)}>Check the draft</button>
+        )}
+        {signed ? (
+          <span className="small muted">Signed {enc.signedAt && fmtDate(enc.signedAt)}</span>
+        ) : (
+          <button className="btn" onClick={approve}>Sign</button>
+        )}
       </div>
+
+      <p className="oneliner vone">{oneLiner(p, conditions)}</p>
 
       {checked && injected.length > 0 && (
         <DraftCheck audit={audit} signed={published}
@@ -507,198 +547,39 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       <div className="reviewgrid">
         {/* ============================================== the note itself */}
         <div className="note">
-          <p className="oneliner">{oneLiner(p, conditions)}</p>
-
-          <Sec id="S" title="Subjective" open={open} toggle={toggle}>
-            <Line id="sOverall" label="How they are generally"
-              value={w.sOverall} mark={marks.sOverall} rows={2}
-              onChange={(v) => put('sOverall', v)} />
-            {groups.map((g) => (
-              <Grp key={g} id={`S-${g}`} title={g} items={byGroup(g)}
-                open={open} toggle={toggle}>
-                {byGroup(g).map((it) => (
-                  <Blk key={it.id} id={`S-${g}-${it.id}`} title={it.name}
-                    preview={short(w.sItems[it.id])} open={open} toggle={toggle}>
-                    <Line id={`sItems:${it.id}`} value={w.sItems[it.id] ?? ''}
-                      mark={marks[`sItems:${it.id}`]} rows={2}
-                      onChange={(v) => putItem('sItems', it.id, v)} />
-                  </Blk>
-                ))}
-              </Grp>
-            ))}
-          </Sec>
-
-          <Sec id="O" title="Objective" open={open} toggle={toggle}>
-            <Line id="oMeasures" label="Measurements"
-              value={w.oMeasures} mark={marks.oMeasures} rows={2}
-              onChange={(v) => put('oMeasures', v)} />
-            <Line id="oExam" label="Physical examination"
-              value={w.oExam} mark={marks.oExam} rows={2}
-              onChange={(v) => put('oExam', v)} />
-          </Sec>
-
-          <Sec id="A" title="Assessment" open={open} toggle={toggle}>
-            <Line id="aOverall" label="Overall"
-              value={w.aOverall} mark={marks.aOverall} rows={2}
-              onChange={(v) => put('aOverall', v)} />
-            {groups.map((g) => (
-              <Grp key={g} id={`A-${g}`} title={g} items={byGroup(g)}
-                open={open} toggle={toggle}>
-                {byGroup(g).map((it) => (
-                  <Blk key={it.id} id={`A-${g}-${it.id}`} title={it.name}
-                    preview={short(w.aItems[it.id])} open={open} toggle={toggle}>
-                    <Line id={`aItems:${it.id}`} value={w.aItems[it.id] ?? ''}
-                      mark={marks[`aItems:${it.id}`]} rows={2}
-                      onChange={(v) => putItem('aItems', it.id, v)} />
-                  </Blk>
-                ))}
-              </Grp>
-            ))}
-          </Sec>
-
-          {/*
-            * The plan, one block per thing, in the shape it is said in:
-            * the sentence about where they are, then the points.
-            */}
-          <Sec id="P" title="Plan" open={open} toggle={toggle}>
-            {groups.map((g) => (
-              <Grp key={g} id={`P-${g}`} title={g} items={byGroup(g)}
-                open={open} toggle={toggle}>
-                {byGroup(g).map((it) => (
-                  <Blk key={it.id} id={`P-${g}-${it.id}`} title={it.name}
-                    preview={short(w.pItems[it.id])} open={open} toggle={toggle}>
-                    {/*
-                      * The problem, their sentence, then the points.
-                      * The sentence is the one from the subjective,
-                      * so changing it there changes it here: it is
-                      * the same fact, not a second copy of it.
-                      */}
-                    {(w.sItems[it.id] ?? it.said).trim() && (
-                      <p className="blksaid">{w.sItems[it.id] ?? it.said}</p>
-                    )}
-                    <Line id={`pItems:${it.id}`} value={w.pItems[it.id] ?? ''}
-                      mark={marks[`pItems:${it.id}`]} rows={3}
-                      onChange={(v) => putItem('pItems', it.id, v)} />
-                  </Blk>
-                ))}
-              </Grp>
-            ))}
-          </Sec>
-
-          <Sec id="N" title="What they do next" open={open} toggle={toggle}>
-            {w.instructions.trim()
-              ? <p className="blksaid" style={{ whiteSpace: 'pre-line' }}>{w.instructions}</p>
-              : <p className="blksaid">Written in the instructions box, beside this.</p>}
-            <p className="visitmeta" style={{ margin: 0 }}>
-              {w.nextVisit
-                ? `Next visit ${fmtDate(w.nextVisit)}.`
-                : 'No next visit set. Steps with no date to finish them by is a list nobody is accountable for.'}
+          {prechart && !usedPrechart && !signed && (
+            <p className="visitmeta">
+              Chart review {relative(prechart.date)}: {prechart.reviewed.length} of{' '}
+              {REVIEW.length} sections.{' '}
+              <button className="linkish" onClick={pullPrechart}>
+                Put what you said into this note
+              </button>
             </p>
-          </Sec>
+          )}
+
+          <Box id="subjective" title="Subjective" value={w.subjective}
+            mark={marks.subjective} onChange={(v) => put('subjective', v)} />
+          <Box id="objective" title="Objective" value={w.objective}
+            mark={marks.objective} onChange={(v) => put('objective', v)} />
+          <Box id="plan" title="Assessment and plan" value={w.plan}
+            mark={marks.plan} onChange={(v) => put('plan', v)} />
         </div>
 
         {/* ================================================ the right column */}
         <div className="stack">
           {/*
-            * Where this visit stands: which version it opened on, what
-            * has arrived since, and what the chart review left. All of
-            * it is about the document rather than about the patient,
-            * so none of it belongs over the note.
-            */}
-          {/*
-            * What they do next, at the top of the column and open the
-            * whole visit.
-            *
-            * It is the last thing said in the room and the first thing
-            * they look at afterwards, and it gets written as the
-            * conversation happens rather than remembered at the end.
-            * The same text is the note's last section: one field, two
-            * places to reach it, because the thing you are typing and
-            * the thing that gets signed must not be two documents.
+            * What they do next, written as the conversation happens
+            * rather than remembered at the end. The same text is the
+            * signed note's plan summary: one field, not two documents.
             */}
           <Panel title="Patient instructions">
-            <Line id="instructions" value={w.instructions} mark={marks.instructions} rows={7}
-              placeholder={'One step per line, in their words.\nBring your home readings.\nStart the half tablet on Monday.'}
-              onChange={(v) => put('instructions', v)} />
+            <Box id="instructions" value={w.instructions} mark={marks.instructions}
+              rows={8} onChange={(v) => put('instructions', v)}
+              placeholder={'One step per line, in their words.\nBring your home readings.\nStart the half tablet on Monday.'} />
             <div className="nextvis">
               <label className="wflabel" htmlFor="nextvisit">Next visit</label>
               <input id="nextvisit" className="search" type="date" value={w.nextVisit}
                 onChange={(e) => put('nextVisit', e.target.value)} />
-            </div>
-          </Panel>
-
-          {/*
-            * Everything that is about the visit rather than about the
-            * patient: where it opened, what it is capturing, how long
-            * it has run, and the one act that ends it.
-            */}
-          <Panel title="This visit" right={!signed && (
-            listening ? (
-              <button className="btn sm listening" onClick={stopCapture}>
-                <span className="pulse" /> Stop &middot;{' '}
-                {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')}
-              </button>
-            ) : (
-              <button className="btn sm ghost" onClick={startListening}>Listen</button>
-            )
-          )}>
-            <p className="visitmeta openedon">
-              {approved
-                ? `Opened on version ${approved.version}, approved ${relative(approved.approvedAt)}.`
-                : 'No approved care plan yet.'}
-              {fresh.count > 0 && (
-                <> <span className="freshmark">
-                  {fresh.count} record{fresh.count === 1 ? '' : 's'} since, not yet incorporated
-                  {fresh.urgent > 0 && `, ${fresh.urgent} flagged urgent`}.
-                </span></>
-              )}
-            </p>
-            {prechart && !signed && (
-              <p className="visitmeta">
-                Chart review {relative(prechart.date)}: {prechart.reviewed.length} of{' '}
-                {REVIEW.length} sections.{' '}
-                {!usedPrechart && (
-                  <button className="linkish" onClick={pullPrechart}>
-                    Put what you said into this note
-                  </button>
-                )}
-              </p>
-            )}
-            <div className="row" style={{ gap: 6, flexWrap: 'wrap', margin: '10px 0' }}>
-              {(['in-person', 'telehealth', 'home'] as VisitSetting[]).map((v) => (
-                <button key={v} className={`btn sm ${setting === v ? '' : 'ghost'}`}
-                  onClick={() => setSetting(v)}>{SETTING_LABEL[v]}</button>
-              ))}
-            </div>
-            <div className="row" style={{ gap: 8, alignItems: 'center' }}>
-              <input className="search" style={{ maxWidth: 90 }} type="number" value={minutes}
-                onChange={(e) => { setRunning(false); setMinutes(Number(e.target.value)); }} />
-              <span className="small muted">minutes</span>
-              <button className="btn ghost sm" onClick={() => setRunning((v) => !v)}>
-                {running ? 'Pause' : 'Start'}
-              </button>
-            </div>
-
-            <div className="signrow">
-              {signed ? (
-                <span className="small muted">
-                  Signed {enc.signedAt && fmtDate(enc.signedAt)}. The note is kept as it was
-                  signed and the care plan moved to the next version.
-                </span>
-              ) : (
-                <>
-                  <button className="btn" onClick={approve}>Sign</button>
-                  {injected.length > 0 && !listening && (
-                    <button className="btn ghost sm" onClick={() => setChecked(true)}>
-                      Check the draft
-                    </button>
-                  )}
-                  <span className="small muted">
-                    Publishes version {(approved?.version ?? 0) + 1}
-                    {!anyChange && ', unchanged'}.
-                  </span>
-                </>
-              )}
             </div>
           </Panel>
 
@@ -715,117 +596,41 @@ export function Encounter({ encounterId }: { encounterId: string }) {
 /* ------------------------------------------------------------------ bits */
 
 /**
- * A section, a group, a block. Three depths, one appearance.
+ * One section of the note: a heading and a field.
  *
- * Everything on this screen is the same typeface at the same size.
- * Depth is a heading in a heavier weight and an indent, not a jump
- * from a serif display face to body copy and back twice a screen. A
- * note that changes typeface every forty words is a note you read as
- * a layout rather than as sentences.
- *
- * All three fold. A visit about one uncontrolled problem should be
- * able to look like a visit about one uncontrolled problem.
+ * The field arrives with the record written into it, subsections and
+ * all. It was thirty fields behind three depths of fold, which is a
+ * form; a note is a document somebody reads start to finish, and the
+ * folds that made the form bearable were an admission of that.
  */
-function Fold({ id, title, depth, right, open, toggle, shutByDefault, children }: {
+function Box({ id, title, value, onChange, rows = 10, mark, placeholder }: {
   id: string;
-  title: string;
-  depth: 1 | 2 | 3;
-  right?: React.ReactNode;
-  open: Record<string, boolean>;
-  toggle: (id: string, next: boolean) => void;
-  /** Blocks start shut; sections and groups start open. */
-  shutByDefault?: boolean;
-  children: React.ReactNode;
-}) {
-  const shut = shutByDefault ? open[id] !== true : open[id] === false;
-  return (
-    <section className={`fold d${depth}${shut ? ' shut' : ''}`}>
-      <button className="foldhead" onClick={() => toggle(id, shut)}>
-        <span className="foldarrow" aria-hidden="true">{shut ? '\u203a' : '\u2304'}</span>
-        <span className="foldtitle">{title}</span>
-        {right && <span className="foldright">{right}</span>}
-      </button>
-      {!shut && <div className="foldbody">{children}</div>}
-    </section>
-  );
-}
-
-const Sec = ({ id, title, open, toggle, children }: {
-  id: string; title: string;
-  open: Record<string, boolean>; toggle: (id: string, next: boolean) => void;
-  children: React.ReactNode;
-}) => (
-  <Fold id={id} title={title} depth={1} open={open} toggle={toggle}>{children}</Fold>
-);
-
-/** Silent when the group is empty: a heading over nothing reads as a finding. */
-function Grp({ id, title, items, open, toggle, children }: {
-  id: string; title: string; items: Item[];
-  open: Record<string, boolean>; toggle: (id: string, next: boolean) => void;
-  children: React.ReactNode;
-}) {
-  if (items.length === 0) return null;
-  return (
-    <Fold id={id} title={title} depth={2} right={`${items.length}`}
-      open={open} toggle={toggle}>{children}</Fold>
-  );
-}
-
-/**
- * One thing, shut by default, with its first line showing.
- *
- * Open, every block is a paragraph and a list; eleven of them is a
- * screen you scroll rather than read. Shut, it is a line that says
- * what it is and what is currently written, which is what you need
- * to decide whether to open it.
- */
-const Blk = ({ id, title, preview, open, toggle, children }: {
-  id: string; title: string; preview?: string;
-  open: Record<string, boolean>; toggle: (id: string, next: boolean) => void;
-  children: React.ReactNode;
-}) => (
-  <Fold id={id} title={title} depth={3} shutByDefault
-    right={open[id] ? undefined : preview}
-    open={open} toggle={toggle}>{children}</Fold>
-);
-
-/** A field. It arrives with the record already written into it. */
-function Line({ id, label, value, onChange, rows = 2, mark, placeholder }: {
-  id: string;
-  label?: string;
+  title?: string;
   value: string;
   onChange: (v: string) => void;
   rows?: number;
   mark?: 'ambient';
   placeholder?: string;
 }) {
-  /*
-   * Grows to its content. A note field that scrolls inside itself
-   * hides the end of a plan behind two pixels of scrollbar, and the
-   * end of a plan is where the follow-up is.
-   */
   const ref = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     el.style.height = 'auto';
-    // Grows, never shrinks below the room it was given. An empty
-    // instructions box that collapses to one line does not look like
-    // somewhere to write.
     el.style.height = `${Math.max(el.scrollHeight, rows * 25 + 14)}px`;
   }, [value, rows]);
 
   return (
-    <div className="wfield">
-      {(label || mark) && (
-        <div className="wflabel">
-          {label}
+    <section className="nbox">
+      {(title || mark) && (
+        <div className="nboxhead">
+          {title}
           {mark && <span className="markchip">from the capture</span>}
         </div>
       )}
       <textarea ref={ref} className="prose" rows={rows} value={value} placeholder={placeholder}
         id={id} onChange={(e) => onChange(e.target.value)} />
-    </div>
+    </section>
   );
 }
 

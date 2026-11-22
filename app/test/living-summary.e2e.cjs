@@ -13,7 +13,7 @@
  * written.
  */
 const {chromium}=require('playwright');
-const {tab, hasTab, palette, versionLine}=require('./tabs.cjs');
+const {tab, hasTab, palette, planUpdatedOn, sentCount}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
@@ -87,29 +87,22 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('and names what we are following them for',
     line.includes('following with our office for management of')
     && line.includes('preventative services') && line.includes('lifestyle medicine'));
-  const secs = await p.locator('.fold.d1 > .foldhead .foldtitle').allTextContents();
+  const secs = await p.locator('.nboxhead').allTextContents();
   ok(`the note runs in the order the conversation does: ${secs.join(', ')}`,
-    secs.join(',')==='Subjective,Objective,Assessment,Plan,What they do next');
-  const grps = await p.locator('.fold.d2 > .foldhead .foldtitle').allTextContents();
-  ok('problems, lifestyle and preventative in every section that has items',
-    grps.filter((g)=>g==='Problems').length===3
-    && grps.filter((g)=>g==='Lifestyle').length===3
-    && grps.filter((g)=>g==='Preventative').length===3);
-  ok('and every one of them folds away',
-    (await p.locator('.fold.d1 > .foldhead').count())===5);
-  // Every field arrives with the record already written into it.
-  // Editing a draft is a different act from writing from nothing.
-  await p.click('.fold.d3:has-text("Essential hypertension") > .foldhead');
-  await p.waitForTimeout(250);
-  ok('every field arrives with the record already written into it',
-    (await p.locator('#sItems\\:sc1').inputValue()).startsWith('Patient reports'));
-  // A block is a line until you open it. Eleven open blocks is a
-  // screen you scroll rather than a note you read.
-  ok('each thing is a line until it is opened',
-    (await p.locator('.fold.d3.shut').count())>=10);
-  // Status is a sentence you wrote, not a button you picked. "At
-  // goal." is the seeded assessment text; what must not exist is a
-  // control that sets it.
+    secs.join(',')==='Subjective,Objective,Assessment and plan');
+  const plan = await p.locator('#plan').inputValue();
+  ok('the plan arrives with the problems, pillars and services written into it',
+    plan.includes('Essential hypertension') && plan.includes('Physical activity')
+    && plan.includes('Mammogram'));
+  ok(`each one with where it stands and what is being done: ${
+    plan.split('\n').slice(0, 3).join(' / ').slice(0, 60)}`,
+    /At goal\.|Not at goal\./.test(plan) && plan.includes('Lisinopril 20 mg'));
+  ok('and the subjective with their own words about each',
+    (await p.locator('#subjective').inputValue()).includes('Patient reports'));
+  ok('three boxes and no folds',
+    (await p.locator('.note textarea').count())===3
+    && (await p.locator('.note .fold').count())===0);
+  // Status is a sentence you wrote, not a button you picked.
   ok('nothing sets a status by button',
     (await p.locator('.note .btn').count())===0);
   ok('and the instructions end in a date',
@@ -118,17 +111,16 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     (await p.locator('.panel:has-text("Patient instructions") #instructions').count())===1);
 
   // what was said during the chart review is offered, not retyped
-  await p.fill('#sOverall','Feeling steadier overall.'); await p.waitForTimeout(250);
+  await p.fill('#subjective','Feeling steadier overall.'); await p.waitForTimeout(250);
   ok('what the physician writes stays written',
-    (await p.locator('#sOverall').inputValue()).includes('steadier'));
+    (await p.locator('#subjective').inputValue()).includes('steadier'));
   ok('and nothing on the screen is a comment box beside a field',
     (await p.locator('.wfcommentbox').count())===0);
-  ok('the right column is instructions, the visit and the orders',
+  ok('the right column is the instructions and the orders, and nothing else',
     (await p.locator('.panel h2:has-text("Patient instructions")').count())===1
-    && (await p.locator('.panel h2:has-text("This visit")').count())===1
     && (await p.locator('.panel h2:has-text("Orders")').count())===1
-    && (await p.locator('text=Ask the patient').count())===0
-    && (await p.locator('text=New since version').count())===0);
+    && (await p.locator('.panel h2:has-text("This visit")').count())===0
+    && (await p.locator('text=Ask the patient').count())===0);
   await p.screenshot({path:'v10-visit-note.png'});
 
   // ---------------- 4. the labs, with patient readings kept separate
@@ -172,11 +164,11 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.locator('.sumrow').first().click(); await p.waitForTimeout(400);
   const before = await p.locator('.sheet .psum').textContent();
   await p.click('.sheetx'); await p.waitForTimeout(350);
-  const countBefore = await versionLine(p);
+  const countBefore = await sentCount(p);
   await palette(p, 'Simulate a record arriving'); await p.waitForTimeout(700);
-  const countAfter = await versionLine(p);
-  ok(`the arriving record is counted: "${(countAfter.match(/\d+ records? since/)||[''])[0]}"`,
-    countBefore!==countAfter);
+  const countAfter = await sentCount(p);
+  ok(`the arriving record is kept (${countBefore} then ${countAfter})`,
+    countAfter > countBefore);
   await p.locator('.sumrow').first().click(); await p.waitForTimeout(500);
   const after = await p.locator('.sheet .psum').textContent();
   ok('and the approved plan does not move because of it', before===after);

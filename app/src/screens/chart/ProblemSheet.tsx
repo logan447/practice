@@ -171,7 +171,7 @@ export function ProblemSheet({ patientId, conditionId, onClose }: {
       {mp && (
         <p className="small muted" style={{ marginTop: 18 }}>
           Care plan last updated {fmtDate(mp.updated)} by {mp.updatedBy}. It is written and
-          changed inside a visit or a care plan review.
+          changed inside a visit.
         </p>
       )}
     </Sheet>

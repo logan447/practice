@@ -52,22 +52,33 @@ async function openRec(p, name) {
 const closeSheet = async (p) => { await p.click('.sheetx'); await p.waitForTimeout(250); };
 
 /**
- * Which version the chart stands on, and what has arrived since.
+ * When the care plan was last changed.
  *
- * It used to be a line on the right column of the chart. It is a
- * statement about the document rather than about the patient, so it
- * moved to the visit, where the records are actually incorporated.
- * Reading it means opening one and leaving again.
+ * No screen states a version number any more: a line about the
+ * document rather than about the patient came off the chart, then off
+ * the visit, then off the sign button. What is left is the sentence
+ * at the foot of a problem's own sheet, which is where a reader would
+ * look to ask whether the plan they are reading is current.
  */
-async function versionLine(p) {
-  await p.click('.startenc:has-text("Start a visit")');
-  await p.waitForTimeout(900);
-  const line = await p.locator('.openedon').textContent();
-  // Back to the chart, not to the day: the caller was reading a chart
-  // and expects to still be on it.
-  await p.click('.backlink');
-  await p.waitForTimeout(900);
-  return line.replace(/\s+/g, ' ');
+async function planUpdatedOn(p) {
+  await p.locator('.sumrow').first().click();
+  await p.waitForTimeout(450);
+  const text = await p.locator('.sheet').textContent();
+  await p.click('.sheetx');
+  await p.waitForTimeout(250);
+  const m = text.match(/Care plan last updated ([^b]+) by/);
+  return m ? m[1].trim() : '';
 }
 
-module.exports = { tab, hasTab, palette, openRec, closeSheet, versionLine };
+/** How many records the patient has sent, as the subjective counts them. */
+async function sentCount(p) {
+  await tab(p, 'Subjective');
+  const text = await p.locator('.tabbody').textContent();
+  const nums = [...text.matchAll(/(?:Patient updates|Patient inquiries)\s*(\d+)/g)]
+    .map((x) => Number(x[1]));
+  return nums.reduce((a, b) => a + b, 0);
+}
+
+module.exports = {
+  tab, hasTab, palette, openRec, closeSheet, planUpdatedOn, sentCount,
+};

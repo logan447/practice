@@ -12,7 +12,7 @@
  * workflow exists to make that safe rather than merely true.
  */
 const {chromium}=require('playwright');
-const {tab, versionLine}=require('./tabs.cjs');
+const {tab, planUpdatedOn, sentCount}=require('./tabs.cjs');
 const U=process.env.EMR_URL||'http://localhost:4900/';
 const pass=[],fail=[];
 /**
@@ -62,12 +62,10 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(800);
 
   // ------------------------------------------ 1. an approved chart
-  const line = await versionLine(p);
-  ok(`the chart is a version, not a feed: ${line.slice(0,52)}`,
-    /version 1, approved/.test(line));
-  ok(`and says what has arrived that it has not incorporated: "${
-    (line.match(/\d+ records? since[^,]*/)||[''])[0]}"`,
-    /\d+ records? since, not yet incorporated/.test(line));
+  const was = await planUpdatedOn(p);
+  ok(`the chart is a version, not a feed (last changed ${was})`, was.length>0);
+  const sent0 = await sentCount(p);
+  ok(`and the records that arrived since are all kept (${sent0})`, sent0>0);
   const before = await planText(p);
   ok('the approved chart does not contain the unincorporated records',
     !before.includes('podiatrist') && !before.includes('urgent care place'));
@@ -75,35 +73,34 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   // ---------------------------------------------- 3. open a visit
   await p.click('button:has-text("Start a visit")'); await p.waitForTimeout(900);
   ok('the visit opens on the approved version',
-    (await p.locator('.openedon').textContent()).includes('version 1'));
+    (await p.locator('#subjective').inputValue()).includes('Patient reports'));
   ok('and it writes the care plan, not a note about it',
-    (await p.locator('.fold.d1 > .foldhead .foldtitle').count())===5);
-  // Every block is a line until it is opened, and the plan it carries
-  // forward from the approved version is on the line.
-  const planSec = p.locator('.fold.d1:has(> .foldhead > .foldtitle:text-is("Plan"))');
+    (await p.locator('.nboxhead').count())===3);
   ok('and carries the plan forward from the approved version',
-    (await planSec.locator('.fold.d3 .foldright').first().textContent()).length > 10);
-  ok('the visit records its own time, measured not typed',
-    (await p.locator('.panel:has-text("This visit")').count())===1);
+    (await p.locator('#plan').inputValue()).includes('Essential hypertension'));
+  // The clock runs from the moment the visit opens and is never
+  // shown. Typing a number at the end is how a time record becomes an
+  // estimate; a number nobody is asked for cannot be one.
+  ok('the visit records its own time, measured and never typed',
+    (await p.locator('input[type="number"]').count())===0);
 
   // ------------------------------------------------- 4. write it
-  await p.fill('#sOverall','Says she is steadier than in the summer.');
-  await p.fill('#aOverall','Doing well overall. The urgent care visit and the podiatrist are the new facts.');
+  await p.fill('#subjective','Says she is steadier than in the summer.');
+  await p.fill('#plan','Doing well overall. The urgent care visit and the podiatrist are the new facts.');
   await p.fill('#instructions','Send your home readings before the next visit.');
   await p.fill('#nextvisit','2027-02-15');
   await p.waitForTimeout(250);
 
   // --------------------------------------------------- 5. sign it
-  ok('approving is one action, and it says what it will publish',
-    (await p.locator('.signrow').textContent()).includes('Publishes version 2'));
-  await p.click('.reviewgrid button:has-text("Sign")'); await p.waitForTimeout(1000);
+  ok('signing is one action, and it is the only one',
+    (await p.locator('.vhead button:has-text("Sign")').count())===1);
+  await p.click('.vhead button:has-text("Sign")'); await p.waitForTimeout(1000);
   ok('and it returns to the schedule', await p.locator('.weekgrid, .daylist').first().isVisible());
   await p.click('.acctbtn'); await p.waitForTimeout(150); await p.click('.acctrow:has-text("Patients")'); await p.waitForTimeout(400);
   await p.fill('input[aria-label="Search patients"]','Sharon'); await p.waitForTimeout(350);
   await p.locator('table.rows tbody tr').first().click(); await p.waitForTimeout(800);
-  const after = await versionLine(p);
-  ok('the chart advances to the next version', /version 2, approved today/.test(after));
-  ok('and nothing is left unincorporated', !/not yet incorporated/.test(after));
+  const now = await planUpdatedOn(p);
+  ok(`the chart advances when somebody signs (${was} then ${now})`, was!==now);
   const nowText = await planText(p);
   ok('the published version now contains what was reviewed',
     nowText.includes('podiatrist') || nowText.includes('urgent care'));
@@ -129,9 +126,8 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   // --------------------------------- 8. the next encounter reads it
   await p.click('button:has-text("Back to the chart")'); await p.waitForTimeout(700);
-  const back = await versionLine(p);
   ok('the answer does not change the approved chart',
-    /version 2, approved today/.test(back) && /1 record since/.test(back));
+    (await planUpdatedOn(p))===now);
   await tab(p, 'Subjective');
   ok('it waits in the record instead, where the next visit will read it',
     (await p.locator('.tabbody').textContent()).includes('Patient updates'));

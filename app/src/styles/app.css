@@ -2335,58 +2335,37 @@ blockquote.said footer {
 /* ===================================================================
  * The visit note.
  *
- * One typeface, one size, from the first heading to the last field.
- * Depth is weight and an indent. The note used to change from a serif
- * display face to body copy and back twice a screen, which makes a
- * page you read as a layout rather than as sentences.
+ * Three boxes and a heading each, in one typeface at one size. It
+ * was thirty fields behind three depths of fold, which is a form; a
+ * note is a document somebody reads start to finish.
  * =================================================================== */
 
-.note { font-size: 15px; line-height: 1.6; color: var(--ink); }
-.note .oneliner {
+/* Two lines at the top: the way back, what this is, and what you do. */
+.vhead {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.vhead .backlink { margin: 0; font-size: 15px; font-weight: 600; }
+.vwhen { font-size: 14px; color: var(--ink-3); }
+.vone {
   font-family: var(--sans); font-size: 15px; line-height: 1.6;
-  margin: 0 0 20px; color: var(--ink-2);
+  margin: 0 0 22px; color: var(--ink-2); max-width: 78ch;
 }
 
-.fold { margin-bottom: 4px; }
-.foldhead {
-  display: flex; align-items: baseline; gap: 8px; width: 100%;
-  padding: 7px 0; background: none; border: 0; text-align: left;
-  font: inherit; color: inherit; cursor: pointer;
+.note { font-size: 15px; line-height: 1.6; color: var(--ink); }
+
+.nbox { margin-bottom: 26px; }
+.nboxhead {
+  display: flex; align-items: baseline; gap: 9px;
+  padding-bottom: 7px; margin-bottom: 9px; border-bottom: 1px solid var(--line);
+  font-size: 15px; font-weight: 700; color: var(--ink);
 }
-.foldarrow { flex: none; width: 11px; color: var(--ink-3); font-size: 13px; }
-.foldtitle { flex: 1; min-width: 0; }
-.foldright { flex: none; font-size: 13px; color: var(--ink-3); }
-
-.fold.d1 { margin-top: 18px; border-top: 1px solid var(--line); }
-.fold.d1:first-of-type { margin-top: 0; }
-.fold.d1 > .foldhead { padding-top: 13px; }
-.fold.d1 > .foldhead .foldtitle { font-weight: 700; }
-.fold.d1 > .foldbody { padding-bottom: 14px; }
-
-.fold.d2 { margin-top: 10px; }
-.fold.d2 > .foldhead .foldtitle {
-  font-size: 12px; font-weight: 700; letter-spacing: 0.07em;
-  text-transform: uppercase; color: var(--ink-3);
-}
-.fold.d2 > .foldbody { padding-left: 19px; }
-
-.fold.d3 > .foldhead .foldtitle { font-weight: 600; }
-.fold.d3 > .foldbody { padding-left: 19px; padding-bottom: 8px; }
-
-/* The derived sentence over a plan: what they said, then the points. */
-.blksaid { margin: 0 0 7px; color: var(--ink-2); }
-
-.note .wfield { margin-bottom: 10px; }
-.note .wflabel {
-  display: flex; align-items: baseline; gap: 8px;
-  margin-bottom: 4px; font-size: 15px; font-weight: 600; color: var(--ink);
-}
-.note .prose {
+.note .prose, .nbox .prose {
   font-family: var(--sans); font-size: 15px; line-height: 1.6;
 }
 
 .nextvis { display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
-.nextvis .wflabel { margin: 0; }
+.nextvis .wflabel { margin: 0; font-size: 14px; color: var(--ink-3); }
 .nextvis input[type="date"] { max-width: 180px; }
 
 /* Where the visit stands, in the right column rather than over the note. */
@@ -2405,3 +2384,9 @@ blockquote.said footer {
 .fold.d3 > .foldhead .foldright {
   max-width: 54%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
+
+/* One problem's plan in a signed note: the name, then the points. */
+.planprob { border-left: 2px solid var(--accent); padding-left: 11px; }
+.planprobname { font-weight: 600; }
+.planpoints { margin: 4px 0 0; padding-left: 17px; }
+.planpoints li { margin-bottom: 2px; }

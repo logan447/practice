@@ -1,16 +1,17 @@
 /**
  * Notes, as signed.
  *
- * One line per encounter. The note itself reads as prose in a sheet,
- * with its headings, because a clinician scans for them; nothing is
- * collapsed inside it, since a note you have to expand four times to
- * read is a note nobody reads.
+ * One line per visit, and every one of them says "Visit", because
+ * there is one kind. What used to be on the line was the reason it
+ * was booked, which reads as a type when a list of them is stacked up:
+ * a three month review and an annual physical and a clinical visit
+ * are the same act of work with different words in front of it. The
+ * reason is still there, beside the status, as what it is.
  */
 import { useState } from 'react';
 import { useStore } from '../../lib/store';
 import { useNav } from '../../lib/nav';
 import { fmtDate } from '../../lib/format';
-import { kindLabel } from '../../lib/clinical';
 import { Group, Row, Sheet, NoRows } from './Rows';
 
 export function NotesTab({ patientId }: { patientId: string }) {
@@ -27,23 +28,28 @@ export function NotesTab({ patientId }: { patientId: string }) {
     <>
       <Group title="Notes" count={encounters.length}>
         {encounters.length === 0 ? <NoRows>No visits yet.</NoRows> : encounters.map((x) => (
-          <Row key={x.id} name={x.reason || kindLabel(x.kind)} when={fmtDate(x.date)}
-            note={state(x.status)} warn={x.status === 'in-progress'}
+          <Row key={x.id} name="Visit"
+            note={[state(x.status), x.reason].filter(Boolean).join(' \u00b7 ')}
+            warn={x.status === 'in-progress'}
+            when={fmtDate(x.date)}
             onOpen={() => setOpen(x.id)} />
         ))}
       </Group>
 
       {e && (
-        <Sheet title={e.reason || kindLabel(e.kind)}
-          sub={`${fmtDate(e.date)}${e.duration ? ` · ${e.duration} min` : ''}${
-            e.signedAt ? ` · signed by L. DuBose, MD` : ''}`}
+        <Sheet title="Visit"
+          sub={[
+            fmtDate(e.date),
+            e.reason,
+            e.duration ? `${e.duration} min` : '',
+            e.signedAt ? 'signed by L. DuBose, MD' : '',
+          ].filter(Boolean).join(' \u00b7 ')}
           onClose={() => setOpen(null)}
           actions={e.status !== 'signed' && (
             <button className="btn" onClick={() => nav.go({ name: 'encounter', encounterId: e.id })}>
               {e.status === 'in-progress' ? 'Continue' : 'Open'}
             </button>
           )}>
-          <p className="muted">{e.reason}</p>
           {!e.note ? <p className="muted">Not held yet, so there is no note.</p> : (
             <div className="note">
               <Section label="Subjective" text={[
@@ -60,7 +66,6 @@ export function NotesTab({ patientId }: { patientId: string }) {
               {e.note.plan.problems.length > 0 && (
                 <PlanByProblem problems={e.note.plan.problems} />
               )}
-              <Section label="Plan summary" text={e.note.plan.overall} />
             </div>
           )}
         </Sheet>
@@ -68,6 +73,26 @@ export function NotesTab({ patientId }: { patientId: string }) {
     </>
   );
 }
+
+/**
+ * One problem's plan, as points.
+ *
+ * The name, then where it stands, then what is being done, then when
+ * it is looked at again. Each on its own line and none of them
+ * labelled: a reader can see that "Needs improvement" is an
+ * assessment and that "Lisinopril 20 mg" is a treatment, and the
+ * words "Assessment:" and "Treatment:" in front of them were two
+ * columns of furniture down the left of every plan.
+ *
+ * Treatment arrives as the lines of the plan field, bulleted or not,
+ * so it is split back into the points it was written as.
+ */
+const points = (pr: {
+  assessment: string; treatment: string; orders: string; followUp: string;
+}): string[] => [pr.assessment, pr.treatment, pr.orders, pr.followUp]
+  .flatMap((v) => (v ?? '').split('\n'))
+  .map((t) => t.replace(/^\s*[\u2022\-*]\s*/, '').trim())
+  .filter(Boolean);
 
 /** The plan, problem by problem, in the same fold as the rest. */
 function PlanByProblem({ problems }: {
@@ -86,16 +111,11 @@ function PlanByProblem({ problems }: {
         <div className="foldbody">
           <div className="stack-sm">
             {problems.map((pr) => (
-              <div key={pr.id} style={{ borderLeft: '2px solid var(--accent)', paddingLeft: 11 }}>
-                <div style={{ fontWeight: 600 }}>{pr.problem}</div>
-                {[['Assessment', pr.assessment], ['Treatment', pr.treatment],
-                  ['Orders', pr.orders], ['Follow-up', pr.followUp]]
-                  .filter(([, v]) => v)
-                  .map(([l, v]) => (
-                    <div key={l} style={{ marginTop: 2, whiteSpace: 'pre-line' }}>
-                      <span className="muted">{l}: </span>{v}
-                    </div>
-                  ))}
+              <div key={pr.id} className="planprob">
+                <div className="planprobname">{pr.problem}</div>
+                <ul className="planpoints">
+                  {points(pr).map((t, i) => <li key={i}>{t}</li>)}
+                </ul>
               </div>
             ))}
           </div>
