@@ -63,7 +63,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     /AUDIT-C:/.test(obj) && /Tobacco:/.test(obj) && /Other drugs:/.test(obj));
   ok('and the wellbeing measure is there too', /Flourishing:/.test(obj));
   ok('the labs have no previous value, because there is no previous visit',
-    !/\(\d/.test((await p.locator('.otherlabs').innerText()).split('\n')[0]));
+    !/\(\d/.test((await p.locator('.otherlabs:not(.vitalrow)').innerText()).split('\n')[0]));
 
   await p.fill('#instructions','Start with the evening walk, twenty minutes, four days a week.');
   await p.fill('#nextvisit','2027-02-16'); await p.waitForTimeout(250);
@@ -118,6 +118,23 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('it carries the whole note, not a summary of it',
     paper.includes('Subjective') && paper.includes('Objective')
     && paper.includes('Assessment and plan'));
+  // The medicines as reconciled, who else she sees, and every
+  // problem with who holds it. A problem list showing only what we
+  // manage reads as the whole of the patient.
+  const flatpaper = paper.replace(/\s+/g, ' ');
+  ok('the medicines say what is being taken, not only what was prescribed',
+    /Medications/.test(flatpaper)
+    && /Atorvastatin 40 mg \u2014 one tablet at night, missing doses\./.test(flatpaper));
+  ok('the care team is named, with what is outstanding',
+    /Care team/.test(flatpaper)
+    && /Dr\. Omar Haddad, Ophthalmology \u2014 last seen/.test(flatpaper));
+  ok('a problem we hold says who else holds it',
+    /Type 2 diabetes mellitus \u2014 At goal, co-managed with Dr\. Ingrid Sorensen/
+      .test(flatpaper));
+  ok('and the ones we do not hold are named with who does',
+    /Managed elsewhere/.test(flatpaper)
+    && /Hypothyroidism \u2014 Managed by Dr\. Ingrid Sorensen, Endocrinology\./
+      .test(flatpaper));
   ok('it ends in the follow-up, in the form a patient repeats back',
     /Follow up on 15 Feb 2027 \(3 months\) for ongoing services\./.test(paper));
   ok('and it is signed, with how to reach us',

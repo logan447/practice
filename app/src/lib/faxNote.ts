@@ -103,6 +103,7 @@ const esc = (s: string): string => s
 const SERVICES = new Set([
   'Lifestyle', 'Preventative', 'Review of systems',
   'Vitals', 'Labs', 'Physical Exam', 'Surveys', 'Managed elsewhere',
+  'Problem list', 'Medications', 'Care team',
 ]);
 
 const SURVEY_LINE =

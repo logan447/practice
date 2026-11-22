@@ -63,7 +63,19 @@ export function vitalItems(vitals: VitalsSet[], series: ResultSeries[] = []): It
   pair('BMI', office, (v) => (v.bmi ? String(v.bmi) : undefined));
   pair('BP', home, bp, true);
 
+  /*
+   * What the patient measured that is not already here.
+   *
+   * A home blood pressure arrives twice: once as a vitals record and
+   * once as a series the patient's own logging builds. They are the
+   * same readings, and printing both says a reading was taken that
+   * was not.
+   */
+  const covered = new Set(out.map((x) => x.label.toLowerCase()));
   for (const s of series) {
+    const name = s.name.toLowerCase();
+    if (covered.has('bp') && /blood pressure/.test(name)) continue;
+    if (covered.has('weight') && /weight/.test(name)) continue;
     const pts = [...s.points].sort((a, b) => a.date.localeCompare(b.date));
     const now = pts[pts.length - 1];
     if (!now) continue;

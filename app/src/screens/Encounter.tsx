@@ -203,6 +203,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
   const lifestyle = st.lifestyleFor(patientId);
   const checkIns = st.checkInsFor(patientId);
   const specialists = st.specialistsFor(patientId);
+  const medications = st.medsFor(patientId);
   const prevention = st.preventionFor(patientId)
     .filter((x) => x.status !== 'not-applicable');
 
@@ -523,6 +524,57 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       ? [{ group: 'Problems' as const, text: 'Managed elsewhere' }, ...elsewhere]
       : [];
 
+    /*
+     * The medicines, as reconciled.
+     *
+     * Prescribed is not the same as taken, and the difference is the
+     * only thing on this list worth a reader's time. It sits in the
+     * subjective because that difference is something the patient
+     * told us, not something we measured.
+     */
+    const took = (m: typeof medications[number]): string => {
+      if (m.status === 'held') return 'held';
+      const a = m.adherence;
+      if (!a) return 'not asked about';
+      if (a.status === 'taking') return 'taking';
+      if (a.status === 'missing-some') return 'missing doses';
+      return `not taking${m.changeNote ? `, ${m.changeNote.replace(/\.$/, '').toLowerCase()}` : ''}`;
+    };
+    const onMeds = medications.filter((m) => m.status !== 'stopped');
+    const medBlock = onMeds.length > 0
+      ? [
+        { group: 'Problems' as const, text: 'Medications' },
+        ...onMeds.map((m) => ({
+          group: 'Problems' as const,
+          text: `${m.name}${m.dose ? ` ${m.dose}` : ''} \u2014 ${
+            m.sig ? `${m.sig.replace(/\.$/, '').replace(/^[A-Z]/, (ch) => ch.toLowerCase())}, ` : ''
+          }${took(m)}.`,
+        })),
+      ]
+      : [{ group: 'Problems' as const, text: 'Medications' },
+        { group: 'Problems' as const, text: 'None on file.' }];
+
+    /*
+     * Who else they see.
+     *
+     * Named, with when they were last seen and anything still
+     * waiting on them. A care team that exists only inside the
+     * problems it touches is a care team nobody can read off the
+     * page in one go.
+     */
+    const teamBlock = specialists.length > 0
+      ? [
+        { group: 'Problems' as const, text: 'Care team' },
+        ...specialists.map((sp) => ({
+          group: 'Problems' as const,
+          text: `${sp.name}, ${sp.specialty} \u2014 ${
+            sp.lastSeen ? `last seen ${fmtDate(sp.lastSeen)}` : 'not seen yet'}${
+            sp.outstanding && sp.outstanding !== 'None.'
+              ? `. Outstanding: ${sp.outstanding.replace(/\.$/, '')}` : ''}.`,
+        })),
+      ]
+      : [];
+
     const subjective = labelled(
       [
         ...items
@@ -535,6 +587,8 @@ export function Encounter({ encounterId }: { encounterId: string }) {
               it.denies ? ` ${it.denies}` : ''}`,
           })),
         ...elsewhereBlock,
+        ...medBlock,
+        ...teamBlock,
         ...items
           .filter((it) => it.group !== 'Problems')
           .map((it) => ({
@@ -635,6 +689,16 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       ].filter(Boolean).join('\n'),
     });
 
+    /*
+     * The detailed blocks are the problem list.
+     *
+     * Every problem this practice manages or co-manages is argued
+     * here, with who else holds it on its own status line; every
+     * other active problem is named underneath, with who does hold
+     * it. Between them that is the whole list, which is why there is
+     * no separate index of it: two lists of the same problems is one
+     * list a reader has to check against the other.
+     */
     const plan = labelled([
       ...items.filter((it) => it.group === 'Problems').map(planBlock),
       ...elsewhereBlock,
