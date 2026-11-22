@@ -33,7 +33,9 @@
  * both were a second inbox beside a conversation already happening.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useStore } from '../lib/store';
+import { useActor } from '../lib/session';
 import { useNav } from '../lib/nav';
 import { Chip, Panel } from '../components/ui';
 import { fmtDate, interval } from '../lib/format';
@@ -43,11 +45,14 @@ import type { LivingSubjective } from '../lib/subjective';
 import type { Intervention } from '../lib/interventions';
 import { ambientScript, wasCaught, ERROR_LABEL, type InjectedError } from '../lib/ambient';
 import { Fishbone, OtherLabs } from './chart/Fishbone';
-import { ReadLine, readLines, GROUP_LABEL } from './chart/NoteText';
+import { buildFaxNote } from '../lib/faxNote';
+import { specialistsAbout } from './chart/relate';
+import { readLines, GROUP_LABEL } from './chart/NoteText';
 import { TAB_LABEL } from './chart/drawers';
 import { LIFESTYLE_DOMAINS, SETTING_LABEL } from '../domain/types';
 import { pertinentNegatives, reviewOfSystems } from '../domain/ros';
 import { surveysText } from '../lib/surveys';
+import { vitalsHtml, vitalsText } from '../lib/vitals';
 import type { VisitNote, Order, OrderKind } from '../domain/types';
 import { ORDER_KINDS } from '../domain/types';
 import {
@@ -185,6 +190,7 @@ const EXAM = [
 
 export function Encounter({ encounterId }: { encounterId: string }) {
   const st = useStore();
+  const me = useActor();
   const nav = useNav();
   const enc = st.encounter(encounterId);
   const patientId = enc?.patientId ?? '';
@@ -196,6 +202,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
   const prechart = st.preChartFor(patientId);
   const lifestyle = st.lifestyleFor(patientId);
   const checkIns = st.checkInsFor(patientId);
+  const specialists = st.specialistsFor(patientId);
   const prevention = st.preventionFor(patientId)
     .filter((x) => x.status !== 'not-applicable');
 
@@ -229,7 +236,6 @@ export function Encounter({ encounterId }: { encounterId: string }) {
    * a plan.
    */
   const items = useMemo<Item[]>(() => {
-    const dom = (d: string) => LIFESTYLE_DOMAINS.find((x) => x.id === d)?.label ?? d;
     const bullets = (xs: string[]) => xs.map((x) => `\u2022 ${x}`).join('\n');
     /*
      * What the patient said about this exact prescription or service,
@@ -257,8 +263,26 @@ export function Encounter({ encounterId }: { encounterId: string }) {
          */
         said: pr.clauses.filter((c) => c.voice === 'patient').map((c) => c.text).join(' '),
         doing: bullets(planPoints(pr.interventions)),
-        standing: pr.goal === 'at-goal' ? 'At goal'
-          : pr.goal ? 'Not at goal' : 'Not assessed',
+        /*
+         * Where it stands, and who else is holding it.
+         *
+         * A problem this practice manages that a specialist also
+         * follows is co-managed, and saying so on the status line is
+         * what stops two clinicians each assuming the other is
+         * watching it.
+         */
+        standing: [
+          pr.goal === 'at-goal' ? 'At goal' : pr.goal ? 'Not at goal' : 'Not assessed',
+          (() => {
+            const sp = specialistsAbout(pr.name, specialists)[0];
+            if (!sp) return '';
+            const waiting = !sp.lastSeen
+              || (!!sp.outstanding && sp.outstanding !== 'None.');
+            return waiting
+              ? `referral to ${sp.name}, ${sp.specialty} outstanding`
+              : `co-managed with ${sp.name}, ${sp.specialty}`;
+          })(),
+        ].filter(Boolean).join(', '),
         because: conditions.find((c) => c.id === pr.conditionId)?.goalNote ?? '',
         silent: 'Not discussed at this visit.',
         /*
@@ -271,21 +295,22 @@ export function Encounter({ encounterId }: { encounterId: string }) {
         denies: pertinentNegatives(pr.name),
       })),
       /*
-       * All six pillars, prescribed or not.
+       * One entry per pillar. Six of them, prescribed or not.
        *
        * The pillars are a fixed list, not a list of prescriptions.
        * Showing only the ones with something written against them
-       * makes a first visit look like a patient with no lifestyle
-       * at all, when what is true is that nobody has prescribed
+       * makes a first visit look like a patient with no lifestyle at
+       * all, when what is true is that nobody has prescribed
        * anything yet, which is the finding.
        *
-       * Two prescriptions can share a pillar, and two blocks both
-       * called "Diet" is two you have to open to tell apart.
+       * And one entry each: two prescriptions about diet are two
+       * points under Diet, not two pillars called Diet. A patient
+       * does not have two diets.
        */
-      ...LIFESTYLE_DOMAINS.flatMap((d) => {
+      ...LIFESTYLE_DOMAINS.map((d) => {
         const mine = lifestyle.filter((x) => x.domain === d.id);
         if (mine.length === 0) {
-          return [{
+          return {
             id: `pillar-${d.id}`,
             name: d.label,
             group: 'Lifestyle' as const,
@@ -294,51 +319,46 @@ export function Encounter({ encounterId }: { encounterId: string }) {
             standing: 'Not started',
             silent: 'Not started.',
             because: 'Nothing prescribed here yet.',
-          }];
+          };
         }
-        return mine.map((l) => {
-        const same = mine;
-        // Four words, not the whole prescription. It is there to tell
-        // two "Nutrition" blocks apart; the prescription itself is in
-        // the plan under the heading, and a sentence set in bold as a
-        // heading is a sentence nobody reads as one.
-        const short = l.prescription
-          .split(/[.,;]/)[0].trim().split(/\s+/).slice(0, 4).join(' ');
         return {
-          id: l.id,
-          // The heading is the pillar. The prescription is the content
-          // under it, not a second half of its name.
-          name: dom(l.domain),
-          detail: same.length > 1 ? short : '',
+          id: mine[0].id,
+          name: d.label,
           group: 'Lifestyle' as const,
-          said: said('lifestyle', l.id),
-          doing: bullets([l.prescription.replace(/\.$/, '')]),
+          /*
+           * What she said about this pillar, however many
+           * prescriptions it holds. Two sentences about diet are two
+           * sentences about diet.
+           */
+          said: mine.map((l) => said('lifestyle', l.id)).filter(Boolean).join(' '),
+          doing: bullets(mine.map((l) => l.prescription.replace(/\.$/, ''))),
           /*
            * Two states, not four.
            *
            * "Holding" and "Struggling" are judgments about how a
            * person is doing, and a pillar carries one of those in
            * every line of the subjective already. What the plan
-           * needs from this line is whether the prescription exists
-           * yet, because that is what changes what happens next.
+           * needs from this line is whether anything has been
+           * prescribed yet, because that is what changes what
+           * happens next. A pillar with two prescriptions and one of
+           * them started is started.
            */
-          standing: l.status === 'not-started' ? 'Not started' : 'In progress',
+          standing: mine.every((l) => l.status === 'not-started')
+            ? 'Not started' : 'In progress',
           // Not started is a fact about the prescription. Unknown is
           // a fact about us: it exists and nobody has asked how it
           // is going, which is the one worth seeing on the page.
-          silent: l.status === 'not-started' ? 'Not started.' : 'Unknown.',
+          silent: mine.every((l) => l.status === 'not-started')
+            ? 'Not started.' : 'Unknown.',
           /*
            * What is in the way is what defends the status: a pillar
            * that is in progress rather than holding is in progress
            * for a reason, and the reason is the thing the plan
-           * underneath it has to answer.
+           * underneath it has to answer. Capped at two lines further
+           * down, so several barriers do not become a paragraph.
            */
-          because: [
-            l.barrier ?? '',
-            l.status === 'achieved' ? 'Holding without effort now.' : '',
-          ].filter(Boolean).join(' '),
+          because: mine.map((l) => l.barrier ?? '').filter(Boolean).join(' '),
         };
-        });
       }),
       ...prevention.map((x) => ({
         id: x.id,
@@ -471,15 +491,58 @@ export function Encounter({ encounterId }: { encounterId: string }) {
      * about look identical to a pillar going well, if neither is on
      * the page.
      */
+    /*
+     * Everything on the history that this practice is not holding.
+     *
+     * Named at the foot of the medical run, with who does hold it.
+     * A problem list that shows only what we manage reads as the
+     * whole of the patient, and the question somebody else's note
+     * has to answer is not "what are you doing" but "what are you
+     * not doing, and does anybody know".
+     *
+     * A condition nobody is recorded as holding says so. That is the
+     * specific gap a consulting practice is exposed to, and it is
+     * worth a line on every note until it is closed.
+     */
+    const heldBy = (c: typeof conditions[number]): string => {
+      const sp = specialistsAbout(c.name, specialists)[0];
+      if (sp) {
+        const waiting = !sp.lastSeen || (!!sp.outstanding && sp.outstanding !== 'None.');
+        return waiting
+          ? `Referred to ${sp.name}, ${sp.specialty}. Appointment not confirmed.`
+          : `Managed by ${sp.name}, ${sp.specialty}.`;
+      }
+      if (c.owner === 'theirs') return 'Managed by their primary care physician.';
+      if (c.owner === 'shared') return 'Co-managed with their primary care physician.';
+      return 'Nobody is recorded as managing it.';
+    };
+    const elsewhere = conditions
+      .filter((c) => c.status === 'active' && !c.managed)
+      .map((c) => ({ group: 'Problems' as const, text: `${c.name} \u2014 ${heldBy(c)}` }));
+    const elsewhereBlock = elsewhere.length > 0
+      ? [{ group: 'Problems' as const, text: 'Managed elsewhere' }, ...elsewhere]
+      : [];
+
     const subjective = labelled(
-      items
-        .filter((it) => it.group !== 'Problems' || it.said.trim())
-        .map((it) => ({
-          group: it.group,
-          text: `${it.name}${it.detail ? `, ${it.detail}` : ''} \u2014 ${
-            it.said.trim() ? reports(it.said) : it.silent}${
-            it.denies ? ` ${it.denies}` : ''}`,
-        })),
+      [
+        ...items
+          .filter((it) => it.group !== 'Problems' || it.said.trim())
+          .filter((it) => it.group === 'Problems')
+          .map((it) => ({
+            group: it.group,
+            text: `${it.name} \u2014 ${
+              it.said.trim() ? reports(it.said) : it.silent}${
+              it.denies ? ` ${it.denies}` : ''}`,
+          })),
+        ...elsewhereBlock,
+        ...items
+          .filter((it) => it.group !== 'Problems')
+          .map((it) => ({
+            group: it.group,
+            text: `${it.name}${it.detail ? `, ${it.detail}` : ''} \u2014 ${
+              it.said.trim() ? reports(it.said) : it.silent}`,
+          })),
+      ],
       [`General \u2014 ${reports(general) || 'Patient reports nothing new overall.'}`],
       [
         review ? `Chart review \u2014 ${review}` : '',
@@ -560,7 +623,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
      */
     const planHead = p ? oneLiner(p, conditions) : '';
 
-    const plan = labelled(items.map((it) => ({
+    const planBlock = (it: Item) => ({
       group: it.group,
       text: [
         `${it.name}${it.detail ? `, ${it.detail}` : ''} \u2014 ${it.standing}`,
@@ -570,49 +633,18 @@ export function Encounter({ encounterId }: { encounterId: string }) {
         narrative(it),
         it.doing,
       ].filter(Boolean).join('\n'),
-    })));
+    });
 
-    /*
-     * One vitals line.
-     *
-     * What was measured in the office, written plainly, and then
-     * anything the patient measured at home with "(home)" after the
-     * number. A separate Home line made two measurements of the same
-     * thing look like two different findings, and the only part a
-     * reader needs is which cuff it came off.
-     */
-    const lastOffice = st.vitalsFor(patientId).find((v) => v.source === 'office');
-    const office = lastOffice ? [
-      lastOffice.systolic ? `${lastOffice.systolic}/${lastOffice.diastolic}` : '',
-      lastOffice.heartRate ? `HR ${lastOffice.heartRate}` : '',
-      lastOffice.weightLb ? `${lastOffice.weightLb} lb` : '',
-      lastOffice.bmi ? `BMI ${lastOffice.bmi}` : '',
-    ].filter(Boolean) : [];
-
-    const homeSets = st.vitalsFor(patientId).filter((v) => v.source === 'home');
-    const sys = homeSets.map((v) => v.systolic).filter((n): n is number => !!n);
-    const home = [
-      sys.length
-        ? `${Math.min(...sys)} to ${Math.max(...sys)} systolic (home, ${
-          sys.length} reading${sys.length === 1 ? '' : 's'} to ${fmtDate(homeSets[0].date)})`
-        : '',
-      ...st.patientSeriesFor(patientId).map((ser) => {
-        const last = ser.points[ser.points.length - 1];
-        return last ? `${ser.name} ${last.value} ${ser.unit} (home, ${
-          fmtDate(last.date)})` : '';
-      }),
-    ].filter(Boolean);
-
-    const vitalsLine = [...office, ...home].length
-      ? `Vitals \u2014 ${office.join(' \u00b7 ')}${
-        lastOffice ? ` (${fmtDate(lastOffice.date)})` : ''}${
-        home.length ? `${office.length ? ' \u00b7 ' : ''}${home.join(' \u00b7 ')}` : ''}`
-      : '';
+    const plan = labelled([
+      ...items.filter((it) => it.group === 'Problems').map(planBlock),
+      ...elsewhereBlock,
+      ...items.filter((it) => it.group !== 'Problems').map(planBlock),
+    ]);
 
     setW((v) => ({
       ...v,
       subjective,
-      measured: vitalsLine,
+      measured: vitalsText(st.vitalsFor(patientId), st.patientSeriesFor(patientId)),
       /*
        * What was measured comes before what was examined, and the
        * labs come with it: a physician reads the numbers that were
@@ -636,6 +668,17 @@ export function Encounter({ encounterId }: { encounterId: string }) {
   }, [items, approved, master, st, patientId, prechart, draft.overall]);
 
   // ------------------------------------------------------------ the clock
+  /*
+   * The note as a page, before it is signed.
+   *
+   * Reading your own note back in the shape it will be read in is a
+   * different act from reading the fields you typed it into, and it
+   * is the one that catches a sentence that only makes sense to the
+   * person who wrote it. No cover sheet: this one is not going
+   * anywhere.
+   */
+  const [proof, setProof] = useState<string | null>(null);
+
   const [openedAt] = useState(() => Date.now());
   const [minutes, setMinutes] = useState(0);
   /*
@@ -778,7 +821,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
     if (!w.nextVisit) return '';
     const gap = interval(enc.date, w.nextVisit);
     return `Follow up on ${fmtDate(w.nextVisit)}${gap ? ` (${gap})` : ''}`
-      + ' for ongoing medical, lifestyle, and preventative services.';
+      + ' for ongoing services.';
   };
 
   const note: VisitNote = {
@@ -901,12 +944,33 @@ export function Encounter({ encounterId }: { encounterId: string }) {
         {!signed && injected.length > 0 && !listening && (
           <button className="btn ghost" onClick={() => setChecked(true)}>Check the draft</button>
         )}
+        {!listening && p && (
+          <button className="btn ghost" onClick={() => {
+            setProof(buildFaxNote({
+              patient: p, encounter: { ...enc, note }, to: '', from: me.name,
+              today: st.now, coverSheet: false,
+              panels: st.panelsFor(patientId).filter((pl) => pl.date <= enc.date),
+              vitals: st.vitalsFor(patientId).filter((v) => v.date <= enc.date),
+              series: st.patientSeriesFor(patientId),
+            }).html);
+            setTimeout(() => window.print(), 80);
+          }}>
+            Preview
+          </button>
+        )}
         {signed ? (
           <span className="small muted">Signed {enc.signedAt && fmtDate(enc.signedAt)}</span>
         ) : (
           <button className="btn" onClick={approve}>Sign</button>
         )}
       </div>
+
+      {/* Out at the top of the body, or a long note prints as one
+          clipped page: see the note in lib/faxNote. */}
+      {proof && createPortal(
+        <div className="faxout" dangerouslySetInnerHTML={{ __html: proof }} />,
+        document.body,
+      )}
 
       {checked && injected.length > 0 && (
         <DraftCheck audit={audit} signed={published}
@@ -929,7 +993,10 @@ export function Encounter({ encounterId }: { encounterId: string }) {
             mark={marks.objective} onChange={(v) => put('objective', v)}
             above={(
               <div className="measured" id="objective-measured">
-                {w.measured.split('\n').map((ln, i) => <ReadLine key={i} line={ln} />)}
+                <div className="nreadsec">Vitals</div>
+                <div dangerouslySetInnerHTML={{
+                  __html: vitalsHtml(st.vitalsFor(patientId), st.patientSeriesFor(patientId)),
+                }} />
                 <div className="nreadsec">Labs</div>
                 <Fishbone panels={st.panelsFor(patientId)} />
                 <OtherLabs panels={st.panelsFor(patientId)} />

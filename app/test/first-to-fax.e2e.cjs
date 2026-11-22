@@ -48,9 +48,14 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   await p.locator('.nbox:has(.nboxtitle:text-is("Objective")) .nboxhead').click();
   await p.waitForTimeout(350);
   const obj=await p.locator('#objective-read').innerText();
+  const measured = await p.locator('#objective-measured').innerText();
   ok('the objective runs vitals, labs, exam, surveys',
-    (await p.locator('#objective-measured').innerText()).includes('Vitals')
+    measured.indexOf('Vitals') < measured.indexOf('Labs')
     && obj.indexOf('Physical Exam') < obj.indexOf('Surveys'));
+  // A blood pressure is a lab value taken in the room: the current
+  // one, the one before it, the month, and which cuff it came off.
+  ok('vitals are read the way the labs are',
+    /BP \d+\/\d+/.test(measured) && /\d+\/\d+/.test(measured));
   ok('a short screen every visit, and the long one only when it is positive',
     /PHQ-2:/.test(obj) && /GAD-2: 4 of 6 \u00b7 Positive/.test(obj)
     && /GAD-7:/.test(obj) && !/PHQ-9:/.test(obj));
@@ -62,6 +67,21 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
 
   await p.fill('#instructions','Start with the evening walk, twenty minutes, four days a week.');
   await p.fill('#nextvisit','2027-02-16'); await p.waitForTimeout(250);
+
+  // Read your own note back in the shape it will be read in, before
+  // signing it. No cover sheet: this one is not going anywhere.
+  ok('a visit can be read back as a page before it is signed',
+    (await p.locator('.vhead button:has-text("Preview")').count())===1);
+  await p.click('.vhead button:has-text("Preview")'); await p.waitForTimeout(500);
+  const proof = await p.locator('.faxout .fax').innerText();
+  ok('the proof is the note, with no cover sheet in front of it',
+    !proof.includes('Fax cover sheet') && proof.includes('Subjective')
+    && proof.includes('Assessment and plan'));
+  ok('and it says it is not signed yet', proof.includes('not signed'));
+  // Once, at the top. It used to repeat at the head of every page.
+  const flat = proof.replace(/\s+/g, ' ');
+  ok('the identifier is on the first line and nowhere else',
+    flat.split('11 Feb 1991').length === 2);
   await p.click('.vhead button:has-text("Sign")'); await p.waitForTimeout(1300);
   ok('signing the first visit returns to the schedule',
     await p.locator('.weekgrid, .daylist').first().isVisible());
@@ -99,8 +119,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     paper.includes('Subjective') && paper.includes('Objective')
     && paper.includes('Assessment and plan'));
   ok('it ends in the follow-up, in the form a patient repeats back',
-    /Follow up on 15 Feb 2027 \(3 months\) for ongoing medical, lifestyle, and preventative services\./
-      .test(paper));
+    /Follow up on 15 Feb 2027 \(3 months\) for ongoing services\./.test(paper));
   ok('and it is signed, with how to reach us',
     paper.includes('Logan L. DuBose, MD, MBA, DipIBLM')
     && paper.includes('General Practitioner')

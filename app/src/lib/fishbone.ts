@@ -228,20 +228,6 @@ export function otherLabsHtml(panels: LabPanel[]): string {
     + '</div>';
 }
 
-/**
- * What the brackets mean, said once.
- *
- * Every value here is the most recent on file with the one before it
- * beside it. Printing that convention under each value is the
- * convention taking more room than the numbers; printing it once is
- * a reader learning it once.
- */
-export const LABS_NOTE =
-  'Each value is the most recent result on file, with the one before it in brackets.';
-
 /** Both, in the order they are read: the skeletons, then the rest. */
-export function labsHtml(panels: LabPanel[]): string {
-  const body = fishboneHtml(panels) + otherLabsHtml(panels);
-  if (!body) return '';
-  return `${body}<p class="labsnote">${LABS_NOTE}</p>`;
-}
+export const labsHtml = (panels: LabPanel[]): string =>
+  fishboneHtml(panels) + otherLabsHtml(panels);

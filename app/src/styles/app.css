@@ -2696,6 +2696,10 @@ blockquote.said footer {
 .olitem.bad .olval { color: var(--warn); font-weight: 600; }
 .olitem.bad .olname { color: var(--ink-3); font-weight: 400; }
 .olname { color: var(--ink-3); }
+/* Which cuff it came off. Office and home are different
+   measurements and are never mixed into one series. */
+.athome { color: var(--ink-3); font-size: 12.5px; }
+.vitalrow { margin-top: 4px; }
 /* The date the shorthand was drawn from. A fishbone prints no dates,
    which is its whole speed, but a value with no date on a page
    somebody else reads is a value they cannot act on. */
@@ -2708,4 +2712,4 @@ blockquote.said footer {
 }
 .fbgroup { display: inline-flex; flex-direction: column; align-items: center; }
 .fbgroup .fbstamp { margin-top: 1px; }
-.labsnote { margin: 8px 0 0; font-size: 12px; color: var(--ink-3); }
+

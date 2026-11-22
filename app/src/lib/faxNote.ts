@@ -30,10 +30,13 @@
  * question, not a design one, and the text below is deliberately
  * plain rather than borrowed from another practice's form.
  */
-import type { Encounter, LabPanel, Patient } from '../domain/types';
+import type {
+  Encounter, LabPanel, Patient, ResultSeries, VitalsSet,
+} from '../domain/types';
 import { SETTING_LABEL } from '../domain/types';
 import { fmtDate, age } from './format';
 import { labsHtml } from './fishbone';
+import { vitalsHtml } from './vitals';
 import { ROS_LINE } from '../domain/ros';
 
 export interface FaxInput {
@@ -58,6 +61,17 @@ export interface FaxInput {
    * the physician, not the ones that arrived afterwards.
    */
   panels: LabPanel[];
+  /** The vitals, read the same way the labs are. */
+  vitals?: VitalsSet[];
+  series?: ResultSeries[];
+  /**
+   * Whether to put a cover sheet on the front.
+   *
+   * A note you are reading back to yourself before signing it is not
+   * going anywhere, and a cover sheet addressed to nobody is a page
+   * you have to turn past every time you check your own work.
+   */
+  coverSheet?: boolean;
 }
 
 /*
@@ -88,7 +102,7 @@ const esc = (s: string): string => s
  */
 const SERVICES = new Set([
   'Lifestyle', 'Preventative', 'Review of systems',
-  'Labs', 'Physical Exam', 'Surveys',
+  'Vitals', 'Labs', 'Physical Exam', 'Surveys', 'Managed elsewhere',
 ]);
 
 const SURVEY_LINE =
@@ -165,7 +179,7 @@ export function buildFaxNote(input: FaxInput): { html: string; pages: string } {
   const html = `
     <article class="fax">
 
-      <section class="faxcover">
+      ${input.coverSheet === false ? '' : `      <section class="faxcover">
         <h1>Fax cover sheet</h1>
         <table class="faxto">
           <tbody>
@@ -196,28 +210,22 @@ export function buildFaxNote(input: FaxInput): { html: string; pages: string } {
           Lifestyle and Preventative Medicine Clinic &middot;
           phone (979) 481-9110 &middot; fax ${esc(PRACTICE_FAX)}
         </p>
-      </section>
+      </section>`}
 
-      <!--
-        One line, and it is the only thing above the first heading.
-        It is a table head rather than a paragraph because every
-        browser repeats a thead across printed pages, and none of
-        them repeat a fixed element reliably. Pages get separated at
-        the receiving end, and a clinical page with no name on it is
-        a page that can be filed into the wrong chart, so the one
-        line a reader needs is the one that comes back on each page.
-      -->
-      <table class="faxpage">
-        <thead>
-          <tr><th class="faxrun">${esc(p.name)}
-            &middot; ${fmtDate(p.dob)}
-            &middot; ${age(p.dob)} ${p.sex === 'female' ? 'F' : 'M'}
-            &middot; ${fmtDate(e.date)},
-            ${esc(SETTING_LABEL[e.setting ?? 'in-person'].toLowerCase())}
-            &middot; ${e.signedAt ? `signed ${fmtDate(e.signedAt)}` : 'not signed'}</th></tr>
-        </thead>
-        <tbody><tr><td>
       <section class="faxnote">
+        <!--
+          One line, once. It opens the note and does not come back at
+          the top of every page: a note is read as a document rather
+          than as a stack of loose pages, and a line repeated four
+          times is three lines of furniture.
+        -->
+        <p class="faxrun">${esc(p.name)}
+          &middot; ${fmtDate(p.dob)}
+          &middot; ${age(p.dob)} ${p.sex === 'female' ? 'F' : 'M'}
+          &middot; ${fmtDate(e.date)},
+          ${esc(SETTING_LABEL[e.setting ?? 'in-person'].toLowerCase())}
+          &middot; ${e.signedAt ? `signed ${fmtDate(e.signedAt)}` : 'not signed'}</p>
+
         <h3>Subjective</h3>
         ${n?.subjective.oneLiner ? `<p class="faxone">${esc(n.subjective.oneLiner)}</p>` : ''}
         ${body([
@@ -226,7 +234,8 @@ export function buildFaxNote(input: FaxInput): { html: string; pages: string } {
   ].filter(Boolean).join('\n\n'))}
 
         <h3>Objective</h3>
-        ${body(n?.objective.vitals)}
+        <p class="svc">Vitals</p>
+        ${vitalsHtml(input.vitals ?? [], input.series ?? []) || body(n?.objective.vitals)}
         <p class="svc">Labs</p>
         ${labsHtml(input.panels)}
         ${body(n?.objective.exam)}
@@ -253,8 +262,6 @@ export function buildFaxNote(input: FaxInput): { html: string; pages: string } {
     : 'This note is not signed. It is a draft and should not be filed as a record.'}</p>
         </div>
       </section>
-        </td></tr></tbody>
-      </table>
     </article>
   `;
 

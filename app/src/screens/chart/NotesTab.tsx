@@ -227,6 +227,8 @@ function FaxNote({ patientId, encounterId, onClose }: {
       // one day, and a lab that arrived the week after was not in
       // front of anybody when it was written.
       panels: st.panelsFor(patientId).filter((pl) => pl.date <= e.date),
+      vitals: st.vitalsFor(patientId).filter((v) => v.date <= e.date),
+      series: st.patientSeriesFor(patientId),
     });
     setSheet(built.html);
   };

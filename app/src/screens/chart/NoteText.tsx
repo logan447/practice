@@ -36,7 +36,9 @@ export const GROUP_LABEL = {
 export const NOTE_HEADINGS = new Set<string>([
   ...Object.values(GROUP_LABEL).filter(Boolean),
   'Review of systems',
+  'Vitals',
   'Labs',
+  'Managed elsewhere',
   'Physical Exam',
   'Surveys',
 ]);
