@@ -70,7 +70,7 @@ export function timeline(input: TimelineInput): TimelineItem[] {
     if (e.status === 'signed') {
       const n = e.note;
       out.push({
-        id: e.id, kind: 'visit', date: e.date, by: 'L. DuBose, MD',
+        id: e.id, kind: 'visit', date: e.date, by: 'Logan L. DuBose, MD, MBA',
         title: e.reason || 'Visit',
         preview: firstLine(
           n?.assessment.overall || n?.subjective.additional || n?.plan.overall || 'Signed, no note text.',
@@ -79,7 +79,7 @@ export function timeline(input: TimelineInput): TimelineItem[] {
       });
     } else {
       out.push({
-        id: e.id, kind: 'booked', date: e.date, by: 'L. DuBose, MD',
+        id: e.id, kind: 'booked', date: e.date, by: 'Logan L. DuBose, MD, MBA',
         title: e.reason || 'Visit',
         preview: `${e.duration ?? 30} minutes, not yet held.`,
       });

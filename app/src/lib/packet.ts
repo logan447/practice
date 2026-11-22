@@ -92,7 +92,7 @@ export function buildPacket(input: PacketInput): {
         ${age(p.dob)} ${p.sex === 'female' ? 'F' : 'M'} &middot; born ${fmtDate(p.dob)}
         &middot; record produced ${fmtDate(today)}
       </p>
-      <p class="sub">Direct Lifestyle Medicine &middot; L. DuBose, MD</p>
+      <p class="sub">Lifestyle and Preventative Medicine Clinic &middot; Logan L. DuBose, MD, MBA</p>
 
       <h3>Past medical history</h3>
       <p>${active.length ? active.map((c) => `${esc(c.name)}${c.code ? ` (${c.code})` : ''}`).join('; ') : 'None recorded.'}</p>
@@ -175,7 +175,7 @@ export function buildPacket(input: PacketInput): {
       <article class="note">
         <h3>${fmtDate(e.date)} &middot; ${esc(kindLabel(e.kind))}</h3>
         <p class="dim">${esc(e.reason)} &middot; ${e.duration ?? ''} min &middot;
-          signed ${e.signedAt ? fmtDate(e.signedAt) : 'unsigned'} by L. DuBose, MD</p>
+          signed ${e.signedAt ? fmtDate(e.signedAt) : 'unsigned'} by Logan L. DuBose, MD, MBA</p>
         ${n ? `
           <h4>Subjective</h4>${para([n.subjective.oneLiner, n.subjective.reason, n.subjective.additional].filter(Boolean).join('\n\n'))}
           <h4>Objective</h4>
@@ -294,7 +294,7 @@ export function buildPacket(input: PacketInput): {
       <ol>${sections.map((sc) =>
     `<li>${esc(sc.title)}${sc.count !== undefined ? ` <span class="dim">(${sc.count})</span>` : ''}</li>`).join('')}</ol>
       <p class="dim">
-        Produced ${fmtDate(today)} for ${esc(p.name)} by Direct Lifestyle Medicine.
+        Produced ${fmtDate(today)} for ${esc(p.name)} by Lifestyle and Preventative Medicine Clinic.
         This is the complete record this practice holds. If anything in it is wrong,
         tell us and we will correct it and write back to say what we changed.
       </p>

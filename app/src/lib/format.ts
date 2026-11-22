@@ -20,6 +20,43 @@ export function fmtDateShort(iso: string): string {
   return `${MONTHS[d.getMonth()]} ${String(d.getFullYear()).slice(2)}`;
 }
 
+/**
+ * Month and short year: "10/26".
+ *
+ * For a date that has to sit under a lab value without taking the
+ * room the value needs. The day a blood test was drawn almost never
+ * changes what you do; the month it was drawn often does.
+ */
+export function fmtMonthYear(iso: string): string {
+  const d = new Date(`${iso}T12:00:00`);
+  return `${d.getMonth() + 1}/${String(d.getFullYear()).slice(2)}`;
+}
+
+/**
+ * How far off a date is, in the words a visit is booked in.
+ *
+ * "3 months", not "92 days". Nobody books a follow-up in days, and
+ * the interval is the part of a follow-up line a patient repeats
+ * back to you.
+ */
+export function interval(fromIso: string, toIso: string): string {
+  const days = Math.round(
+    (Date.parse(`${toIso}T12:00:00`) - Date.parse(`${fromIso}T12:00:00`)) / 86400000,
+  );
+  if (days <= 0) return '';
+  if (days < 14) return `${days} day${days === 1 ? '' : 's'}`;
+  if (days < 56) {
+    const w = Math.round(days / 7);
+    return `${w} week${w === 1 ? '' : 's'}`;
+  }
+  if (days < 335) {
+    const m = Math.round(days / 30.44);
+    return `${m} month${m === 1 ? '' : 's'}`;
+  }
+  const y = Math.round(days / 365.25);
+  return `${y} year${y === 1 ? '' : 's'}`;
+}
+
 export function age(dob: string): number {
   const t = asDate(now());
   const d = asDate(dob);

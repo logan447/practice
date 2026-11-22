@@ -135,7 +135,7 @@ export const marcusCheckIns: ProblemCheckIn[] = [
  * text for the hypertension only.
  */
 export const marcusMaster: MasterPlan = {
-  id: 'mmp1', patientId: 'p1', updated: '2026-09-02', updatedBy: 'L. DuBose, MD',
+  id: 'mmp1', patientId: 'p1', updated: '2026-09-02', updatedBy: 'Logan L. DuBose, MD, MBA',
   objective: { narrative: '' },
   assessment: {
     narrative: 'Prediabetes is back in the normal range off metformin, which is the result he wanted and the one he achieved himself. Blood pressure has been under 130 at every reading this year on a single agent. The case for a supervised taper is reasonable; the case for doing it without home readings is not.',

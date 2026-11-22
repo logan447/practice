@@ -536,7 +536,7 @@ export function generatePanel(n = 120, seed = 20261114): Panel {
         managed: !chance(0.25),
         provenance: chance(0.4)
           ? { author: 'source', by: pick(OUTSIDE), recorded: onset }
-          : { author: 'clinician', by: 'L. DuBose, MD', recorded: onset },
+          : { author: 'clinician', by: 'Logan L. DuBose, MD, MBA', recorded: onset },
       });
       for (const m of spec.meds ?? []) {
         if (!chance(0.72)) continue;
@@ -557,7 +557,7 @@ export function generatePanel(n = 120, seed = 20261114): Panel {
               'Stopped at the patient\u2019s request.',
             ])
             : undefined,
-          provenance: { author: 'clinician', by: 'L. DuBose, MD', recorded: onset },
+          provenance: { author: 'clinician', by: 'Logan L. DuBose, MD, MBA', recorded: onset },
         });
       }
       for (const sn of spec.series ?? []) seriesNames.add(sn);
@@ -832,7 +832,7 @@ export function generatePanel(n = 120, seed = 20261114): Panel {
       const updated = addDays(ORIGIN, -Math.floor(between(10, 300)));
       out.carePlans.push({
         id: id('cp'), patientId: pid, version: 1 + Math.floor(r() * 3), updated,
-        signed, signedBy: signed ? 'L. DuBose, MD' : undefined,
+        signed, signedBy: signed ? 'Logan L. DuBose, MD, MBA' : undefined,
         summary: pick([
           'Hold the ground we have gained and keep the medicine list as short as it can be.',
           'One change at a time, reviewed every six weeks.',
@@ -853,7 +853,7 @@ export function generatePanel(n = 120, seed = 20261114): Panel {
             })),
           };
         }),
-        provenance: { author: 'clinician', by: 'L. DuBose, MD', recorded: updated },
+        provenance: { author: 'clinician', by: 'Logan L. DuBose, MD, MBA', recorded: updated },
       });
     }
 

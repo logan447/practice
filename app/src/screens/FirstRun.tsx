@@ -17,7 +17,7 @@ export function FirstRun() {
   return (
     <div className="wrap" style={{ maxWidth: 760 }}>
       <div className="page-head" style={{ marginTop: 40 }}>
-        <div className="eyebrow" style={{ marginBottom: 10 }}>Direct Lifestyle Medicine</div>
+        <div className="eyebrow" style={{ marginBottom: 10 }}>Lifestyle and Preventative Medicine Clinic</div>
         <h1 style={{ fontSize: 30 }}>No patients yet.</h1>
         <div className="sub" style={{ fontSize: 15, maxWidth: '52ch' }}>
           This record is empty, which is where a practice starts. Add your

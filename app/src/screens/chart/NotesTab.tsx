@@ -111,7 +111,9 @@ export function NotesTab({ patientId }: { patientId: string }) {
                 </Fold>
               )}
 
-              <Fold title="Patient instructions" startShut text={e.note.plan.overall} />
+              <Fold title="Patient instructions" startShut
+                text={[e.note.plan.overall, e.note.plan.followUp]
+                  .filter(Boolean).join('\n\n')} />
             </div>
           )}
         </Sheet>

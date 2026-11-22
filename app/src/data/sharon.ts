@@ -12,7 +12,7 @@ import type {
   Encounter, PreventionItem, Specialist, Order, MasterPlan, Task, ChartDocument,
 } from '../domain/types';
 
-const MD = { author: 'clinician' as const, by: 'L. DuBose, MD', recorded: '2026-06-18' };
+const MD = { author: 'clinician' as const, by: 'Logan L. DuBose, MD, MBA', recorded: '2026-06-18' };
 const SRC = (doc: string, d: string) => ({
   author: 'source' as const, by: doc, recorded: d, sources: [doc],
 });
@@ -160,7 +160,7 @@ export const sharonSeries: ResultSeries[] = [
 
 export const sharonReports: ResultReport[] = [
   { id: 'srr1', patientId: 'p0', panel: 'Diabetes and lipid panel', resulted: '2026-10-29',
-    worstFlag: 'high', acknowledged: true, acknowledgedBy: 'L. DuBose, MD',
+    worstFlag: 'high', acknowledged: true, acknowledgedBy: 'Logan L. DuBose, MD, MBA',
     acknowledgedAt: '2026-10-30', seriesIds: ['sr1', 'sr2', 'sr5'] },
 ];
 
@@ -193,7 +193,7 @@ export const sharonSpecialists: Specialist[] = [
 
 export const sharonPlan: CarePlan = {
   id: 'scp1', patientId: 'p0', version: 4, updated: '2026-10-30', signed: true,
-  signedBy: 'L. DuBose, MD',
+  signedBy: 'Logan L. DuBose, MD, MBA',
   summary: 'The A1c is coming down without insulin and without a drug that drops her sugar while she is looking after her mother. Hold that, and get the overdue screening done.',
   goals: [
     { id: 'sg1', title: 'Get the A1c under 7 and keep it there', domain: 'medical',
@@ -393,7 +393,7 @@ export const sharonTasks: Task[] = [
  * record moves and the summary lags. The chart opens saying so.
  */
 export const sharonMaster: MasterPlan = {
-  id: 'smp1', patientId: 'p0', updated: '2026-06-20', updatedBy: 'L. DuBose, MD',
+  id: 'smp1', patientId: 'p0', updated: '2026-06-20', updatedBy: 'Logan L. DuBose, MD, MBA',
   objective: {
     narrative: 'Feet examined 18 June 2026, sensation intact. No retinopathy at the last dilated examination in October 2025. She has just started taking her own blood pressure at home; not enough readings yet to say how they compare with clinic.',
   },

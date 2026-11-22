@@ -92,7 +92,7 @@ const OLD = {
   await p.click('.crashbox button:has-text("Clear saved data")'); await p.waitForTimeout(900);
   ok('clearing recovers to a working screen',
     (await p.locator('.crashbox').count())===0
-    && (await p.locator('body').textContent()).includes('Direct Lifestyle Medicine'));
+    && (await p.locator('body').textContent()).includes('Lifestyle and Preventative Medicine Clinic'));
   // The key comes back, because the app saves its own clean state on
   // the next render. What matters is that the record that crashed it
   // is not in there any more.

@@ -86,7 +86,7 @@ import { recordDiff, type Snapshot } from './audit';
 import { actor as currentActor } from './session';
 import { measureByKey, patientSeriesId, isAlerting } from '../domain/measures';
 
-const ME = 'L. DuBose, MD';
+const ME = 'Logan L. DuBose, MD, MBA';
 
 interface State {
   patients: Patient[];

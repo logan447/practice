@@ -45,7 +45,7 @@ export const ROLE_LABEL: Record<Role, string> = {
 };
 
 export const PHYSICIAN: Actor = {
-  id: 'u-dubose', name: 'L. DuBose, MD', role: 'physician',
+  id: 'u-dubose', name: 'Logan L. DuBose, MD, MBA', role: 'physician',
 };
 
 export const COVERING: Actor = {

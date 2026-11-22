@@ -24,17 +24,17 @@ const P = 'p0';
 
 export const sharonRequests: UpdateRequest[] = [
   {
-    id: 'sr1', patientId: P, sent: '2026-07-20', sentBy: 'L. DuBose, MD',
+    id: 'sr1', patientId: P, sent: '2026-07-20', sentBy: 'Logan L. DuBose, MD, MBA',
     prompt: 'A month on from the change: how are the mornings, and have you had any more of the shaky episodes in the evening?',
     about: ['sc2'], answeredOn: '2026-07-22',
   },
   {
-    id: 'sr2', patientId: P, sent: '2026-09-21', sentBy: 'L. DuBose, MD',
+    id: 'sr2', patientId: P, sent: '2026-09-21', sentBy: 'Logan L. DuBose, MD, MBA',
     prompt: 'You said you would start taking your blood pressure at home. How is that going, and what are the numbers?',
     about: ['sc1'], answeredOn: '2026-09-28',
   },
   {
-    id: 'sr3', patientId: P, sent: '2026-11-10', sentBy: 'L. DuBose, MD',
+    id: 'sr3', patientId: P, sent: '2026-11-10', sentBy: 'Logan L. DuBose, MD, MBA',
     prompt: 'Before we meet next week: how is each of these going, and are you managing the plan we agreed?',
     about: ['sc1', 'sc2', 'sc3'], answeredOn: '2026-11-12',
   },
@@ -153,7 +153,7 @@ export const sharonMessages: Message[] = [
     body: 'Twice in the last fortnight I have come over shaky and sweaty at my mother’s, both times around nine, both times before I had eaten. It passed after a biscuit. I did not want to make a fuss but my daughter said I should tell you.',
   },
   {
-    id: 'sms2', patientId: P, date: '2026-05-28', from: 'practice', author: 'L. DuBose, MD',
+    id: 'sms2', patientId: P, date: '2026-05-28', from: 'practice', author: 'Logan L. DuBose, MD, MBA',
     replyTo: 'sms1', about: ['sc2'],
     subject: 'Re: Feeling shaky in the evenings',
     body: 'Thank you for telling me, this is exactly the sort of thing I want to hear about. That sounds like low blood sugar and the most likely cause is the glipizide, which is the one that can do this when a meal is late. Do not stop anything yet. Keep something sweet with you, and let us bring your June appointment forward if it happens again.',
@@ -165,7 +165,7 @@ export const sharonMessages: Message[] = [
     body: 'I have stopped the evening walks. The knees have been bad since the weather turned and by the time I have finished at my mother’s I am done. I did not want you to think I had just given up on it.',
   },
   {
-    id: 'sms4', patientId: P, date: '2026-08-15', from: 'practice', author: 'L. DuBose, MD',
+    id: 'sms4', patientId: P, date: '2026-08-15', from: 'practice', author: 'Logan L. DuBose, MD, MBA',
     replyTo: 'sms3', about: ['sc5'],
     subject: 'Re: The walking',
     body: 'That is useful to know and it is not giving up. Two evenings is better than four on paper and none in practice. Let us talk at the next visit about something the knees will tolerate.',
@@ -177,13 +177,13 @@ export const sharonMessages: Message[] = [
     body: 'A friend sent me an article saying statins do very little for women my age and can cause memory problems. I have not stopped it. I would like to understand the reasoning rather than be told it is fine.',
   },
   {
-    id: 'sms6', patientId: P, date: '2026-09-10', from: 'practice', author: 'L. DuBose, MD',
+    id: 'sms6', patientId: P, date: '2026-09-10', from: 'practice', author: 'Logan L. DuBose, MD, MBA',
     replyTo: 'sms5', about: ['sc3'],
     subject: 'Re: Something I read about statins',
     body: 'That is a fair question and worth a proper answer rather than a line in a corridor. The short version is that your case is not primary prevention: with diabetes and a cholesterol that was 221 in January, the benefit is larger than in the group that article is about. Let us go through the actual numbers at the next visit and decide together.',
   },
   {
-    id: 'sms7', patientId: P, date: '2026-11-03', from: 'practice', author: 'L. DuBose, MD',
+    id: 'sms7', patientId: P, date: '2026-11-03', from: 'practice', author: 'Logan L. DuBose, MD, MBA',
     subject: 'Mammogram',
     about: [],
     body: 'I have found three places that do Saturday appointments for the mammogram, and I have put the list in your records. Shall I book one of them for you rather than leave it with you to do?',

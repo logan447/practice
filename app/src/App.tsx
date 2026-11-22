@@ -41,7 +41,7 @@ function TopBar() {
       <button className="mark" onClick={() => nav.reset(clinician
         ? { name: 'schedule' }
         : { name: 'portal', patientId: me.patientId ?? '' })}>
-        Direct Lifestyle Medicine
+        Lifestyle and Preventative Medicine Clinic
         <small>{clinician ? 'Clinical record' : 'Your health record'}</small>
       </button>
       <span className="spacer" />

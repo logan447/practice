@@ -36,16 +36,17 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '../lib/store';
 import { useNav } from '../lib/nav';
 import { Chip, Panel } from '../components/ui';
-import { fmtDate } from '../lib/format';
+import { fmtDate, interval } from '../lib/format';
 import { oneLiner } from './chart/AssessPlan';
 import { livingSubjective } from '../lib/subjective';
 import type { LivingSubjective } from '../lib/subjective';
 import type { Intervention } from '../lib/interventions';
 import { ambientScript, wasCaught, ERROR_LABEL, type InjectedError } from '../lib/ambient';
 import { Fishbone, OtherLabs } from './chart/Fishbone';
-import { ReadLine, GROUP_LABEL } from './chart/NoteText';
+import { ReadLine, readLines, GROUP_LABEL } from './chart/NoteText';
 import { TAB_LABEL } from './chart/drawers';
 import { LIFESTYLE_DOMAINS, SETTING_LABEL } from '../domain/types';
+import { pertinentNegatives, reviewOfSystems } from '../domain/ros';
 import type { VisitNote, Order, OrderKind } from '../domain/types';
 import { ORDER_KINDS } from '../domain/types';
 import {
@@ -72,6 +73,15 @@ interface Item {
   doing: string;
   /** Where it stands, as the first draft of the assessment. */
   standing: string;
+  /** What the line says when the patient has said nothing about it. */
+  silent: string;
+  /**
+   * The pertinent negatives for this one, as a sentence.
+   *
+   * Problems only. A review of systems under "Nutrition" is a form
+   * being filled in rather than a question being asked.
+   */
+  denies?: string;
   /**
    * Where it stands in a sentence: the target, and if it is not
    * there, why.
@@ -248,6 +258,15 @@ export function Encounter({ encounterId }: { encounterId: string }) {
         standing: pr.goal === 'at-goal' ? 'At goal'
           : pr.goal ? 'Not at goal' : 'Not assessed',
         because: conditions.find((c) => c.id === pr.conditionId)?.goalNote ?? '',
+        silent: 'Not discussed at this visit.',
+        /*
+         * The three or four things you ask about because of this
+         * problem, at the end of this problem's line. It is the
+         * sentence that says the things which would have changed the
+         * plan were considered, which is why it belongs to the
+         * problem rather than to a block at the bottom.
+         */
+        denies: pertinentNegatives(pr.name),
       })),
       // Two prescriptions can share a domain, and two blocks both
       // called "Nutrition" is two you have to open to tell apart.
@@ -278,6 +297,10 @@ export function Encounter({ encounterId }: { encounterId: string }) {
            * yet, because that is what changes what happens next.
            */
           standing: l.status === 'not-started' ? 'Not started' : 'In progress',
+          // Not started is a fact about the prescription. Unknown is
+          // a fact about us: it exists and nobody has asked how it
+          // is going, which is the one worth seeing on the page.
+          silent: l.status === 'not-started' ? 'Not started.' : 'Unknown.',
           // The barrier belongs to the conversation, not to the
           // plan: a second line under every pillar was the plan
           // explaining itself rather than saying what to do.
@@ -300,6 +323,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
          */
         doing: '',
         because: '',
+        silent: 'Unknown.',
         standing: [
           x.status === 'current' ? 'Up to date'
             : x.status === 'overdue' ? 'Overdue' : 'Due',
@@ -393,13 +417,44 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       return [...out, ...tail].filter(Boolean).join('\n\n');
     };
 
+    /*
+     * Everything in the patient's own voice, for the formal review.
+     *
+     * Their words only. The derived sentences around them are the
+     * record talking, and a review of systems built out of the
+     * record's own prose would find whatever the record happened to
+     * mention.
+     */
+    const theirWords = [general, ...items.map((it) => it.said)].filter(Boolean);
+
+    /*
+     * Every pillar and every service, whether or not they said
+     * anything about it.
+     *
+     * A subjective that lists only the four things the patient
+     * mentioned is a subjective that cannot be read as a check. The
+     * ones nobody has spoken about are the ones worth seeing: a
+     * pillar that has not started and a service nobody has asked
+     * about look identical to a pillar going well, if neither is on
+     * the page.
+     */
     const subjective = labelled(
-      items.filter((it) => it.said.trim()).map((it) => ({
-        group: it.group,
-        text: `${it.name}${it.detail ? `, ${it.detail}` : ''} \u2014 ${reports(it.said)}`,
-      })),
+      items
+        .filter((it) => it.group !== 'Problems' || it.said.trim())
+        .map((it) => ({
+          group: it.group,
+          text: `${it.name}${it.detail ? `, ${it.detail}` : ''} \u2014 ${
+            it.said.trim() ? reports(it.said) : it.silent}${
+            it.denies ? ` ${it.denies}` : ''}`,
+        })),
       [`General \u2014 ${reports(general) || 'Patient reports nothing new overall.'}`],
-      [review ? `Chart review \u2014 ${review}` : ''],
+      [
+        review ? `Chart review \u2014 ${review}` : '',
+        // The sweep for what the problem list would not have asked
+        // about. Last in the section, immediately before the
+        // objective, which is where it is read.
+        reviewOfSystems(theirWords),
+      ],
     );
 
     /*
@@ -445,6 +500,14 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       .filter((sentence) => sentence.trim() && bare(sentence) !== bare(it.standing))
       .join(' ')
       .trim();
+
+    /*
+     * The assessment opens with the same sentence the subjective
+     * does. It is read twice because it is used twice: once as the
+     * person you are about to hear from, once as the person you are
+     * about to make decisions about.
+     */
+    const planHead = p ? oneLiner(p, conditions) : '';
 
     const plan = labelled(items.map((it) => ({
       group: it.group,
@@ -505,7 +568,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
        */
       objective: [EXAM, said('vitals'), said('results')]
         .filter(Boolean).join('\n\n'),
-      plan: [said('problems'), plan].filter(Boolean).join('\n\n'),
+      plan: [planHead, said('problems'), plan].filter(Boolean).join('\n\n'),
     }));
   }, [items, approved, master, st, patientId, prechart, draft.overall]);
 
@@ -642,6 +705,19 @@ export function Encounter({ encounterId }: { encounterId: string }) {
     }.`
     : '';
 
+  /**
+   * The last line of the note, in the form a patient repeats back.
+   *
+   * A date, how far off it is, and what it is for. "Next visit: 15
+   * Feb 2027" is a diary entry; this is a plan.
+   */
+  const followUpLine = (): string => {
+    if (!w.nextVisit) return '';
+    const gap = interval(enc.date, w.nextVisit);
+    return `Follow up on ${fmtDate(w.nextVisit)}${gap ? ` (${gap})` : ''}`
+      + ' for ongoing medical, lifestyle, and preventative services.';
+  };
+
   const note: VisitNote = {
     subjective: {
       oneLiner: oneLiner(p, conditions),
@@ -672,10 +748,8 @@ export function Encounter({ encounterId }: { encounterId: string }) {
           orders: '', followUp: '',
         };
       }).filter((x) => x.problem),
-      overall: [
-        w.instructions,
-        w.nextVisit ? `Next visit: ${fmtDate(w.nextVisit)}.` : '',
-      ].filter(Boolean).join('\n\n'),
+      overall: w.instructions,
+      followUp: followUpLine(),
     },
   };
 
@@ -693,8 +767,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
         ),
         prevention: '',
         lifestyle: '',
-        followUp: [w.instructions, w.nextVisit ? `Next visit ${fmtDate(w.nextVisit)}.` : '']
-          .filter(Boolean).join(' '),
+        followUp: followUpLine(),
       },
       minutes: Math.max(minutes, 1),
       planUpdated: w.plan.trim().length > 0,
@@ -909,7 +982,7 @@ function Box({
             onClick={() => setEditing(true)}
             onFocus={() => setEditing(true)}>
             {value.trim()
-              ? value.split('\n').map((ln, i) => <ReadLine key={i} line={ln} />)
+              ? readLines(value)
               : <span className="muted">{placeholder ?? 'Nothing written yet.'}</span>}
           </div>
         )

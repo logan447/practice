@@ -131,7 +131,7 @@ const ex = (
   id: string, encounterId: string, date: string,
   findings: [string, string][],
 ): ExamRecord => ({
-  id, patientId: P, encounterId, date, by: 'L. DuBose, MD',
+  id, patientId: P, encounterId, date, by: 'Logan L. DuBose, MD, MBA',
   findings: findings.map(([system, text]) => ({ system, text })),
 });
 
@@ -242,17 +242,17 @@ export const sharonEm: EmRecord[] = [
 export const sharonCareLog: CareLogEntry[] = [
   {
     id: 'cl1', patientId: P, program: 'ccm', date: '2026-11-03', minutes: 12,
-    by: 'L. DuBose, MD', role: 'physician', countable: true,
+    by: 'Logan L. DuBose, MD, MBA', role: 'physician', countable: true,
     activity: 'Call with patient about mammogram barriers. Found three sites open Saturdays, sent the list.',
   },
   {
     id: 'cl2', patientId: P, program: 'ccm', date: '2026-11-06', minutes: 9,
-    by: 'L. DuBose, MD', role: 'physician', countable: true,
+    by: 'Logan L. DuBose, MD, MBA', role: 'physician', countable: true,
     activity: 'Reviewed home blood pressure log, replied in the portal with the plan for amlodipine.',
   },
   {
     id: 'cl3', patientId: P, program: 'ccm', date: '2026-11-10', minutes: 11,
-    by: 'L. DuBose, MD', role: 'physician', countable: true,
+    by: 'Logan L. DuBose, MD, MBA', role: 'physician', countable: true,
     activity: 'Coordinated ophthalmology referral, spoke with their scheduler.',
   },
   {
@@ -263,7 +263,7 @@ export const sharonCareLog: CareLogEntry[] = [
   },
   {
     id: 'cl5', patientId: P, program: 'bhi', date: '2026-11-04', minutes: 14,
-    by: 'L. DuBose, MD', role: 'physician', countable: true,
+    by: 'Logan L. DuBose, MD, MBA', role: 'physician', countable: true,
     activity: 'PHQ-9 reviewed (score 7). Discussed sleep and carer strain. Safety screen negative.',
   },
 ];

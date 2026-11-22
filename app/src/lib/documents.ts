@@ -53,8 +53,8 @@ const AUD: Record<Audience, string> = {
 export const audienceLabel = (a: Audience): string => AUD[a];
 
 const first = (p: Patient): string => p.preferredName ?? p.name.split(' ')[0];
-const PRACTICE = 'Direct Lifestyle Medicine';
-const ME = 'L. DuBose, MD';
+const PRACTICE = 'Lifestyle and Preventative Medicine Clinic';
+const ME = 'Logan L. DuBose, MD, MBA';
 
 const bullet = (xs: string[]): string => xs.map((x) => `  - ${x}`).join('\n');
 

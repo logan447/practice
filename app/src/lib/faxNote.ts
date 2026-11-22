@@ -34,6 +34,7 @@ import type { Encounter, LabPanel, Patient } from '../domain/types';
 import { SETTING_LABEL } from '../domain/types';
 import { fmtDate, age } from './format';
 import { labsHtml } from './fishbone';
+import { ROS_LINE } from '../domain/ros';
 
 export interface FaxInput {
   patient: Patient;
@@ -71,15 +72,41 @@ const esc = (s: string): string => s
  * same as it reads on the screen it was signed on. A line that is
  * only one of the three service labels is a heading of its own.
  */
-const SERVICES = new Set(['Lifestyle', 'Preventative']);
+const SERVICES = new Set([
+  'Lifestyle', 'Preventative', 'Review of systems', 'Examination',
+]);
+
+/**
+ * One line of the formal review, with the positive marked.
+ *
+ * Whatever the patient raised comes before the denials on the line,
+ * so the split is at the first denial. Red for a reader on a screen
+ * or a saved PDF, bold so it survives a fax.
+ */
+function rosLine(line: string): string {
+  const at = line.indexOf(':');
+  const rest = line.slice(at + 1).trim();
+  const cut = rest.search(/\b(Otherwise denies|Denies|no symptoms reported)/);
+  const pos = cut > 0 ? rest.slice(0, cut).trim() : '';
+  const tail = cut > 0 ? rest.slice(cut) : rest;
+  return `<p class="rosline"><b>${esc(line.slice(0, at))}:</b> `
+    + (pos ? `<span class="rospos">${esc(pos)}</span> ` : '')
+    + `${esc(tail)}</p>`;
+}
 
 const body = (text?: string): string => {
   const t = (text ?? '').trim();
   if (!t) return '<p class="none">Not recorded.</p>';
+  // The review runs from its own heading to the end of the section.
+  // Without that, "Cardiovascular: regular rate and rhythm" in the
+  // examination is rendered as a review line.
+  let inRos = false;
   return t.split('\n').map((raw) => {
     const line = raw.trim();
     if (!line) return '';
+    if (line === 'Review of systems') inRos = true;
     if (SERVICES.has(line)) return `<p class="svc">${esc(line)}</p>`;
+    if (inRos && ROS_LINE.test(line)) return rosLine(line);
     if (/^[•\-*]\s/.test(line)) {
       return `<p class="pt">${esc(line.replace(/^[•\-*]\s*/, '• '))}</p>`;
     }
@@ -120,7 +147,7 @@ export function buildFaxNote(input: FaxInput): { html: string; pages: string } {
             <tr><th>To</th><td>${esc(input.to || 'UNSET')}${
   input.toPractice ? `<br>${esc(input.toPractice)}` : ''}</td></tr>
             <tr><th>Fax</th><td>${esc(input.faxNumber || 'UNSET')}</td></tr>
-            <tr><th>From</th><td>${esc(input.from)}<br>Direct Lifestyle Medicine</td></tr>
+            <tr><th>From</th><td>${esc(input.from)}<br>Lifestyle and Preventative Medicine Clinic</td></tr>
             <tr><th>Sent</th><td>${fmtDate(today)}</td></tr>
             <tr><th>Pages</th><td>${pages}</td></tr>
             <tr><th>About</th><td>${ident}</td></tr>
@@ -141,42 +168,34 @@ export function buildFaxNote(input: FaxInput): { html: string; pages: string } {
           please call us and destroy the pages.
         </p>
         <p class="faxcontact">
-          Direct Lifestyle Medicine &middot; phone UNSET &middot; fax UNSET
+          Lifestyle and Preventative Medicine Clinic &middot; phone UNSET &middot; fax UNSET
         </p>
       </section>
 
       <!--
-        A table with one cell, so the identifier repeats.
-        Every browser repeats a thead across printed pages, and none
-        of them repeat a fixed element reliably: headless Chrome
-        places it once and prints it over the text. Pages get
-        separated at the receiving end, and a clinical page with no
-        name on it is a page that can be filed into the wrong chart,
-        so this is not a detail to leave to a CSS feature that works
-        in some engines.
+        One line, and it is the only thing above the first heading.
+        It is a table head rather than a paragraph because every
+        browser repeats a thead across printed pages, and none of
+        them repeat a fixed element reliably. Pages get separated at
+        the receiving end, and a clinical page with no name on it is
+        a page that can be filed into the wrong chart, so the one
+        line a reader needs is the one that comes back on each page.
       -->
       <table class="faxpage">
         <thead>
-          <tr><th class="faxrun">${ident} &middot; visit ${fmtDate(e.date)}
-            &middot; Direct Lifestyle Medicine</th></tr>
+          <tr><th class="faxrun">${esc(p.name)}
+            &middot; ${fmtDate(p.dob)}
+            &middot; ${age(p.dob)} ${p.sex === 'female' ? 'F' : 'M'}
+            &middot; ${fmtDate(e.date)},
+            ${esc(SETTING_LABEL[e.setting ?? 'in-person'].toLowerCase())}
+            &middot; ${e.signedAt ? `signed ${fmtDate(e.signedAt)}` : 'not signed'}</th></tr>
         </thead>
         <tbody><tr><td>
       <section class="faxnote">
-        <!--
-          One line. The name, the date of birth, the visit date and
-          the practice are on the identifier that repeats at the top
-          of every page, so printing them again under a heading was
-          the same four facts twice before the note began.
-        -->
-        <p class="faxsub"><b>Visit note</b> &middot;
-          ${age(p.dob)} ${p.sex === 'female' ? 'F' : 'M'} &middot;
-          ${esc(SETTING_LABEL[e.setting ?? 'in-person'])} &middot;
-          ${e.signedAt ? `signed ${fmtDate(e.signedAt)}` : 'not signed'}</p>
-
         <h3>Subjective</h3>
         ${n?.subjective.oneLiner ? `<p class="faxone">${esc(n.subjective.oneLiner)}</p>` : ''}
         ${body([
-    n?.subjective.reason, n?.subjective.chartReview, n?.subjective.diagnostics,
+    n?.subjective.chartReview, n?.subjective.diagnostics,
     n?.subjective.specialists, n?.subjective.additional,
   ].filter(Boolean).join('\n\n'))}
 
@@ -191,9 +210,13 @@ export function buildFaxNote(input: FaxInput): { html: string; pages: string } {
 
         ${sec('Patient instructions', n?.plan.overall)}
 
+        ${n?.plan.followUp?.trim()
+    ? `<p class="faxfollow">${esc(n.plan.followUp.trim())}</p>` : ''}
+
         <div class="faxsign">
+          ${e.signedAt ? '<p class="faxhand">Logan DuBose</p>' : ''}
           <p><b>${esc(input.from)}</b></p>
-          <p>Direct Lifestyle Medicine</p>
+          <p>General Practitioner, Lifestyle and Preventative Medicine Clinic</p>
           <p>${e.signedAt
     ? `Signed ${fmtDate(e.signedAt)}.`
     : 'This note is not signed. It is a draft and should not be filed as a record.'}</p>

@@ -566,7 +566,7 @@ export function longitudinal(panel: Panel, seed = 777): LongitudinalLayer {
       if (findings.length === 0) continue;
       out.exams.push({
         id: id('ex'), patientId: p.id, encounterId: visit.id, date: visit.date,
-        by: 'L. DuBose, MD', findings,
+        by: 'Logan L. DuBose, MD, MBA', findings,
       });
     }
 
@@ -738,7 +738,7 @@ export function longitudinal(panel: Panel, seed = 777): LongitudinalLayer {
       const consentDate = visits[Math.max(0, visits.length - 3)]?.date ?? addDays(ORIGIN, -300);
       out.consents.push({
         id: id('co'), patientId: p.id, program: 'ccm', date: consentDate, method: chance(0.8) ? 'verbal' : 'written',
-        by: 'L. DuBose, MD',
+        by: 'Logan L. DuBose, MD, MBA',
         note: 'Explained what care management covers between visits, that only one practice can provide and be billed for it in a calendar month, that there may be cost sharing, and that it can be stopped at any time. Agreed.',
       });
       const entries = 2 + Math.floor(r() * 4);
@@ -747,7 +747,7 @@ export function longitudinal(panel: Panel, seed = 777): LongitudinalLayer {
           id: id('cl'), patientId: p.id, program: 'ccm',
           date: `${month}-${String(2 + Math.floor(r() * 12)).padStart(2, '0')}`,
           minutes: Math.round(between(5, 16)),
-          by: 'L. DuBose, MD', role: 'physician', countable: true,
+          by: 'Logan L. DuBose, MD, MBA', role: 'physician', countable: true,
           activity: pick([
             'Call about the blood pressure readings from home, plan agreed in the portal.',
             'Chased the specialist letter and spoke with their scheduler.',
@@ -770,14 +770,14 @@ export function longitudinal(panel: Panel, seed = 777): LongitudinalLayer {
       if ((has('Generalized anxiety disorder') || has('Major depressive disorder')) && chance(0.6)) {
         out.consents.push({
           id: id('co'), patientId: p.id, program: 'bhi', date: consentDate, method: 'verbal',
-          by: 'L. DuBose, MD',
+          by: 'Logan L. DuBose, MD, MBA',
           note: 'Explained behavioural health care management, the monthly check-in, the use of a questionnaire to track how things are going, and that it can be stopped at any time. Agreed.',
         });
         out.careLog.push({
           id: id('cl'), patientId: p.id, program: 'bhi',
           date: `${month}-${String(3 + Math.floor(r() * 10)).padStart(2, '0')}`,
           minutes: Math.round(between(10, 22)),
-          by: 'L. DuBose, MD', role: 'physician', countable: true,
+          by: 'Logan L. DuBose, MD, MBA', role: 'physician', countable: true,
           activity: `PHQ-9 reviewed (score ${Math.round(between(3, 16))}). Safety screen negative. Plan unchanged.`,
         });
       }
@@ -815,7 +815,7 @@ export function longitudinal(panel: Panel, seed = 777): LongitudinalLayer {
       const reqId = id('rq');
       const updId = id('up');
       out.requests.push({
-        id: reqId, patientId: p.id, sent: addDays(sentOn, -2), sentBy: 'L. DuBose, MD',
+        id: reqId, patientId: p.id, sent: addDays(sentOn, -2), sentBy: 'Logan L. DuBose, MD, MBA',
         prompt: 'Before we meet: how is each of these going, and are you managing the plan we agreed?',
         about: managed.map((c) => c.id),
         answeredOn: sentOn,
@@ -891,7 +891,7 @@ export function longitudinal(panel: Panel, seed = 777): LongitudinalLayer {
         if (chance(0.78)) {
           out.messages.push({
             id: id('ms'), patientId: p.id, date: addDays(when, chance(0.6) ? 0 : 1),
-            from: 'practice', author: 'L. DuBose, MD', replyTo: mid,
+            from: 'practice', author: 'Logan L. DuBose, MD, MBA', replyTo: mid,
             subject: `Re: ${topic.subject}`, about: about ? [about.id] : [],
             body: topic.reply,
           });
@@ -1049,7 +1049,7 @@ function buildMaster(i: MasterInput): MasterPlan {
   ]);
 
   return {
-    id: `mp-${p.id}`, patientId: p.id, updated, updatedBy: 'L. DuBose, MD',
+    id: `mp-${p.id}`, patientId: p.id, updated, updatedBy: 'Logan L. DuBose, MD, MBA',
     objective: { narrative: objective },
     assessment: { narrative: assessment },
     plan: { byProblem, prevention: prevention_, lifestyle: lifestyleText, followUp },

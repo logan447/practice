@@ -42,27 +42,27 @@ export const arthurConsents: ServiceConsent[] = [];
 export const arthurCareLog: CareLogEntry[] = [
   {
     id: 'acl1', patientId: P, program: 'ccm', date: '2026-11-02', minutes: 8,
-    by: 'L. DuBose, MD', role: 'physician', countable: true,
+    by: 'Logan L. DuBose, MD, MBA', role: 'physician', countable: true,
     problems: ['c11'],
     activity: 'Reviewed the October metabolic panel. Creatinine up a little, eGFR 51. '
       + 'Checked it against the last four and wrote to him about fluids.',
   },
   {
     id: 'acl2', patientId: P, program: 'ccm', date: '2026-11-05', minutes: 11,
-    by: 'L. DuBose, MD', role: 'physician', countable: true,
+    by: 'Logan L. DuBose, MD, MBA', role: 'physician', countable: true,
     problems: ['c10', 'c11'],
     activity: 'Call with cardiology about whether the empagliflozin stays at this eGFR. It does. '
       + 'Captioned video call with him afterwards to say so.',
   },
   {
     id: 'acl3', patientId: P, program: 'ccm', date: '2026-11-09', minutes: 7,
-    by: 'L. DuBose, MD', role: 'physician', countable: true,
+    by: 'Logan L. DuBose, MD, MBA', role: 'physician', countable: true,
     problems: ['c12'],
     activity: 'Audiology referral. Found one that does the fitting in the same building and messaged him the details.',
   },
   {
     id: 'acl4', patientId: P, program: 'ccm', date: '2026-11-12', minutes: 8,
-    by: 'L. DuBose, MD', role: 'physician', countable: true,
+    by: 'Logan L. DuBose, MD, MBA', role: 'physician', countable: true,
     problems: ['c9'],
     activity: 'Went through the glucose log he sent. Fasting numbers steady, two lows after the Saturday walk. '
       + 'Wrote back about moving the morning dose.',

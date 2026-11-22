@@ -145,7 +145,7 @@ export function Portal({ patientId, initialTab }: { patientId: string; initialTa
         <div>
           <h1>Hello, {p.preferredName ?? p.name.split(' ')[0]}</h1>
           <div className="meta">
-            Your doctor is L. DuBose, MD &middot; member since {fmtDate(p.memberSince)}
+            Your doctor is Logan L. DuBose, MD, MBA &middot; member since {fmtDate(p.memberSince)}
           </div>
         </div>
       </div>

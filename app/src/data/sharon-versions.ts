@@ -46,7 +46,7 @@ const asApproved = livingSubjective({
 export const sharonVersions: ChartVersion[] = [
   {
     id: 'cv1', patientId: P, version: 1,
-    approvedAt: APPROVED, approvedBy: 'L. DuBose, MD',
+    approvedAt: APPROVED, approvedBy: 'Logan L. DuBose, MD, MBA',
     encounterId: 'se3',
     subjective: asApproved,
     goals: { sc1: 'at-goal', sc2: 'at-goal', sc3: 'needs-improvement' },

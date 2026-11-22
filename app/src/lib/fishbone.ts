@@ -25,7 +25,7 @@
  * is the question a date on the screen was standing in for.
  */
 import type { LabPanel } from '../domain/types';
-import { fmtDate } from './format';
+import { fmtDate, fmtMonthYear } from './format';
 
 interface Reading {
   key: string;
@@ -76,6 +76,10 @@ const tip = (r: Reading) => [
   r.prev ? `previous ${r.prev} on ${fmtDate(r.prevWhen!)}` : '',
 ].filter(Boolean).join('\n');
 
+/** "10/26 (6/26)", to sit under a value in the room a value leaves. */
+const stamp = (r: Reading) => fmtMonthYear(r.when)
+  + (r.prevWhen ? ` (${fmtMonthYear(r.prevWhen)})` : '');
+
 /* ------------------------------------------------------- the drawing */
 
 const esc = (t: string) => t
@@ -112,7 +116,7 @@ function num(r: Reading | undefined, x: number, y: number, anchor = 'middle'): s
  * strikethrough.
  */
 const cbcSvg = (r: (k: string) => Reading | undefined): string => `
-  <svg class="fbsvg" width="244" height="76" viewBox="0 0 244 76" role="img"
+  <svg class="fbsvg" width="244" height="84" viewBox="0 0 244 84" role="img"
     aria-label="Complete blood count">
     <line class="fbbone" x1="82" y1="38" x2="162" y2="38" />
     <line class="fbbone" x1="122" y1="12" x2="122" y2="64" />
@@ -138,7 +142,7 @@ function chemSvg(r: (k: string) => Reading | undefined): string {
   const tipX = x3 + 26;
   const w = tipX + 72;
   return `
-    <svg class="fbsvg" width="${w}" height="76" viewBox="0 0 ${w} 76" role="img"
+    <svg class="fbsvg" width="${w}" height="84" viewBox="0 0 ${w} 84" role="img"
       aria-label="Metabolic panel">
       <line class="fbbone" x1="${x0}" y1="38" x2="${x3}" y2="38" />
       <line class="fbbone" x1="${x1}" y1="12" x2="${x1}" y2="64" />
@@ -172,10 +176,14 @@ export function fishboneHtml(panels: LabPanel[]): string {
   const hasCbc = CBC_KEYS.some((k) => r(k));
   const hasChem = CHEM_KEYS.some((k) => r(k));
   if (!hasCbc && !hasChem) return '';
-  const drawn = [...CBC_KEYS, ...CHEM_KEYS].map(r).filter(Boolean) as Reading[];
-  const when = drawn.map((x) => x.when).sort().pop();
-  return `<div class="fishbones">${hasCbc ? cbcSvg(r) : ''}${hasChem ? chemSvg(r) : ''}`
-    + `${when ? `<span class="fbwhen">${esc(fmtDate(when))}</span>` : ''}</div>`;
+  const cbcAt = CBC_KEYS.map(r).find(Boolean);
+  const chemAt = CHEM_KEYS.map(r).find(Boolean);
+  const one = (svg: string, at?: Reading) =>
+    `<span class="fbgroup">${svg}${at ? `<span class="fbstamp">${esc(stamp(at))}</span>` : ''}</span>`;
+  return '<div class="fishbones">'
+    + (hasCbc ? one(cbcSvg(r), cbcAt) : '')
+    + (hasChem ? one(chemSvg(r), chemAt) : '')
+    + '</div>';
 }
 
 /* ---------------------------------------------------- everything else */
@@ -194,6 +202,9 @@ const FIRST = ['A1c', 'LDL', 'HDL', 'TG', 'TC', 'TSH', 'FT4'];
  *
  * Ordered by what this practice acts on: the two numbers a lifestyle
  * and prevention practice runs on first, then the rest as resulted.
+ *
+ * Each one carries its own month under it, because unlike a panel
+ * these did not all come from the same draw.
  */
 export function otherLabsHtml(panels: LabPanel[]): string {
   const seen = new Set<string>();
@@ -209,15 +220,28 @@ export function otherLabsHtml(panels: LabPanel[]): string {
   if (rest.length === 0) return '';
   const rank = (k: string) => (FIRST.indexOf(k) < 0 ? FIRST.length : FIRST.indexOf(k));
   rest.sort((a, b) => rank(a.key) - rank(b.key));
-  const when = rest.map((x) => x.when).sort().pop();
   return '<div class="otherlabs">'
     + rest.map((x) => `<span class="olitem${x.flagged ? ' bad' : ''}" title="${esc(tip(x))}">`
-      + `<span class="olname">${esc(x.name)}</span> ${esc(x.value)}`
+      + `<span class="olval"><span class="olname">${esc(x.name)}</span> ${esc(x.value)}`
       + (x.prev ? `<span class="fbprev"> (${esc(x.prev)})</span>` : '')
-      + '</span>').join('')
-    + `${when ? `<span class="fbwhen">${esc(fmtDate(when))}</span>` : ''}</div>`;
+      + `</span><span class="fbstamp">${esc(stamp(x))}</span></span>`).join('')
+    + '</div>';
 }
 
+/**
+ * What the brackets mean, said once.
+ *
+ * Every value here is the most recent on file with the one before it
+ * beside it. Printing that convention under each value is the
+ * convention taking more room than the numbers; printing it once is
+ * a reader learning it once.
+ */
+export const LABS_NOTE =
+  'Each value is the most recent result on file, with the one before it in brackets.';
+
 /** Both, in the order they are read: the skeletons, then the rest. */
-export const labsHtml = (panels: LabPanel[]): string =>
-  fishboneHtml(panels) + otherLabsHtml(panels);
+export function labsHtml(panels: LabPanel[]): string {
+  const body = fishboneHtml(panels) + otherLabsHtml(panels);
+  if (!body) return '';
+  return `${body}<p class="labsnote">${LABS_NOTE}</p>`;
+}

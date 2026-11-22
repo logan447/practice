@@ -14,7 +14,7 @@ import type {
   PreVisit, Order
 } from '../domain/types';
 
-const MD = { author: 'clinician' as const, by: 'L. DuBose, MD', recorded: '2026-11-14' };
+const MD = { author: 'clinician' as const, by: 'Logan L. DuBose, MD, MBA', recorded: '2026-11-14' };
 const SRC = (doc: string, d: string) => ({
   author: 'source' as const, by: doc, recorded: d, sources: [doc]
 });
@@ -256,13 +256,13 @@ export const resultReports: ResultReport[] = [
     resulted: '2026-11-06', worstFlag: 'high', acknowledged: false, seriesIds: ['r1', 'r2', 'r3', 'r6'] },
   { id: 'rr3', patientId: 'p2', panel: 'Iron studies',
     resulted: '2026-10-22', worstFlag: 'low', acknowledged: true,
-    acknowledgedBy: 'L. DuBose, MD', acknowledgedAt: '2026-10-23', seriesIds: ['r8'] },
+    acknowledgedBy: 'Logan L. DuBose, MD, MBA', acknowledgedAt: '2026-10-23', seriesIds: ['r8'] },
 ];
 
 export const carePlans: CarePlan[] = [
   {
     id: 'cp1', patientId: 'p1', version: 4, updated: '2026-09-02', signed: true,
-    signedBy: 'L. DuBose, MD', provenance: MD,
+    signedBy: 'Logan L. DuBose, MD, MBA', provenance: MD,
     summary: 'Reversing prediabetes without medicine, and getting to a place where coming off the blood pressure tablet is a reasonable thing to try.',
     goals: [
       { id: 'g1', title: 'Keep A1c under 5.7', why: 'This is the number that says prediabetes is behind him.',
@@ -287,7 +287,7 @@ export const carePlans: CarePlan[] = [
   },
   {
     id: 'cp2', patientId: 'p2', version: 2, updated: '2026-07-14', signed: true,
-    signedBy: 'L. DuBose, MD', provenance: MD,
+    signedBy: 'Logan L. DuBose, MD, MBA', provenance: MD,
     summary: 'Work with the rota rather than against it. Iron first, then sleep timing, then the metabolic numbers.',
     goals: [
       { id: 'g5', title: 'Ferritin above 50', why: 'The tiredness is not only the shifts.',
@@ -303,7 +303,7 @@ export const carePlans: CarePlan[] = [
   },
   {
     id: 'cp3', patientId: 'p3', version: 6, updated: '2026-07-21', signed: true,
-    signedBy: 'L. DuBose, MD', provenance: MD,
+    signedBy: 'Logan L. DuBose, MD, MBA', provenance: MD,
     summary: 'Protect the kidney, keep cardiology’s plan intact, and make the day-to-day manageable at home.',
     goals: [
       { id: 'g10', title: 'Slow the eGFR decline', why: 'The number that decides how the next ten years go.',

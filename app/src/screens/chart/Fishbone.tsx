@@ -6,7 +6,7 @@
  * hovered, and two drawings of a chem-7 that drift apart is a reader
  * being taught the diagram twice.
  */
-import { fishboneHtml, otherLabsHtml } from '../../lib/fishbone';
+import { fishboneHtml, otherLabsHtml, LABS_NOTE } from '../../lib/fishbone';
 import type { LabPanel } from '../../domain/types';
 
 export function Fishbone({ panels }: { panels: LabPanel[] }) {
@@ -18,5 +18,10 @@ export function Fishbone({ panels }: { panels: LabPanel[] }) {
 export function OtherLabs({ panels }: { panels: LabPanel[] }) {
   const html = otherLabsHtml(panels);
   if (!html) return null;
-  return <div dangerouslySetInnerHTML={{ __html: html }} />;
+  return (
+    <>
+      <div dangerouslySetInnerHTML={{ __html: html }} />
+      <p className="labsnote">{LABS_NOTE}</p>
+    </>
+  );
 }

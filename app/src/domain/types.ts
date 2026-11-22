@@ -436,6 +436,13 @@ export interface VisitNote {
   plan: {
     problems: PlanProblem[];
     overall: string;
+    /**
+     * The last line of the note: when they are coming back, how far
+     * off that is, and what it is for. Kept apart from the patient's
+     * instructions because it is the one line of a note that both
+     * the patient and the next clinician read.
+     */
+    followUp?: string;
   };
 }
 

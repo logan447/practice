@@ -1,4 +1,4 @@
-/* Direct Lifestyle Medicine EMR — visual foundation.
+/* Lifestyle and Preventative Medicine Clinic EMR — visual foundation.
  *
  * Shares the practice's typographic DNA (Source Serif 4 for headings,
  * Source Sans 3 for everything else, juniper as the accent) but not the
@@ -2516,6 +2516,12 @@ blockquote.said footer {
   .fax p, .fax td { hyphens: auto; }
   .fax .none { color: #000; font-style: italic; }
   .fax .svc { font-weight: 700; margin-top: 8pt; text-align: left; }
+  .fax .rosline { text-align: left; margin: 0; }
+  /* Red for a reader on a screen or a saved PDF, bold so it survives
+     a fax, which turns every colour into the same grey. */
+  .fax .rospos { color: #b3261e; font-weight: 700; }
+  /* Room under the cross for the month stamp. */
+  .fax .fbgroup .fbstamp { margin-top: 1pt; }
   /* A point is an instruction. Justifying one stretches four words
      across six inches. */
   .fax .pt { margin-left: 12pt; text-align: left; }
@@ -2529,19 +2535,29 @@ blockquote.said footer {
   .faxcontact { margin-top: 12pt; }
   .faxsub { color: #000; margin: 0 0 2pt; text-align: left; }
   .faxone { margin: 8pt 0 0; }
-  .faxsign { margin-top: 18pt; page-break-inside: avoid; }
+  .faxfollow { margin: 12pt 0 0; text-align: left; font-weight: 700; }
+  .faxsign { margin-top: 16pt; page-break-inside: avoid; text-align: left; }
   .faxsign p { margin: 0; }
+  /* The signature. A rendering in a script face, not a scan: it is
+     the physician's own name on their own note, and the typed name
+     and the date under it are what actually authenticate it. */
+  .faxhand {
+    font-family: 'Dancing Script', cursive;
+    font-size: 24pt; line-height: 1.1; margin: 0 0 2pt;
+  }
   /* The identifier, repeated at the top of every page by the one
      mechanism every engine implements. */
   /* Fixed, or the cell sizes to its longest paragraph and the text
      runs off the right edge of the page. */
   .faxpage { width: 100%; table-layout: fixed; border-collapse: collapse; }
   .faxpage td, .faxpage th { padding: 0; }
+  /* No rule under it. It is the line the note starts with, not a
+     banner over the note. */
   .faxrun {
     text-align: left; font-weight: 400; font-size: 11pt;
-    padding-bottom: 3pt; border-bottom: 1px solid #000;
+    padding-bottom: 2pt;
   }
-  .faxnote { padding-top: 7pt; }
+  .faxnote { padding-top: 0; }
   @page { margin: 0.5in; }
 
   /* The lab shorthand prints as it is drawn, in black. */
@@ -2554,9 +2570,7 @@ blockquote.said footer {
   /* A fax is one bit per pixel, so an abnormal value is bold rather
      than coloured. Colour arrives at the other end as grey. */
   .fax .fbnum.bad { fill: #000; font-weight: 700; }
-  .fax .olitem.bad { color: #000; font-weight: 700; }
   .fax .fbprev { font-size: 9pt; fill: #000; }
-  .fax .fbwhen { font-size: 9pt; }
   /* Flex, so the nowrap items break between themselves. As inline
      spans joined without whitespace there is no break opportunity
      and the row runs off the page. */
@@ -2564,7 +2578,12 @@ blockquote.said footer {
     display: flex; flex-wrap: wrap; gap: 1pt 12pt;
     margin: 2pt 0 6pt; text-align: left; font-size: 11pt;
   }
-  .fax .olitem { white-space: nowrap; }
+  .fax .olitem { display: inline-flex; flex-direction: column; white-space: nowrap; }
+  .fax .olitem.bad .olval { color: #000; font-weight: 700; }
+  .fax .olitem.bad .olname { font-weight: 400; }
+  .fax .fbstamp { display: block; font-size: 8pt; line-height: 1.2; }
+  .fax .fbgroup { display: inline-flex; flex-direction: column; align-items: center; }
+  .fax .labsnote { font-size: 9pt; margin: 2pt 0 6pt; text-align: left; }
   .fax .olname { color: #000; }
 }
 
@@ -2600,6 +2619,12 @@ blockquote.said footer {
 /* The points of a plan, under the sentence that leads into them. */
 .nreadline.bull { padding-left: 3px; text-align: left; }
 .nreadsec, .nreadline:has(strong) { text-align: left; }
+
+/* The formal review. Twelve lines that say nothing and two that do:
+   the shape of the block is the finding, so the two are the part
+   that is coloured. */
+.rosline { text-align: left; }
+.rospos { color: var(--crit); font-weight: 600; }
 .nreadline:not(.bull) + .nreadline.bull { margin-top: 7px; }
 
 /* The label over a run of the note: Medical, Lifestyle, Preventative.
@@ -2646,10 +2671,24 @@ blockquote.said footer {
   display: flex; flex-wrap: wrap; gap: 5px 18px;
   margin-top: 14px; font-size: 13.5px; color: var(--ink);
 }
-.olitem { white-space: nowrap; cursor: help; font-variant-numeric: tabular-nums; }
-.olitem.bad { color: var(--warn); font-weight: 600; }
+.olitem {
+  display: inline-flex; flex-direction: column;
+  white-space: nowrap; cursor: help; font-variant-numeric: tabular-nums;
+}
+/* The value carries the flag, not the name of the test. */
+.olitem.bad .olval { color: var(--warn); font-weight: 600; }
+.olitem.bad .olname { color: var(--ink-3); font-weight: 400; }
 .olname { color: var(--ink-3); }
 /* The date the shorthand was drawn from. A fishbone prints no dates,
    which is its whole speed, but a value with no date on a page
    somebody else reads is a value they cannot act on. */
-.fbwhen { font-size: 12px; color: var(--ink-3); white-space: nowrap; }
+/* The month a value was drawn, under the value. The day a blood test
+   was taken almost never changes what you do; the month often does,
+   and "10/26" is the whole date in the room a number leaves. */
+.fbstamp {
+  display: block; font-size: 11px; line-height: 1.3; color: var(--ink-3);
+  white-space: nowrap;
+}
+.fbgroup { display: inline-flex; flex-direction: column; align-items: center; }
+.fbgroup .fbstamp { margin-top: 1px; }
+.labsnote { margin: 8px 0 0; font-size: 12px; color: var(--ink-3); }

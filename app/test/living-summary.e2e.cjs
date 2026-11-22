@@ -128,8 +128,30 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     && !/\u2014 (Holding|Struggling)/.test(plan));
   ok('and a pillar is written once, under its own heading',
     plan.split('Twenty minutes of walking').length === 2);
+  const subj = await noteText(p,'subjective');
   ok('and the subjective with their own words about each',
-    (await noteText(p,'subjective')).includes('Patient reports'));
+    subj.includes('Patient reports'));
+  // The three or four things you ask about because of the problem in
+  // front of you, at the end of that problem's line. Different per
+  // problem, and never under a pillar or a service.
+  ok('each problem ends in its own pertinent negatives',
+    /Essential hypertension[^\n]*Denies chest pain[^\n]*ankle swelling\./.test(subj)
+    && /Type 2 diabetes[^\n]*Denies excessive thirst[^\n]*shakiness between meals\./.test(subj));
+  ok('and a pillar or a service carries none',
+    !/Physical activity[^\n]*Denies/.test(subj) && !/Mammogram[^\n]*Denies/.test(subj));
+  // The sweep for what the problem list would not have asked about,
+  // at the foot of the section. A system the patient's own words
+  // raised reads as a positive; the rest say nothing was reported,
+  // which is true, rather than that they were asked and denied.
+  ok('a formal review closes the subjective',
+    subj.includes('Review of systems')
+    && /Constitutional: no symptoms reported\./.test(subj));
+  ok('with the positives taken from what the patient actually said',
+    /Musculoskeletal: knee pain\./.test(subj)
+    && /Endocrine: shakiness in the evenings\./.test(subj));
+  ok('and the positives are the part that is marked',
+    (await p.locator('.rospos').count())===2
+    && (await p.locator('.rospos').first().textContent()).includes('knee pain'));
   // Status is a sentence you wrote, not a button you picked.
   ok('nothing sets a status by button',
     (await p.locator('.note .btn').count())===0);
