@@ -114,8 +114,18 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     && plan.includes('Continue Lisinopril 20 mg, one tablet each morning'));
   ok('the points of the plan are verbs, not labels',
     /\u2022 Referral to Dr\. /.test(plan)
-    && plan.includes('\u2022 Order mammogram')
+    && /\u2022 Continue \w+ \d/.test(plan)
     && plan.includes('\u2022 Lifestyle interventions as below'));
+  // A preventative service is one line: where it stands, when it was
+  // last done, what happens next. Six of them with a heading, a
+  // sentence of dates and a bullet each was eighteen lines to say
+  // six things.
+  ok('a preventative service is one line, ending in the next step',
+    /Mammogram \u2014 Overdue, last done [^,]+, order today/.test(plan)
+    && /Colonoscopy \u2014 Up to date, last done [^,]+, no next date set/.test(plan));
+  ok('and a pillar carries only whether it has started',
+    /Physical activity \u2014 (In progress|Not started)/.test(plan)
+    && !/\u2014 (Holding|Struggling)/.test(plan));
   ok('and a pillar is written once, under its own heading',
     plan.split('Twenty minutes of walking').length === 2);
   ok('and the subjective with their own words about each',

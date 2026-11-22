@@ -161,7 +161,7 @@ type Marks = Record<string, 'ambient'>;
  * every line is wrong until somebody looks.
  */
 const EXAM = [
-  'Examination \u2014 not yet corrected. Each line is a template until it is edited.',
+  'Examination',
   'General: alert, comfortable, no distress.',
   'Cardiovascular: regular rate and rhythm, no murmur, no oedema.',
   'Respiratory: clear to auscultation, no added sounds.',
@@ -268,13 +268,20 @@ export function Encounter({ encounterId }: { encounterId: string }) {
           group: 'Lifestyle' as const,
           said: said('lifestyle', l.id),
           doing: bullets([l.prescription.replace(/\.$/, '')]),
-          standing: l.status === 'achieved' ? 'Holding'
-            : l.status === 'active' ? 'In progress'
-              : l.status === 'struggling' ? 'Struggling' : 'Not started',
-          // What is in the way is the reason it stands where it
-          // stands, so it is the sentence before the prescription
-          // rather than a bullet beside it.
-          because: l.barrier ?? '',
+          /*
+           * Two states, not four.
+           *
+           * "Holding" and "Struggling" are judgments about how a
+           * person is doing, and a pillar carries one of those in
+           * every line of the subjective already. What the plan
+           * needs from this line is whether the prescription exists
+           * yet, because that is what changes what happens next.
+           */
+          standing: l.status === 'not-started' ? 'Not started' : 'In progress',
+          // The barrier belongs to the conversation, not to the
+          // plan: a second line under every pillar was the plan
+          // explaining itself rather than saying what to do.
+          because: '',
         };
       }),
       ...prevention.map((x) => ({
@@ -283,23 +290,24 @@ export function Encounter({ encounterId }: { encounterId: string }) {
         group: 'Preventative' as const,
         said: said('prevention', x.id),
         /*
-         * A bullet is a thing to do. The dates are why it is due,
-         * which is the sentence above, not a point in the plan:
-         * "Last done 11 Mar 2024" is not an action anybody takes.
+         * One line each.
+         *
+         * Where it stands, when it was last done, what happens next.
+         * Six services each with a heading, a sentence of dates and
+         * a bullet was eighteen lines to say six things, and a
+         * reader checking what is outstanding reads down one column
+         * of statuses rather than through three.
          */
-        doing: bullets([
-          x.status === 'current' ? 'No action until it is due again'
-            : `Order ${x.name.toLowerCase()}`,
-        ]),
-        standing: x.status === 'current' ? 'Up to date'
-          : x.status === 'overdue' ? 'Overdue' : 'Due',
-        because: [
-          [
-            x.lastDone ? `Last done ${fmtDate(x.lastDone)}` : 'Never recorded as done',
-            x.dueBy ? `due ${fmtDate(x.dueBy)}` : '',
-          ].filter(Boolean).join(', ') + '.',
-          x.note ?? '',
-        ].filter(Boolean).join(' '),
+        doing: '',
+        because: '',
+        standing: [
+          x.status === 'current' ? 'Up to date'
+            : x.status === 'overdue' ? 'Overdue' : 'Due',
+          x.lastDone ? `last done ${fmtDate(x.lastDone)}` : 'never done',
+          x.status === 'current'
+            ? (x.dueBy ? `next due ${fmtDate(x.dueBy)}` : 'no next date set')
+            : 'order today',
+        ].join(', '),
       })),
     ];
   }, [draft.problems, lifestyle, prevention, checkIns, conditions]);
@@ -376,7 +384,10 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       const out = [...head];
       let last = '';
       for (const ln of lines) {
-        if (ln.group !== last) { out.push(GROUP_LABEL[ln.group]); last = ln.group; }
+        if (ln.group !== last) {
+          last = ln.group;
+          if (GROUP_LABEL[ln.group]) out.push(GROUP_LABEL[ln.group]);
+        }
         out.push(ln.text);
       }
       return [...out, ...tail].filter(Boolean).join('\n\n');

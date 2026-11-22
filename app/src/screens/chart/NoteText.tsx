@@ -9,14 +9,22 @@
  * leads into them.
  */
 
-/** The three services, over the runs of the note that belong to them. */
+/**
+ * The labels over the runs of the note that belong to each service.
+ *
+ * The medical problems get none. They are what a note is about by
+ * default, they come first, and a label over them was a heading that
+ * said "this is the part of a clinical note that is clinical". The
+ * other two are departures from that default, which is exactly when
+ * a label earns its line.
+ */
 export const GROUP_LABEL = {
-  Problems: 'Medical',
+  Problems: '',
   Lifestyle: 'Lifestyle',
   Preventative: 'Preventative',
 } as const;
 
-const SERVICE_LABELS = new Set<string>(Object.values(GROUP_LABEL));
+const SERVICE_LABELS = new Set<string>(Object.values(GROUP_LABEL).filter(Boolean));
 
 /** "Essential hypertension — Patient reports ..." with the name in bold. */
 export function ReadLine({ line }: { line: string }) {

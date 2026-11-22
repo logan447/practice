@@ -216,6 +216,10 @@ function FaxNote({ patientId, encounterId, onClose }: {
     const built = buildFaxNote({
       patient: p, encounter: e, to, toPractice, faxNumber, reason,
       from: me.name, today: st.now,
+      // What had resulted by the visit date. A note is a record of
+      // one day, and a lab that arrived the week after was not in
+      // front of anybody when it was written.
+      panels: st.panelsFor(patientId).filter((pl) => pl.date <= e.date),
     });
     record(me, st.now, {
       action: 'create', resource: 'DocumentReference', resourceId: `fax-${e.id}-${st.now}`,

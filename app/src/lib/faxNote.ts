@@ -30,9 +30,10 @@
  * question, not a design one, and the text below is deliberately
  * plain rather than borrowed from another practice's form.
  */
-import type { Encounter, Patient } from '../domain/types';
+import type { Encounter, LabPanel, Patient } from '../domain/types';
 import { SETTING_LABEL } from '../domain/types';
 import { fmtDate, age } from './format';
+import { labsHtml } from './fishbone';
 
 export interface FaxInput {
   patient: Patient;
@@ -48,6 +49,14 @@ export interface FaxInput {
   /** Who is sending it, as they sign. */
   from: string;
   today: string;
+  /**
+   * The labs, for the shorthand in the objective.
+   *
+   * Filtered by the caller to what had resulted by the visit date,
+   * so an old note faxed today shows the labs that were in front of
+   * the physician, not the ones that arrived afterwards.
+   */
+  panels: LabPanel[];
 }
 
 const esc = (s: string): string => s
@@ -62,7 +71,7 @@ const esc = (s: string): string => s
  * same as it reads on the screen it was signed on. A line that is
  * only one of the three service labels is a heading of its own.
  */
-const SERVICES = new Set(['Medical', 'Lifestyle', 'Preventative']);
+const SERVICES = new Set(['Lifestyle', 'Preventative']);
 
 const body = (text?: string): string => {
   const t = (text ?? '').trim();
@@ -153,29 +162,33 @@ export function buildFaxNote(input: FaxInput): { html: string; pages: string } {
         </thead>
         <tbody><tr><td>
       <section class="faxnote">
-        <h1>Visit note</h1>
-        <p class="faxsub">
-          ${esc(p.name)} &middot; ${age(p.dob)} ${p.sex === 'female' ? 'F' : 'M'}
-          &middot; born ${fmtDate(p.dob)}
-        </p>
-        <p class="faxsub">
-          ${fmtDate(e.date)} &middot; ${esc(SETTING_LABEL[e.setting ?? 'in-person'])}
-          &middot; ${e.signedAt ? `signed ${fmtDate(e.signedAt)}` : 'not signed'}
-          &middot; Direct Lifestyle Medicine
-        </p>
+        <!--
+          One line. The name, the date of birth, the visit date and
+          the practice are on the identifier that repeats at the top
+          of every page, so printing them again under a heading was
+          the same four facts twice before the note began.
+        -->
+        <p class="faxsub"><b>Visit note</b> &middot;
+          ${age(p.dob)} ${p.sex === 'female' ? 'F' : 'M'} &middot;
+          ${esc(SETTING_LABEL[e.setting ?? 'in-person'])} &middot;
+          ${e.signedAt ? `signed ${fmtDate(e.signedAt)}` : 'not signed'}</p>
 
+        <h3>Subjective</h3>
         ${n?.subjective.oneLiner ? `<p class="faxone">${esc(n.subjective.oneLiner)}</p>` : ''}
-
-        ${sec('Subjective', [
+        ${body([
     n?.subjective.reason, n?.subjective.chartReview, n?.subjective.diagnostics,
     n?.subjective.specialists, n?.subjective.additional,
   ].filter(Boolean).join('\n\n'))}
 
-        ${sec('Objective', [n?.objective.vitals, n?.objective.exam]
-    .filter(Boolean).join('\n\n'))}
+        <h3>Objective</h3>
+        ${body(n?.objective.vitals)}
+        ${labsHtml(input.panels)}
+        ${body(n?.objective.exam)}
 
-        ${sec('Assessment', n?.assessment.overall)}
-        ${sec('Plan', plan)}
+        <h3>Assessment and plan</h3>
+        ${n?.assessment.overall?.trim() ? body(n.assessment.overall) : ''}
+        ${body(plan)}
+
         ${sec('Patient instructions', n?.plan.overall)}
 
         <div class="faxsign">
