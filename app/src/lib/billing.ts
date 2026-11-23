@@ -13,6 +13,7 @@
  * thresholds move. NEEDS-COUNSEL and NEEDS-CPA.
  */
 import type { CareLogEntry, CareProgram, EmRecord, MdmLevel } from '../domain/types';
+import { benchmarkAll } from './fees';
 
 export const PROGRAM_LABEL: Record<CareProgram, string> = {
   ccm: 'Chronic care management',
@@ -119,39 +120,249 @@ export function emLevel(em: EmRecord, newPatient = false): EmComputation {
 /* ------------------------------------------------------------------ */
 
 /**
- * The membership fee, in dollars.
+ * The flat membership fee D-039 decided, in dollars.
  *
- * The one price this practice has decided on (D-039, 2026-11-12).
- * REFRESH-AT-RUNWAY.
+ * Kept because it is what the site, the brochure and the charter all
+ * still say, and because a personalised price has to be comparable
+ * against the one that was actually decided. REFRESH-AT-RUNWAY.
  */
 export const MONTHLY_FEE = 99;
 export const YEARLY_FEE = MONTHLY_FEE * 12;
 
+/* ------------------------------------------------------------------ */
+/* what a visit is worth                                               */
+/* ------------------------------------------------------------------ */
+
+export type VisitKind = 'initial' | 'annual' | 'follow-up' | 'acute' | 'brief';
+
+export interface VisitType {
+  kind: VisitKind;
+  label: string;
+  minutes: number;
+  /** The codes this visit's work supports, which is what prices it. */
+  codes: string[];
+  /** Why the work supports those codes, in one line a reviewer can argue with. */
+  basis: string;
+  /** Nothing is charged, whatever the work was worth. */
+  free?: boolean;
+}
+
 /**
- * What one visit costs when somebody pays for visits.
+ * The five kinds of visit this practice holds, and what each is worth.
  *
- * ASSUMPTION, owned and not sourced. Nobody has set this price.
+ * The code is not decoration. It is the whole pricing argument: a
+ * cash practice that picks prices out of the air cannot answer "why
+ * that number" twice in a row, and a practice that benchmarks every
+ * visit to the code its own documentation supports can answer it
+ * every time, including to itself when it is tempted to charge more.
  *
- * It has to be its own number rather than the membership divided by
- * the visits, which is what it was until this was written. Divide
- * the membership and the two ways of paying cost the same by
- * construction, every saving comes out as zero, and the comparison
- * is arithmetic about itself. The saving on the page is this number
- * times the visits, less the membership, so if this number is wrong
- * the saving is wrong by the visits times the error.
+ * Levels are assigned on what the worked cases actually contain,
+ * not on what would be convenient:
  *
- * The repo rule is that unset inputs stay UNSET, and in the charter's
- * terms this one is UNSET: D-039 decided one price, $99 a month, and
- * a per-visit price is not a thing anybody has decided. It carries a
- * number here only because a prototype cannot render a comparison
- * against a blank, and the number is a placeholder standing in for a
- * decision, not the decision.
- *
- * So: do not quote it to a patient, do not put it in a print piece,
- * and do not let it reach anything outside this prototype until it
- * has been decided and logged.
+ * - The initial is ninety minutes, a new patient, four diagnoses
+ *   made on the day and four drugs started or stopped. That is high
+ *   complexity by any reading, plus the whole of a preventive
+ *   assessment, so it carries both codes. It is also free.
+ * - A planned review runs forty-five minutes across five or more
+ *   chronic problems with drug changes and labs at every one. That
+ *   is high complexity on medical decision making, not moderate.
+ * - An acute visit is one new problem with a differential that has
+ *   something dangerous in it and a prescription written. Moderate.
+ * - A brief visit is one stable problem and no change. Low.
  */
-export const VISIT_FEE = 350;
+export const VISIT_TYPES: Record<VisitKind, VisitType> = {
+  initial: {
+    kind: 'initial', label: 'First assessment', minutes: 90, free: true,
+    codes: ['99205', 'G0438'],
+    basis: 'New patient, ninety minutes, comprehensive history and examination, '
+      + 'multiple new diagnoses and drug management, plus the first preventive '
+      + 'assessment and the schedule that comes out of it.',
+  },
+  annual: {
+    kind: 'annual', label: 'Annual visit', minutes: 60,
+    codes: ['99215', 'G0439'],
+    basis: 'Established patient, sixty minutes, every problem reviewed against its '
+      + 'target with drug decisions on several, plus the preventive review and the '
+      + 'next year planned.',
+  },
+  'follow-up': {
+    kind: 'follow-up', label: 'Planned review', minutes: 45,
+    codes: ['99215'],
+    basis: 'Established patient, forty-five minutes, several chronic problems '
+      + 'reviewed with laboratory results and drug changes at the same visit.',
+  },
+  acute: {
+    kind: 'acute', label: 'Acute visit', minutes: 25,
+    codes: ['99214'],
+    basis: 'Established patient, one new problem, a differential that has to exclude '
+      + 'something dangerous, and prescription drug management.',
+  },
+  brief: {
+    kind: 'brief', label: 'Short visit', minutes: 20,
+    codes: ['99213'],
+    basis: 'Established patient, one stable problem, no change to treatment.',
+  },
+};
+
+/**
+ * Which of the five kinds an encounter is, from what it was recorded as.
+ *
+ * The record's own vocabulary is older and wider than this one: it
+ * knows about paperwork, home visits and wellness visits, none of
+ * which this practice prices separately. Anything outside the five
+ * falls to a planned review, which is the commonest and the one a
+ * physician would have to argue down rather than up.
+ */
+export function visitKindOf(legacy?: string): VisitKind {
+  if (legacy === 'initial') return 'initial';
+  if (legacy === 'annual' || legacy === 'awv') return 'annual';
+  if (legacy === 'acute') return 'acute';
+  if (legacy === 'paperwork' || legacy === 'review') return 'brief';
+  return 'follow-up';
+}
+
+/** What one visit of this kind costs, or undefined if a code is UNSET. */
+export function visitPrice(kind: VisitKind): number | undefined {
+  const t = VISIT_TYPES[kind];
+  return t.free ? 0 : benchmarkAll(t.codes);
+}
+
+/** What the work was worth, whether or not it was charged for. */
+export function visitWorth(kind: VisitKind): number | undefined {
+  return benchmarkAll(VISIT_TYPES[kind].codes);
+}
+
+/**
+ * Which kind of visit a booked line is, read off why it was booked.
+ *
+ * Crude on purpose. The booking carries a date and a reason in the
+ * physician's own words, and anything cleverer than looking for the
+ * word "annual" in that reason would be a classifier nobody can
+ * predict standing between a sentence and a price.
+ */
+export function kindOf(why: string): VisitKind {
+  return /\bannual\b/i.test(why) ? 'annual' : 'follow-up';
+}
+
+/* ------------------------------------------------------------------ */
+/* the year, projected and priced                                      */
+/* ------------------------------------------------------------------ */
+
+/**
+ * How much comes off the fee for service total for paying monthly.
+ *
+ * UNSET in the charter's terms: nobody has decided it, and D-039
+ * decided a flat $99 rather than a discount off anything. The number
+ * here is a placeholder.
+ *
+ * It is also the lever that decides whether this practice survives,
+ * which is worth saying plainly next to it. The membership covers
+ * unlimited acute and follow-up visits, so the practice carries the
+ * whole of the utilisation risk: a patient who comes eight times
+ * costs what eight visits cost and pays what the projection said.
+ * A discount set generously against a projection set optimistically
+ * is how a practice like this fails, and it fails about fourteen
+ * months in, which is after the point where it is easy to change.
+ */
+export const MEMBERSHIP_DISCOUNT = 0.15;
+
+export interface ProjectedVisit {
+  date?: string;
+  why: string;
+  kind: VisitKind;
+  price: number;
+  /** True where nobody has booked this and the projection expects it. */
+  projected?: boolean;
+}
+
+export interface YearPlan {
+  planned: ProjectedVisit[];
+  unplanned: ProjectedVisit[];
+  /** What the year costs paying for each visit as it happens. */
+  feeForService: number;
+  discount: number;
+  /** The fee for service year, less the discount. */
+  membershipYear: number;
+  membershipMonth: number;
+  /** What the flat price in the charter would have been, for comparison. */
+  flatYear: number;
+}
+
+/**
+ * How many visits nobody has booked but somebody should expect.
+ *
+ * ASSUMPTION, owned. A year holds at least one illness that was not
+ * on the calendar, and a patient carrying several problems that are
+ * not yet at target holds more, because the visits that titrate a
+ * drug are the ones nobody schedules a year ahead.
+ *
+ * One, plus one for every four problems off target, capped at
+ * three. Deliberately conservative: the projection sets the monthly
+ * price, so a projection that runs high charges the patient for
+ * illnesses they did not have, and one that runs low costs the
+ * practice money it could see coming. Of the two, the one that
+ * costs the practice money is the one to take, because the other
+ * one is the practice being paid for a guess.
+ *
+ * The worked case is the test of it. A man with six problems off
+ * target at his first visit is projected two unbooked visits and
+ * has one, so the projection runs a little high and the year comes
+ * out close. Close is what a projection should be. If it were
+ * reliably generous to the practice it would be a price rise
+ * wearing a model's clothes.
+ */
+export function expectedUnplanned(problemsOffTarget: number): number {
+  return Math.min(3, 1 + Math.floor(problemsOffTarget / 4));
+}
+
+/**
+ * The year ahead, priced per visit and then as a monthly fee.
+ *
+ * This is the whole commercial model in one function. The visits
+ * somebody booked are priced at what their codes are worth; the
+ * visits nobody booked but everybody should expect are added at what
+ * an acute visit is worth; the two together are what the year costs
+ * paying as you go; and the monthly fee is that total, less the
+ * discount, over twelve.
+ *
+ * The monthly fee is therefore personal. Two patients booking the
+ * same visits get the same number, and a patient with six problems
+ * off target gets a larger one than a patient with one, because the
+ * year in front of them is larger. That is the argument for pricing
+ * this way and also the argument against it, and both belong in
+ * front of whoever decides.
+ */
+export function planYear(
+  booked: { date: string; why: string }[], problemsOffTarget: number,
+): YearPlan {
+  const planned: ProjectedVisit[] = booked.filter((v) => v.date).map((v) => {
+    const kind = kindOf(v.why);
+    return { date: v.date, why: v.why, kind, price: visitPrice(kind) ?? 0 };
+  });
+  const n = expectedUnplanned(problemsOffTarget);
+  const acute = visitPrice('acute') ?? 0;
+  const unplanned: ProjectedVisit[] = Array.from({ length: n }, () => ({
+    why: 'an illness nobody has booked',
+    kind: 'acute' as VisitKind,
+    price: acute,
+    projected: true,
+  }));
+
+  const round = (x: number) => Math.round(x * 100) / 100;
+  const feeForService = round(
+    [...planned, ...unplanned].reduce((t, v) => t + v.price, 0),
+  );
+  const membershipYear = round(feeForService * (1 - MEMBERSHIP_DISCOUNT));
+  return {
+    planned,
+    unplanned,
+    feeForService,
+    discount: round(feeForService - membershipYear),
+    membershipYear,
+    membershipMonth: round(membershipYear / 12),
+    flatYear: YEARLY_FEE,
+  };
+}
 
 export interface QuotedVisit {
   date: string;
@@ -165,44 +376,26 @@ export interface Quote {
   proBonoFirst: boolean;
   visits: QuotedVisit[];
   total: number;
-  /** The per-visit price every line was charged at. */
-  each: number;
-}
-
-export interface Comparison {
-  visits: number;
-  /** The same visits, paid for one at a time. */
-  payPerVisit: number;
-  membership: number;
-  /** Positive when the membership is cheaper. */
-  saving: number;
-  /** How many visits it takes before the membership is the cheaper one. */
-  breakEven: number;
 }
 
 /**
- * The year, paid two ways.
+ * The booked visits, each priced at what its own work is worth.
  *
- * Paying per visit is the baseline, because it is what the quote
- * above already is. The membership is the alternative, and the only
- * honest way to compare them is to count the visits actually planned
- * and price both.
- *
- * On a light year the membership loses, and the note says so. That
- * is the point of printing the break-even: it tells the patient how
- * many visits it takes to turn, and one unplanned illness is usually
- * what turns it. The comparison also leaves out what only the
- * membership covers, the acute visit nobody booked and every message
- * in between, so the gap it shows is the conservative one.
+ * Not one price for everything. A forty-five minute review across
+ * five problems and a twenty minute look at one are different pieces
+ * of work, and a practice that charges the same for both is either
+ * overcharging for one or losing money on the other.
  */
-export function compare(visitCount: number, visitFee = VISIT_FEE): Comparison {
-  const payPerVisit = Math.round(visitCount * visitFee * 100) / 100;
+export function quoteYear(
+  booked: { date: string; why: string }[], firstVisit: boolean,
+): Quote {
+  const visits = booked.filter((v) => v.date).map((v) => ({
+    ...v, price: visitPrice(kindOf(v.why)) ?? 0,
+  }));
   return {
-    visits: visitCount,
-    payPerVisit,
-    membership: YEARLY_FEE,
-    saving: Math.round((payPerVisit - YEARLY_FEE) * 100) / 100,
-    breakEven: Math.ceil(YEARLY_FEE / visitFee),
+    proBonoFirst: firstVisit,
+    visits,
+    total: Math.round(visits.reduce((t, v) => t + v.price, 0) * 100) / 100,
   };
 }
 
@@ -220,8 +413,9 @@ export function compare(visitCount: number, visitFee = VISIT_FEE): Comparison {
  * including the visit being written, because it is being charged for.
  */
 export function yearBehind(
-  encounters: { id: string; date: string; status: string }[], upTo: string,
-): { visits: number; since: string } | undefined {
+  encounters: { id: string; date: string; status: string; visitKind?: VisitKind }[],
+  upTo: string,
+): { visits: number; since: string; paid: number } | undefined {
   const signed = encounters
     .filter((e) => e.status === 'signed' && e.date <= upTo)
     .sort((a, b) => a.date.localeCompare(b.date));
@@ -238,8 +432,12 @@ export function yearBehind(
 
   const charged = signed.filter((e) => e.id !== first.id && e.date >= from);
   if (charged.length === 0) return undefined;
+  const paid = charged.reduce(
+    (t, e) => t + (visitPrice(e.visitKind ?? 'follow-up') ?? 0), 0,
+  );
   return {
     visits: charged.length,
+    paid: Math.round(paid * 100) / 100,
     // Where the free first visit is inside the window it is still
     // where the year started, and saying so is more use than the
     // date of the first visit that happened to be charged for.
@@ -247,31 +445,6 @@ export function yearBehind(
   };
 }
 
-/**
- * The year ahead, priced at the visit that plans it.
- *
- * A patient paying cash wants to know the year, not today. So the
- * visits booked out of this encounter are the quote: the same number
- * of lines, in the same order, with a price on each and a total at
- * the foot. Quoted once and fixed, and quoted again at the next
- * annual when the next year is planned.
- *
- * Every line is priced at VISIT_FEE, the same whoever is sitting in
- * the chair and whatever the visit turns out to hold. A practice
- * paid in cash can say what a visit costs before it happens, which
- * is most of why anybody would choose to be paid this way.
- */
-export function quoteYear(
-  booked: { date: string; why: string }[], firstVisit: boolean,
-): Quote {
-  const visits = booked.filter((v) => v.date);
-  return {
-    proBonoFirst: firstVisit,
-    each: VISIT_FEE,
-    visits: visits.map((v) => ({ ...v, price: VISIT_FEE })),
-    total: Math.round(VISIT_FEE * visits.length * 100) / 100,
-  };
-}
 
 /* ------------------------------------------------------------------ */
 /* the visit complexity add-on                                         */

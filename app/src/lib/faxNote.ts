@@ -37,7 +37,12 @@ import { SETTING_LABEL } from '../domain/types';
 import { fmtDate, age } from './format';
 import { labsHtml } from './fishbone';
 import { vitalsHtml } from './vitals';
-import { quoteYear, compare, MONTHLY_FEE, VISIT_FEE } from './billing';
+import {
+  planYear, visitPrice, visitWorth, VISIT_TYPES, MEMBERSHIP_DISCOUNT,
+} from './billing';
+import type { VisitKind } from './billing';
+import { CONVERSION_FACTOR } from './fees';
+import { SECTION_HEADINGS } from '../domain/noteTemplate';
 import { ROS_LINE } from '../domain/ros';
 
 export interface FaxInput {
@@ -71,6 +76,21 @@ export interface FaxInput {
   booked?: { date: string; why: string }[];
   /** What this visit itself costs, where it was quoted at an earlier one. */
   quotedAt?: { price: number; on: string; of: number };
+  /** Which kind of visit this is, which is what prices it. */
+  visitKind?: VisitKind;
+  /**
+   * How many problems are off target, which sets how many visits
+   * nobody has booked the projection should expect.
+   */
+  problemsOffTarget?: number;
+  /**
+   * What the membership quoted for the year behind would have cost.
+   *
+   * Read off the note that quoted it rather than recomputed, so
+   * the comparison is against the price somebody was actually
+   * given and not against one worked out with hindsight.
+   */
+  yearBehindMembership?: number;
   /**
    * The twelve months behind this visit, where there are any.
    *
@@ -80,7 +100,7 @@ export interface FaxInput {
    * The two differ by whatever went wrong, and the difference is
    * the whole of the argument for paying by the year instead.
    */
-  yearBehind?: { visits: number; since: string };
+  yearBehind?: { visits: number; since: string; paid: number };
   /**
    * Whether to put a cover sheet on the front.
    *
@@ -124,11 +144,19 @@ const esc = (s: string): string => s
  * same as it reads on the screen it was signed on. A line that is
  * only one of the three service labels is a heading of its own.
  */
+/*
+ * The lines that are headings rather than content.
+ *
+ * Taken from the note template rather than listed again here, so
+ * that adding a section to the template cannot leave the fax
+ * rendering its heading as an ordinary sentence. The extras are
+ * the objective's own headings, which the template does not cover
+ * because they are generated rather than written.
+ */
 const SERVICES = new Set([
-  'Lifestyle', 'Preventative', 'Review of systems',
-  'Vitals', 'Labs', 'Physical Exam', 'Surveys', 
-  'Full problem list', 'Medications', 'Care team',
-  'Preventative Medicine Services',
+  ...SECTION_HEADINGS,
+  'Preventative',
+  'Vitals', 'Labs', 'Physical Exam', 'Surveys',
 ]);
 
 const SURVEY_LINE =
@@ -198,119 +226,133 @@ const steps = (text: string): string => {
 
 
 /**
- * What this costs, and what the year costs.
+ * What this costs, what the year costs, and what a membership would.
  *
- * Cash. There is no claim, no code and no payer, so there is nothing
- * to translate: the number on this page is the number the patient
- * pays, which is the whole argument for charging this way.
+ * Cash. No claim is filed and no insurer is billed, so the number on
+ * this page is the number the patient pays, which is the whole
+ * argument for charging this way.
  *
- * A first assessment is free. What is charged is the year that comes
- * out of it, quoted at the visit that plans it and fixed for twelve
- * months, then quoted again at the next annual when the next year is
- * planned. So the section reads differently on a first visit, where
- * it is a quote, than on the visits inside that year, where it is a
- * receipt against one.
+ * Every price is benchmarked rather than chosen. A visit is worth
+ * what the published national fee schedule pays for the code the
+ * visit's own documentation supports, so the answer to "why that
+ * number" is a code and a rate somebody else published, not a
+ * judgment about what this patient will tolerate.
+ *
+ * A first assessment is free. What comes out of it is the year: the
+ * visits that were booked, priced one by one, plus the visits nobody
+ * books but everybody should expect, and then the same year offered
+ * as a monthly fee that covers all of it and anything unplanned. So
+ * the section reads as a quote at a first visit, a receipt at the
+ * visits inside that year, and both at the annual.
  */
 function billing(input: FaxInput): string {
   const booked = (input.booked ?? []).filter((v) => v.date);
+  const off = input.problemsOffTarget ?? 0;
   const rows: string[] = [];
+  const money = (n: number) => `$${n.toFixed(2)}`;
 
+  /** One priced line of a year, with what makes it that price. */
+  const line = (v: { date?: string; why: string; kind: VisitKind; price: number }) =>
+    `<tr><td>${v.date ? fmtDate(v.date) : 'expected'}</td>`
+    + `<td>${esc(v.why || 'review')}<br><span class="faxbasis">`
+    + `${esc(VISIT_TYPES[v.kind].label)}, ${esc(VISIT_TYPES[v.kind].codes.join(' and '))}`
+    + `</span></td>`
+    + `<td class="faxmoney">${money(v.price)}</td></tr>`;
+
+  /**
+   * The year ahead, as a table and then as a monthly fee.
+   *
+   * Written once and used at both the visits that price a year: the
+   * first assessment and every annual after it.
+   */
+  const yearAhead = () => {
+    const plan = planYear(booked, off);
+    const all = [...plan.planned, ...plan.unplanned];
+    if (all.length === 0) return;
+    rows.push('<tr><th>The year ahead</th><td>'
+      + 'Each visit priced at what its own work is worth, and the visits nobody '
+      + 'books but everybody should expect added at the bottom.'
+      + `<table class="faxquote"><tbody>${all.map(line).join('')}`
+      + '<tr class="faxtotal"><td></td><td>Paying for each visit as it happens</td>'
+      + `<td class="faxmoney">${money(plan.feeForService)}</td></tr>`
+      + '</tbody></table></td></tr>');
+    rows.push('<tr><th>Or a membership</th><td>'
+      + `${money(plan.feeForService)} less ${Math.round(MEMBERSHIP_DISCOUNT * 100)} `
+      + `per cent is ${money(plan.membershipYear)}, which is `
+      + `<b>${money(plan.membershipMonth)} a month</b>. `
+      + 'It covers every visit above and any other visit this year, acute or '
+      + 'planned, with nothing charged per visit. '
+      + `The ${plan.unplanned.length} unbooked `
+      + `${plan.unplanned.length === 1 ? 'visit is' : 'visits are'} an estimate; `
+      + 'the membership is what makes being wrong about it cost nothing.'
+      + '</td></tr>');
+  };
+
+  // ---------------------------------------------------------- this visit
   if (input.newPatient) {
-    rows.push('<tr><th>This visit</th><td>No charge. A first assessment is '
-      + 'pro bono.</td></tr>');
-    if (booked.length > 0) {
-      const q = quoteYear(booked, true);
-      const lines = q.visits.map((v) => `<tr><td>${fmtDate(v.date)}</td>`
-        + `<td>${esc(v.why || 'review')}</td>`
-        + `<td class="faxmoney">$${v.price.toFixed(2)}</td></tr>`).join('');
-      rows.push(`<tr><th>The year ahead</th><td>Quoted today and fixed for twelve `
-        + `months. ${q.visits.length} `
-        + `${q.visits.length === 1 ? 'visit' : 'visits'} `
-        + `at $${q.each.toFixed(2)}${q.visits.length === 1 ? '' : ' each'}.`
-        + `<table class="faxquote"><tbody>${lines}`
-        + `<tr class="faxtotal"><td></td><td>Total</td>`
-        + `<td class="faxmoney">$${q.total.toFixed(2)}</td></tr></tbody></table></td></tr>`);
-      const c = compare(booked.length);
-      rows.push('<tr><th>Or a membership</th><td>'
-        + `$${MONTHLY_FEE} a month, $${c.membership.toFixed(2)} for the year, `
-        + 'covering the visits above and any other visit this year, with no '
-        + 'charge per visit. Against the '
-        + `$${c.payPerVisit.toFixed(2)} above it is `
-        + (c.saving > 0
-          ? `$${c.saving.toFixed(2)} less`
-          : `$${Math.abs(c.saving).toFixed(2)} more`)
-        + `, and it turns at ${c.breakEven} visits in a year. `
-        + `${c.visits} ${c.visits === 1 ? 'is' : 'are'} booked, so one unplanned `
-        + 'illness is what decides it.</td></tr>');
-    } else {
-      rows.push('<tr><th>The year ahead</th><td>Not quoted: no visits were booked '
-        + 'at this one, so there is no year to price.</td></tr>');
-    }
+    const worth = visitWorth('initial');
+    rows.push('<tr><th>This visit</th><td>No charge. A first assessment is pro bono.'
+      + (worth === undefined ? '' : ` The work is ${VISIT_TYPES.initial.minutes} `
+        + `minutes, ${esc(VISIT_TYPES.initial.codes.join(' and '))}, which the `
+        + `benchmark values at ${money(worth)}.`)
+      + '</td></tr>');
   } else if (input.quotedAt) {
-    rows.push(`<tr><th>This visit</th><td>$${input.quotedAt.price.toFixed(2)}, quoted on `
+    rows.push(`<tr><th>This visit</th><td>${money(input.quotedAt.price)}, quoted on `
       + `${fmtDate(input.quotedAt.on)} as one of ${input.quotedAt.of} visits for the `
       + 'year.</td></tr>');
   } else {
-    rows.push('<tr><th>This visit</th><td>Not in the year that was quoted. Priced at '
-      + 'the same rate as a planned visit and added to the year.</td></tr>');
+    /*
+     * A visit the quote did not hold. It is priced at what it is
+     * worth rather than at what a planned visit costs, because an
+     * acute visit is a smaller piece of work and charging the planned
+     * price for it would be the practice profiting from an illness.
+     */
+    const k: VisitKind = input.visitKind ?? 'acute';
+    const p = visitPrice(k);
+    rows.push('<tr><th>This visit</th><td>'
+      + (p === undefined
+        ? 'Not in the year that was quoted, and not priced: the code this work '
+          + 'supports has no rate on file.'
+        : `${money(p)}. Not in the year that was quoted, so it is priced on its own: `
+          + `${esc(VISIT_TYPES[k].label.toLowerCase())}, `
+          + `${esc(VISIT_TYPES[k].codes.join(' and '))}. `
+          + 'A shorter visit costs less than a planned review, which is why it is '
+          + 'not charged at the planned rate.')
+      + '</td></tr>');
   }
 
+  // ------------------------------------------------------- the year behind
   if (!input.newPatient && booked.length > 0) {
     /*
      * The year that just ended, priced both ways.
      *
      * Only at the visit that closes a quoted year and prices the next
-     * one, which in practice is the annual. Printed at a visit in the
-     * middle of a year it would set three months of visits against
-     * twelve months of membership and make paying per visit look
-     * cheap for the arithmetic reason that the year is not over.
-     *
-     * It is also the one place the comparison is made out of what
-     * happened rather than out of what somebody expected to happen,
-     * which is the only honest way to tell somebody what a membership
-     * would have saved them.
+     * one, which in practice is the annual. Printed mid-year it would
+     * set three months of visits against twelve months of membership
+     * and make paying per visit look cheap for the arithmetic reason
+     * that the year is not over.
      */
     const yb = input.yearBehind;
-    if (yb && yb.visits > 0) {
-      const c = compare(yb.visits);
+    if (yb && yb.visits > 0 && yb.paid !== undefined) {
+      const wouldHave = input.yearBehindMembership;
       rows.push('<tr><th>The year behind</th><td>'
         + `${yb.visits} charged visit${yb.visits === 1 ? '' : 's'} since `
-        + `${fmtDate(yb.since)}, which came to $${c.payPerVisit.toFixed(2)}. `
-        + `A membership for the same year would have been $${c.membership.toFixed(2)}, `
-        + (c.saving > 0
-          ? `so paying by the visit cost $${c.saving.toFixed(2)} more than a `
-            + 'membership would have.'
-          : c.saving < 0
-            ? `so paying by the visit cost $${Math.abs(c.saving).toFixed(2)} less `
-              + 'than a membership would have.'
-            : 'so the two came to the same.')
+        + `${fmtDate(yb.since)}, which came to ${money(yb.paid)}. `
+        + (wouldHave === undefined
+          ? 'No membership was quoted for it.'
+          : `The membership quoted for that year was ${money(wouldHave)}, so paying `
+            + 'by the visit cost '
+            + (yb.paid > wouldHave
+              ? `${money(yb.paid - wouldHave)} more than the membership would have.`
+              : yb.paid < wouldHave
+                ? `${money(wouldHave - yb.paid)} less than the membership would have.`
+                : 'the same as the membership would have.'))
         + '</td></tr>');
     }
-    const q = quoteYear(booked, false);
-    const lines = q.visits.map((v) => `<tr><td>${fmtDate(v.date)}</td>`
-      + `<td>${esc(v.why || 'review')}</td>`
-      + `<td class="faxmoney">$${v.price.toFixed(2)}</td></tr>`).join('');
-    rows.push('<tr><th>The year ahead</th><td>'
-      + `Quoted today and fixed for twelve months. ${q.visits.length} `
-      + `${q.visits.length === 1 ? 'visit' : 'visits'} `
-      + `at $${q.each.toFixed(2)}${q.visits.length === 1 ? '' : ' each'}.`
-      + `<table class="faxquote"><tbody>${lines}`
-      + '<tr class="faxtotal"><td></td><td>Total</td>'
-      + `<td class="faxmoney">$${q.total.toFixed(2)}</td></tr>`
-      + '</tbody></table></td></tr>');
-    const c = compare(q.visits.length);
-    rows.push('<tr><th>Or a membership</th><td>'
-      + `$${MONTHLY_FEE} a month, $${c.membership.toFixed(2)} for the year, `
-      + 'covering the visits above and any other visit, with no charge per visit. '
-      + `Against the $${c.payPerVisit.toFixed(2)} above it is `
-      + (c.saving > 0
-        ? `$${c.saving.toFixed(2)} less`
-        : `$${Math.abs(c.saving).toFixed(2)} more`)
-      + `, and it turns at ${c.breakEven} visits in a year`
-      + (input.yearBehind
-        ? `. The year just gone held ${input.yearBehind.visits}.</td></tr>`
-        : '.</td></tr>'));
   }
+
+  // -------------------------------------------------------- the year ahead
+  if (input.newPatient || booked.length > 0) yearAhead();
 
   rows.push(
     '<tr><th>Included</th><td>Each visit above, and the messaging and coordination '
@@ -319,11 +361,12 @@ function billing(input: FaxInput): string {
     '<tr><th>Not included</th><td>Laboratory tests, imaging, medicines and anything '
       + 'done by another practice. Those are billed to the patient by whoever '
       + 'provides them.</td></tr>',
-    `<tr><th>How it is set</th><td>$${VISIT_FEE.toFixed(2)} a visit, whoever is in `
-      + 'the chair and whatever the visit turns out to hold, or '
-      + `$${MONTHLY_FEE} a month, which covers every visit in the year. Two prices, `
-      + 'decided once and the same for everybody. Sliding-scale and pro bono '
-      + 'places exist and are arranged separately.</td></tr>',
+    '<tr><th>How it is priced</th><td>Each visit is worth what the published 2026 '
+      + 'national fee schedule pays for the code its own documentation supports, '
+      + `at ${CONVERSION_FACTOR} dollars per relative value unit. No claim is filed `
+      + 'and no insurance is billed; the schedule is used as a benchmark so that '
+      + 'every price has an answer to why it is that number. Sliding-scale and pro '
+      + 'bono places exist and are arranged separately.</td></tr>',
   );
 
   return `<h3>Billing</h3><table class="faxto faxbill"><tbody>${rows.join('')}</tbody></table>`;

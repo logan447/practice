@@ -32,9 +32,19 @@ async function faxOf(p, date) {
   await p.fill('.faxform .fld:has-text("Fax number") input', '(512) 555-0412');
   await p.click('.faxform .btn:has-text("Preview the note")');
   await p.waitForTimeout(600);
-  const t = (await p.locator('.faxout').innerText()).replace(/\s+/g, ' ');
+  const raw = await p.locator('.faxout').innerText();
+  /*
+   * The headings off the DOM rather than out of the text. The
+   * printed page is hidden on screen, so its innerText is really
+   * its textContent and every line break is gone; and "Lifestyle"
+   * appears in the power statement as a word long before it
+   * appears as a heading.
+   */
+  const heads = await p.locator('.faxout .svc').allTextContents();
   await p.keyboard.press('Escape');
   await p.waitForTimeout(400);
+  const t = new String(raw.replace(/\s+/g, ' '));
+  t.lines = heads.map((h) => h.trim());
   return t;
 }
 
@@ -77,24 +87,37 @@ async function faxOf(p, date) {
     /Obstructive sleep apnoea — Not assessed, suspected/.test(initial)
     && /no amount of advice about sleep hygiene treats an apnoea/.test(initial));
   /*
-   * The pro bono first visit and the quote that comes out of it. The
-   * membership loses on a three visit year and the note says so,
-   * because a comparison that always favours the thing being sold is
-   * not a comparison.
+   * The pro bono first visit and the year that comes out of it.
+   *
+   * Every figure here is derived from the code the visit's own
+   * documentation supports, so a change to one rate has to move all
+   * of them together or one of these assertions is wrong. The year is
+   * two planned reviews at 99215, an annual at 99215 and G0439, and
+   * two visits nobody booked that the projection expects.
    */
-  ok('the first assessment is free and the year is quoted off it',
+  ok('the first assessment is free and says what the work was worth',
     /This visit\s*No charge\. A first assessment is pro bono\./.test(initial)
-    && /3 visits at \$350\.00 each/.test(initial)
-    && /Total\s*\$1050\.00/.test(initial));
-  ok('and the membership is offered honestly, dearer on a three visit year',
-    /Or a membership\s*\$99 a month, \$1188\.00 for the year/.test(initial)
-    && /Against the \$1050\.00 above it is \$138\.00 more/.test(initial)
-    && /turns at 4 visits in a year/.test(initial));
+    && /99205 and G0438, which the benchmark values at \$411\.16/.test(initial));
+  ok('the year ahead prices each visit at what its own work is worth',
+    /Planned review, 99215\s*\$192\.39/.test(initial)
+    && /Annual visit, 99215 and G0439\s*\$330\.00/.test(initial));
+  ok('and adds the visits nobody books but everybody should expect',
+    (initial.match(/an illness nobody has booked/g) || []).length === 2
+    && /Acute visit, 99214\s*\$135\.61/.test(initial)
+    && /Paying for each visit as it happens\s*\$986\.00/.test(initial));
+  ok('the membership is that year discounted and divided by twelve',
+    /\$986\.00 less 15 per cent is \$838\.10, which is \$69\.84 a month/.test(initial));
+  ok('and it says what the membership buys that paying per visit does not',
+    /covers every visit above and any other visit this year, acute or planned/
+      .test(initial));
+  ok('the basis of every price is on the page, and so is what it is not',
+    /published 2026 national fee schedule/.test(initial)
+    && /No claim is filed and no insurance is billed/.test(initial));
 
   // ----------------------------------------------- 3. three months in
   const three = await faxOf(p, '17 Feb 2026');
   ok('a visit inside the quoted year is priced from the quote, not again',
-    /This visit\s*\$350\.00, quoted on 18 Nov 2025 as one of 3 visits for the year/
+    /This visit\s*\$192\.39, quoted on 18 Nov 2025 as one of 3 visits for the year/
       .test(three));
   /*
    * Three months of visits against twelve months of membership would
@@ -113,10 +136,17 @@ async function faxOf(p, date) {
 
   // ----------------------------------------------- 4. the acute visit
   const acute = await faxOf(p, '24 Mar 2026');
-  ok('the acute visit holds one problem and triages the rest',
+  /*
+   * One problem worked, the rest triaged, and the sections it did not
+   * cover still on the page saying so. The old version of this
+   * assertion required the preventative heading to be absent, which
+   * was the behaviour the template replaced: a section that vanishes
+   * cannot be told apart from one nobody wrote down.
+   */
+  ok('the acute visit works one problem and triages the rest',
     /Gout — Not at goal, first flare/.test(acute)
-    && /triaged as stable/.test(acute)
-    && !acute.includes('Preventative Medicine Services'));
+    && /Triaged as stable/.test(acute)
+    && /The rest of the review was not performed/.test(acute));
   ok('the thing that must not be missed is named and excluded',
     /Septic arthritis is the thing that must not be missed/.test(acute));
   ok('a first flare is treated and not turned into lifelong therapy',
@@ -124,8 +154,15 @@ async function faxOf(p, date) {
     && /A first flare is not a reason to treat somebody for life/.test(acute));
   ok('the steroid is chosen over a non-steroidal for a stated reason',
     /No non-steroidal: the albuminuria and the lisinopril are the reason/.test(acute));
-  ok('and it is priced as a visit the quote did not hold',
-    /This visit\s*Not in the year that was quoted/.test(acute));
+  /*
+   * A shorter visit costs less. Charging the planned rate for an
+   * acute visit would be the practice profiting from an illness,
+   * and the note says why it does not.
+   */
+  ok('and it is priced on its own, lower than a planned review',
+    /This visit\s*\$135\.61\. Not in the year that was quoted/.test(acute)
+    && /acute visit, 99214/.test(acute)
+    && /A shorter visit costs less than a planned review/.test(acute));
 
   // ----------------------------------------------- 5. six months
   const six = await faxOf(p, '19 May 2026');
@@ -150,22 +187,72 @@ async function faxOf(p, date) {
    * visits that actually happened.
    */
   ok('the year behind is counted in charged visits and priced both ways',
-    /4 charged visits since 18 Nov 2025, which came to \$1400\.00/.test(annual)
-    && /A membership for the same year would have been \$1188\.00/.test(annual)
-    && /paying by the visit cost \$212\.00 more than a membership would have/
+    /4 charged visits since 18 Nov 2025, which came to \$850\.39/.test(annual)
+    && /The membership quoted for that year was \$838\.08/.test(annual)
+    && /paying by the visit cost \$12\.31 more than the membership would have/
       .test(annual));
+  /*
+   * Two problems are still off target rather than six, so the
+   * projection expects one unbooked visit rather than two and next
+   * year is quoted lower than the one just finished. The price is
+   * personal and it moves with the patient, which is the whole
+   * argument for pricing this way.
+   */
   ok('the next year is quoted at the visit that closes this one',
-    /The year ahead\s*Quoted today and fixed for twelve months\. 3 visits at \$350\.00 each/
-      .test(annual)
-    && /16 Nov 2027/.test(annual));
-  ok('and the membership line says what the year actually held',
-    /turns at 4 visits in a year\. The year just gone held 4\./.test(annual));
-  ok('nothing anywhere in the year mentions a payer, a code or a claim',
+    /16 Nov 2027/.test(annual)
+    && /Paying for each visit as it happens\s*\$850\.39/.test(annual));
+  ok('and the monthly fee falls as the problems come under control',
+    /which is \$60\.24 a month/.test(annual));
+  /*
+   * Codes are on the page, because they are the answer to "why
+   * that number". What must not be on it is a claim, a payer
+   * being billed, or anything about how Medicare or Medicaid work
+   * with a membership, which counsel has not settled (D-039
+   * guardrail 4b).
+   */
+  ok('every note states that nothing is being claimed from anybody',
+    [initial, three, acute, six, annual].every(
+      (t) => /No claim is filed and no insurance is billed/.test(t)));
+  ok('and none of them says how Medicare or Medicaid work with a membership',
     ![initial, three, acute, six, annual]
-      .some((t) => /Medicare|Medicaid|insurance company|CPT|9920[0-9]|9921[0-9]/.test(t)));
+      .some((t) => /Medicare|Medicaid/.test(t)));
   ok('the tetanus booster is his decision rather than our oversight',
     /asked for it with next autumn’s flu vaccine\. Recorded as his decision/
       .test(annual));
+
+  /*
+   * The template. Every note carries the same sections in the same
+   * order, and the acute visit is the test of it: twenty-five minutes
+   * for one toe still has the lifestyle and preventative headings,
+   * saying what was not done and when it last was. A reader who
+   * cannot find a section has to be able to tell "not done" from
+   * "not written down", and only one of those is a note worth
+   * trusting.
+   */
+  const SKELETON = [
+    'Problems addressed today', 'Lifestyle', 'Preventative Medicine Services',
+    'Results reviewed', 'Review of systems', 'Full problem list',
+    'Medications', 'Care team',
+  ];
+  const notes = { initial, three, acute, six, annual };
+  for (const [name, text] of Object.entries(notes)) {
+    const missing = SKELETON.filter((h) => !text.lines.includes(h));
+    ok(`the ${name} note carries every section of the template`,
+      missing.length === 0);
+    if (missing.length) console.log(`   missing: ${missing.join(', ')}`);
+    // In order, not merely present: a skeleton whose parts can appear
+    // anywhere is not a skeleton.
+    // First occurrence: the plan repeats Lifestyle and
+    // Preventative Medicine Services as headings of its own.
+    const at = SKELETON.map((h) => text.lines.indexOf(h));
+    ok(`the ${name} note carries them in the template's order`,
+      at.every((x, i) => x >= 0 && (i === 0 || x > at[i - 1])));
+  }
+  ok('the focused visit says what it did not cover, rather than dropping it',
+    (acute.match(/Not addressed at this visit, last reviewed 17 Feb 2026/g) || [])
+      .length >= 2);
+  ok('and the full visits do not carry those captions',
+    !annual.includes('Not addressed at this visit'));
 
   console.log([...pass, ...fail].join('\n'));
   console.log(fail.length ? `\n${fail.length} FAILED` : '\nALL PASSED');

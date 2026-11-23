@@ -22,7 +22,7 @@ import { useStore } from '../../lib/store';
 import { useActor } from '../../lib/session';
 import { record } from '../../lib/audit';
 import { buildFaxNote } from '../../lib/faxNote';
-import { quoteYear, yearBehind } from '../../lib/billing';
+import { quoteYear, yearBehind, visitKindOf } from '../../lib/billing';
 import type { Encounter } from '../../domain/types';
 import { useNav } from '../../lib/nav';
 import { fmtDate } from '../../lib/format';
@@ -247,7 +247,10 @@ function FaxNote({ patientId, encounterId, onClose }: {
         .some((x) => x.status === 'signed' && x.date < e.date),
       booked: e.note?.plan.booked ?? [],
       quotedAt: quotedAt(st, patientId, e),
-      yearBehind: yearBehind(st.encountersFor(patientId), e.date),
+      visitKind: visitKindOf(e.legacyKind),
+      problemsOffTarget: offTarget(st, patientId, e.date),
+      yearBehind: yearBehind(priced(st, patientId), e.date),
+      yearBehindMembership: quotedMembership(st, patientId, e),
     });
     setSheet(built.html);
   };
@@ -350,6 +353,53 @@ function FaxNote({ patientId, encounterId, onClose }: {
  * answer is found by looking back for the note that booked this
  * date, not by pricing it again now.
  */
+/** The encounters, each carrying the kind that prices it. */
+function priced(st: ReturnType<typeof useStore>, patientId: string) {
+  return st.encountersFor(patientId)
+    .map((e) => ({ ...e, visitKind: visitKindOf(e.legacyKind) }));
+}
+
+/**
+ * How many of their problems were off target on the day.
+ *
+ * This is what decides how many unbooked visits the year ahead is
+ * projected to hold, so it is counted from the conditions this
+ * practice manages rather than from everything on the list.
+ *
+ * On the day, which is the hard part. A chart carries one goal per
+ * problem and the date it was last judged, so a problem judged at
+ * goal this November says nothing about where it stood last
+ * November. A problem whose only assessment is later than the visit
+ * counts as off target, because at the visit nobody knew it was at
+ * goal, and not knowing is the state that generates visits.
+ */
+function offTarget(st: ReturnType<typeof useStore>, patientId: string, on: string) {
+  return st.conditionsFor(patientId).filter(
+    (c) => c.status === 'active' && c.managed
+      && (!c.onset || c.onset <= on)
+      && (c.goal !== 'at-goal' || !c.goalAssessed || c.goalAssessed > on),
+  ).length;
+}
+
+/**
+ * The membership that was quoted for the year now ending.
+ *
+ * Read off the note that quoted it. A membership recomputed today
+ * from today's problem list is not the price anybody was given, and
+ * comparing a year against a number invented after it is the kind of
+ * arithmetic that always flatters whoever is doing it.
+ */
+function quotedMembership(
+  st: ReturnType<typeof useStore>, patientId: string, e: Encounter,
+): number | undefined {
+  for (const prior of st.encountersFor(patientId)) {
+    if (prior.id === e.id || prior.date >= e.date) continue;
+    const m = prior.note?.plan.quotedMonthly;
+    if (m !== undefined) return Math.round(m * 12 * 100) / 100;
+  }
+  return undefined;
+}
+
 function quotedAt(
   st: ReturnType<typeof useStore>, patientId: string, e: Encounter,
 ): { price: number; on: string; of: number } | undefined {
@@ -358,7 +408,11 @@ function quotedAt(
     const booked = prior.note?.plan.booked ?? [];
     if (!booked.some((v) => v.date === e.date)) continue;
     const q = quoteYear(booked, false);
-    return { price: q.each, on: prior.date, of: booked.length };
+    // Each booked line carries its own price now, so the one for
+    // this date is looked up rather than divided out of a total.
+    const match = q.visits.find((v) => v.date === e.date);
+    if (!match) continue;
+    return { price: match.price, on: prior.date, of: booked.length };
   }
   return undefined;
 }

@@ -46,7 +46,7 @@ import type { Intervention } from '../lib/interventions';
 import { ambientScript, wasCaught, ERROR_LABEL, type InjectedError } from '../lib/ambient';
 import { Fishbone, OtherLabs } from './chart/Fishbone';
 import { buildFaxNote } from '../lib/faxNote';
-import { quoteYear, yearBehind } from '../lib/billing';
+import { quoteYear, yearBehind, visitKindOf, planYear } from '../lib/billing';
 import { specialistsAbout } from './chart/relate';
 import { readLines, GROUP_LABEL } from './chart/NoteText';
 import { TAB_LABEL } from './chart/drawers';
@@ -973,9 +973,26 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       if (prior.id === self || prior.date >= on) continue;
       const was = prior.note?.plan.booked ?? [];
       if (!was.some((v) => v.date === on)) continue;
-      return { price: quoteYear(was, false).each, on: prior.date, of: was.length };
+      const match = quoteYear(was, false).visits.find((v) => v.date === on);
+      if (!match) continue;
+      return { price: match.price, on: prior.date, of: was.length };
     }
     return undefined;
+  };
+
+  /**
+   * The monthly fee this visit quotes, where it quotes one.
+   *
+   * Only at a visit that books a year, which is a first assessment or
+   * an annual. Stored on the note so that a year from now the
+   * comparison is against what somebody was actually told.
+   */
+  const quotedMonthly = (): number | undefined => {
+    const booked = bookedVisits();
+    if (booked.length === 0) return undefined;
+    return planYear(booked, conditions.filter(
+      (c) => c.status === 'active' && c.managed && c.goal !== 'at-goal',
+    ).length).membershipMonth;
   };
 
   /** Everything booked out of this visit, soonest first. */
@@ -1027,6 +1044,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       overall: w.instructions,
       followUp: followUpLine(),
       booked: bookedVisits(),
+      quotedMonthly: quotedMonthly(),
     },
   };
 
@@ -1127,7 +1145,15 @@ export function Encounter({ encounterId }: { encounterId: string }) {
                 .some((x) => x.status === 'signed' && x.date < enc.date),
               booked: bookedVisits(),
               quotedAt: pricedAt(enc.date, encounterId),
-              yearBehind: yearBehind(st.encountersFor(patientId), enc.date),
+              visitKind: visitKindOf(enc.legacyKind),
+              problemsOffTarget: conditions.filter(
+                (c) => c.status === 'active' && c.managed && c.goal !== 'at-goal',
+              ).length,
+              yearBehind: yearBehind(
+                st.encountersFor(patientId)
+                  .map((x) => ({ ...x, visitKind: visitKindOf(x.legacyKind) })),
+                enc.date,
+              ),
             }).html);
             setTimeout(() => window.print(), 80);
           }}>

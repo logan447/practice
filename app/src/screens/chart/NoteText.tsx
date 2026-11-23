@@ -9,6 +9,7 @@
  * leads into them.
  */
 import { ROS_LINE } from '../../domain/ros';
+import { SECTION_HEADINGS } from '../../domain/noteTemplate';
 
 /**
  * The labels over the runs of the note that belong to each service.
@@ -35,6 +36,8 @@ export const GROUP_LABEL = {
  */
 export const NOTE_HEADINGS = new Set<string>([
   ...Object.values(GROUP_LABEL).filter(Boolean),
+  // The fixed skeleton every note carries, whatever the visit was.
+  ...SECTION_HEADINGS,
   'Review of systems',
   'Full problem list',
   'Medications',

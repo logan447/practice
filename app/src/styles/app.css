@@ -2714,3 +2714,24 @@ blockquote.said footer {
 .fbgroup { display: inline-flex; flex-direction: column; align-items: center; }
 .fbgroup .fbstamp { margin-top: 1px; }
 
+
+/*
+ * Under each priced line of a quote: the kind of visit and the code
+ * its documentation supports. Smaller than the reason it was booked,
+ * because it answers "why that number" rather than "why that visit",
+ * and only one of those is what the patient came to read.
+ */
+.faxbasis {
+  font-size: 9pt;
+  color: #444;
+}
+
+/*
+ * Every cell of a priced line starts at the top. The reason a visit
+ * was booked runs to two lines and the date beside it runs to one, and
+ * a date floating in the middle of its own row reads as though it
+ * belongs to neither line.
+ */
+.faxquote td {
+  vertical-align: top;
+}

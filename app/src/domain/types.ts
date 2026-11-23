@@ -460,6 +460,15 @@ export interface VisitNote {
      * edits a word of it.
      */
     booked?: { date: string; why: string }[];
+    /**
+     * The monthly fee quoted at this visit, where one was.
+     *
+     * Kept rather than recomputed because it was worked out from
+     * the problem list as it stood on the day. A year later that
+     * list has changed, and a membership price recomputed from the
+     * new one is not the price anybody was quoted.
+     */
+    quotedMonthly?: number;
   };
 }
 

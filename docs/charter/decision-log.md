@@ -1279,3 +1279,63 @@ decided price in this practice is still $99 a month.
 the cash model is not being offered at all, in which case the
 comparison comes off the note rather than being left to argue from a
 number nobody chose.
+
+
+### D-053 addendum — priced off the code, and the membership made personal (2026-11-23)
+
+The flat $350 a visit is gone. It was a placeholder and it had the
+flaw every placeholder has: it could not answer "why that number".
+
+**Every visit is now benchmarked to the code its own documentation
+supports.** A first assessment is ninety minutes, a new patient, four
+diagnoses made on the day and four drugs started or stopped, which is
+99205 plus the preventive assessment in G0438 and is worth $411.16; it
+is still given away. A planned review runs forty-five minutes across
+five chronic problems with labs and drug changes, which is 99215 and
+$192.39. An annual is 99215 and G0439, $330.00. An acute visit is one
+new problem with a dangerous differential and a prescription, which is
+99214 and $135.61. The rates come from the 2026 fee schedule at
+$33.4009 per relative value unit, in `app/src/lib/fees.ts`, with the
+source named against each code.
+
+**The sourcing is weaker than it looks and the file says so.** The
+RVUs are from third-party references read on 2026-11-23, not from the
+CMS file, and the two references name different 2026 releases with no
+code appearing on both, so they could not be checked against each
+other. 99202 carries no rate at all, because no source read stated
+one, and it is UNSET rather than filled with a plausible number.
+REFRESH-AT-RUNWAY and check against CMS before any of it is quoted.
+
+**The membership is now personal and derived rather than flat.** At
+the first assessment the year is projected: the visits booked, each at
+its own price, plus the visits nobody books but everybody should
+expect, which is one plus one for every four problems off target,
+capped at three. That total, less a discount, divided by twelve. The
+worked case comes to $986.00 and $69.84 a month, and at his annual a
+year later, with two problems off target instead of six, to $60.24.
+
+**The discount is UNSET and is the lever that decides whether this
+survives.** It sits at 15 per cent as a placeholder. The membership
+covers unlimited acute and follow-up visits, so the practice carries
+the whole of the utilisation risk, and a discount set generously
+against a projection set optimistically is how a practice like this
+fails about fourteen months in.
+
+**The projection was not tuned to make the membership win.** On the
+worked year it loses: four charged visits came to $850.39 against the
+$838.08 he was quoted, so paying per visit cost him $12.31 more. An
+earlier rule projected three unbooked visits for him and he had one;
+it was changed because three was not defensible for that patient, not
+because of which way the comparison came out.
+
+**What the note says about the fee schedule.** The billing section
+names it as the basis of the price and states that no claim is filed
+and no insurance is billed. It says nothing about how Medicare or
+Medicaid work with a membership, and the case-series test asserts
+those words appear nowhere in any note (D-039 guardrail 4b). If
+counsel would rather the schedule not be named on patient-facing
+paper, it is one string in `app/src/lib/faxNote.ts`.
+
+**Revisit when:** the discount is decided, the RVUs are checked
+against CMS, or a real patient's year is available to test the
+projection against.
