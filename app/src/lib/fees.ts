@@ -88,13 +88,77 @@ export const CODES: Record<string, CodedService> = {
     code: '99215', label: 'Established patient, high complexity', rvu: 5.76,
     from: 'fastrvu.com/cpt/99215, PPRRVU2026_Apr_nonQPP. Work 2.80, PE 2.75, MP 0.21.',
   },
+  /*
+   * The Medicare wellness visits. Here because the practice will have
+   * patients on Medicare, and NOT used for anybody who is not: these
+   * are Medicare-only codes and a 52 year old does not have an annual
+   * wellness visit, he has a preventive visit.
+   */
   G0438: {
-    code: 'G0438', label: 'First annual wellness visit', rvu: 5.22,
+    code: 'G0438', label: 'First annual wellness visit, Medicare only', rvu: 5.22,
     from: 'quickintell.com physician-fee-schedule, RVU26D. Work 2.60, components summed here.',
   },
   G0439: {
-    code: 'G0439', label: 'Annual wellness visit, thereafter', rvu: 4.12,
+    code: 'G0439', label: 'Annual wellness visit thereafter, Medicare only', rvu: 4.12,
     from: 'quickintell.com physician-fee-schedule, RVU26D. Work 1.92, components summed here.',
+  },
+  /*
+   * The preventive series. Original Medicare does not pay these and
+   * uses G0438 and G0439 instead, which is why a 52 year old gets
+   * 99386 and a 70 year old gets G0438 for the same hour of work.
+   * Getting that wrong is how a practice quotes a Medicare code to
+   * somebody who is not on Medicare, which is what this file did
+   * until it was corrected.
+   */
+  99386: {
+    code: '99386', label: 'Preventive visit, new patient, 40 to 64', rvu: 4.49,
+    from: 'fastrvu.com/cpt/99386, PPRRVU2026_Apr_nonQPP. Work 2.33, PE 2.01, MP 0.15.',
+  },
+  99396: {
+    code: '99396', label: 'Preventive visit, established patient, 40 to 64', rvu: 3.74,
+    from: 'fastrvu.com/cpt/99396, PPRRVU2026_Apr_nonQPP. Work 1.90.',
+  },
+  /*
+   * Counselling, by the quarter hour. These are for counselling given
+   * to somebody without symptoms, which is most of what lifestyle
+   * medicine is, and they cannot be billed out of minutes a
+   * time-based office visit has already counted. A forty-five minute
+   * review coded on time at 99215 has spent those minutes once.
+   */
+  99401: {
+    code: '99401', label: 'Preventive counselling, 15 minutes', rvu: 1.15,
+    from: 'fastrvu.com/cpt/99401, PPRRVU2026_Apr_nonQPP. Work 0.48.',
+  },
+  99402: {
+    code: '99402', label: 'Preventive counselling, 30 minutes', rvu: 1.87,
+    from: 'fastrvu.com/cpt/99402, PPRRVU2026_Apr_nonQPP. Work 0.98.',
+  },
+  99403: {
+    code: '99403', label: 'Preventive counselling, 45 minutes', rvu: 2.56,
+    from: 'fastrvu.com/cpt/99403, PPRRVU2026_Apr_nonQPP. Work 1.46.',
+  },
+  99404: {
+    code: '99404', label: 'Preventive counselling, 60 minutes', rvu: 3.30,
+    from: 'fastrvu.com/cpt/99404, PPRRVU2026_Apr_nonQPP. Work 1.95.',
+  },
+  G0446: {
+    code: 'G0446', label: 'Behavioural therapy, cardiovascular risk', rvu: 1.02,
+    from: 'fastrvu.com/cpt/G0446, PPRRVU2026_Apr_nonQPP. Work 0.60. SUSPECT: this '
+      + 'page and the G0447 page carry identical work and total values, which may be '
+      + 'a copying error at the source. Check both against CMS.',
+  },
+  G0447: {
+    code: 'G0447', label: 'Behavioural counselling for obesity, 15 minutes', rvu: 1.02,
+    from: 'fastrvu.com/cpt/G0447, PPRRVU2026_Apr_nonQPP. Work 0.60. SUSPECT: '
+      + 'identical to G0446 at the source. Check both against CMS.',
+  },
+  99406: {
+    code: '99406', label: 'Tobacco cessation counselling, 3 to 10 minutes', rvu: 0.46,
+    from: 'fastrvu.com/cpt/99406, PPRRVU2026_Apr_nonQPP. Work 0.24.',
+  },
+  99407: {
+    code: '99407', label: 'Tobacco cessation counselling, over 10 minutes', rvu: 0.87,
+    from: 'fastrvu.com/cpt/99407, PPRRVU2026_Apr_nonQPP. Work 0.50.',
   },
 };
 

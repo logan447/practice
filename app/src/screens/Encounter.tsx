@@ -47,6 +47,7 @@ import { ambientScript, wasCaught, ERROR_LABEL, type InjectedError } from '../li
 import { Fishbone, OtherLabs } from './chart/Fishbone';
 import { buildFaxNote } from '../lib/faxNote';
 import { quoteYear, yearBehind, visitKindOf, planYear } from '../lib/billing';
+import { buildTargets } from '../domain/targets';
 import { specialistsAbout } from './chart/relate';
 import { readLines, GROUP_LABEL } from './chart/NoteText';
 import { TAB_LABEL } from './chart/drawers';
@@ -1149,6 +1150,13 @@ export function Encounter({ encounterId }: { encounterId: string }) {
               problemsOffTarget: conditions.filter(
                 (c) => c.status === 'active' && c.managed && c.goal !== 'at-goal',
               ).length,
+              targets: buildTargets(
+                conditions,
+                st.panelsFor(patientId),
+                st.vitalsFor(patientId),
+                bookedVisits().map((v) => v.date).filter(Boolean).sort(),
+                enc.date,
+              ),
               yearBehind: yearBehind(
                 st.encountersFor(patientId)
                   .map((x) => ({ ...x, visitKind: visitKindOf(x.legacyKind) })),

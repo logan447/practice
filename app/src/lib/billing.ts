@@ -173,23 +173,24 @@ export interface VisitType {
 export const VISIT_TYPES: Record<VisitKind, VisitType> = {
   initial: {
     kind: 'initial', label: 'First assessment', minutes: 90, free: true,
-    codes: ['99205', 'G0438'],
-    basis: 'New patient, ninety minutes, comprehensive history and examination, '
-      + 'multiple new diagnoses and drug management, plus the first preventive '
-      + 'assessment and the schedule that comes out of it.',
+    codes: ['99386', '99205'],
+    basis: 'A comprehensive preventive visit for an adult of 40 to 64, plus a '
+      + 'separately identifiable problem visit at high complexity on the same day: '
+      + 'four diagnoses made and four drugs started or stopped.',
   },
   annual: {
     kind: 'annual', label: 'Annual visit', minutes: 60,
-    codes: ['99215', 'G0439'],
-    basis: 'Established patient, sixty minutes, every problem reviewed against its '
-      + 'target with drug decisions on several, plus the preventive review and the '
-      + 'next year planned.',
+    codes: ['99396', '99215'],
+    basis: 'The same pairing a year on: the preventive visit for an established '
+      + 'patient, plus the problem work, which at an annual is every problem '
+      + 'reviewed against its target with drug decisions on several.',
   },
   'follow-up': {
     kind: 'follow-up', label: 'Planned review', minutes: 45,
     codes: ['99215'],
     basis: 'Established patient, forty-five minutes, several chronic problems '
-      + 'reviewed with laboratory results and drug changes at the same visit.',
+      + 'reviewed with laboratory results and drug changes at the same visit. One '
+      + 'code, not two: a visit coded on time has spent those minutes once.',
   },
   acute: {
     kind: 'acute', label: 'Acute visit', minutes: 25,
@@ -203,6 +204,163 @@ export const VISIT_TYPES: Record<VisitKind, VisitType> = {
     basis: 'Established patient, one stable problem, no change to treatment.',
   },
 };
+
+/* ------------------------------------------------------------------ */
+/* what the same work is worth to a payer                              */
+/* ------------------------------------------------------------------ */
+
+export interface PayerRoute {
+  id: string;
+  label: string;
+  /** What this payer pays, as a multiple of the CMS benchmark. */
+  ratio?: number;
+  /** Where the ratio came from, or why there is none. */
+  from: string;
+  /** What the patient pays at the desk, in words rather than dollars. */
+  patientPays: string;
+}
+
+/**
+ * The same visit, through four doors, against one baseline.
+ *
+ * CMS fee for service is 1.00 by definition: it is the benchmark
+ * every price in this file is derived from, so it is the thing the
+ * others are measured against rather than one of the things being
+ * measured.
+ *
+ * NEEDS-COUNSEL, and more than most things here. This practice does
+ * not currently bill anybody, D-039 guardrail 4b forbids any print
+ * piece from stating how Medicare or Medicaid work with a
+ * membership, and none of this may be shown to a patient until that
+ * is settled. It is modelled so the owner can see the shape of the
+ * decision, not so it can be handed over.
+ */
+export const PAYER_ROUTES: PayerRoute[] = [
+  {
+    id: 'cms', label: 'Medicare fee for service', ratio: 1.0,
+    from: 'The benchmark itself, by definition. Note that Original Medicare does '
+      + 'not pay the preventive codes at all: it buys that work as G0438 or G0439 '
+      + 'instead, so the initial and annual would be coded differently for somebody '
+      + 'on Medicare.',
+    patientPays: 'Twenty per cent of the allowed amount after the yearly deductible, '
+      + 'with the wellness visit itself at no cost.',
+  },
+  {
+    id: 'medicaid', label: 'Medicaid', ratio: 0.74,
+    from: 'Kaiser Family Foundation Medicaid-to-Medicare fee index, 2024: Virginia '
+      + 'primary care 0.74. The national figure is about 0.71, and the index covers '
+      + 'fee-for-service Medicaid only. REFRESH-AT-RUNWAY.',
+    patientPays: 'Nothing, or a nominal amount set by the state.',
+  },
+  {
+    id: 'advantage', label: 'Medicare Advantage',
+    from: 'UNSET. Contracts are commonly written at or near the Medicare rate, but '
+      + 'no source was found that puts a number on it and it is set plan by plan. '
+      + 'Nothing here should be quoted until a contract is in hand.',
+    patientPays: 'A fixed copay per visit, set by the plan.',
+  },
+  {
+    id: 'commercial', label: 'Commercial', ratio: 1.84,
+    from: 'RAND hospital price transparency study, round 5, on 2022 claims: '
+      + 'associated professional services averaged 184 per cent of Medicare. BUT '
+      + 'that sample is professional fees attached to hospitals, which run well '
+      + 'above what an independent primary care practice negotiates. Treat it as the '
+      + 'top of the range, not the middle. REFRESH-AT-RUNWAY.',
+    patientPays: 'A copay, or the whole allowed amount until the deductible is met, '
+      + 'depending on the plan.',
+  },
+];
+
+/**
+ * What a payer would allow for a visit, where a ratio is known.
+ *
+ * Undefined rather than zero where it is not, so a caller has to
+ * decide what to print about a payer nobody could price.
+ */
+export function payerAllows(kind: VisitKind, route: PayerRoute): number | undefined {
+  const base = visitWorth(kind);
+  if (base === undefined || route.ratio === undefined) return undefined;
+  return Math.round(base * route.ratio * 100) / 100;
+}
+
+/* ------------------------------------------------------------------ */
+/* the sliding scale                                                   */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The 2026 federal poverty guideline, 48 states and DC.
+ *
+ * $15,960 for one person and $5,680 for each person after that, so a
+ * household of four is $33,000. Read 2026-11-23 from secondary
+ * sources rather than from the HHS publication; one widely linked
+ * government page still carried the older $14,580 base, which is
+ * what makes checking this worth doing. REFRESH-AT-RUNWAY.
+ */
+export const FPL_BASE = 15960;
+export const FPL_PER_PERSON = 5680;
+
+export function povertyLine(householdSize: number): number {
+  return FPL_BASE + FPL_PER_PERSON * (Math.max(1, householdSize) - 1);
+}
+
+export interface ScaleBand {
+  /** Up to this multiple of the poverty line. */
+  upToFpl: number;
+  /** How much comes off. */
+  off: number;
+  label: string;
+}
+
+/**
+ * What comes off, by income against the poverty line.
+ *
+ * Medicine's sliding scales are set against the federal poverty
+ * guideline rather than against tax brackets, and the reason is
+ * household size: the poverty line moves with the number of people
+ * the income has to cover and a tax bracket does not. Two people
+ * earning the same amount, one supporting a family of five, belong
+ * in different places on this table and only one of these two
+ * measures puts them there.
+ *
+ * The bands are the conventional shape. The discounts are ASSUMPTION,
+ * owned and not sourced: nobody has decided them, and they are the
+ * difference between a sliding scale and a gesture.
+ */
+export const SCALE_BANDS: ScaleBand[] = [
+  { upToFpl: 1.5, off: 0.75, label: 'at or under 150 per cent of the poverty line' },
+  { upToFpl: 2.0, off: 0.50, label: 'up to 200 per cent' },
+  { upToFpl: 2.5, off: 0.30, label: 'up to 250 per cent' },
+  { upToFpl: 4.0, off: 0.15, label: 'up to 400 per cent' },
+];
+
+export interface ScaleResult {
+  /** Income as a multiple of the poverty line for that household. */
+  ofPoverty: number;
+  band?: ScaleBand;
+  off: number;
+  monthly: number;
+}
+
+/**
+ * The monthly fee after the sliding scale.
+ *
+ * Applied to the personalised fee rather than to a flat one, so a
+ * patient on a low income with a heavy year is not quietly charged
+ * more than a patient on a high income with a light one.
+ */
+export function slide(
+  monthly: number, householdIncome: number, householdSize: number,
+): ScaleResult {
+  const ofPoverty = householdIncome / povertyLine(householdSize);
+  const band = SCALE_BANDS.find((b) => ofPoverty <= b.upToFpl);
+  const off = band?.off ?? 0;
+  return {
+    ofPoverty: Math.round(ofPoverty * 100) / 100,
+    band,
+    off,
+    monthly: Math.round(monthly * (1 - off) * 100) / 100,
+  };
+}
 
 /**
  * Which of the five kinds an encounter is, from what it was recorded as.

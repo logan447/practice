@@ -58,6 +58,9 @@ export const teal: Patient = {
   membership: 'standard', memberSince: '2025-11-18',
   services: { preventative: true, lifestyle: true }, photoTone: 5,
   phone: '(512) 555-0174', email: 'r.teal@example.com',
+  // Offered at the first visit and answered. Three people on one
+  // income, which is the part a tax bracket would have missed.
+  household: { income: 85000, size: 3, asked: '2025-11-18' },
   history: {
     family: [
       {

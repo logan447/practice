@@ -39,10 +39,13 @@ import { labsHtml } from './fishbone';
 import { vitalsHtml } from './vitals';
 import {
   planYear, visitPrice, visitWorth, VISIT_TYPES, MEMBERSHIP_DISCOUNT,
+  PAYER_ROUTES, payerAllows, slide,
 } from './billing';
 import type { VisitKind } from './billing';
 import { CONVERSION_FACTOR } from './fees';
 import { SECTION_HEADINGS } from '../domain/noteTemplate';
+import { TARGET_SOURCES } from '../domain/targets';
+import type { TargetRow } from '../domain/targets';
 import { ROS_LINE } from '../domain/ros';
 
 export interface FaxInput {
@@ -84,6 +87,13 @@ export interface FaxInput {
    */
   problemsOffTarget?: number;
   /**
+   * The measures this patient is followed on, and what each aims at.
+   *
+   * Built by the caller from the chart, because which measures matter
+   * is a fact about their problem list and not about this note.
+   */
+  targets?: TargetRow[];
+  /**
    * What the membership quoted for the year behind would have cost.
    *
    * Read off the note that quoted it rather than recomputed, so
@@ -91,6 +101,8 @@ export interface FaxInput {
    * given and not against one worked out with hindsight.
    */
   yearBehindMembership?: number;
+  /** Household income and size, where the sliding scale has been applied. */
+  sliding?: { income: number; household: number };
   /**
    * The twelve months behind this visit, where there are any.
    *
@@ -226,6 +238,188 @@ const steps = (text: string): string => {
 
 
 /**
+ * The same care, three ways to pay for it, against one baseline.
+ *
+ * Everything is measured against what Medicare fee for service would
+ * allow for the same codes, because that is the number this practice
+ * derives its own prices from and it is the only one of the four
+ * that is published rather than negotiated.
+ *
+ * NEEDS-COUNSEL. This practice bills nobody today. D-039 guardrail
+ * 4b says no print piece may state how Medicare or Medicaid work
+ * with a membership until counsel has settled it, and this row is
+ * exactly that. It is here so the owner can see the shape of the
+ * decision; it carries its own warning, and SHOW_PAYER_ROUTES turns
+ * it off for anything a patient will hold.
+ */
+const SHOW_PAYER_ROUTES = true;
+
+/**
+ * Dollars, with the separators a four figure number needs.
+ *
+ * $85000.00 is a number somebody has to count the digits of.
+ * Whole dollars above a thousand, cents below it, because the
+ * cents on a household income are noise and the cents on a visit
+ * price are the price.
+ */
+const money = (n: number): string => (n >= 1000 && n % 1 === 0
+  ? `$${n.toLocaleString('en-US')}`
+  : `$${n.toLocaleString('en-US', {
+    minimumFractionDigits: 2, maximumFractionDigits: 2,
+  })}`);
+
+function routes(monthly: number, input: FaxInput): string {
+  if (!SHOW_PAYER_ROUTES) return '';
+  const kind: VisitKind = 'follow-up';
+  const base = visitWorth(kind) ?? 0;
+
+  const lines = PAYER_ROUTES.map((r) => {
+    const allowed = payerAllows(kind, r);
+    return `<tr><td>${esc(r.label)}</td>`
+      + `<td class="faxmoney">${allowed === undefined ? 'UNSET'
+        : `${money(allowed)}<br><span class="faxbasis">`
+          + `${Math.round((r.ratio ?? 1) * 100)}% of baseline</span>`}</td>`
+      + `<td>${esc(r.patientPays)}</td></tr>`;
+  }).join('');
+
+  /*
+   * The sliding scale, applied to the personalised fee rather than to
+   * a flat one. A patient on a low income with a heavy year should
+   * not quietly end up paying more than a patient on a high income
+   * with a light one.
+   */
+  const sl = input.sliding
+    ? slide(monthly, input.sliding.income, input.sliding.household)
+    : undefined;
+
+  return '<tr><th>Three ways to pay</th><td>'
+    + '<p class="faxest"><b>Not in use.</b> This practice does not bill any insurer '
+    + 'today and nothing below is an offer. It is here so the comparison is on one '
+    + 'page rather than in somebody’s head, and it has to be settled with '
+    + 'counsel before it means anything.</p>'
+    + `<p>Taking one planned review as the unit of comparison, which the benchmark `
+    + `values at ${money(base)}:</p>`
+    + '<table class="faxquote"><tbody>'
+    + `<tr><td><b>Cash, paid per visit</b></td><td class="faxmoney">${money(base)}`
+    + '<br><span class="faxbasis">100% of baseline</span></td>'
+    + '<td>The whole amount, known before the visit.</td></tr>'
+    + `<tr><td><b>Membership</b></td><td class="faxmoney">${money(monthly)}/mo`
+    + '<br><span class="faxbasis">unlimited visits</span></td>'
+    + '<td>Nothing per visit, acute or planned.</td></tr>'
+    + lines
+    + '</tbody></table>'
+    + (sl
+      ? `<p class="faxnote"><b>Sliding scale.</b> A household income of `
+        + `${money(input.sliding!.income)} across ${input.sliding!.household} people `
+        + `is ${Math.round(sl.ofPoverty * 100)} per cent of the federal poverty `
+        + `guideline. That is ${sl.band ? esc(sl.band.label) : 'above every band'}, `
+        + (sl.band
+          ? `so ${Math.round(sl.off * 100)} per cent comes off and the membership is `
+            + `<b>${money(sl.monthly)} a month</b>.`
+          : 'so the full fee applies.')
+        + '</p>'
+      : '<p class="faxnote"><b>Sliding scale.</b> Fees are reduced against the '
+        + 'federal poverty guideline for the household, which moves with how many '
+        + 'people the income supports. Ask, and nobody has to explain why.</p>')
+    + '</td></tr>';
+}
+
+/**
+ * The running list, not a fresh one each visit.
+ *
+ * A list that starts empty every visit loses things. The item nobody
+ * got to in February is gone by May, not because it stopped
+ * mattering but because nobody wrote it down again, and the ones
+ * that go that way are reliably the dull administrative ones: the
+ * phone call about what a drug costs, the booster that keeps being
+ * deferred. Those are exactly the items a patient needs help with
+ * and exactly the ones a fresh list drops.
+ *
+ * So it carries forward. An item stays until it is done or until
+ * somebody decides it is not worth doing, and the list is the same
+ * list each time rather than a new one. It should get shorter: a
+ * first visit hands over a lot and a sixth should hand over three
+ * things, and a list that is not shrinking is a plan that is not
+ * working.
+ */
+function todoList(text: string | undefined, input: FaxInput): string {
+  const items = steps(text ?? '');
+  if (!items) return '';
+  const first = input.newPatient;
+  return '<h3>Our running list</h3>'
+    + '<p class="faxest">This is the list we keep together, not a new one each time. '
+    + 'We go through it at every visit: what is done comes off, what is not stays on '
+    + 'with the reason, and anything new goes to the bottom. '
+    + (first
+      ? 'A first visit hands over more than any visit after it, and the list should '
+        + 'get shorter from here.'
+      : 'It should be getting shorter.')
+    + '</p>'
+    + items
+    + '<p class="faxest">Between visits, the patient portal handles the '
+    + 'administrative side of this: booking, chasing a referral, finding out what '
+    + 'something will cost. And I take support calls on weekdays, walk-in or '
+    + 'scheduled, for anything on this list that needs a person rather than a form.'
+    + '</p>';
+}
+
+/**
+ * What each number is aiming at, and when.
+ *
+ * The last thing before the money, which is the right place for it:
+ * a patient reads the plan, then what it is supposed to achieve,
+ * then what it costs. Measures already at target are on the list,
+ * because a patient who only ever sees the problems never learns
+ * that keeping something steady is a result.
+ *
+ * The interim aims are estimates and the page says so in its own
+ * line rather than in a footnote nobody reads. They are a straight
+ * line from here to the target across the visits already booked,
+ * which is what even progress would look like, and progress is not
+ * even.
+ */
+function targets(input: FaxInput): string {
+  const rows = input.targets ?? [];
+  if (rows.length === 0) return '';
+
+  /*
+   * One footnote per guideline, numbered where it is used rather
+   * than named. The key is an internal slug and printing it under
+   * the measure put "acc aha lipid" on a page a patient reads.
+   */
+  const used = [...new Set(rows.map((r) => r.source))].filter((k) => TARGET_SOURCES[k]);
+  const noteNo = (k: string) => used.indexOf(k) + 1;
+
+  const dates = rows[0].aims.map((a) => a.date);
+  const head = '<tr><th>Measure</th><th>Now</th><th>Aiming at</th>'
+    + dates.map((d) => `<th class="faxmoney">${fmtDate(d)}</th>`).join('')
+    + '</tr>';
+  const body = rows.map((r) => `<tr><td>${esc(r.label)}`
+    + (noteNo(r.source) > 0 ? `<sup>${noteNo(r.source)}</sup>` : '')
+    + '</td>'
+    + `<td>${esc(r.current)}${r.on ? `<br><span class="faxbasis">${fmtDate(r.on)}</span>` : ''}</td>`
+    + `<td>${esc(r.target)}${r.atTarget ? '<br><span class="faxbasis">at target</span>' : ''}</td>`
+    + r.aims.map((a) => `<td class="faxmoney">${esc(a.aim)}</td>`).join('')
+    + '</tr>').join('');
+
+  const notes = used.map((k, i) =>
+    `<p class="faxnote">${i + 1}. ${esc(TARGET_SOURCES[k])}</p>`).join('');
+
+  return '<h3>What we are aiming at</h3>'
+    + '<p class="faxest">The columns on the right are estimates, not promises. They '
+    + 'are what steady progress would look like between now and each visit already '
+    + 'booked, so that there is something to measure against. Real numbers move in '
+    + 'steps, and a number that misses one of these is information rather than a '
+    + 'failure.</p>'
+    + `<table class="faxto faxtarget"><tbody>${head}${body}</tbody></table>`
+    + `<p class="faxnote"><b>Where the targets come from.</b> Each is the figure in `
+    + 'the relevant national guideline, not a number this practice chose. The '
+    + 'edition of each guideline has not been re-checked against the publication '
+    + 'and guideline targets do move.</p>'
+    + notes;
+}
+
+/**
  * What this costs, what the year costs, and what a membership would.
  *
  * Cash. No claim is filed and no insurer is billed, so the number on
@@ -249,7 +443,6 @@ function billing(input: FaxInput): string {
   const booked = (input.booked ?? []).filter((v) => v.date);
   const off = input.problemsOffTarget ?? 0;
   const rows: string[] = [];
-  const money = (n: number) => `$${n.toFixed(2)}`;
 
   /** One priced line of a year, with what makes it that price. */
   const line = (v: { date?: string; why: string; kind: VisitKind; price: number }) =>
@@ -354,10 +547,17 @@ function billing(input: FaxInput): string {
   // -------------------------------------------------------- the year ahead
   if (input.newPatient || booked.length > 0) yearAhead();
 
+  // ------------------------------------------------- the three routes
+  if (input.newPatient || booked.length > 0) {
+    const plan = planYear(booked, off);
+    rows.push(routes(plan.membershipMonth, input));
+  }
+
   rows.push(
-    '<tr><th>Included</th><td>Each visit above, and the messaging and coordination '
-      + 'between them. There is no charge for a message, a phone call or a letter '
-      + 'like this one, whichever way the visits are paid for.</td></tr>',
+    '<tr><th>Included</th><td>Each visit above, and the messaging and '
+      + 'coordination between them. There is no charge for a message, a phone '
+      + 'call or a letter like this one, whichever way the visits are paid for. '
+      + 'Support calls on weekdays, walk-in or scheduled, are included too.</td></tr>',
     '<tr><th>Not included</th><td>Laboratory tests, imaging, medicines and anything '
       + 'done by another practice. Those are billed to the patient by whoever '
       + 'provides them.</td></tr>',
@@ -365,8 +565,7 @@ function billing(input: FaxInput): string {
       + 'national fee schedule pays for the code its own documentation supports, '
       + `at ${CONVERSION_FACTOR} dollars per relative value unit. No claim is filed `
       + 'and no insurance is billed; the schedule is used as a benchmark so that '
-      + 'every price has an answer to why it is that number. Sliding-scale and pro '
-      + 'bono places exist and are arranged separately.</td></tr>',
+      + 'every price has an answer to why it is that number.</td></tr>',
   );
 
   return `<h3>Billing</h3><table class="faxto faxbill"><tbody>${rows.join('')}</tbody></table>`;
@@ -457,12 +656,14 @@ export function buildFaxNote(input: FaxInput): { html: string; pages: string } {
         ${n?.assessment.overall?.trim() ? body(n.assessment.overall) : ''}
         ${body(plan)}
 
-        ${n?.plan.overall?.trim() ? `<h3>Before your next visit</h3>${steps(n.plan.overall)}` : ''}
+        ${todoList(n?.plan.overall, input)}
 
         ${n?.plan.followUp?.trim()
     ? n.plan.followUp.trim().split('\n')
       .map((l) => `<p class="faxfollow">${esc(l.trim())}</p>`).join('')
     : ''}
+
+        ${targets(input)}
 
         ${billing(input)}
 

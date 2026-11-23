@@ -325,7 +325,7 @@ const INITIAL: Encounter = {
        * year against the price he was actually given, not against one
        * worked out afterwards with the year in hand.
        */
-      quotedMonthly: 69.84,
+      quotedMonthly: 68.94,
     },
   },
 };
@@ -1348,7 +1348,7 @@ const ANNUAL: Encounter = {
       // Two problems still off target at the annual, so the projection
       // expects one unbooked visit rather than two and next year is
       // quoted lower than the year just gone.
-      quotedMonthly: 60.24,
+      quotedMonthly: 59.34,
     },
   },
 };

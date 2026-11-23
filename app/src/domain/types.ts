@@ -71,6 +71,16 @@ export interface Patient {
   /** One line the physician wants to see every single time. */
   pinned?: string;
   /**
+   * What the sliding scale reads, where they have given it.
+   *
+   * Household rather than individual income, and the number of
+   * people it supports, because the poverty guideline moves with
+   * the second of those and a tax bracket does not. Absent for
+   * everybody who has not been asked, which is most people: the
+   * scale is offered, not means-tested.
+   */
+  household?: { income: number; size: number; asked: string };
+  /**
    * Who their primary care physician is, where they have one.
    *
    * This practice is a consulting practice: it manages named

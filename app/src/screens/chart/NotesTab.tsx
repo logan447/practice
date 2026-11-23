@@ -23,6 +23,7 @@ import { useActor } from '../../lib/session';
 import { record } from '../../lib/audit';
 import { buildFaxNote } from '../../lib/faxNote';
 import { quoteYear, yearBehind, visitKindOf } from '../../lib/billing';
+import { buildTargets } from '../../domain/targets';
 import type { Encounter } from '../../domain/types';
 import { useNav } from '../../lib/nav';
 import { fmtDate } from '../../lib/format';
@@ -249,8 +250,18 @@ function FaxNote({ patientId, encounterId, onClose }: {
       quotedAt: quotedAt(st, patientId, e),
       visitKind: visitKindOf(e.legacyKind),
       problemsOffTarget: offTarget(st, patientId, e.date),
+      targets: buildTargets(
+        st.conditionsFor(patientId),
+        st.panelsFor(patientId),
+        st.vitalsFor(patientId),
+        (e.note?.plan.booked ?? []).map((v) => v.date).filter(Boolean).sort(),
+        e.date,
+      ),
       yearBehind: yearBehind(priced(st, patientId), e.date),
       yearBehindMembership: quotedMembership(st, patientId, e),
+      sliding: p.household
+        ? { income: p.household.income, household: p.household.size }
+        : undefined,
     });
     setSheet(built.html);
   };

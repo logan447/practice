@@ -2735,3 +2735,37 @@ blockquote.said footer {
 .faxquote td {
   vertical-align: top;
 }
+
+/*
+ * The two kinds of small print on a note.
+ *
+ * .faxest is a caveat the reader has to see before the thing it
+ * qualifies: that a column is an estimate, that a comparison is not
+ * an offer. It sits above its table and is not allowed to be
+ * smaller than the body, because small print that matters is not
+ * small print.
+ *
+ * .faxnote is a footnote, which is the opposite: it is there to be
+ * checked rather than read, and it may be smaller.
+ */
+.faxest {
+  margin: 4pt 0;
+  font-size: 10pt;
+}
+
+.faxnote {
+  margin: 3pt 0;
+  font-size: 9pt;
+  color: #333;
+}
+
+.faxtarget td,
+.faxtarget th {
+  vertical-align: top;
+  padding: 3pt 6pt 3pt 0;
+}
+
+.faxtarget th {
+  border-bottom: 0.5pt solid #999;
+  text-align: left;
+}

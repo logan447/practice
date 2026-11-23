@@ -97,16 +97,16 @@ async function faxOf(p, date) {
    */
   ok('the first assessment is free and says what the work was worth',
     /This visit\s*No charge\. A first assessment is pro bono\./.test(initial)
-    && /99205 and G0438, which the benchmark values at \$411\.16/.test(initial));
+    && /99386 and 99205, which the benchmark values at \$386\.78/.test(initial));
   ok('the year ahead prices each visit at what its own work is worth',
     /Planned review, 99215\s*\$192\.39/.test(initial)
-    && /Annual visit, 99215 and G0439\s*\$330\.00/.test(initial));
+    && /Annual visit, 99396 and 99215\s*\$317\.31/.test(initial));
   ok('and adds the visits nobody books but everybody should expect',
     (initial.match(/an illness nobody has booked/g) || []).length === 2
     && /Acute visit, 99214\s*\$135\.61/.test(initial)
-    && /Paying for each visit as it happens\s*\$986\.00/.test(initial));
+    && /Paying for each visit as it happens\s*\$973\.31/.test(initial));
   ok('the membership is that year discounted and divided by twelve',
-    /\$986\.00 less 15 per cent is \$838\.10, which is \$69\.84 a month/.test(initial));
+    /\$973\.31 less 15 per cent is \$827\.31, which is \$68\.94 a month/.test(initial));
   ok('and it says what the membership buys that paying per visit does not',
     /covers every visit above and any other visit this year, acute or planned/
       .test(initial));
@@ -187,9 +187,9 @@ async function faxOf(p, date) {
    * visits that actually happened.
    */
   ok('the year behind is counted in charged visits and priced both ways',
-    /4 charged visits since 18 Nov 2025, which came to \$850\.39/.test(annual)
-    && /The membership quoted for that year was \$838\.08/.test(annual)
-    && /paying by the visit cost \$12\.31 more than the membership would have/
+    /4 charged visits since 18 Nov 2025, which came to \$837\.70/.test(annual)
+    && /The membership quoted for that year was \$827\.28/.test(annual)
+    && /paying by the visit cost \$10\.42 more than the membership would have/
       .test(annual));
   /*
    * Two problems are still off target rather than six, so the
@@ -200,9 +200,9 @@ async function faxOf(p, date) {
    */
   ok('the next year is quoted at the visit that closes this one',
     /16 Nov 2027/.test(annual)
-    && /Paying for each visit as it happens\s*\$850\.39/.test(annual));
+    && /Paying for each visit as it happens\s*\$837\.70/.test(annual));
   ok('and the monthly fee falls as the problems come under control',
-    /which is \$60\.24 a month/.test(annual));
+    /which is \$59\.34 a month/.test(annual));
   /*
    * Codes are on the page, because they are the answer to "why
    * that number". What must not be on it is a claim, a payer
@@ -213,9 +213,21 @@ async function faxOf(p, date) {
   ok('every note states that nothing is being claimed from anybody',
     [initial, three, acute, six, annual].every(
       (t) => /No claim is filed and no insurance is billed/.test(t)));
-  ok('and none of them says how Medicare or Medicaid work with a membership',
-    ![initial, three, acute, six, annual]
-      .some((t) => /Medicare|Medicaid/.test(t)));
+  /*
+   * D-039 guardrail 4b: no print piece may state how Medicare or
+   * Medicaid work with a membership until counsel has settled it.
+   * The payer comparison names both, so what this holds is that a
+   * note naming them carries the warning that none of it is in
+   * use. The warning is the only thing keeping this inside the
+   * guardrail, so it is the thing worth a test.
+   */
+  ok('a note that names a payer says first that none of it is in use',
+    [initial, three, acute, six, annual].every(
+      (t) => !/Medicare|Medicaid/.test(t)
+        || /Not in use\. This practice does not bill any insurer today/.test(t)));
+  ok('and the payer comparison appears only where a year is being priced',
+    /Medicaid/.test(initial) && /Medicaid/.test(annual)
+    && !/Medicaid/.test(acute) && !/Medicaid/.test(three));
   ok('the tetanus booster is his decision rather than our oversight',
     /asked for it with next autumn’s flu vaccine\. Recorded as his decision/
       .test(annual));
@@ -253,6 +265,80 @@ async function faxOf(p, date) {
       .length >= 2);
   ok('and the full visits do not carry those captions',
     !annual.includes('Not addressed at this visit'));
+
+
+  /*
+   * The coding is the pricing argument, so it has to be the right
+   * coding. G0438 and G0439 are Medicare-only wellness codes and this
+   * patient is 52, which the file got wrong until it was caught: a
+   * 40 to 64 year old has a preventive visit, 99386 or 99396.
+   */
+  ok('the preventive codes are the ones for his age, not the Medicare ones',
+    /99386/.test(initial) && /99396/.test(annual)
+    && ![initial, three, acute, six, annual].some((t) => /G043[89]/.test(t)));
+
+  /*
+   * What the plan is for, which a patient otherwise leaves without.
+   * Five measures on the first visit, each with the guideline behind
+   * it and an aim at every visit already booked, and the estimate
+   * said out loud rather than buried in a footnote.
+   */
+  ok('the first visit says what each number is aiming at, and by when',
+    /What we are aiming at/.test(initial)
+    && /Haemoglobin A1c\d?\s*7\.9 %/.test(initial)
+    && /under 7\.0\s*to 7\.6\s*to 7\.3\s*to 7\.0/.test(initial));
+  ok('and the weight target is read off where he started, not off a chart',
+    /214 lb, ten per cent below 238/.test(initial));
+  ok('the aims are called estimates on the page, not in the small print',
+    /columns on the right are estimates, not promises/.test(initial)
+    && /a number that misses one of these is information rather than a failure/
+      .test(initial));
+  ok('every target names the guideline it came from',
+    /American Diabetes Association/.test(initial)
+    && /Kidney Disease Improving Global Outcomes/.test(initial)
+    && /edition of each guideline has not been re-checked/.test(initial));
+  ok('and a measure already at target says so rather than being dropped',
+    /What we are aiming at/.test(annual) && /hold/.test(annual));
+
+  /*
+   * The list is the same list each visit. A first visit hands over
+   * more than any visit after it and says so; the admin help between
+   * visits is named, because the items that fall off a list are the
+   * administrative ones.
+   */
+  ok('the instructions are a running list rather than a fresh one',
+    /Our running list/.test(initial)
+    && /the list we keep together, not a new one each time/.test(initial));
+  ok('the first visit says the list should shrink from here',
+    /A first visit hands over more than any visit after it/.test(initial)
+    && /It should be getting shorter/.test(annual));
+  ok('and what happens between visits is on the page',
+    /patient portal handles the administrative side/.test(initial)
+    && /support calls on weekdays, walk-in or scheduled/i.test(initial));
+
+  /*
+   * Three ways to pay, measured against one baseline, and carrying
+   * its own warning. D-039 guardrail 4b has not been settled, so the
+   * page must say this is not an offer before it says anything else.
+   */
+  ok('the three routes are priced against the one published baseline',
+    /Three ways to pay/.test(initial)
+    && /Cash, paid per visit\s*\$192\.39/.test(initial)
+    && /Medicaid\s*\$142\.37/.test(initial)
+    && /Commercial\s*\$354\.00/.test(initial));
+  ok('and the one nobody could price says UNSET rather than a guess',
+    /Medicare Advantage\s*UNSET/.test(initial));
+  ok('the comparison says it is not an offer, before it says anything else',
+    /Not in use\. This practice does not bill any insurer today/.test(initial));
+
+  /*
+   * The scale is read against the poverty line for the household,
+   * which moves with the number of people the income supports.
+   */
+  ok('the sliding scale is worked against the poverty line, not a tax band',
+    /household income of \$85,000 across 3 people is 311 per cent of the federal poverty guideline/
+      .test(initial)
+    && /15 per cent comes off and the membership is \$58\.60 a month/.test(initial));
 
   console.log([...pass, ...fail].join('\n'));
   console.log(fail.length ? `\n${fail.length} FAILED` : '\nALL PASSED');
