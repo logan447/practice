@@ -44,7 +44,12 @@ export interface NoteSection {
  */
 export const SUBJECTIVE_SECTIONS: NoteSection[] = [
   { id: 'power', heading: '' },
-  { id: 'interval', heading: '' },
+  /*
+   * No separate results section. Values belong on the problem they
+   * bear on, where a reader is already looking, and the block ends
+   * with one line saying the rest were reviewed. A results section
+   * repeats numbers that are three inches further up the page.
+   */
   { id: 'problems', heading: 'Problems addressed today' },
   {
     id: 'lifestyle',
@@ -55,11 +60,6 @@ export const SUBJECTIVE_SECTIONS: NoteSection[] = [
     id: 'prevention',
     heading: 'Preventative Medicine Services',
     whenSkipped: 'Not addressed at this visit.',
-  },
-  {
-    id: 'results',
-    heading: 'Results reviewed',
-    whenSkipped: 'Nothing new since the last visit.',
   },
   { id: 'ros', heading: 'Review of systems' },
   { id: 'problist', heading: 'Full problem list' },

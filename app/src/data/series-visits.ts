@@ -61,41 +61,33 @@ const INITIAL: Encounter = {
         + 'lifestyle medicine.',
       reason: 'Joined after his father died. Wants to know where he actually stands.',
 
-      chartReview: 'His father had a first heart attack at 55 and died at 61. That is '
-        + 'why he is here and he said so in the first minute. He has never had an hour '
-        + 'of anybody’s time and arrives believing he has one problem.\n\n'
-        + 'Problems addressed today\n'
-        + 'Hypertension — Not assessed. Started on hydrochlorothiazide 25 mg at an '
-        + 'urgent care in March 2024 after a reading of 156/96 and never followed up. He '
-        + 'has taken it since and has never had a second reading taken anywhere. No home '
-        + 'machine. Denies headache, chest pain, breathlessness, and ankle swelling.\n'
-        + 'Type 2 diabetes mellitus — Not assessed, new today. No symptoms. Told '
-        + 'twice that he was a bit borderline and never given a number. Denies polyuria, '
-        + 'polydipsia, blurred vision, and numbness in the feet.\n'
-        + 'Albuminuria in diabetes — Not assessed, new today. Found on the urine '
-        + 'sent this morning. Denies frothy urine and any change in volume.\n'
-        + 'Mixed hyperlipidaemia — Not assessed, new today. Untreated. Denies '
-        + 'muscle aches and any previous statin.\n'
-        + 'Obstructive sleep apnoea — Not assessed, suspected. Snores, which his '
-        + 'wife raised rather than he did, and falls asleep in front of the television '
-        + 'most nights. Fell asleep at a red light once, which he mentioned and then '
-        + 'said he had not meant to. Denies morning headache and witnessed choking.\n'
-        + 'Obesity — Not assessed. 238 lb, heaviest recorded 241 lb last year. Lost '
-        + 'weight twice before on his own and regained it both times.',
+      chartReview: 'Problems addressed today\n'
+        + 'Hypertension — On hydrochlorothiazide 25 mg since March 2024, started at an '
+        + 'urgent care after 156/96 and never rechecked. No home machine. Denies '
+        + 'headache, chest pain, breathlessness, and ankle swelling.\n'
+        + 'Type 2 diabetes mellitus — New today. A1c 7.9, glucose 162. No symptoms. '
+        + 'Denies polyuria, polydipsia, blurred vision, and numbness in the feet.\n'
+        + 'Albuminuria in diabetes — New today. Urine albumin to creatinine 42, '
+        + 'estimated GFR 84. Denies frothy urine and any change in volume.\n'
+        + 'Mixed hyperlipidaemia — New today. LDL 162, triglycerides 240, HDL 38, '
+        + 'untreated. ALT 62. Denies muscle aches and any previous statin.\n'
+        + 'Obstructive sleep apnoea — Suspected. Snoring and witnessed apnoeas '
+        + 'reported by his wife. Fell asleep at the wheel once. Denies morning '
+        + 'headache and witnessed choking.\n'
+        + 'Obesity — 238 lb, heaviest recorded 241 lb. Two previous attempts at '
+        + 'weight loss, regained both times.\n'
+        + 'All labs on file relevant to the above were reviewed with the patient. No '
+        + 'prior results on file from any practice.',
 
       diagnostics: 'Lifestyle\n'
-        + 'Exercise — None beyond walking to the car. Desk job, four hours a week '
-        + 'driving.\n'
-        + 'Diet — Two sodas a day. Breakfast is a pastry at the desk. His wife '
-        + 'cooks most evenings and he describes the food as fine and the portions as '
-        + 'not.\n'
-        + 'Sleep — Seven hours in bed, unrefreshing, snoring. Tired through every '
-        + 'afternoon for years.\n'
-        + 'Stress — Not raised by him and not asked about today.\n'
-        + 'Substances — Three or four beers most evenings and more at the weekend. '
-        + 'Stopped smoking in 2011 after twenty pack years. No drug use.\n'
-        + 'Social — Lives with his wife and a nineteen year old. Not raised today.\n'
-        + 'Financial — Not raised today.\n\n'
+        + 'Exercise — None. Desk job, four hours a week driving.\n'
+        + 'Diet — Two sodas a day. Breakfast is a pastry at the desk. Large portions.\n'
+        + 'Sleep — Seven hours, unrefreshing. Daytime somnolence for years.\n'
+        + 'Stress — Not addressed today.\n'
+        + 'Substances — Three or four beers most evenings, more at weekends. Former '
+        + 'smoker, quit 2011. No drug use.\n'
+        + 'Social — Not addressed today.\n'
+        + 'Financial — Not addressed today.\n\n'
         + 'Preventative Medicine Services\n'
         + 'Colorectal cancer screening — Overdue. Screening starts at 45 and he is '
         + '52. Never had one.\n'
@@ -103,12 +95,7 @@ const INITIAL: Encounter = {
         + 'Diabetic foot examination — Due from today.\n'
         + 'Shingles vaccination — Due. Over 50 and has had neither dose.\n'
         + 'Influenza vaccination — Due this season.\n'
-        + 'Tetanus booster — Overdue since 2023.\n\n'
-        + 'Results reviewed\n'
-        + 'No laboratory results on file from anywhere. The last blood test he remembers '
-        + 'was before 2020. Bloods and a urine albumin drawn this morning and resulted '
-        + 'during the visit: A1c 7.9, glucose 162, LDL 162, triglycerides 240, HDL 38, '
-        + 'urine albumin to creatinine 42, estimated GFR 84, ALT 62.',
+        + 'Tetanus booster — Overdue since 2023.',
 
       specialists: '',
 
@@ -129,11 +116,11 @@ const INITIAL: Encounter = {
         + '• Hypertension (chronic) — Addressed at this visit, as above. '
         + 'Ours.\n'
         + '• Type 2 diabetes mellitus (chronic) — Addressed at this visit, as '
-        + 'above. Diagnosed today. Ours.\n'
+        + 'above. Ours.\n'
         + '• Albuminuria in diabetes (chronic) — Addressed at this visit, as '
-        + 'above. Diagnosed today. Ours.\n'
+        + 'above. Ours.\n'
         + '• Mixed hyperlipidaemia (chronic) — Addressed at this visit, as '
-        + 'above. Diagnosed today. Ours.\n'
+        + 'above. Ours.\n'
         + '• Obesity (chronic) — Addressed at this visit, as above. Ours.\n'
         + '• Obstructive sleep apnoea (chronic) — Addressed at this visit, as '
         + 'above. Suspected, not yet diagnosed. Referred today.\n'
@@ -238,7 +225,7 @@ const INITIAL: Encounter = {
         },
         {
           id: 'te1-p5',
-          problem: 'Obstructive sleep apnoea — Not assessed, suspected',
+          problem: 'Obstructive sleep apnoea — Suspected',
           assessment: 'Snoring, witnessed apnoeas, daytime sleepiness, a 17.5 inch neck '
             + 'and a Mallampati III. He has fallen asleep at a red light once.\n'
             + 'Nothing about this can be treated until it is measured, and no amount of '
@@ -325,7 +312,7 @@ const INITIAL: Encounter = {
        * year against the price he was actually given, not against one
        * worked out afterwards with the year in hand.
        */
-      quotedMonthly: 68.94,
+      quotedYear: 596.78,
     },
   },
 };
@@ -348,11 +335,7 @@ const THREE_MONTH: Encounter = {
         + 'and lifestyle medicine.',
       reason: 'Three month review. Brought the home readings on paper, all of them.',
 
-      chartReview: 'Three months on from four diagnoses. The sleep study was done in '
-        + 'January and he has been on CPAP since the 12th of February, which he raised '
-        + 'before any of the numbers: he is awake in the afternoons for the first time '
-        + 'in years.\n\n'
-        + 'Problems addressed today\n'
+      chartReview: 'Problems addressed today\n'
         + 'Type 2 diabetes mellitus — Not at goal, improving. Taking metformin 1000 '
         + 'mg twice daily since early January. Loose stools for the first fortnight and '
         + 'none since. Denies hypoglycaemia, polyuria, polydipsia, and blurred vision.\n'
@@ -367,30 +350,25 @@ const THREE_MONTH: Encounter = {
         + 'hypopnoea index 22, moderate. Seen by sleep medicine 10 February and on CPAP '
         + 'since the 12th. Says it was unbearable for four nights and then was not. '
         + 'Denies mask leak and dry mouth.\n'
-        + 'Obesity — Not at goal, improving. 229 lb from 238.',
+        + 'Obesity — Not at goal, improving. 229 lb from 238.\n'
+        + 'All labs on file relevant to the above were reviewed with the patient. Potassium 4.2 and creatinine 1.04 on the two week check after '
+        + 'starting the lisinopril, both unchanged.',
 
       diagnostics: 'Lifestyle\n'
-        + 'Exercise — Walking most evenings, by his phone count about five a week.\n'
-        + 'Diet — The sodas are gone and have not come back. One meat free dinner '
-        + 'most weeks.\n'
-        + 'Sleep — CPAP every night since the 12th. The afternoons are back.\n'
-        + 'Stress — Raised today for the first time. Busy quarter, phone in the '
-        + 'bedroom, lunch at the desk.\n'
-        + 'Substances — The two dry days a week happen about one week in three.\n'
+        + 'Exercise — Walking about five evenings a week.\n'
+        + 'Diet — Sodas stopped. One meat free dinner most weeks.\n'
+        + 'Sleep — CPAP every night since 12 February. Daytime somnolence resolved.\n'
+        + 'Stress — Busy quarter. Phone in the bedroom, lunch at the desk.\n'
+        + 'Substances — Two dry days a week, achieved about one week in three.\n'
         + 'Social — Not raised today.\n'
-        + 'Financial — Not raised today.\n\n'
+        + 'Financial — Not addressed today.\n\n'
         + 'Preventative Medicine Services\n'
         + 'Colorectal cancer screening — Booked 21 April with Dr. Mensah. He has '
         + 'the appointment.\n'
         + 'Diabetic retinal screening — Done 13 January. No retinopathy.\n'
         + 'Shingles vaccination — Still due. Agreed to start the course at the next '
         + 'visit.\n'
-        + 'Tetanus booster — Still overdue. Offered again and deferred again.\n\n'
-        + 'Results reviewed\n'
-        + 'A1c 7.1 from 7.9. LDL 88 from 162. Urine albumin to creatinine 38 from 42. '
-        + 'Potassium 4.2 and creatinine 1.04 on the two week check after starting the '
-        + 'lisinopril, both unchanged. Home sleep apnoea test 29 January: apnoea '
-        + 'hypopnoea index 22, nadir saturation 86 per cent.',
+        + 'Tetanus booster — Still overdue. Offered again and deferred again.',
 
       specialists: '',
 
@@ -420,22 +398,19 @@ const THREE_MONTH: Encounter = {
         + 'above. Co-managed with Dr. Ingrid Halvorsen, Sleep medicine. Last seen 10 Feb '
         + '2026, next 9 Feb 2027.\n'
         + '• Obesity (chronic) — Addressed at this visit, as above. Ours.\n'
-        + '• Former tobacco use (chronic) — Triaged as stable. Resolved in '
-        + '2011. Nobody is managing it because there is nothing to manage.\n\n'
+        + '• Former tobacco use (chronic) — Resolved 2011.\n\n'
         + 'Medications\n'
         + '• Metformin 1000 mg — one tablet twice daily with food. Taking.\n'
         + '• Lisinopril 10 mg — one tablet each morning. Taking.\n'
         + '• Atorvastatin 40 mg — one tablet at night. Taking.\n'
         + '• Hydrochlorothiazide 25 mg — stopped 18 Nov 2025.\n'
-        + 'Reconciled with him at this visit, bottle by bottle. No supplements, nothing '
-        + 'over the counter.\n\n'
+        + 'Reconciled at this visit. No supplements, nothing over the counter.\n\n'
         + 'Care team\n'
         + '• Dr. Ingrid Halvorsen, Sleep medicine, Austin Sleep and Pulmonary '
-        + '— co-managing the apnoea. Last seen 10 Feb 2026, next 9 Feb 2027. '
-        + 'Nothing outstanding; machine reports come to us monthly.\n'
+        + '— apnoea. Last seen 10 Feb 2026, next 9 Feb '
+        + '2027. Machine reports monthly. Nothing outstanding.\n'
         + '• Dr. Paul Mensah, Gastroenterology, Capital Digestive — '
-        + 'colonoscopy booked 21 Apr 2026. Referral confirmed and he has the '
-        + 'appointment.',
+        + 'colonoscopy 21 Apr 2026, confirmed.',
     },
     objective: {
       homeMeasures: 'Fourteen days of home readings, morning and evening. Average '
@@ -624,17 +599,16 @@ const ACUTE: Encounter = {
         + 'today for management of an acutely painful left first toe.',
       reason: 'Woke yesterday with the left big toe hot and too painful to put a shoe on.',
 
-      chartReview: 'Seen five weeks ago for the three month review and well since. He '
-        + 'asked whether this was the empagliflozin. It is not: if anything that drug '
-        + 'lowers urate a little, and stopping the hydrochlorothiazide in November '
-        + 'removed the one drug he was on that raises it.\n\n'
-        + 'Problems addressed today\n'
-        + 'Acute monoarthritis, left first metatarsophalangeal joint — Not '
-        + 'assessed, new. Came on overnight, maximal within six hours, red and hot, and '
+      chartReview: 'Problems addressed today\n'
+        + 'Acute monoarthritis, left first metatarsophalangeal joint — New today. Came on overnight, maximal within six hours, red and hot, and '
         + 'he cannot bear the bedsheet on it. Three days at a conference before it '
         + 'started with beer every evening and more meat than usual. Denies fever, '
         + 'rigors, trauma, any break in the skin, any other joint, and any previous '
-        + 'episode like this.',
+        + 'episode like this. Urate 8.9 today. Creatinine 1.04 five weeks ago, '
+        + 'estimated GFR 86.\n'
+        + 'All labs on file relevant to the above were reviewed with the patient. He asked whether this was the '
+        + 'empagliflozin; it is not, and stopping the hydrochlorothiazide in November '
+        + 'removed the one drug he was on that raises urate.',
 
       diagnostics: 'Lifestyle\n'
         + 'Not addressed at this visit, last reviewed 17 Feb 2026, next planned 19 May '
@@ -642,10 +616,7 @@ const ACUTE: Encounter = {
         + 'he raised it himself before I did.\n\n'
         + 'Preventative Medicine Services\n'
         + 'Not addressed at this visit, last reviewed 17 Feb 2026, next planned 19 May '
-        + '2026. The colonoscopy on 21 April is unchanged.\n\n'
-        + 'Results reviewed\n'
-        + 'Serum urate 8.9 mg/dL today. Creatinine 1.04 five weeks ago, estimated GFR '
-        + '86. Nothing else new.',
+        + '2026. The colonoscopy on 21 April is unchanged.',
 
       specialists: '',
 
@@ -657,11 +628,9 @@ const ACUTE: Encounter = {
         + 'Cardiovascular: no chest pain, no breathlessness, no oedema.\n'
         + 'Genitourinary: no symptoms reported.\n'
         + 'Gastrointestinal: no symptoms reported.\n'
-        + 'The rest of the review was not performed. A focused visit gets a focused '
-        + 'review, and the full one was done five weeks ago.\n\n'
+        + 'Remainder not performed; focused visit. Full review 17 Feb 2026.\n\n'
         + 'Full problem list\n'
-        + '• Gout (acute) — Addressed at this visit, as above. New today. '
-        + 'Ours.\n'
+        + '• Gout (acute) — Addressed at this visit, as above. Ours.\n'
         + '• Type 2 diabetes mellitus (chronic) — Triaged as stable. Ours. '
         + 'Last reviewed 17 Feb 2026, next 19 May 2026.\n'
         + '• Hypertension (chronic) — Triaged as stable. Ours. Last reviewed '
@@ -675,18 +644,15 @@ const ACUTE: Encounter = {
         + 'next 9 Feb 2027.\n'
         + '• Obesity (chronic) — Triaged as stable. Ours. Last reviewed 17 Feb '
         + '2026, next 19 May 2026.\n'
-        + '• Former tobacco use (chronic) — Triaged as stable. Resolved in '
-        + '2011.\n\n'
+        + '• Former tobacco use (chronic) — Resolved 2011.\n\n'
         + 'Medications\n'
         + '• Metformin 1000 mg — one tablet twice daily with food. Taking.\n'
         + '• Empagliflozin 10 mg — one tablet each morning. Taking.\n'
         + '• Lisinopril 20 mg — one tablet each morning. Taking.\n'
         + '• Atorvastatin 40 mg — one tablet at night. Taking.\n'
-        + 'Confirmed with him today because a steroid is being added to all four. Not a '
-        + 'full reconciliation: that was done five weeks ago and is due again in May.\n\n'
+        + 'Confirmed today, a steroid being added to all four. Full reconciliation due in May.\n\n'
         + 'Care team\n'
-        + '• Dr. Ingrid Halvorsen, Sleep medicine — unchanged, and not '
-        + 'involved in this.\n'
+        + '• Dr. Ingrid Halvorsen, Sleep medicine — not involved in this.\n'
         + '• Dr. Paul Mensah, Gastroenterology — colonoscopy 21 Apr 2026, '
         + 'unchanged.',
     },
@@ -700,7 +666,7 @@ const ACUTE: Encounter = {
         + 'tender to the lightest touch, with overlying skin shiny. Dorsalis pedis '
         + 'present. No break in the skin, no ulceration, no lymphangitis, no tophi.\n'
         + 'Other joints: no synovitis at the ankles, knees, wrists or hands.\n'
-        + 'The rest of the examination was not performed, this being a focused visit.',
+        + 'Remainder not performed; focused visit.',
     },
     assessment: {
       oneLiner: '',
@@ -792,11 +758,7 @@ const SIX_MONTH: Encounter = {
         + 'services and lifestyle medicine.',
       reason: 'Six month review. Nothing he wanted to raise, which is itself new.',
 
-      chartReview: 'The gout flare in March settled in nine days and did more for the '
-        + 'drinking than six months of being asked about it. He went from five evenings '
-        + 'to two and the screen has dropped below the cut-off for the first time. The '
-        + 'colonoscopy was done in April.\n\n'
-        + 'Problems addressed today\n'
+      chartReview: 'Problems addressed today\n'
         + 'Gout — At goal. The March flare settled in nine days on the prednisone. '
         + 'No second flare. Denies any joint pain since.\n'
         + 'Type 2 diabetes mellitus — At goal. A1c 6.5. Taking metformin and '
@@ -810,31 +772,27 @@ const SIX_MONTH: Encounter = {
         + 'weakness.\n'
         + 'Obstructive sleep apnoea — At goal. Machine reports 5.8 hours a night '
         + 'across the quarter. Denies mask leak, dry mouth, and daytime sleepiness.\n'
-        + 'Obesity — Not at goal, improving. 220 lb from 229.',
+        + 'Obesity — Not at goal, improving. 220 lb from 229.\n'
+        + 'All labs on file relevant to the above were reviewed with the patient. Potassium 4.4 and creatinine 1.06 on the two week check after '
+        + 'the lisinopril went up. Colonoscopy 21 April: two tubular adenomas, 4 mm '
+        + 'and 6 mm, removed completely, no high grade dysplasia.',
 
       diagnostics: 'Lifestyle\n'
         + 'Exercise — Walking five evenings a week and held five months.\n'
-        + 'Diet — Three meat free dinners most weeks, which his wife drove more '
-        + 'than he did. No liquid calories since November.\n'
+        + 'Diet — Three meat free dinners most weeks. No liquid calories since November.\n'
         + 'Sleep — CPAP every night, 5.8 hours a night on the report.\n'
-        + 'Stress — Phone is out of the bedroom. The lunch breaks happen in quiet '
-        + 'weeks and not in busy ones, which he describes accurately as most weeks.\n'
+        + 'Stress — Phone out of the bedroom. Lunch breaks in quiet weeks only.\n'
         + 'Substances — Two evenings a week instead of five. Screen 3, below the '
         + 'cut-off for the first time.\n'
-        + 'Social — Raised today. He would rather walk with his wife than alone.\n'
-        + 'Financial — Raised today, by him. He does not know what the CPAP '
-        + 'supplies or the empagliflozin will cost when his deductible resets.\n\n'
+        + 'Social — Would rather walk with his wife than alone.\n'
+        + 'Financial — Does not know what the CPAP supplies or the empagliflozin '
+        + 'cost when the deductible resets.\n\n'
         + 'Preventative Medicine Services\n'
         + 'Colorectal cancer screening — Done 21 April. Two adenomas removed.\n'
         + 'Diabetic retinal screening — Current to January 2027.\n'
         + 'Shingles vaccination — First dose due today.\n'
         + 'Diabetic foot examination — Due today.\n'
-        + 'Tetanus booster — Still overdue since 2023.\n\n'
-        + 'Results reviewed\n'
-        + 'A1c 6.5 from 7.1. LDL 82 from 88. Urine albumin to creatinine 22 from 38, '
-        + 'which is in range. Potassium 4.4 and creatinine 1.06 on the two week check '
-        + 'after the lisinopril went up. Colonoscopy 21 April: two tubular adenomas, 4 '
-        + 'mm and 6 mm, removed completely, no high grade dysplasia.',
+        + 'Tetanus booster — Still overdue since 2023.',
 
       specialists: '',
 
@@ -865,8 +823,7 @@ const SIX_MONTH: Encounter = {
         + 'above. Co-managed with Dr. Ingrid Halvorsen, Sleep medicine. Last seen 10 Feb '
         + '2026, next 9 Feb 2027.\n'
         + '• Obesity (chronic) — Addressed at this visit, as above. Ours.\n'
-        + '• Former tobacco use (chronic) — Triaged as stable. Resolved in '
-        + '2011.\n\n'
+        + '• Former tobacco use (chronic) — Resolved 2011.\n\n'
         + 'Medications\n'
         + '• Metformin 1000 mg — one tablet twice daily with food. Taking.\n'
         + '• Empagliflozin 10 mg — one tablet each morning. Taking.\n'
@@ -874,15 +831,14 @@ const SIX_MONTH: Encounter = {
         + '• Atorvastatin 40 mg — one tablet at night. Taking.\n'
         + '• Prednisone — course finished 3 April 2026.\n'
         + '• Hydrochlorothiazide 25 mg — stopped 18 Nov 2025.\n'
-        + 'Reconciled with him at this visit. No supplements, nothing over the counter.'
+        + 'Reconciled at this visit. No supplements, nothing over the counter.'
         + '\n\n'
         + 'Care team\n'
         + '• Dr. Ingrid Halvorsen, Sleep medicine, Austin Sleep and Pulmonary '
-        + '— co-managing the apnoea. Machine reports arriving monthly, 5.8 hours a '
-        + 'night. Last seen 10 Feb 2026, next 9 Feb 2027. Nothing outstanding.\n'
+        + '— apnoea. 5.8 hours a night on the machine '
+        + 'reports. Last seen 10 Feb 2026, next 9 Feb 2027. Nothing outstanding.\n'
         + '• Dr. Paul Mensah, Gastroenterology, Capital Digestive — '
-        + 'colonoscopy done 21 Apr 2026, two adenomas removed completely. Repeat in '
-        + 'seven years, which they have set at 2033. Nothing outstanding.',
+        + 'colonoscopy 21 Apr 2026, two adenomas removed. Repeat 2033.',
     },
     objective: {
       homeMeasures: 'Fourteen days of home readings. Average 128/79. Highest 138/86, '
@@ -1071,12 +1027,7 @@ const ANNUAL: Encounter = {
         + 'services and lifestyle medicine.',
       reason: 'Annual visit, one year after the first one.',
 
-      chartReview: 'One year on. He asked for the year on one page so he could show his '
-        + 'wife, and that is what the letter is for. The thing he raised himself: the '
-        + 'walking with his wife is the part he would keep. The thing he has still not '
-        + 'done: the phone call about what the CPAP supplies and the empagliflozin cost '
-        + 'him, which has been on the list since May.\n\n'
-        + 'Problems addressed today\n'
+      chartReview: 'Problems addressed today\n'
         + 'Type 2 diabetes mellitus — At goal. A1c 6.1 from 7.9 a year ago. Denies '
         + 'hypoglycaemia, polyuria, polydipsia, genital symptoms, and numbness or '
         + 'tingling in the feet.\n'
@@ -1089,7 +1040,9 @@ const ANNUAL: Encounter = {
         + 'Obstructive sleep apnoea — At goal. 6.1 hours a night on the machine '
         + 'report. Epworth 4 from 14. Denies sleepiness, mask leak, and dry mouth.\n'
         + 'Gout — At goal. No flare since March. Denies joint pain.\n'
-        + 'Obesity — Not at goal, improving. 211 lb from 238.',
+        + 'Obesity — Not at goal, improving. 211 lb from 238.\n'
+        + 'All labs on file relevant to the above were reviewed with the patient. ALT 31, normal for the first time, from 62. Creatinine 1.08, '
+        + 'estimated GFR 85, stable across the year.',
 
       diagnostics: 'Lifestyle\n'
         + 'Exercise — Walking has held twelve months. The band work lasted six '
@@ -1101,19 +1054,14 @@ const ANNUAL: Encounter = {
         + 'Substances — Screen 2, from 6 a year ago.\n'
         + 'Social — Walking together four or five evenings a week, and the part of '
         + 'the year he says he would keep.\n'
-        + 'Financial — Still not done. He has not made the call and it has been '
-        + 'asked at two visits.\n\n'
+        + 'Financial — Call not made. Asked at two visits.\n\n'
         + 'Preventative Medicine Services\n'
         + 'Colorectal cancer screening — Current. Done April 2026, next 2033.\n'
         + 'Diabetic retinal screening — Current to January 2027, booked.\n'
         + 'Diabetic foot examination — Due today.\n'
         + 'Shingles vaccination — Complete. Both doses given.\n'
         + 'Influenza vaccination — Given 6 October 2026.\n'
-        + 'Tetanus booster — Still overdue since 2023.\n\n'
-        + 'Results reviewed\n'
-        + 'A1c 6.1 from 6.5. LDL 78 from 82. Urine albumin to creatinine 14 from 22. ALT '
-        + '31, normal for the first time, from 62 a year ago. Urate 6.4 from 8.9 in the '
-        + 'flare. Creatinine 1.08, estimated GFR 85, stable across the year.',
+        + 'Tetanus booster — Still overdue since 2023.',
 
       specialists: '',
 
@@ -1144,8 +1092,7 @@ const ANNUAL: Encounter = {
         + 'above. Co-managed with Dr. Ingrid Halvorsen, Sleep medicine. Last seen 10 Feb '
         + '2026, next 9 Feb 2027.\n'
         + '• Obesity (chronic) — Addressed at this visit, as above. Ours.\n'
-        + '• Former tobacco use (chronic) — Triaged as stable. Resolved in '
-        + '2011.\n\n'
+        + '• Former tobacco use (chronic) — Resolved 2011.\n\n'
         + 'Medications\n'
         + '• Metformin 1000 mg — one tablet twice daily with food. Taking.\n'
         + '• Empagliflozin 10 mg — one tablet each morning. Taking.\n'
@@ -1153,15 +1100,13 @@ const ANNUAL: Encounter = {
         + '• Atorvastatin 40 mg — one tablet at night. Taking.\n'
         + '• Hydrochlorothiazide 25 mg — stopped 18 Nov 2025.\n'
         + '• Prednisone — course finished 3 April 2026.\n'
-        + 'Reconciled with him at this visit, bottle by bottle. No supplements, nothing '
-        + 'over the counter.\n\n'
+        + 'Reconciled at this visit. No supplements, nothing over the counter.\n\n'
         + 'Care team\n'
         + '• Dr. Ingrid Halvorsen, Sleep medicine, Austin Sleep and Pulmonary '
-        + '— co-managing the apnoea. Machine reports monthly, 6.1 hours a night. '
-        + 'Last seen 10 Feb 2026, next 9 Feb 2027. Nothing outstanding.\n'
+        + '— apnoea. 6.1 hours a night on the machine '
+        + 'reports. Last seen 10 Feb 2026, next 9 Feb 2027. Nothing outstanding.\n'
         + '• Dr. Paul Mensah, Gastroenterology, Capital Digestive — '
-        + 'colonoscopy April 2026, two adenomas removed. Next 2033. Nothing '
-        + 'outstanding.',
+        + 'colonoscopy April 2026, two adenomas removed. Next 2033.',
     },
     objective: {
       homeMeasures: 'Fourteen days of home readings, twenty six of them. Average '
@@ -1348,7 +1293,7 @@ const ANNUAL: Encounter = {
       // Two problems still off target at the annual, so the projection
       // expects one unbooked visit rather than two and next year is
       // quoted lower than the year just gone.
-      quotedMonthly: 59.34,
+      quotedYear: 596.78,
     },
   },
 };

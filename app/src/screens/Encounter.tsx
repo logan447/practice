@@ -46,7 +46,7 @@ import type { Intervention } from '../lib/interventions';
 import { ambientScript, wasCaught, ERROR_LABEL, type InjectedError } from '../lib/ambient';
 import { Fishbone, OtherLabs } from './chart/Fishbone';
 import { buildFaxNote } from '../lib/faxNote';
-import { quoteYear, yearBehind, visitKindOf, planYear } from '../lib/billing';
+import { yearBehind, visitKindOf, planYear } from '../lib/billing';
 import { buildTargets } from '../domain/targets';
 import { specialistsAbout } from './chart/relate';
 import { readLines, GROUP_LABEL } from './chart/NoteText';
@@ -303,7 +303,12 @@ export function Encounter({ encounterId }: { encounterId: string }) {
          * watching it.
          */
         standing: [
-          pr.goal === 'at-goal' ? 'At goal' : pr.goal ? 'Not at goal' : 'Not assessed',
+          /*
+           * "No goal set" rather than "Not assessed", which was the
+           * old word and says nothing: it reads as a judgment about
+           * the problem when it is a statement about the record.
+           */
+          pr.goal === 'at-goal' ? 'At goal' : pr.goal ? 'Not at goal' : 'No goal set',
           (() => {
             const sp = specialistsAbout(pr.name, specialists)[0];
             if (!sp) return '';
@@ -974,7 +979,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       if (prior.id === self || prior.date >= on) continue;
       const was = prior.note?.plan.booked ?? [];
       if (!was.some((v) => v.date === on)) continue;
-      const match = quoteYear(was, false).visits.find((v) => v.date === on);
+      const match = planYear(was).visits.find((v) => v.date === on);
       if (!match) continue;
       return { price: match.price, on: prior.date, of: was.length };
     }
@@ -982,18 +987,16 @@ export function Encounter({ encounterId }: { encounterId: string }) {
   };
 
   /**
-   * The monthly fee this visit quotes, where it quotes one.
+   * The upfront price this visit quotes, where it quotes one.
    *
    * Only at a visit that books a year, which is a first assessment or
    * an annual. Stored on the note so that a year from now the
    * comparison is against what somebody was actually told.
    */
-  const quotedMonthly = (): number | undefined => {
+  const quotedYear = (): number | undefined => {
     const booked = bookedVisits();
     if (booked.length === 0) return undefined;
-    return planYear(booked, conditions.filter(
-      (c) => c.status === 'active' && c.managed && c.goal !== 'at-goal',
-    ).length).membershipMonth;
+    return planYear(booked).upfront;
   };
 
   /** Everything booked out of this visit, soonest first. */
@@ -1045,7 +1048,7 @@ export function Encounter({ encounterId }: { encounterId: string }) {
       overall: w.instructions,
       followUp: followUpLine(),
       booked: bookedVisits(),
-      quotedMonthly: quotedMonthly(),
+      quotedYear: quotedYear(),
     },
   };
 

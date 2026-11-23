@@ -471,14 +471,13 @@ export interface VisitNote {
      */
     booked?: { date: string; why: string }[];
     /**
-     * The monthly fee quoted at this visit, where one was.
+     * The upfront price for the year quoted at this visit.
      *
-     * Kept rather than recomputed because it was worked out from
-     * the problem list as it stood on the day. A year later that
-     * list has changed, and a membership price recomputed from the
-     * new one is not the price anybody was quoted.
+     * Kept rather than recomputed, because a price worked out a year
+     * later off a different booking list is not the price anybody was
+     * actually given.
      */
-    quotedMonthly?: number;
+    quotedYear?: number;
   };
 }
 

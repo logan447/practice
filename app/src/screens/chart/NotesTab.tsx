@@ -22,11 +22,11 @@ import { useStore } from '../../lib/store';
 import { useActor } from '../../lib/session';
 import { record } from '../../lib/audit';
 import { buildFaxNote } from '../../lib/faxNote';
-import { quoteYear, yearBehind, visitKindOf } from '../../lib/billing';
+import { planYear, yearBehind, visitKindOf } from '../../lib/billing';
 import { buildTargets } from '../../domain/targets';
 import type { Encounter } from '../../domain/types';
 import { useNav } from '../../lib/nav';
-import { fmtDate } from '../../lib/format';
+import { fmtDate, age } from '../../lib/format';
 import { SETTING_LABEL } from '../../domain/types';
 import { Rows, Row, Sheet, NoRows } from './Rows';
 import { NoteText } from './NoteText';
@@ -247,7 +247,7 @@ function FaxNote({ patientId, encounterId, onClose }: {
       newPatient: !st.encountersFor(patientId)
         .some((x) => x.status === 'signed' && x.date < e.date),
       booked: e.note?.plan.booked ?? [],
-      quotedAt: quotedAt(st, patientId, e),
+      quotedAt: quotedAt(st, patientId, e, p.dob),
       visitKind: visitKindOf(e.legacyKind),
       problemsOffTarget: offTarget(st, patientId, e.date),
       targets: buildTargets(
@@ -258,7 +258,7 @@ function FaxNote({ patientId, encounterId, onClose }: {
         e.date,
       ),
       yearBehind: yearBehind(priced(st, patientId), e.date),
-      yearBehindMembership: quotedMembership(st, patientId, e),
+      yearBehindUpfront: quotedUpfront(st, patientId, e),
       sliding: p.household
         ? { income: p.household.income, household: p.household.size }
         : undefined,
@@ -393,34 +393,34 @@ function offTarget(st: ReturnType<typeof useStore>, patientId: string, on: strin
 }
 
 /**
- * The membership that was quoted for the year now ending.
+ * The upfront price that was quoted for the year now ending.
  *
- * Read off the note that quoted it. A membership recomputed today
- * from today's problem list is not the price anybody was given, and
- * comparing a year against a number invented after it is the kind of
- * arithmetic that always flatters whoever is doing it.
+ * Read off the note that quoted it. A price recomputed today is not
+ * the one anybody was given, and comparing a year against a number
+ * invented after it is the kind of arithmetic that always flatters
+ * whoever is doing it.
  */
-function quotedMembership(
+function quotedUpfront(
   st: ReturnType<typeof useStore>, patientId: string, e: Encounter,
 ): number | undefined {
   for (const prior of st.encountersFor(patientId)) {
     if (prior.id === e.id || prior.date >= e.date) continue;
-    const m = prior.note?.plan.quotedMonthly;
-    if (m !== undefined) return Math.round(m * 12 * 100) / 100;
+    const m = prior.note?.plan.quotedYear;
+    if (m !== undefined) return m;
   }
   return undefined;
 }
 
 function quotedAt(
-  st: ReturnType<typeof useStore>, patientId: string, e: Encounter,
+  st: ReturnType<typeof useStore>, patientId: string, e: Encounter, dob: string,
 ): { price: number; on: string; of: number } | undefined {
   for (const prior of st.encountersFor(patientId)) {
     if (prior.id === e.id || prior.date >= e.date) continue;
     const booked = prior.note?.plan.booked ?? [];
     if (!booked.some((v) => v.date === e.date)) continue;
-    const q = quoteYear(booked, false);
-    // Each booked line carries its own price now, so the one for
-    // this date is looked up rather than divided out of a total.
+    // Each booked line carries its own price, so the one for this
+    // date is looked up rather than divided out of a total.
+    const q = planYear(booked, age(dob, e.date));
     const match = q.visits.find((v) => v.date === e.date);
     if (!match) continue;
     return { price: match.price, on: prior.date, of: booked.length };

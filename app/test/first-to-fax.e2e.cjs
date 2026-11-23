@@ -134,11 +134,19 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('and the year is priced per visit, not at one rate for everything',
     /Planned review, 99215\s*\$192\.39/.test(flat)
     && /Annual visit, 99395 and 99215\s*\$309\.96/.test(flat));
-  ok('with the visits nobody books added at what an acute visit is worth',
-    (flat.match(/an illness nobody has booked/g) || []).length === 2
-    && /Paying for each visit as it happens\s*\$773\.57/.test(flat));
-  ok('and a membership derived from her own year rather than a flat price',
-    /\$773\.57 less 15 per cent is \$657\.53, which is \$54\.79 a month/.test(flat));
+  /*
+   * Two ways, not three. The monthly membership with unlimited visits
+   * is gone: it was priced off a projection of how ill she ought to
+   * get, and an illness nobody booked is now simply charged when
+   * there is one.
+   */
+  ok('and it is priced three ways, per visit, upfront, or monthly',
+    /Per visit\s*\$502\.35/.test(flat)
+    && /The year upfront\s*\$427\.00/.test(flat)
+    && /Monthly\s*\$35\.58\/mo/.test(flat));
+  ok('an acute visit has a price when paying per visit, and none when committed',
+    /plus \$135\.61 an acute visit/.test(flat)
+    && /every acute or extra follow-up visit included/.test(flat));
   ok('what the fee covers and what it does not are both stated',
     /Included/.test(flat) && /Not included/.test(flat)
     && /Laboratory tests, imaging, medicines/.test(flat));
@@ -157,7 +165,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
    */
   ok('and where a payer is named, the page says it is not in use',
     !/Medicare|Medicaid/.test(flat)
-    || /Not in use\. This practice does not bill any insurer today/.test(flat));
+    || /Not in use\. This practice bills no insurer/.test(flat));
   ok('the identifier is on the first line and nowhere else',
     flat.split('11 Feb 1991').length === 2);
   await p.click('.vhead button:has-text("Sign")'); await p.waitForTimeout(1300);

@@ -194,6 +194,57 @@ at minimum:
 Do not rewrite approved copy piecemeal; queue findings for one pass
 with owner approval.
 
+## 10. The clinical note is a different register
+
+Owner direction, 2026-11-23, after reading a worked note.
+
+Sections 1 to 9 govern patient-facing and public material. A clinical
+note is read by clinicians and by the patient, and it is written to a
+different standard: **clinical, dry, plain, and as short as the
+clinical content allows.** Not plain in the sense of friendly. Plain
+in the sense of nothing that is not clinically necessary.
+
+**The test for every sentence: does a clinician or the patient need
+this to act?** If not, it comes out.
+
+What this rules out, with the examples that prompted it:
+
+- **Narrative and motive.** "His father had a first heart attack at 55
+  and died at 61. That is why he is here and he said so in the first
+  minute. He has never had an hour of anybody's time and arrives
+  believing he has one problem." Family history belongs in the family
+  history. Why somebody came, and how they came across, is not a
+  finding.
+- **"Not assessed."** Says nothing. "New today" says when the problem
+  arrived, which is the part that matters.
+- **"Diagnosed today. Ours."** Two labels doing no work. The problem
+  list already carries who manages what.
+- **Padding in the care team.** "Nobody. This practice is the only one
+  he has, and two referrals go out today: sleep medicine for the
+  study, gastroenterology for the colonoscopy." The referrals are in
+  the plan. "Nobody" is the whole entry.
+- **A separate results section.** Values belong on the problem they
+  bear on, where a reader is already looking. The problems block ends
+  with one line: all labs on file relevant to the above were reviewed
+  with the patient.
+
+**The shape of a problem, and of a lifestyle pillar:**
+
+```
+Problem — Status
+Two sentences defending the status. No more.
+• The plan, in bullets.
+```
+
+Two sentences. Not three, not a paragraph. The defence explains the
+status to the next clinician and to the patient; everything else is a
+bullet.
+
+**Em dashes.** The ban in §3 is on em dashes in prose. The status
+separator in a note heading is a canonical structural mark and stays.
+
+---
+
 ## 9. Checklist before any material is called done
 
 1. Read it aloud. Does it sound like a person explaining, or like an ad?
@@ -208,3 +259,6 @@ with owner approval.
    clinicians' constraints.
 10. Shorter, plainer version considered for every sentence.
 11. Counsel pass scheduled before it goes public or to print.
+12. Clinical notes only: §10 register. Nothing a clinician or the
+    patient does not need in order to act. Two sentences of defence
+    per problem, then bullets.

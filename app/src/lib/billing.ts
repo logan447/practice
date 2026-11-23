@@ -347,18 +347,18 @@ export interface ScaleResult {
   ofPoverty: number;
   band?: ScaleBand;
   off: number;
-  monthly: number;
+  price: number;
 }
 
 /**
- * The monthly fee after the sliding scale.
+ * A price after the sliding scale.
  *
- * Applied to the personalised fee rather than to a flat one, so a
- * patient on a low income with a heavy year is not quietly charged
- * more than a patient on a high income with a light one.
+ * Applied to whatever price is being quoted rather than to a flat
+ * one, so a patient on a low income with a heavy year is not quietly
+ * charged more than a patient on a high income with a light one.
  */
 export function slide(
-  monthly: number, householdIncome: number, householdSize: number,
+  price: number, householdIncome: number, householdSize: number,
 ): ScaleResult {
   const ofPoverty = householdIncome / povertyLine(householdSize);
   const band = SCALE_BANDS.find((b) => ofPoverty <= b.upToFpl);
@@ -367,7 +367,7 @@ export function slide(
     ofPoverty: Math.round(ofPoverty * 100) / 100,
     band,
     off,
-    monthly: Math.round(monthly * (1 - off) * 100) / 100,
+    price: Math.round(price * (1 - off) * 100) / 100,
   };
 }
 
@@ -429,154 +429,77 @@ export function kindOf(why: string): VisitKind {
 /* ------------------------------------------------------------------ */
 
 /**
- * How much comes off the fee for service total for paying monthly.
+ * What comes off for committing to the year.
  *
- * UNSET in the charter's terms: nobody has decided it, and D-039
- * decided a flat $99 rather than a discount off anything. The number
- * here is a placeholder.
+ * Fifteen per cent, whether the year is paid at the start or in
+ * twelve instalments. Both of those are a commitment to the year,
+ * which is what the discount buys, and the instalments are the same
+ * number divided rather than a different offer.
  *
- * It is also the lever that decides whether this practice survives,
- * which is worth saying plainly next to it. The membership covers
- * unlimited acute and follow-up visits, so the practice carries the
- * whole of the utilisation risk: a patient who comes eight times
- * costs what eight visits cost and pays what the projection said.
- * A discount set generously against a projection set optimistically
- * is how a practice like this fails, and it fails about fourteen
- * months in, which is after the point where it is easy to change.
+ * Committing also brings unlimited acute and follow-up visits, which
+ * paying per visit does not. That is the real trade: the patient
+ * stops carrying the risk of a bad year and the practice starts. A
+ * patient who pays per visit and has four unplanned illnesses pays
+ * for four; a patient on the year pays nothing more, and the
+ * practice absorbs it.
+ *
+ * Which makes this the number the practice lives or dies by, and it
+ * is UNSET in the charter's terms: nobody has decided fifteen. It has
+ * to be more than the cost of borrowing the same money and less than
+ * what the unlimited visits will cost in a bad year, and only the
+ * second of those is hard to work out.
  */
-export const MEMBERSHIP_DISCOUNT = 0.15;
+export const UPFRONT_DISCOUNT = 0.15;
 
-export interface ProjectedVisit {
-  date?: string;
+export interface PlannedVisit {
+  date: string;
   why: string;
   kind: VisitKind;
   price: number;
-  /** True where nobody has booked this and the projection expects it. */
-  projected?: boolean;
 }
 
 export interface YearPlan {
-  planned: ProjectedVisit[];
-  unplanned: ProjectedVisit[];
-  /** What the year costs paying for each visit as it happens. */
-  feeForService: number;
-  discount: number;
-  /** The fee for service year, less the discount. */
-  membershipYear: number;
-  membershipMonth: number;
-  /** What the flat price in the charter would have been, for comparison. */
-  flatYear: number;
+  visits: PlannedVisit[];
+  /** Paying for each visit as it happens. */
+  total: number;
+  /** Paying the whole year at the start. */
+  upfront: number;
+  /** The same year in twelve instalments. */
+  monthly: number;
+  /** What committing saves against paying per visit. */
+  saving: number;
+  /** What one unplanned visit costs, where visits are paid for singly. */
+  acuteFee?: number;
 }
 
 /**
- * How many visits nobody has booked but somebody should expect.
+ * The year, priced two ways, and nothing else.
  *
- * ASSUMPTION, owned. A year holds at least one illness that was not
- * on the calendar, and a patient carrying several problems that are
- * not yet at target holds more, because the visits that titrate a
- * drug are the ones nobody schedules a year ahead.
- *
- * One, plus one for every four problems off target, capped at
- * three. Deliberately conservative: the projection sets the monthly
- * price, so a projection that runs high charges the patient for
- * illnesses they did not have, and one that runs low costs the
- * practice money it could see coming. Of the two, the one that
- * costs the practice money is the one to take, because the other
- * one is the practice being paid for a guess.
- *
- * The worked case is the test of it. A man with six problems off
- * target at his first visit is projected two unbooked visits and
- * has one, so the projection runs a little high and the year comes
- * out close. Close is what a projection should be. If it were
- * reliably generous to the practice it would be a price rise
- * wearing a model's clothes.
- */
-export function expectedUnplanned(problemsOffTarget: number): number {
-  return Math.min(3, 1 + Math.floor(problemsOffTarget / 4));
-}
-
-/**
- * The year ahead, priced per visit and then as a monthly fee.
- *
- * This is the whole commercial model in one function. The visits
- * somebody booked are priced at what their codes are worth; the
- * visits nobody booked but everybody should expect are added at what
- * an acute visit is worth; the two together are what the year costs
- * paying as you go; and the monthly fee is that total, less the
- * discount, over twelve.
- *
- * The monthly fee is therefore personal. Two patients booking the
- * same visits get the same number, and a patient with six problems
- * off target gets a larger one than a patient with one, because the
- * year in front of them is larger. That is the argument for pricing
- * this way and also the argument against it, and both belong in
- * front of whoever decides.
+ * The visits somebody booked, each at what its own work is worth,
+ * and then the same list with the prepayment discount on it. No
+ * projection of visits nobody booked, because a price built on a
+ * guess about how ill somebody will be is a price neither side can
+ * check. An illness nobody booked is charged when it happens, at the
+ * acute fee, and that is a simpler promise to keep than a monthly
+ * fee covering an unknown number of them.
  */
 export function planYear(
-  booked: { date: string; why: string }[], problemsOffTarget: number,
-  age?: number,
+  booked: { date: string; why: string }[], age?: number,
 ): YearPlan {
-  const planned: ProjectedVisit[] = booked.filter((v) => v.date).map((v) => {
+  const visits: PlannedVisit[] = booked.filter((v) => v.date).map((v) => {
     const kind = kindOf(v.why);
     return { date: v.date, why: v.why, kind, price: visitPrice(kind, age) ?? 0 };
   });
-  const n = expectedUnplanned(problemsOffTarget);
-  const acute = visitPrice('acute', age) ?? 0;
-  const unplanned: ProjectedVisit[] = Array.from({ length: n }, () => ({
-    why: 'an illness nobody has booked',
-    kind: 'acute' as VisitKind,
-    price: acute,
-    projected: true,
-  }));
-
   const round = (x: number) => Math.round(x * 100) / 100;
-  const feeForService = round(
-    [...planned, ...unplanned].reduce((t, v) => t + v.price, 0),
-  );
-  const membershipYear = round(feeForService * (1 - MEMBERSHIP_DISCOUNT));
+  const total = round(visits.reduce((t, v) => t + v.price, 0));
+  const upfront = round(total * (1 - UPFRONT_DISCOUNT));
   return {
-    planned,
-    unplanned,
-    feeForService,
-    discount: round(feeForService - membershipYear),
-    membershipYear,
-    membershipMonth: round(membershipYear / 12),
-    flatYear: YEARLY_FEE,
-  };
-}
-
-export interface QuotedVisit {
-  date: string;
-  /** What the visit is for, in the words it was booked in. */
-  why: string;
-  price: number;
-}
-
-export interface Quote {
-  /** Nothing is charged for the first assessment. */
-  proBonoFirst: boolean;
-  visits: QuotedVisit[];
-  total: number;
-}
-
-/**
- * The booked visits, each priced at what its own work is worth.
- *
- * Not one price for everything. A forty-five minute review across
- * five problems and a twenty minute look at one are different pieces
- * of work, and a practice that charges the same for both is either
- * overcharging for one or losing money on the other.
- */
-export function quoteYear(
-  booked: { date: string; why: string }[], firstVisit: boolean, age?: number,
-): Quote {
-  const visits = booked.filter((v) => v.date).map((v) => ({
-    ...v, price: visitPrice(kindOf(v.why), age) ?? 0,
-  }));
-  return {
-    proBonoFirst: firstVisit,
     visits,
-    total: Math.round(visits.reduce((t, v) => t + v.price, 0) * 100) / 100,
+    total,
+    upfront,
+    monthly: round(upfront / 12),
+    saving: round(total - upfront),
+    acuteFee: visitPrice('acute', age),
   };
 }
 

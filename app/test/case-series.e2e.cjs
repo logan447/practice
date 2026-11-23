@@ -84,7 +84,7 @@ async function faxOf(p, date) {
     && initial.includes('Start lisinopril 10 mg')
     && /with protein in the urine an ACE inhibitor/.test(initial));
   ok('the sleep apnoea is suspected rather than diagnosed, and measured first',
-    /Obstructive sleep apnoea — Not assessed, suspected/.test(initial)
+    /Obstructive sleep apnoea — Suspected/.test(initial)
     && /no amount of advice about sleep hygiene treats an apnoea/.test(initial));
   /*
    * The pro bono first visit and the year that comes out of it.
@@ -98,18 +98,33 @@ async function faxOf(p, date) {
   ok('the first assessment is free and says what the work was worth',
     /This visit\s*No charge\. A first assessment is pro bono\./.test(initial)
     && /99386 and 99205, which the benchmark values at \$386\.78/.test(initial));
-  ok('the year ahead prices each visit at what its own work is worth',
-    /Planned review, 99215\s*\$192\.39/.test(initial)
-    && /Annual visit, 99396 and 99215\s*\$317\.31/.test(initial));
-  ok('and adds the visits nobody books but everybody should expect',
-    (initial.match(/an illness nobody has booked/g) || []).length === 2
-    && /Acute visit, 99214\s*\$135\.61/.test(initial)
-    && /Paying for each visit as it happens\s*\$973\.31/.test(initial));
-  ok('the membership is that year discounted and divided by twelve',
-    /\$973\.31 less 15 per cent is \$827\.31, which is \$68\.94 a month/.test(initial));
-  ok('and it says what the membership buys that paying per visit does not',
-    /covers every visit above and any other visit this year, acute or planned/
-      .test(initial));
+  ok('the year is one plan, each visit at what its own work is worth',
+    /One year plan\s*3 visits/.test(initial)
+    && /Planned review, 99215\s*\$192\.39/.test(initial)
+    && /Annual visit, 99396 and 99215\s*\$317\.31/.test(initial)
+    && /Total\s*\$702\.09/.test(initial));
+  /*
+   * Two ways, not three, and the discount is for paying early rather
+   * than for carrying somebody's risk. There was a monthly membership
+   * with unlimited visits here, priced off a projection of how ill a
+   * patient with this many problems ought to get. Every part of that
+   * was a place to be wrong.
+   */
+  ok('and it is priced three ways, per visit, upfront, or monthly',
+    /Three ways to pay/.test(initial)
+    && /Per visit\s*\$702\.09/.test(initial)
+    && /The year upfront\s*\$596\.78/.test(initial)
+    && /Monthly\s*\$49\.73\/mo/.test(initial));
+  /*
+   * Unlimited is attached to the two options that commit to the year,
+   * and only to them. That is the actual trade: the patient stops
+   * carrying the risk of a bad year and the practice starts.
+   */
+  ok('an acute visit has a price when paying per visit, and none when committed',
+    /plus \$135\.61 an acute visit/.test(initial)
+    && /every acute or extra follow-up visit included/.test(initial));
+  ok('and committing says what it saves',
+    /Committing to the year saves \$105\.31 against paying per visit/.test(initial));
   ok('the basis of every price is on the page, and so is what it is not',
     /published 2026 national fee schedule/.test(initial)
     && /No claim is filed and no insurance is billed/.test(initial));
@@ -117,8 +132,7 @@ async function faxOf(p, date) {
   // ----------------------------------------------- 3. three months in
   const three = await faxOf(p, '17 Feb 2026');
   ok('a visit inside the quoted year is priced from the quote, not again',
-    /This visit\s*\$192\.39, quoted on 18 Nov 2025 as one of 3 visits for the year/
-      .test(three));
+    /This visit\s*\$192\.39, in the year plan made on 18 Nov 2025/.test(three));
   /*
    * Three months of visits against twelve months of membership would
    * make paying per visit look cheap for the arithmetic reason that
@@ -146,7 +160,7 @@ async function faxOf(p, date) {
   ok('the acute visit works one problem and triages the rest',
     /Gout — Not at goal, first flare/.test(acute)
     && /Triaged as stable/.test(acute)
-    && /The rest of the review was not performed/.test(acute));
+    && /Remainder not performed; focused visit/.test(acute));
   ok('the thing that must not be missed is named and excluded',
     /Septic arthritis is the thing that must not be missed/.test(acute));
   ok('a first flare is treated and not turned into lifelong therapy',
@@ -159,10 +173,10 @@ async function faxOf(p, date) {
    * acute visit would be the practice profiting from an illness,
    * and the note says why it does not.
    */
-  ok('and it is priced on its own, lower than a planned review',
-    /This visit\s*\$135\.61\. Not in the year that was quoted/.test(acute)
-    && /acute visit, 99214/.test(acute)
-    && /A shorter visit costs less than a planned review/.test(acute));
+  ok('and it is priced on its own, outside the year plan',
+    /This visit\s*\$135\.61\. An acute visit, which is not in the year plan/
+      .test(acute)
+    && /99214/.test(acute));
 
   // ----------------------------------------------- 5. six months
   const six = await faxOf(p, '19 May 2026');
@@ -186,10 +200,9 @@ async function faxOf(p, date) {
    * following November, and every figure here is derived from the
    * visits that actually happened.
    */
-  ok('the year behind is counted in charged visits and priced both ways',
-    /4 charged visits since 18 Nov 2025, which came to \$837\.70/.test(annual)
-    && /The membership quoted for that year was \$827\.28/.test(annual)
-    && /paying by the visit cost \$10\.42 more than the membership would have/
+  ok('the year behind is counted and set against what upfront would have been',
+    /4 visits since 18 Nov 2025, which came to \$837\.70/.test(annual)
+    && /Paying that year upfront would have been \$596\.78 for the planned visits/
       .test(annual));
   /*
    * Two problems are still off target rather than six, so the
@@ -198,11 +211,8 @@ async function faxOf(p, date) {
    * personal and it moves with the patient, which is the whole
    * argument for pricing this way.
    */
-  ok('the next year is quoted at the visit that closes this one',
-    /16 Nov 2027/.test(annual)
-    && /Paying for each visit as it happens\s*\$837\.70/.test(annual));
-  ok('and the monthly fee falls as the problems come under control',
-    /which is \$59\.34 a month/.test(annual));
+  ok('the next year is planned at the visit that closes this one',
+    /16 Nov 2027/.test(annual) && /One year plan\s*3 visits/.test(annual));
   /*
    * Codes are on the page, because they are the answer to "why
    * that number". What must not be on it is a claim, a payer
@@ -224,7 +234,7 @@ async function faxOf(p, date) {
   ok('a note that names a payer says first that none of it is in use',
     [initial, three, acute, six, annual].every(
       (t) => !/Medicare|Medicaid/.test(t)
-        || /Not in use\. This practice does not bill any insurer today/.test(t)));
+        || /Not in use\. This practice bills no insurer/.test(t)));
   ok('and the payer comparison appears only where a year is being priced',
     /Medicaid/.test(initial) && /Medicaid/.test(annual)
     && !/Medicaid/.test(acute) && !/Medicaid/.test(three));
@@ -243,8 +253,7 @@ async function faxOf(p, date) {
    */
   const SKELETON = [
     'Problems addressed today', 'Lifestyle', 'Preventative Medicine Services',
-    'Results reviewed', 'Review of systems', 'Full problem list',
-    'Medications', 'Care team',
+    'Review of systems', 'Full problem list', 'Medications', 'Care team',
   ];
   const notes = { initial, three, acute, six, annual };
   for (const [name, text] of Object.entries(notes)) {
@@ -321,24 +330,38 @@ async function faxOf(p, date) {
    * its own warning. D-039 guardrail 4b has not been settled, so the
    * page must say this is not an offer before it says anything else.
    */
-  ok('the three routes are priced against the one published baseline',
-    /Three ways to pay/.test(initial)
-    && /Cash, paid per visit\s*\$192\.39/.test(initial)
+  ok('the payers are priced against the one published baseline',
+    /If it were billed/.test(initial)
     && /Medicaid\s*\$142\.37/.test(initial)
     && /Commercial\s*\$354\.00/.test(initial));
   ok('and the one nobody could price says UNSET rather than a guess',
     /Medicare Advantage\s*UNSET/.test(initial));
   ok('the comparison says it is not an offer, before it says anything else',
-    /Not in use\. This practice does not bill any insurer today/.test(initial));
+    /Not in use\. This practice bills no insurer and nothing here is an offer/
+      .test(initial));
 
   /*
    * The scale is read against the poverty line for the household,
    * which moves with the number of people the income supports.
    */
   ok('the sliding scale is worked against the poverty line, not a tax band',
-    /household income of \$85,000 across 3 people is 311 per cent of the federal poverty guideline/
+    /\$85,000 across 3 people is 311 per cent of the federal poverty guideline/
       .test(initial)
-    && /15 per cent comes off and the membership is \$58\.60 a month/.test(initial));
+    && /15 per cent comes off: \$507\.26 for the year upfront/.test(initial));
+
+  /*
+   * No separate results section. Values sit on the problem they bear
+   * on, where a reader is already looking, and the block closes with
+   * one line rather than repeating the numbers three inches down.
+   */
+  ok('labs are on the problems they bear on, not in a section of their own',
+    /Type 2 diabetes mellitus \u2014 New today\. A1c 7\.9, glucose 162/.test(initial)
+    && /All labs on file relevant to the above were reviewed with the patient/
+      .test(initial)
+    && !/Results reviewed/.test(initial));
+  ok('and nothing says "Not assessed" or labels a problem twice',
+    ![initial, three, acute, six, annual].some(
+      (t) => /Not assessed/.test(t) || /Diagnosed today\. Ours/.test(t)));
 
   console.log([...pass, ...fail].join('\n'));
   console.log(fail.length ? `\n${fail.length} FAILED` : '\nALL PASSED');

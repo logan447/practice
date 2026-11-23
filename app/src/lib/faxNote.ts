@@ -38,10 +38,10 @@ import { fmtDate, age as ageAt } from './format';
 import { labsHtml } from './fishbone';
 import { vitalsHtml } from './vitals';
 import {
-  planYear, visitPrice, visitWorth, VISIT_TYPES, MEMBERSHIP_DISCOUNT,
+  planYear, visitPrice, visitWorth, VISIT_TYPES, UPFRONT_DISCOUNT,
   PAYER_ROUTES, payerAllows, slide, codesFor,
 } from './billing';
-import type { VisitKind } from './billing';
+import type { VisitKind, YearPlan } from './billing';
 import { CONVERSION_FACTOR } from './fees';
 import { SECTION_HEADINGS } from '../domain/noteTemplate';
 import { TARGET_SOURCES } from '../domain/targets';
@@ -94,13 +94,13 @@ export interface FaxInput {
    */
   targets?: TargetRow[];
   /**
-   * What the membership quoted for the year behind would have cost.
+   * What paying the year behind upfront would have cost.
    *
    * Read off the note that quoted it rather than recomputed, so
    * the comparison is against the price somebody was actually
    * given and not against one worked out with hindsight.
    */
-  yearBehindMembership?: number;
+  yearBehindUpfront?: number;
   /** Household income and size, where the sliding scale has been applied. */
   sliding?: { income: number; household: number };
   /**
@@ -268,11 +268,37 @@ const money = (n: number): string => (n >= 1000 && n % 1 === 0
     minimumFractionDigits: 2, maximumFractionDigits: 2,
   })}`);
 
-function routes(monthly: number, input: FaxInput, age?: number): string {
-  if (!SHOW_PAYER_ROUTES) return '';
+function routes(plan: YearPlan, input: FaxInput, age?: number): string {
   const kind: VisitKind = 'follow-up';
   const base = visitWorth(kind, age) ?? 0;
 
+  /*
+   * The scale, against the poverty line for the household. Its own
+   * row rather than a paragraph inside the payer table: it changes
+   * what this patient pays, and the payer table does not.
+   */
+  const sl = input.sliding
+    ? slide(plan.upfront, input.sliding.income, input.sliding.household)
+    : undefined;
+  const scale = sl && sl.band
+    ? '<tr><th>Sliding scale</th><td>'
+      + `${money(input.sliding!.income)} across ${input.sliding!.household} people is `
+      + `${Math.round(sl.ofPoverty * 100)} per cent of the federal poverty guideline, `
+      + `which is ${esc(sl.band.label)}. ${Math.round(sl.off * 100)} per cent comes `
+      + `off: <b>${money(sl.price)}</b> for the year upfront.</td></tr>`
+    : '<tr><th>Sliding scale</th><td>Fees come down against the federal poverty '
+      + 'guideline for the household, which moves with how many people the income '
+      + 'supports. Ask, and nobody has to explain why.</td></tr>';
+
+  if (!SHOW_PAYER_ROUTES) return scale;
+
+  /*
+   * What the same visit is worth through each door, against the one
+   * published baseline. Compressed to the payers themselves: cash and
+   * upfront are two rows above this one and repeating them here was
+   * the section arguing with itself about how many ways there are to
+   * pay.
+   */
   const lines = PAYER_ROUTES.map((r) => {
     const allowed = payerAllows(kind, r, age);
     return `<tr><td>${esc(r.label)}</td>`
@@ -282,46 +308,13 @@ function routes(monthly: number, input: FaxInput, age?: number): string {
       + `<td>${esc(r.patientPays)}</td></tr>`;
   }).join('');
 
-  /*
-   * The sliding scale, applied to the personalised fee rather than to
-   * a flat one. A patient on a low income with a heavy year should
-   * not quietly end up paying more than a patient on a high income
-   * with a light one.
-   */
-  const sl = input.sliding
-    ? slide(monthly, input.sliding.income, input.sliding.household)
-    : undefined;
-
-  return '<tr><th>Three ways to pay</th><td>'
-    + '<p class="faxest"><b>Not in use.</b> This practice does not bill any insurer '
-    + 'today and nothing below is an offer. It is here so the comparison is on one '
-    + 'page rather than in somebody’s head, and it has to be settled with '
-    + 'counsel before it means anything.</p>'
-    + `<p>Taking one planned review as the unit of comparison, which the benchmark `
-    + `values at ${money(base)}:</p>`
-    + '<table class="faxquote"><tbody>'
-    + `<tr><td><b>Cash, paid per visit</b></td><td class="faxmoney">${money(base)}`
-    + '<br><span class="faxbasis">100% of baseline</span></td>'
-    + '<td>The whole amount, known before the visit.</td></tr>'
-    + `<tr><td><b>Membership</b></td><td class="faxmoney">${money(monthly)}/mo`
-    + '<br><span class="faxbasis">unlimited visits</span></td>'
-    + '<td>Nothing per visit, acute or planned.</td></tr>'
-    + lines
-    + '</tbody></table>'
-    + (sl
-      ? `<p class="faxnote"><b>Sliding scale.</b> A household income of `
-        + `${money(input.sliding!.income)} across ${input.sliding!.household} people `
-        + `is ${Math.round(sl.ofPoverty * 100)} per cent of the federal poverty `
-        + `guideline. That is ${sl.band ? esc(sl.band.label) : 'above every band'}, `
-        + (sl.band
-          ? `so ${Math.round(sl.off * 100)} per cent comes off and the membership is `
-            + `<b>${money(sl.monthly)} a month</b>.`
-          : 'so the full fee applies.')
-        + '</p>'
-      : '<p class="faxnote"><b>Sliding scale.</b> Fees are reduced against the '
-        + 'federal poverty guideline for the household, which moves with how many '
-        + 'people the income supports. Ask, and nobody has to explain why.</p>')
-    + '</td></tr>';
+  return scale
+    + '<tr><th>If it were billed</th><td>'
+    + '<p class="faxest"><b>Not in use.</b> This practice bills no insurer and '
+    + 'nothing here is an offer. It is modelled so the comparison is on one page, '
+    + 'and it has to be settled with counsel before it means anything.</p>'
+    + `<p>One planned review, which the schedule values at ${money(base)}:</p>`
+    + `<table class="faxquote"><tbody>${lines}</tbody></table></td></tr>`;
 }
 
 /**
@@ -420,28 +413,28 @@ function targets(input: FaxInput): string {
 }
 
 /**
- * What this costs, what the year costs, and what a membership would.
+ * What it costs, in as few rows as it can be said in.
  *
- * Cash. No claim is filed and no insurer is billed, so the number on
- * this page is the number the patient pays, which is the whole
- * argument for charging this way.
+ * One year, two ways to pay for it, and a separate line for the
+ * illness nobody booked. That is the whole offer, and an offer that
+ * takes more than four rows to state is one the patient will take
+ * somebody else's word for.
  *
- * Every price is benchmarked rather than chosen. A visit is worth
- * what the published national fee schedule pays for the code the
- * visit's own documentation supports, so the answer to "why that
- * number" is a code and a rate somebody else published, not a
- * judgment about what this patient will tolerate.
+ * It got here by losing things. There was a monthly membership with
+ * unlimited visits, priced off a projection of how many unplanned
+ * visits a patient with this many problems ought to have. Every part
+ * of that was a place to be wrong: the projection, the unlimited
+ * promise, and the arithmetic turning one into the other. Charging
+ * for an acute visit when there is one says the same thing without
+ * any of it.
  *
- * A first assessment is free. What comes out of it is the year: the
- * visits that were booked, priced one by one, plus the visits nobody
- * books but everybody should expect, and then the same year offered
- * as a monthly fee that covers all of it and anything unplanned. So
- * the section reads as a quote at a first visit, a receipt at the
- * visits inside that year, and both at the annual.
+ * Every price is still benchmarked rather than chosen: a visit is
+ * worth what the published fee schedule pays for the code its own
+ * documentation supports. No claim is filed and no insurer is
+ * billed.
  */
 function billing(input: FaxInput): string {
   const booked = (input.booked ?? []).filter((v) => v.date);
-  const off = input.problemsOffTarget ?? 0;
   /*
    * Their age on the day of the visit, not today. The preventive
    * codes are banded by age, so a note from three years ago is
@@ -450,42 +443,12 @@ function billing(input: FaxInput): string {
   const age = ageAt(input.patient.dob, input.encounter.date);
   const rows: string[] = [];
 
-  /** One priced line of a year, with what makes it that price. */
-  const line = (v: { date?: string; why: string; kind: VisitKind; price: number }) =>
-    `<tr><td>${v.date ? fmtDate(v.date) : 'expected'}</td>`
+  const line = (v: { date: string; why: string; kind: VisitKind; price: number }) =>
+    `<tr><td>${fmtDate(v.date)}</td>`
     + `<td>${esc(v.why || 'review')}<br><span class="faxbasis">`
     + `${esc(VISIT_TYPES[v.kind].label)}, ${esc(codesFor(v.kind, age).join(' and '))}`
-    + `</span></td>`
+    + '</span></td>'
     + `<td class="faxmoney">${money(v.price)}</td></tr>`;
-
-  /**
-   * The year ahead, as a table and then as a monthly fee.
-   *
-   * Written once and used at both the visits that price a year: the
-   * first assessment and every annual after it.
-   */
-  const yearAhead = () => {
-    const plan = planYear(booked, off, age);
-    const all = [...plan.planned, ...plan.unplanned];
-    if (all.length === 0) return;
-    rows.push('<tr><th>The year ahead</th><td>'
-      + 'Each visit priced at what its own work is worth, and the visits nobody '
-      + 'books but everybody should expect added at the bottom.'
-      + `<table class="faxquote"><tbody>${all.map(line).join('')}`
-      + '<tr class="faxtotal"><td></td><td>Paying for each visit as it happens</td>'
-      + `<td class="faxmoney">${money(plan.feeForService)}</td></tr>`
-      + '</tbody></table></td></tr>');
-    rows.push('<tr><th>Or a membership</th><td>'
-      + `${money(plan.feeForService)} less ${Math.round(MEMBERSHIP_DISCOUNT * 100)} `
-      + `per cent is ${money(plan.membershipYear)}, which is `
-      + `<b>${money(plan.membershipMonth)} a month</b>. `
-      + 'It covers every visit above and any other visit this year, acute or '
-      + 'planned, with nothing charged per visit. '
-      + `The ${plan.unplanned.length} unbooked `
-      + `${plan.unplanned.length === 1 ? 'visit is' : 'visits are'} an estimate; `
-      + 'the membership is what makes being wrong about it cost nothing.'
-      + '</td></tr>');
-  };
 
   // ---------------------------------------------------------- this visit
   if (input.newPatient) {
@@ -496,74 +459,78 @@ function billing(input: FaxInput): string {
         + `benchmark values at ${money(worth)}.`)
       + '</td></tr>');
   } else if (input.quotedAt) {
-    rows.push(`<tr><th>This visit</th><td>${money(input.quotedAt.price)}, quoted on `
-      + `${fmtDate(input.quotedAt.on)} as one of ${input.quotedAt.of} visits for the `
-      + 'year.</td></tr>');
+    rows.push(`<tr><th>This visit</th><td>${money(input.quotedAt.price)}, in the year `
+      + `plan made on ${fmtDate(input.quotedAt.on)}.</td></tr>`);
   } else {
-    /*
-     * A visit the quote did not hold. It is priced at what it is
-     * worth rather than at what a planned visit costs, because an
-     * acute visit is a smaller piece of work and charging the planned
-     * price for it would be the practice profiting from an illness.
-     */
     const k: VisitKind = input.visitKind ?? 'acute';
     const p = visitPrice(k, age);
     rows.push('<tr><th>This visit</th><td>'
       + (p === undefined
-        ? 'Not in the year that was quoted, and not priced: the code this work '
-          + 'supports has no rate on file.'
-        : `${money(p)}. Not in the year that was quoted, so it is priced on its own: `
-          + `${esc(VISIT_TYPES[k].label.toLowerCase())}, `
-          + `${esc(codesFor(k, age).join(' and '))}. `
-          + 'A shorter visit costs less than a planned review, which is why it is '
-          + 'not charged at the planned rate.')
+        ? 'Not priced: the code this work supports has no rate on file.'
+        : `${money(p)}. An ${esc(VISIT_TYPES[k].label.toLowerCase())}, which is not `
+          + 'in the year plan because nobody can book an illness. '
+          + `${esc(codesFor(k, age).join(' and '))}.`)
       + '</td></tr>');
   }
 
   // ------------------------------------------------------- the year behind
-  if (!input.newPatient && booked.length > 0) {
-    /*
-     * The year that just ended, priced both ways.
-     *
-     * Only at the visit that closes a quoted year and prices the next
-     * one, which in practice is the annual. Printed mid-year it would
-     * set three months of visits against twelve months of membership
-     * and make paying per visit look cheap for the arithmetic reason
-     * that the year is not over.
-     */
+  if (!input.newPatient && booked.length > 0 && input.yearBehind
+      && input.yearBehind.visits > 0 && input.yearBehind.paid !== undefined) {
     const yb = input.yearBehind;
-    if (yb && yb.visits > 0 && yb.paid !== undefined) {
-      const wouldHave = input.yearBehindMembership;
-      rows.push('<tr><th>The year behind</th><td>'
-        + `${yb.visits} charged visit${yb.visits === 1 ? '' : 's'} since `
-        + `${fmtDate(yb.since)}, which came to ${money(yb.paid)}. `
-        + (wouldHave === undefined
-          ? 'No membership was quoted for it.'
-          : `The membership quoted for that year was ${money(wouldHave)}, so paying `
-            + 'by the visit cost '
-            + (yb.paid > wouldHave
-              ? `${money(yb.paid - wouldHave)} more than the membership would have.`
-              : yb.paid < wouldHave
-                ? `${money(wouldHave - yb.paid)} less than the membership would have.`
-                : 'the same as the membership would have.'))
-        + '</td></tr>');
-    }
+    const offered = input.yearBehindUpfront;
+    rows.push('<tr><th>The year behind</th><td>'
+      + `${yb.visits} visit${yb.visits === 1 ? '' : 's'} since `
+      + `${fmtDate(yb.since)}, which came to ${money(yb.paid)}`
+      + (offered === undefined
+        ? '.'
+        : `. Paying that year upfront would have been ${money(offered)} for the `
+          + 'planned visits, plus any acute visit as it happened.')
+      + '</td></tr>');
   }
 
   // -------------------------------------------------------- the year ahead
-  if (input.newPatient || booked.length > 0) yearAhead();
-
-  // ------------------------------------------------- the three routes
   if (input.newPatient || booked.length > 0) {
-    const plan = planYear(booked, off, age);
-    rows.push(routes(plan.membershipMonth, input, age));
+    const plan = planYear(booked, age);
+    if (plan.visits.length > 0) {
+      rows.push('<tr><th>One year plan</th><td>'
+        + `${plan.visits.length} visit${plan.visits.length === 1 ? '' : 's'}, `
+        + 'each priced at what its own work is worth.'
+        + `<table class="faxquote"><tbody>${plan.visits.map(line).join('')}`
+        + '<tr class="faxtotal"><td></td><td>Total</td>'
+        + `<td class="faxmoney">${money(plan.total)}</td></tr>`
+        + '</tbody></table></td></tr>');
+      rows.push('<tr><th>Three ways to pay</th><td>'
+        + '<table class="faxquote"><tbody>'
+        + '<tr><td><b>Per visit</b></td>'
+        + `<td class="faxmoney">${money(plan.total)}`
+        + (plan.acuteFee === undefined ? ''
+          : `<br><span class="faxbasis">plus ${money(plan.acuteFee)} an acute visit`
+            + '</span>')
+        + '</td>'
+        + '<td>Each visit paid when it happens. An acute visit is charged when '
+        + 'there is one.</td></tr>'
+        + '<tr><td><b>The year upfront</b></td>'
+        + `<td class="faxmoney">${money(plan.upfront)}`
+        + `<br><span class="faxbasis">${Math.round(UPFRONT_DISCOUNT * 100)}% less`
+        + '</span></td>'
+        + '<td>The year paid at the start, and every acute or extra follow-up '
+        + 'visit included.</td></tr>'
+        + '<tr><td><b>Monthly</b></td>'
+        + `<td class="faxmoney">${money(plan.monthly)}/mo`
+        + '<br><span class="faxbasis">the same year in twelve</span></td>'
+        + '<td>The same price and the same inclusions, spread.</td></tr>'
+        + '</tbody></table>'
+        + `<p>Committing to the year saves ${money(plan.saving)} against paying per `
+        + 'visit, and covers any visit the year turns out to need.</p></td></tr>');
+      rows.push(routes(plan, input, age));
+    }
   }
 
   rows.push(
-    '<tr><th>Included</th><td>Each visit above, and the messaging and '
-      + 'coordination between them. There is no charge for a message, a phone '
-      + 'call or a letter like this one, whichever way the visits are paid for. '
-      + 'Support calls on weekdays, walk-in or scheduled, are included too.</td></tr>',
+    '<tr><th>Included</th><td>Each visit above, and the messaging and coordination '
+      + 'between them. There is no charge for a message, a phone call or a letter '
+      + 'like this one. Support calls on weekdays, walk-in or scheduled, are '
+      + 'included too.</td></tr>',
     '<tr><th>Not included</th><td>Laboratory tests, imaging, medicines and anything '
       + 'done by another practice. Those are billed to the patient by whoever '
       + 'provides them.</td></tr>',
