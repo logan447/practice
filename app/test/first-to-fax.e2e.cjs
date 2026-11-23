@@ -144,9 +144,17 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
     /Per visit\s*\$502\.35/.test(flat)
     && /The year upfront\s*\$427\.00/.test(flat)
     && /Monthly\s*\$35\.58\/mo/.test(flat));
-  ok('an acute visit has a price when paying per visit, and none when committed',
-    /plus \$135\.61 an acute visit/.test(flat)
-    && /every acute or extra follow-up visit included/.test(flat));
+  /*
+   * A new problem is charged in every option. What is not charged is
+   * a follow-up the plan failed to project, which is a promise about
+   * the plan rather than about her health.
+   */
+  ok('a new problem is charged the same whichever way the year is paid',
+    /New problems\s*\$135\.61 a visit, in business hours/.test(flat)
+    && /The same price whichever way the year is paid for/.test(flat));
+  ok('and a follow-up the plan did not project is not charged',
+    /Follow-up visits beyond the ones above are not charged/.test(flat)
+    && !/unlimited/i.test(flat));
   ok('what the fee covers and what it does not are both stated',
     /Included/.test(flat) && /Not included/.test(flat)
     && /Laboratory tests, imaging, medicines/.test(flat));
@@ -157,7 +165,7 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
    * not settled (D-039 guardrail 4b).
    */
   ok('the page says nothing is being claimed from anybody',
-    /No claim is filed and no insurance is billed/.test(flat));
+    /No claim is filed and no insurer is billed/.test(flat));
   /*
    * The payer comparison names both. What keeps it inside D-039
    * guardrail 4b is the band above it saying none of it is in use,

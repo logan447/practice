@@ -115,19 +115,40 @@ async function faxOf(p, date) {
     && /Per visit\s*\$702\.09/.test(initial)
     && /The year upfront\s*\$596\.78/.test(initial)
     && /Monthly\s*\$49\.73\/mo/.test(initial));
+  ok('and committing saves the same whether upfront or monthly',
+    /Either way of committing to the year saves \$105\.31/.test(initial));
   /*
    * Unlimited is attached to the two options that commit to the year,
    * and only to them. That is the actual trade: the patient stops
    * carrying the risk of a bad year and the practice starts.
    */
-  ok('an acute visit has a price when paying per visit, and none when committed',
-    /plus \$135\.61 an acute visit/.test(initial)
-    && /every acute or extra follow-up visit included/.test(initial));
-  ok('and committing says what it saves',
-    /Committing to the year saves \$105\.31 against paying per visit/.test(initial));
+  /*
+   * A new problem is charged in every option. The earlier version
+   * threw unlimited acute visits into the committed price and derived
+   * that price from planned visits only, which lost money on anybody
+   * who got ill and lost more the iller they got.
+   *
+   * What is not charged is a follow-up beyond the ones projected.
+   * That is a promise about the accuracy of the plan rather than
+   * about the patient's health, and it is the only one of the two
+   * that can be kept.
+   */
+  ok('a new problem is charged the same whichever way the year is paid',
+    /New problems\s*\$135\.61 a visit, in business hours/.test(initial)
+    && /The same price whichever way the year is paid for/.test(initial));
+  ok('and a follow-up the plan did not project is not charged',
+    /If the plan needs more\s*Follow-up visits beyond the ones above are not charged/
+      .test(initial)
+    && /an estimate that comes up short is mine to put right/.test(initial));
+  ok('the year is the terms, not a payment plan',
+    /Taking somebody on means the year/.test(initial)
+    && /agreed as a whole or not at all/.test(initial));
+  ok('the portal and business-hours messaging are named as included',
+    /Every feature of the portal, and messaging in business hours/.test(initial));
   ok('the basis of every price is on the page, and so is what it is not',
-    /published 2026 national fee schedule/.test(initial)
-    && /No claim is filed and no insurance is billed/.test(initial));
+    /what Original Medicare would reimburse for the code the work supports/
+      .test(initial)
+    && /No claim is filed and no insurer is billed/.test(initial));
 
   // ----------------------------------------------- 3. three months in
   const three = await faxOf(p, '17 Feb 2026');
@@ -222,7 +243,7 @@ async function faxOf(p, date) {
    */
   ok('every note states that nothing is being claimed from anybody',
     [initial, three, acute, six, annual].every(
-      (t) => /No claim is filed and no insurance is billed/.test(t)));
+      (t) => /No claim is filed and no insurer is billed/.test(t)));
   /*
    * D-039 guardrail 4b: no print piece may state how Medicare or
    * Medicaid work with a membership until counsel has settled it.
@@ -231,9 +252,22 @@ async function faxOf(p, date) {
    * use. The warning is the only thing keeping this inside the
    * guardrail, so it is the thing worth a test.
    */
-  ok('a note that names a payer says first that none of it is in use',
+  /*
+   * Every note names Original Medicare now, because that is what the
+   * prices are: what it would reimburse for the code, if it were
+   * billed. The thing that keeps that from being read as a claim is
+   * the sentence beside it, so that sentence is what is asserted.
+   *
+   * The payer comparison is the separate risk, and it is the block
+   * that has to carry the "not in use" band.
+   */
+  ok('a note naming Medicare says in the same breath that nothing is claimed',
     [initial, three, acute, six, annual].every(
-      (t) => !/Medicare|Medicaid/.test(t)
+      (t) => !/Medicare/.test(t)
+        || /No claim is filed and no insurer is billed/.test(t)));
+  ok('and the payer comparison carries its own warning wherever it appears',
+    [initial, three, acute, six, annual].every(
+      (t) => !/If it were billed/.test(t)
         || /Not in use\. This practice bills no insurer/.test(t)));
   ok('and the payer comparison appears only where a year is being priced',
     /Medicaid/.test(initial) && /Medicaid/.test(annual)
@@ -359,6 +393,8 @@ async function faxOf(p, date) {
     && /All labs on file relevant to the above were reviewed with the patient/
       .test(initial)
     && !/Results reviewed/.test(initial));
+  ok('no note anywhere promises unlimited visits',
+    ![initial, three, acute, six, annual].some((t) => /unlimited/i.test(t)));
   ok('and nothing says "Not assessed" or labels a problem twice',
     ![initial, three, acute, six, annual].some(
       (t) => /Not assessed/.test(t) || /Diagnosed today\. Ours/.test(t)));

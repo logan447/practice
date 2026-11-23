@@ -494,7 +494,9 @@ function billing(input: FaxInput): string {
     if (plan.visits.length > 0) {
       rows.push('<tr><th>One year plan</th><td>'
         + `${plan.visits.length} visit${plan.visits.length === 1 ? '' : 's'}, `
-        + 'each priced at what its own work is worth.'
+        + 'each priced at what the fee schedule pays for the code its own work '
+        + 'supports. Taking somebody on means the year: the plan below is what '
+        + 'the twelve months need, and it is agreed as a whole or not at all.'
         + `<table class="faxquote"><tbody>${plan.visits.map(line).join('')}`
         + '<tr class="faxtotal"><td></td><td>Total</td>'
         + `<td class="faxmoney">${money(plan.total)}</td></tr>`
@@ -502,43 +504,57 @@ function billing(input: FaxInput): string {
       rows.push('<tr><th>Three ways to pay</th><td>'
         + '<table class="faxquote"><tbody>'
         + '<tr><td><b>Per visit</b></td>'
-        + `<td class="faxmoney">${money(plan.total)}`
-        + (plan.acuteFee === undefined ? ''
-          : `<br><span class="faxbasis">plus ${money(plan.acuteFee)} an acute visit`
-            + '</span>')
-        + '</td>'
-        + '<td>Each visit paid when it happens. An acute visit is charged when '
-        + 'there is one.</td></tr>'
+        + `<td class="faxmoney">${money(plan.total)}</td>`
+        + '<td>Each visit paid when it happens.</td></tr>'
         + '<tr><td><b>The year upfront</b></td>'
         + `<td class="faxmoney">${money(plan.upfront)}`
         + `<br><span class="faxbasis">${Math.round(UPFRONT_DISCOUNT * 100)}% less`
         + '</span></td>'
-        + '<td>The year paid at the start, and every acute or extra follow-up '
-        + 'visit included.</td></tr>'
+        + '<td>The whole year paid at the start.</td></tr>'
         + '<tr><td><b>Monthly</b></td>'
         + `<td class="faxmoney">${money(plan.monthly)}/mo`
-        + '<br><span class="faxbasis">the same year in twelve</span></td>'
-        + '<td>The same price and the same inclusions, spread.</td></tr>'
+        + `<br><span class="faxbasis">${Math.round(UPFRONT_DISCOUNT * 100)}% less`
+        + '</span></td>'
+        + '<td>The same year in twelve instalments.</td></tr>'
         + '</tbody></table>'
-        + `<p>Committing to the year saves ${money(plan.saving)} against paying per `
-        + 'visit, and covers any visit the year turns out to need.</p></td></tr>');
+        + `<p>Either way of committing to the year saves ${money(plan.saving)}.</p>`
+        + '</td></tr>');
+      if (plan.acuteFee !== undefined) {
+        rows.push('<tr><th>New problems</th><td>'
+          + `${money(plan.acuteFee)} a visit, in business hours, charged when there `
+          + 'is one. The same price whichever way the year is paid for, because an '
+          + 'illness is work nobody planned and pretending otherwise is how a price '
+          + 'stops being one.</td></tr>');
+      }
+      /*
+       * The one thing that is not charged for, and the reason it is
+       * not. A promise about how ill somebody gets cannot be kept. A
+       * promise about the accuracy of my own planning can, and it is
+       * the one worth making: if the plan needed five visits and I
+       * wrote down three, the patient did not get that wrong.
+       */
+      rows.push('<tr><th>If the plan needs more</th><td>'
+        + 'Follow-up visits beyond the ones above are not charged. The plan is my '
+        + 'estimate of what the year needs, and an estimate that comes up short is '
+        + 'mine to put right.</td></tr>');
       rows.push(routes(plan, input, age));
     }
   }
 
   rows.push(
-    '<tr><th>Included</th><td>Each visit above, and the messaging and coordination '
-      + 'between them. There is no charge for a message, a phone call or a letter '
-      + 'like this one. Support calls on weekdays, walk-in or scheduled, are '
-      + 'included too.</td></tr>',
+    '<tr><th>Included</th><td>Every feature of the portal, and messaging in '
+      + 'business hours. Support calls on weekdays, walk-in or scheduled. '
+      + 'Coordination with anybody else involved in your care, and letters like '
+      + 'this one. None of these is charged for.</td></tr>',
     '<tr><th>Not included</th><td>Laboratory tests, imaging, medicines and anything '
       + 'done by another practice. Those are billed to the patient by whoever '
       + 'provides them.</td></tr>',
-    '<tr><th>How it is priced</th><td>Each visit is worth what the published 2026 '
-      + 'national fee schedule pays for the code its own documentation supports, '
-      + `at ${CONVERSION_FACTOR} dollars per relative value unit. No claim is filed `
-      + 'and no insurance is billed; the schedule is used as a benchmark so that '
-      + 'every price has an answer to why it is that number.</td></tr>',
+    '<tr><th>How it is priced</th><td>Each visit is priced at what Original '
+      + 'Medicare would reimburse for the code the work supports, if it were billed '
+      + `properly, at ${CONVERSION_FACTOR} dollars per relative value unit on the `
+      + '2026 schedule. No claim is filed and no insurer is billed. The schedule is '
+      + 'the benchmark, so every price has an answer to why it is that '
+      + 'number.</td></tr>',
   );
 
   return `<h3>Billing</h3><table class="faxto faxbill"><tbody>${rows.join('')}</tbody></table>`;
