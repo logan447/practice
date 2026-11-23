@@ -101,36 +101,43 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
       .test(flat)
     && /Follow up on 16 Nov 2027 \(1 year\) for the annual visit\./.test(flat));
   /*
-   * Cash. There is no claim, no code and no payer, so the number on
-   * the page is the number the patient pays. A first assessment is
-   * free and what is charged is the year that comes out of it,
-   * quoted at the visit that plans it.
+   * Cash, priced off the code the work supports.
+   *
+   * No claim is filed and no insurer is billed, so the number on the
+   * page is the number she pays. The code is there because it is the
+   * answer to "why that number": a practice that picks prices out of
+   * the air cannot give the same answer twice.
+   *
+   * Her year is one planned review and one annual, which are different
+   * pieces of work and so different prices, plus the two visits the
+   * projection expects nobody to book. Four problems are off target at
+   * this visit, and the rule is one unbooked visit plus one for every
+   * four, so two.
    */
-  ok('a first assessment is free and says so',
-    /This visit\s*No charge\. A first assessment is pro bono\./.test(flat));
-  // Two visits booked above, each at the one visit price, so the year
-  // is what those two cost and not a figure derived from anything else.
-  ok('and the year is quoted off the visits the day booked',
-    /The year ahead\s*Quoted today and fixed for twelve months\. 2 visits at \$350\.00 each/
-      .test(flat)
-    && /Total\s*\$700\.00/.test(flat));
-  /*
-   * The membership is the alternative, priced against that quote
-   * rather than derived from it. On a two visit year it loses, and
-   * the note has to say so: a comparison that always favours the
-   * thing being sold is not a comparison, and the break-even is the
-   * number that makes it an honest one.
-   */
-  ok('the membership is offered against that quote, not instead of it',
-    /Or a membership\s*\$99 a month, \$1188\.00 for the year/.test(flat));
-  ok('and it says the membership is dearer on this year, not cheaper',
-    /Against the \$700\.00 above it is \$488\.00 more/.test(flat)
-    && /turns at 4 visits in a year/.test(flat));
+  ok('a first assessment is free and says what the work was worth',
+    /This visit\s*No charge\. A first assessment is pro bono\./.test(flat)
+    && /99205 and G0438, which the benchmark values at \$411\.16/.test(flat));
+  ok('and the year is priced per visit, not at one rate for everything',
+    /Planned review, 99215\s*\$192\.39/.test(flat)
+    && /Annual visit, 99215 and G0439\s*\$330\.00/.test(flat));
+  ok('with the visits nobody books added at what an acute visit is worth',
+    (flat.match(/an illness nobody has booked/g) || []).length === 2
+    && /Paying for each visit as it happens\s*\$793\.61/.test(flat));
+  ok('and a membership derived from her own year rather than a flat price',
+    /\$793\.61 less 15 per cent is \$674\.57, which is \$56\.21 a month/.test(flat));
   ok('what the fee covers and what it does not are both stated',
     /Included/.test(flat) && /Not included/.test(flat)
     && /Laboratory tests, imaging, medicines/.test(flat));
-  ok('and nothing on the page mentions a payer, a code or a claim',
-    !/Medicare|Medicaid|insurance company|CPT|9920[0-9]|9921[0-9]/.test(flat));
+  /*
+   * The codes are on the page as the basis of a price. What must
+   * not be is a claim, a payer being billed, or anything about how
+   * Medicare or Medicaid work with a membership, which counsel has
+   * not settled (D-039 guardrail 4b).
+   */
+  ok('the page says nothing is being claimed from anybody',
+    /No claim is filed and no insurance is billed/.test(flat));
+  ok('and nothing about how Medicare or Medicaid work with a membership',
+    !/Medicare|Medicaid|insurance company/.test(flat));
   ok('the identifier is on the first line and nowhere else',
     flat.split('11 Feb 1991').length === 2);
   await p.click('.vhead button:has-text("Sign")'); await p.waitForTimeout(1300);
