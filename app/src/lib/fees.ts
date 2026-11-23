@@ -110,6 +110,14 @@ export const CODES: Record<string, CodedService> = {
    * somebody who is not on Medicare, which is what this file did
    * until it was corrected.
    */
+  99385: {
+    code: '99385', label: 'Preventive visit, new patient, 18 to 39', rvu: 3.90,
+    from: 'fastrvu.com/cpt/99385, PPRRVU2026_Apr_nonQPP. Work 1.92, PE 1.85, MP 0.13.',
+  },
+  99395: {
+    code: '99395', label: 'Preventive visit, established patient, 18 to 39', rvu: 3.52,
+    from: 'fastrvu.com/cpt/99395, PPRRVU2026_Apr_nonQPP. Work 1.75, PE 1.65, MP 0.12.',
+  },
   99386: {
     code: '99386', label: 'Preventive visit, new patient, 40 to 64', rvu: 4.49,
     from: 'fastrvu.com/cpt/99386, PPRRVU2026_Apr_nonQPP. Work 2.33, PE 2.01, MP 0.15.',
@@ -161,6 +169,26 @@ export const CODES: Record<string, CodedService> = {
     from: 'fastrvu.com/cpt/99407, PPRRVU2026_Apr_nonQPP. Work 0.50.',
   },
 };
+
+/**
+ * The preventive code for somebody of this age.
+ *
+ * The preventive series is banded by age and the bands are not
+ * decoration: a 35 year old and a 52 year old having the same
+ * conversation are different codes at different rates, and a fee
+ * table that hardcodes one of them quietly overcharges half the
+ * panel and undercharges the other half.
+ *
+ * Only the two middle bands are priced here, because they are the
+ * ones this practice's demo patients fall in. Anybody outside them
+ * returns undefined rather than the nearest band, which is the whole
+ * point: a visit nobody can price has to say so.
+ */
+export function preventiveCode(age: number, newPatient: boolean): string | undefined {
+  if (age >= 18 && age <= 39) return newPatient ? '99385' : '99395';
+  if (age >= 40 && age <= 64) return newPatient ? '99386' : '99396';
+  return undefined;
+}
 
 /**
  * What the benchmark pays for one code.

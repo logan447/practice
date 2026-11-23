@@ -34,12 +34,12 @@ import type {
   Encounter, LabPanel, Patient, ResultSeries, VitalsSet,
 } from '../domain/types';
 import { SETTING_LABEL } from '../domain/types';
-import { fmtDate, age } from './format';
+import { fmtDate, age as ageAt } from './format';
 import { labsHtml } from './fishbone';
 import { vitalsHtml } from './vitals';
 import {
   planYear, visitPrice, visitWorth, VISIT_TYPES, MEMBERSHIP_DISCOUNT,
-  PAYER_ROUTES, payerAllows, slide,
+  PAYER_ROUTES, payerAllows, slide, codesFor,
 } from './billing';
 import type { VisitKind } from './billing';
 import { CONVERSION_FACTOR } from './fees';
@@ -268,13 +268,13 @@ const money = (n: number): string => (n >= 1000 && n % 1 === 0
     minimumFractionDigits: 2, maximumFractionDigits: 2,
   })}`);
 
-function routes(monthly: number, input: FaxInput): string {
+function routes(monthly: number, input: FaxInput, age?: number): string {
   if (!SHOW_PAYER_ROUTES) return '';
   const kind: VisitKind = 'follow-up';
-  const base = visitWorth(kind) ?? 0;
+  const base = visitWorth(kind, age) ?? 0;
 
   const lines = PAYER_ROUTES.map((r) => {
-    const allowed = payerAllows(kind, r);
+    const allowed = payerAllows(kind, r, age);
     return `<tr><td>${esc(r.label)}</td>`
       + `<td class="faxmoney">${allowed === undefined ? 'UNSET'
         : `${money(allowed)}<br><span class="faxbasis">`
@@ -442,13 +442,19 @@ function targets(input: FaxInput): string {
 function billing(input: FaxInput): string {
   const booked = (input.booked ?? []).filter((v) => v.date);
   const off = input.problemsOffTarget ?? 0;
+  /*
+   * Their age on the day of the visit, not today. The preventive
+   * codes are banded by age, so a note from three years ago is
+   * priced at the band they were in when it was written.
+   */
+  const age = ageAt(input.patient.dob, input.encounter.date);
   const rows: string[] = [];
 
   /** One priced line of a year, with what makes it that price. */
   const line = (v: { date?: string; why: string; kind: VisitKind; price: number }) =>
     `<tr><td>${v.date ? fmtDate(v.date) : 'expected'}</td>`
     + `<td>${esc(v.why || 'review')}<br><span class="faxbasis">`
-    + `${esc(VISIT_TYPES[v.kind].label)}, ${esc(VISIT_TYPES[v.kind].codes.join(' and '))}`
+    + `${esc(VISIT_TYPES[v.kind].label)}, ${esc(codesFor(v.kind, age).join(' and '))}`
     + `</span></td>`
     + `<td class="faxmoney">${money(v.price)}</td></tr>`;
 
@@ -459,7 +465,7 @@ function billing(input: FaxInput): string {
    * first assessment and every annual after it.
    */
   const yearAhead = () => {
-    const plan = planYear(booked, off);
+    const plan = planYear(booked, off, age);
     const all = [...plan.planned, ...plan.unplanned];
     if (all.length === 0) return;
     rows.push('<tr><th>The year ahead</th><td>'
@@ -483,10 +489,10 @@ function billing(input: FaxInput): string {
 
   // ---------------------------------------------------------- this visit
   if (input.newPatient) {
-    const worth = visitWorth('initial');
+    const worth = visitWorth('initial', age);
     rows.push('<tr><th>This visit</th><td>No charge. A first assessment is pro bono.'
       + (worth === undefined ? '' : ` The work is ${VISIT_TYPES.initial.minutes} `
-        + `minutes, ${esc(VISIT_TYPES.initial.codes.join(' and '))}, which the `
+        + `minutes, ${esc(codesFor('initial', age).join(' and '))}, which the `
         + `benchmark values at ${money(worth)}.`)
       + '</td></tr>');
   } else if (input.quotedAt) {
@@ -501,14 +507,14 @@ function billing(input: FaxInput): string {
      * price for it would be the practice profiting from an illness.
      */
     const k: VisitKind = input.visitKind ?? 'acute';
-    const p = visitPrice(k);
+    const p = visitPrice(k, age);
     rows.push('<tr><th>This visit</th><td>'
       + (p === undefined
         ? 'Not in the year that was quoted, and not priced: the code this work '
           + 'supports has no rate on file.'
         : `${money(p)}. Not in the year that was quoted, so it is priced on its own: `
           + `${esc(VISIT_TYPES[k].label.toLowerCase())}, `
-          + `${esc(VISIT_TYPES[k].codes.join(' and '))}. `
+          + `${esc(codesFor(k, age).join(' and '))}. `
           + 'A shorter visit costs less than a planned review, which is why it is '
           + 'not charged at the planned rate.')
       + '</td></tr>');
@@ -549,8 +555,8 @@ function billing(input: FaxInput): string {
 
   // ------------------------------------------------- the three routes
   if (input.newPatient || booked.length > 0) {
-    const plan = planYear(booked, off);
-    rows.push(routes(plan.membershipMonth, input));
+    const plan = planYear(booked, off, age);
+    rows.push(routes(plan.membershipMonth, input, age));
   }
 
   rows.push(
@@ -633,7 +639,7 @@ export function buildFaxNote(input: FaxInput): { html: string; pages: string } {
         -->
         <p class="faxrun">${esc(p.name)}
           &middot; ${fmtDate(p.dob)}
-          &middot; ${age(p.dob, e.date)} ${p.sex === 'female' ? 'F' : 'M'}
+          &middot; ${ageAt(p.dob, e.date)} ${p.sex === 'female' ? 'F' : 'M'}
           &middot; ${fmtDate(e.date)},
           ${esc(SETTING_LABEL[e.setting ?? 'in-person'].toLowerCase())}
           &middot; ${e.signedAt ? `signed ${fmtDate(e.signedAt)}` : 'not signed'}</p>

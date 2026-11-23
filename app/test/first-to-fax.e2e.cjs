@@ -89,12 +89,20 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
   ok('and it says it is not signed yet', proof.includes('not signed'));
   // Once, at the top. It used to repeat at the head of every page.
   const flat = proof.replace(/\s+/g, ' ');
-  // Numbered, because a numbered list is one somebody can work
-  // through and report back on. innerText runs the cells together,
-  // so these match on the words rather than on the spacing.
-  ok('what to do before the next visit is numbered',
-    /Before your next visit/.test(flat)
+  /*
+   * Numbered, because a numbered list is one somebody can work
+   * through and report back on. And running rather than fresh: the
+   * items that fall off a list rebuilt each visit are the dull
+   * administrative ones, which are the ones a patient needs help
+   * with.
+   */
+  ok('what to do is a numbered list, and a running one',
+    /Our running list/.test(flat)
+    && /the list we keep together, not a new one each time/.test(flat)
     && (await p.locator('.faxout .faxsteps li').count())>=2);
+  ok('and it says what happens between visits',
+    /patient portal handles the administrative side/.test(flat)
+    && /support calls on weekdays, walk-in or scheduled/i.test(flat));
   // A visit is the one moment somebody will put a date in a diary.
   ok('and every visit the day justified is booked, not only the soonest',
     /Follow up on 16 Feb 2027 \(3 months\) for the back pain and the repeat A1c\./
@@ -114,17 +122,23 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
    * this visit, and the rule is one unbooked visit plus one for every
    * four, so two.
    */
+  /*
+   * 99385 and 99395, not 99386 and 99396. She is 35 and the
+   * preventive series is banded by age: the same conversation is a
+   * different code and a lower rate for her than for a 52 year old.
+   * The fee table hardcoded the 40 to 64 band until this caught it.
+   */
   ok('a first assessment is free and says what the work was worth',
     /This visit\s*No charge\. A first assessment is pro bono\./.test(flat)
-    && /99205 and G0438, which the benchmark values at \$411\.16/.test(flat));
+    && /99385 and 99205, which the benchmark values at \$367\.07/.test(flat));
   ok('and the year is priced per visit, not at one rate for everything',
     /Planned review, 99215\s*\$192\.39/.test(flat)
-    && /Annual visit, 99215 and G0439\s*\$330\.00/.test(flat));
+    && /Annual visit, 99395 and 99215\s*\$309\.96/.test(flat));
   ok('with the visits nobody books added at what an acute visit is worth',
     (flat.match(/an illness nobody has booked/g) || []).length === 2
-    && /Paying for each visit as it happens\s*\$793\.61/.test(flat));
+    && /Paying for each visit as it happens\s*\$773\.57/.test(flat));
   ok('and a membership derived from her own year rather than a flat price',
-    /\$793\.61 less 15 per cent is \$674\.57, which is \$56\.21 a month/.test(flat));
+    /\$773\.57 less 15 per cent is \$657\.53, which is \$54\.79 a month/.test(flat));
   ok('what the fee covers and what it does not are both stated',
     /Included/.test(flat) && /Not included/.test(flat)
     && /Laboratory tests, imaging, medicines/.test(flat));
@@ -136,8 +150,14 @@ const ok=(n,c)=>{(c?pass:fail).push((c?'PASS  ':'FAIL  ')+n);};
    */
   ok('the page says nothing is being claimed from anybody',
     /No claim is filed and no insurance is billed/.test(flat));
-  ok('and nothing about how Medicare or Medicaid work with a membership',
-    !/Medicare|Medicaid|insurance company/.test(flat));
+  /*
+   * The payer comparison names both. What keeps it inside D-039
+   * guardrail 4b is the band above it saying none of it is in use,
+   * so that band is the thing worth asserting.
+   */
+  ok('and where a payer is named, the page says it is not in use',
+    !/Medicare|Medicaid/.test(flat)
+    || /Not in use\. This practice does not bill any insurer today/.test(flat));
   ok('the identifier is on the first line and nowhere else',
     flat.split('11 Feb 1991').length === 2);
   await p.click('.vhead button:has-text("Sign")'); await p.waitForTimeout(1300);

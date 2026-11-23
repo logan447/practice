@@ -13,7 +13,7 @@
  * thresholds move. NEEDS-COUNSEL and NEEDS-CPA.
  */
 import type { CareLogEntry, CareProgram, EmRecord, MdmLevel } from '../domain/types';
-import { benchmarkAll } from './fees';
+import { benchmarkAll, preventiveCode } from './fees';
 
 export const PROGRAM_LABEL: Record<CareProgram, string> = {
   ccm: 'Chronic care management',
@@ -145,6 +145,11 @@ export interface VisitType {
   basis: string;
   /** Nothing is charged, whatever the work was worth. */
   free?: boolean;
+  /**
+   * The first code is a preventive one and moves with the patient's
+   * age, so the listed value is only the default band.
+   */
+  ageBanded?: boolean;
 }
 
 /**
@@ -174,6 +179,7 @@ export const VISIT_TYPES: Record<VisitKind, VisitType> = {
   initial: {
     kind: 'initial', label: 'First assessment', minutes: 90, free: true,
     codes: ['99386', '99205'],
+    ageBanded: true,
     basis: 'A comprehensive preventive visit for an adult of 40 to 64, plus a '
       + 'separately identifiable problem visit at high complexity on the same day: '
       + 'four diagnoses made and four drugs started or stopped.',
@@ -181,6 +187,7 @@ export const VISIT_TYPES: Record<VisitKind, VisitType> = {
   annual: {
     kind: 'annual', label: 'Annual visit', minutes: 60,
     codes: ['99396', '99215'],
+    ageBanded: true,
     basis: 'The same pairing a year on: the preventive visit for an established '
       + 'patient, plus the problem work, which at an annual is every problem '
       + 'reviewed against its target with drug decisions on several.',
@@ -277,8 +284,10 @@ export const PAYER_ROUTES: PayerRoute[] = [
  * Undefined rather than zero where it is not, so a caller has to
  * decide what to print about a payer nobody could price.
  */
-export function payerAllows(kind: VisitKind, route: PayerRoute): number | undefined {
-  const base = visitWorth(kind);
+export function payerAllows(
+  kind: VisitKind, route: PayerRoute, age?: number,
+): number | undefined {
+  const base = visitWorth(kind, age);
   if (base === undefined || route.ratio === undefined) return undefined;
   return Math.round(base * route.ratio * 100) / 100;
 }
@@ -379,15 +388,28 @@ export function visitKindOf(legacy?: string): VisitKind {
   return 'follow-up';
 }
 
-/** What one visit of this kind costs, or undefined if a code is UNSET. */
-export function visitPrice(kind: VisitKind): number | undefined {
+/**
+ * The codes a visit of this kind carries for a patient of this age.
+ *
+ * Age is optional and the default is the 40 to 64 band, which is
+ * what the listed codes already say. Passing it is how a 35 year old
+ * stops being charged a 52 year old's preventive rate.
+ */
+export function codesFor(kind: VisitKind, age?: number): string[] {
   const t = VISIT_TYPES[kind];
-  return t.free ? 0 : benchmarkAll(t.codes);
+  if (!t.ageBanded || age === undefined) return t.codes;
+  const prev = preventiveCode(age, kind === 'initial');
+  return prev ? [prev, ...t.codes.slice(1)] : t.codes.slice(1);
+}
+
+/** What one visit of this kind costs, or undefined if a code is UNSET. */
+export function visitPrice(kind: VisitKind, age?: number): number | undefined {
+  return VISIT_TYPES[kind].free ? 0 : benchmarkAll(codesFor(kind, age));
 }
 
 /** What the work was worth, whether or not it was charged for. */
-export function visitWorth(kind: VisitKind): number | undefined {
-  return benchmarkAll(VISIT_TYPES[kind].codes);
+export function visitWorth(kind: VisitKind, age?: number): number | undefined {
+  return benchmarkAll(codesFor(kind, age));
 }
 
 /**
@@ -492,13 +514,14 @@ export function expectedUnplanned(problemsOffTarget: number): number {
  */
 export function planYear(
   booked: { date: string; why: string }[], problemsOffTarget: number,
+  age?: number,
 ): YearPlan {
   const planned: ProjectedVisit[] = booked.filter((v) => v.date).map((v) => {
     const kind = kindOf(v.why);
-    return { date: v.date, why: v.why, kind, price: visitPrice(kind) ?? 0 };
+    return { date: v.date, why: v.why, kind, price: visitPrice(kind, age) ?? 0 };
   });
   const n = expectedUnplanned(problemsOffTarget);
-  const acute = visitPrice('acute') ?? 0;
+  const acute = visitPrice('acute', age) ?? 0;
   const unplanned: ProjectedVisit[] = Array.from({ length: n }, () => ({
     why: 'an illness nobody has booked',
     kind: 'acute' as VisitKind,
@@ -545,10 +568,10 @@ export interface Quote {
  * overcharging for one or losing money on the other.
  */
 export function quoteYear(
-  booked: { date: string; why: string }[], firstVisit: boolean,
+  booked: { date: string; why: string }[], firstVisit: boolean, age?: number,
 ): Quote {
   const visits = booked.filter((v) => v.date).map((v) => ({
-    ...v, price: visitPrice(kindOf(v.why)) ?? 0,
+    ...v, price: visitPrice(kindOf(v.why), age) ?? 0,
   }));
   return {
     proBonoFirst: firstVisit,
@@ -572,7 +595,7 @@ export function quoteYear(
  */
 export function yearBehind(
   encounters: { id: string; date: string; status: string; visitKind?: VisitKind }[],
-  upTo: string,
+  upTo: string, age?: number,
 ): { visits: number; since: string; paid: number } | undefined {
   const signed = encounters
     .filter((e) => e.status === 'signed' && e.date <= upTo)
@@ -591,7 +614,7 @@ export function yearBehind(
   const charged = signed.filter((e) => e.id !== first.id && e.date >= from);
   if (charged.length === 0) return undefined;
   const paid = charged.reduce(
-    (t, e) => t + (visitPrice(e.visitKind ?? 'follow-up') ?? 0), 0,
+    (t, e) => t + (visitPrice(e.visitKind ?? 'follow-up', age) ?? 0), 0,
   );
   return {
     visits: charged.length,
